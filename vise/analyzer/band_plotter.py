@@ -1,20 +1,13 @@
 # -*- coding: utf-8 -*-
 import numpy as np
-
 from atomate.utils.utils import get_logger
-
+from obadb.atomate.vasp.config import SYMMETRY_TOLERANCE as SYMPREC
+from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.electronic_structure.bandstructure \
     import get_reconstructed_band_structure
-
-from pymatgen.electronic_structure.plotter import BSPlotter, BSPlotterProjected
 from pymatgen.electronic_structure.core import Spin
-from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
+from pymatgen.electronic_structure.plotter import BSPlotter
 from pymatgen.io.vasp import Kpoints, Vasprun
-from pymatgen.core.structure import Structure
-
-from obadb.analyzer.vasp_process_analyzer import VaspNotConvergedError
-
-from obadb.atomate.vasp.config import SYMMETRY_TOLERANCE as SYMPREC
 
 __author__ = "Yu Kumagai"
 __maintainer__ = "Yu Kumagai"

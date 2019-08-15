@@ -2,8 +2,8 @@
 
 import os
 import sys
-from atomate.utils.utils import get_database
 
+from atomate.utils.utils import get_database
 from obadb.analyzer.band_plotter import PrettyBSPlotter
 
 __author__ = "Yu Kumagai"

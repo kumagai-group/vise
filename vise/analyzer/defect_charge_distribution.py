@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import argparse
-import numpy as np
 import itertools
-import matplotlib.pyplot as plt
 
-from pymatgen.io.vasp.outputs import Chgcar, VolumetricData
+import matplotlib.pyplot as plt
+import numpy as np
 from pymatgen.electronic_structure.core import Spin
+from pymatgen.io.vasp.outputs import Chgcar, VolumetricData
 
 __author__ = "Yu Kumagai"
 __maintainer__ = "Yu Kumagai"

@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 
 import argparse
-from pymatgen.io.vasp.outputs import BSVasprun
 
-#import sys
+from pymatgen.io.vasp.outputs import BSVasprun
 
 
 def band_gap_properties(v, round_digit_number=1):
@@ -41,7 +40,7 @@ def band_gap_properties(v, round_digit_number=1):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument( "-v", dest="vasprun", type=str,
+    parser.add_argument("-v", dest="vasprun", type=str,
                          default="vasprun.xml", metavar="FILE")
     args = parser.parse_args()
 

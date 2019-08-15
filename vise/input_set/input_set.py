@@ -1,33 +1,30 @@
 # -*- coding: utf-8 -*-
 
-from copy import deepcopy
-from enum import Enum, unique
 import logging
-from math import ceil
-import numpy as np
 import os
-from os.path import join, isfile, getsize
 import re
 import warnings
+from copy import deepcopy
+from enum import Enum, unique
+from math import ceil
+from os.path import join, isfile, getsize
 
+import numpy as np
 from atomate.utils.utils import get_logger
-
 from monty.serialization import loadfn
+from obadb.atomate.vasp.config import INIT_KPT_DENSITY, \
+    FACTOR_STR_OPT
 
-from pymatgen.io.vasp.inputs import Potcar, Kpoints, Poscar
+from obadb.atomate.vasp.config import ST_MATCHER_ANGLE_TOL as ANGLE_TOL
+from obadb.atomate.vasp.config import SYMMETRY_TOLERANCE as SYMPREC
+from vise.util.structure_handler import find_spglib_standard_primitive
+from vise.input_set.incar import ObaIncar
+from vise.input_set.kpoints import make_kpoints, num_irreducible_kpoints
+from vise.input_set.sets.element_specific_parameters import unoccupied_bands
 from pymatgen.core.structure import Structure
+from pymatgen.io.vasp.inputs import Potcar, Kpoints, Poscar
 from pymatgen.io.vasp.sets import get_vasprun_outcar, DictSet, \
     get_structure_from_prev_run
-
-from obadb.vasp.sets.element_specific_parameters import unoccupied_bands
-from obadb.vasp.kpoints import make_kpoints, num_irreducible_kpoints
-from obadb.vasp.incar import ObaIncar
-from obadb.util.structure_handler import find_spglib_standard_primitive
-from obadb.atomate.vasp.config import SYMMETRY_TOLERANCE as SYMPREC
-from obadb.atomate.vasp.config import ST_MATCHER_ANGLE_TOL as ANGLE_TOL
-from obadb.atomate.vasp.config import INIT_KPT_DENSITY, \
-    BAND_GAP_EXISTENCE_CRITERION, FACTOR_STR_OPT
-
 
 logger = get_logger(__name__)
 

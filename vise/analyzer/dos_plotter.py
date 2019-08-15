@@ -1,20 +1,16 @@
 # -*- coding: utf-8 -*-
 
-import numpy as np
-
 from collections import OrderedDict, defaultdict
 
+import numpy as np
 from atomate.utils.utils import get_logger
-
+from obadb.util.structure_handler import SYMPREC
+from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.dos import Dos
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.electronic_structure.core import Spin, OrbitalType
 from pymatgen.electronic_structure.dos import add_densities
 from pymatgen.electronic_structure.plotter import DosPlotter
 from pymatgen.io.vasp import Vasprun
-
-from obadb.util.structure_handler import SYMPREC
-from obadb.analyzer.vasp_process_analyzer import VaspNotConvergedError
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 __author__ = "Yu Kumagai"
 __maintainer__ = "Yu Kumagai"

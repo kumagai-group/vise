@@ -1,14 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import argparse
-import os
 
-from pymatgen.core.structure import Structure
-#from obadb.vasp.kpoints import make_kpoints
 from obadb.vasp.input_set import ObaSet
-from obadb.vasp.kpoints import make_kpoints
-from obadb.util.structure_handler import find_hpkot_primitive
-
+from pymatgen.core.structure import Structure
 
 __author__ = "Yu Kumagai"
 __maintainer__ = "Yu Kumagai"

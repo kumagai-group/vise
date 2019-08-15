@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
+import warnings
+from copy import deepcopy
 from math import ceil, modf
 
 import numpy as np
-import warnings
-from copy import deepcopy
-from obadb.database.atom import symbols_to_atom
-from obadb.database.kpt_centering import kpt_centering
-from obadb.util.structure_handler import structure_to_seekpath, \
-    find_spglib_standard_primitive
-from obadb.atomate.vasp.config import SYMMETRY_TOLERANCE as SYMPREC
 from obadb.atomate.vasp.config import ST_MATCHER_ANGLE_TOL as ANGLE_TOL
+from obadb.atomate.vasp.config import SYMMETRY_TOLERANCE as SYMPREC
+from vise.database.atom import symbols_to_atom
+from vise.database.kpt_centering import kpt_centering
+from vise.util.structure_handler import structure_to_seekpath, \
+    find_spglib_standard_primitive
 from pymatgen import Structure
 from pymatgen.io.vasp import Kpoints
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer

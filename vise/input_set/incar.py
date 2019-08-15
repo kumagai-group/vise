@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 import itertools
-
-from copy import deepcopy
-from monty.serialization import loadfn
 import os
 import re
+from copy import deepcopy
 
 from monty.io import zopen
+from monty.serialization import loadfn
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.io.vasp import Incar
 from pymatgen.util.io_utils import clean_lines

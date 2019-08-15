@@ -3,9 +3,10 @@ import argparse
 import os
 import warnings
 
-from obadb.analyzer.vasp_process_analyzer import check_vasp_output, vasp_convergence_ionic, vasp_convergence_electronic
 from obadb.analyzer.band_plotter import PrettyBSPlotter
 from obadb.analyzer.dos_plotter import get_dos_plot
+from obadb.analyzer.vasp_process_analyzer import check_vasp_output, \
+    vasp_convergence_ionic, vasp_convergence_electronic
 from obadb.util.structure_handler import SYMPREC
 
 __version__ = "0.0.1"
