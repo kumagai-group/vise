@@ -1,0 +1,120 @@
+# Default POTCARS from potpaw-19Apr12/PBE
+# 2013.8.5  Rb POTCAR changed from Rb_pv to Rb_sv
+# 2013.8.5  Tl POTCAR  changed from Tl to Tl_d
+# 2014.9.18 Re POTCAR  changed from Re to Re_pv
+# 2016.4.1  Zr POTCAR:  VRHFIN =r: 4s4p5s4d ->  VRHFIN =Zr: 4s4p5s4d
+#           This change is needed for vdW corrections. 
+# 2016.5.9  Actinoides: Ac -- Cm, Cf are added
+# 2016.5.23 D is made from H: H is replaced by D.
+#           Ra, Fr and Np are added
+#           cp ../potpaw_PBE-v54/Ra_sv/POTCAR POTCAR_Ra
+#           cp ../potpaw_PBE-v54/Fr_sv/POTCAR POTCAR_Fr 
+#           cp ../potpaw_PBE-v54/Np/POTCAR POTCAR_Np  
+
+H: H
+He: He
+Li: Li
+Na: Na 
+K: K_pv 
+Rb: Rb_sv 
+Cs: Cs_sv 
+
+Be: Be
+Mg: Mg 
+Ca: Ca_pv
+Sr: Sr_sv
+Ba: Ba_sv
+
+Sc: Sc
+Y: Y_sv
+
+Ti: Ti
+Zr: Zr_sv
+Hf: Hf
+
+V: V
+Nb: Nb_pv
+Ta: Ta
+
+Cr: Cr
+Mo: Mo
+W: W
+
+Mn: Mn
+Tc: Tc
+Re: Re_pv
+
+Fe: Fe
+Ru: Ru
+Os: Os
+
+Co: Co
+Rh: Rh
+Ir: Ir
+
+Ni: Ni
+Pd: Pd
+Pt: Pt
+
+Cu: Cu
+Ag: Ag
+Au: Au
+
+Zn: Zn
+Cd: Cd
+Hg: Hg
+
+# Normal Ga POTCAR cannot show the beta-Ga2O3 is the most stable,
+# thus replaced to Ga_d from the default potcar list used in the Oba group.
+B: B
+Al: Al
+Ga: Ga_d
+In: In
+Tl: Tl_d
+
+C: C
+Si: Si
+Ge: Ge
+Sn: Sn
+Pb: Pb
+
+N: N
+P: P
+As: As
+Sb: Sb
+Bi: Bi
+
+O : O
+S : S
+Se: Se
+Te: Te
+
+F : F
+Cl: Cl
+Br: Br
+I : I
+
+La: La
+Ce: Ce_3
+Pr: Pr_3
+Nd: Nd_3
+Pm: Pm_3
+Sm: Sm_3
+Eu: Eu
+Gd: Gd_3
+Tb: Tb_3
+Dy: Dy_3
+Ho: Ho_3
+Er: Er_3
+Tm: Tm_3
+Yb: Yb_3
+Lu: Lu_3
+
+Ac: Ac
+Th: Th_s
+Pa: Pa_s
+U: U_s
+Pu: Pu
+Am: Am
+Cm: Cm
+Cf: Cf

@@ -1,0 +1,14 @@
+make_kpoints: 
+  kpts_density_opt: 3.5
+  kpts_density_defect: 2
+  multiplier_factor: 2
+  multiplier_factor_metal: 2
+
+make_incar:
+  functional: hse06
+  hfscreen: 0.2
+  aexx: 0.25
+
+incar_setting:
+  NPAR: 4
+  KPAR: 4
