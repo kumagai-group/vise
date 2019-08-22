@@ -10,21 +10,18 @@ from math import ceil
 from os.path import join, isfile, getsize
 
 import numpy as np
-from atomate.utils.utils import get_logger
-from monty.serialization import loadfn
-from obadb.atomate.vasp.config import INIT_KPT_DENSITY, \
-    FACTOR_STR_OPT
 
-from obadb.atomate.vasp.config import ST_MATCHER_ANGLE_TOL as ANGLE_TOL
-from obadb.atomate.vasp.config import SYMMETRY_TOLERANCE as SYMPREC
+from monty.serialization import loadfn
+from vise.core.config import KPT_DENSITY, ENCUT_FACTOR_STR_OPT, ANGLE_TOL, SYMMETRY_TOLERANCE
+from vise.util.logger import get_logger
 from vise.util.structure_handler import find_spglib_standard_primitive
 from vise.input_set.incar import ObaIncar
 from vise.input_set.kpoints import make_kpoints, num_irreducible_kpoints
 from vise.input_set.sets.element_specific_parameters import unoccupied_bands
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Potcar, Kpoints, Poscar
-from pymatgen.io.vasp.sets import get_vasprun_outcar, DictSet, \
-    get_structure_from_prev_run
+from pymatgen.io.vasp.sets import (
+    get_vasprun_outcar, DictSet, get_structure_from_prev_run)
 
 logger = get_logger(__name__)
 
@@ -37,14 +34,14 @@ CONFIG_DIR = os.path.join(MODULE_DIR, "sets")
 
 def _load_oba_yaml_config(set_list_name: str,
                           potcar_yaml: str,
-                          additional_potcar_yaml: str = None):
+                          override_potcar_set: dict = None):
     """
     Load the yaml setting files for config and POTCAR list.
 
     Args:
-         set_list_name (str): Set yaml file name
-         potcar_yaml (str): Potcar list yaml file name
-        additional_potcar_yaml (str): User specifying Potcar yaml file
+        set_list_name (str): Set yaml file name
+        potcar_yaml (str): Potcar list yaml file name
+        override_potcar_set (dict): User specifying POTCAR set
 
     Return:
           config (dict):
@@ -52,8 +49,8 @@ def _load_oba_yaml_config(set_list_name: str,
     config = loadfn(os.path.join(CONFIG_DIR, "%s.yaml" % set_list_name))
     potcar_list_file = os.path.join(CONFIG_DIR, "%s.yaml" % potcar_yaml)
     config["POTCAR"] = loadfn(potcar_list_file)
-    if additional_potcar_yaml:
-        config["POTCAR"].update(loadfn(additional_potcar_yaml))
+    if override_potcar_set:
+        config["POTCAR"].update(override_potcar_set)
     return config
 
 
@@ -267,18 +264,17 @@ class ObaSet(DictSet):
                    incar_from_prev_calc: bool = False,
                    standardize_structure: bool = True,
                    xc: str = "pbe",
-                   additional_user_potcar_yaml: str = None,
                    task: str = "structure_opt",
                    is_cluster: bool = False,
                    rough: bool = False,
                    factor: int = None,
-                   factor_str_opt: float = FACTOR_STR_OPT,
+                   factor_str_opt: float = ENCUT_FACTOR_STR_OPT,
                    charge: float = None,
                    encut: float = None,
                    vbm_cbm: list = None,
                    band_gap: float = None,
                    is_magnetization: bool = False,
-                   kpt_density: float = INIT_KPT_DENSITY,
+                   kpt_density: float = KPT_DENSITY,
                    sort_structure: bool = True,
                    weak_incar_settings: dict = None,
                    only_even: bool = True,
@@ -296,6 +292,7 @@ class ObaSet(DictSet):
                    files_to_link: bool = None,
                    files_to_transfer: bool = None,
                    default_potcar: str = None,
+                   override_potcar_set: dict = None,
                    **kwargs):
         """
          --------------------------------------------------------------------
@@ -315,8 +312,6 @@ class ObaSet(DictSet):
                 Whether to convert the structure to a standardized primitive.
             xc (str):
                 A string representing exchange-correlation (xc) defined in Xc.
-            additional_user_potcar_yaml (str):
-                User specifying Potcar yaml file
             task (str):
                 A string representing task defined in Task.
             is_cluster (bool):
@@ -419,6 +414,8 @@ class ObaSet(DictSet):
                 Default potcar yaml-type file name without suffix.
                 By default, use "default_POTCAR_list" but for GW approximations
                 use "default_GW_POTCAR_list"
+            override_potcar_set (dict /None):
+                {"Mg": "Mg_pv"}
             kwargs (dict):
                 keyword arguments. Some variables are quite useful as __init__
                 and incar methods of DictSet superclass are called.
@@ -452,7 +449,7 @@ class ObaSet(DictSet):
 
         # ObaRelaxSet also includes LDAUU and LDAUL lists.
         config_dict = _load_oba_yaml_config("ObaRelaxSet", default_potcar,
-                                            additional_user_potcar_yaml)
+                                           override_potcar_set)
         if ldauu:
             config_dict["INCAR"]["LDAUU"].update(ldauu)
         if ldaul:
@@ -626,7 +623,7 @@ class ObaSet(DictSet):
                 make_kpoints(kpt_mode, structure, kpt_density,
                              only_even=only_even, num_split_kpoints=1,
                              ref_distance=band_ref_dist, kpts_shift=kpts_shift,
-                             factor=factor, symprec=SYMPREC,
+                             factor=factor, symprec=SYMMETRY_TOLERANCE,
                              angle_tolerance=ANGLE_TOL,
                              is_magnetization=is_magnetization, **kpt_settings)
         else:
@@ -634,8 +631,8 @@ class ObaSet(DictSet):
             sg = None
 
         # calc num_kpoints
-        num_kpoints = num_irreducible_kpoints(structure, kpoints, SYMPREC,
-                                              ANGLE_TOL)
+        num_kpoints = num_irreducible_kpoints(structure, kpoints,
+                                              SYMMETRY_TOLERANCE, ANGLE_TOL)
         kpoints.comment += ", # kpts: {}".format(num_kpoints)
 
         # Tetrahedron method is valid when num_kpoints >= 4
@@ -964,7 +961,7 @@ class ObaSet(DictSet):
         return Poscar(self.structure)
 
     @staticmethod
-    def structure_changed(structure1, structure2, symprec=SYMPREC):
+    def structure_changed(structure1, structure2, symprec=SYMMETRY_TOLERANCE):
         return not np.allclose(structure1.lattice.matrix,
                                structure2.lattice.matrix, atol=symprec)
 

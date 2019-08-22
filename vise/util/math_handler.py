@@ -22,12 +22,12 @@ def normalized_random_3d_vector():
     return np.array([x, y, z])
 
 
-def random_vector(normed_vector, distance):
+def random_vector(normed_vector: np.ndarray, distance: float) -> np.ndarray:
     """
     Returns a vector scaled by distance * x, where 0<x<1.
 
     Args:
-        normed_vector (3x1 array): Normed 3d vector.
+        normed_vector (3x1 np.ndarray): Normed 3d vector.
         distance (float): distance
     """
     return normed_vector * distance * np.random.random()

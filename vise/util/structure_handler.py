@@ -315,16 +315,13 @@ def get_coordination_distances(structure, index, factor=1.3):
 
 
 def fold_float(x):
-    """
-    Return the folded float number, e.g., 3.5 -> 0.5 and -0.7 -> 0.3.
-    """
+    """ Return the folded float number, e.g., 3.5 -> 0.5 and -0.7 -> 0.3. """
     return x - math.floor(x)
 
 
 def fold_position_structure(structure):
-    """
-    Modify positions which is out of box (fractional coords x<0 or x>=1)
-    into box (0 <= x < 1)
+    """ Modify positions out of box (x<0 or x>=1) into box (0 <= x < 1)
+
     For example, coords of site changes from [-0.3, 1.9, 0.5] to [0.7, 0.9, 0.5]
 
     Args:
@@ -342,8 +339,8 @@ def fold_position_structure(structure):
 
 
 def fold_position_poscar(poscar):
-    """
-    Same as fold_position_structure but for POSCAR.
+    """ Same as fold_position_structure but for POSCAR.
+
     Args:
         poscar(Poscar):
             Input POSCAR.
@@ -356,8 +353,5 @@ def fold_position_poscar(poscar):
     fold_position_structure(s)
     return Poscar(s)
 
-
-class NotAppropriatePrimitiveError(Exception):
-    pass
 
 
