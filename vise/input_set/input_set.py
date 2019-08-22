@@ -12,7 +12,8 @@ from os.path import join, isfile, getsize
 import numpy as np
 
 from monty.serialization import loadfn
-from vise.core.config import KPT_DENSITY, ENCUT_FACTOR_STR_OPT, ANGLE_TOL, SYMMETRY_TOLERANCE
+from vise.core.config import (
+    KPT_DENSITY, ENCUT_FACTOR_STR_OPT, ANGLE_TOL, SYMPREC)
 from vise.util.logger import get_logger
 from vise.util.structure_handler import find_spglib_standard_primitive
 from vise.input_set.incar import ObaIncar
@@ -139,6 +140,7 @@ class Xc(Enum):
     @property
     def require_wavefunctions(self):
         return True if self in BEYOND_DFT else False
+
 
 LDA_OR_GGA = (Xc.pbe, Xc.pbesol, Xc.lda)
 DFT_FUNCTIONAL = (Xc.pbe, Xc.pbesol, Xc.lda, Xc.scan)
@@ -293,6 +295,8 @@ class ObaSet(DictSet):
                    files_to_transfer: bool = None,
                    default_potcar: str = None,
                    override_potcar_set: dict = None,
+                   symprec: float = SYMPREC,
+                   angle_tolerance: float = ANGLE_TOL,
                    **kwargs):
         """
          --------------------------------------------------------------------
@@ -449,14 +453,14 @@ class ObaSet(DictSet):
 
         # ObaRelaxSet also includes LDAUU and LDAUL lists.
         config_dict = _load_oba_yaml_config("ObaRelaxSet", default_potcar,
-                                           override_potcar_set)
+                                            override_potcar_set)
         if ldauu:
             config_dict["INCAR"]["LDAUU"].update(ldauu)
         if ldaul:
             config_dict["INCAR"]["LDAUL"].update(ldaul)
 
-        # Reset only INCAR. Be careful if the INCAR flags depending on the
-        # POTCAR files exist.
+        # Reset only INCAR. Be careful if the INCAR flags depend on the
+        # POTCAR files, e.g., NBANDS.
         if incar_from_prev_calc is True:
             config_dict["INCAR"] = {}
 
@@ -524,7 +528,9 @@ class ObaSet(DictSet):
 
             # Note that when applying find_spglib_standard_primitive, site
             # properties are removed.
-            primitive_structure = find_spglib_standard_primitive(structure)[0]
+            primitive_structure = \
+                find_spglib_standard_primitive(structure, symprec,
+                                               angle_tolerance)[0]
             if standardize_structure:
                 structure = primitive_structure
             else:
@@ -620,10 +626,15 @@ class ObaSet(DictSet):
             if "kpts_shift" in kpt_settings:
                 kpts_shift = kpt_settings.pop("kpts_shift", None)
             kpoints, structure, sg = \
-                make_kpoints(kpt_mode, structure, kpt_density,
-                             only_even=only_even, num_split_kpoints=1,
-                             ref_distance=band_ref_dist, kpts_shift=kpts_shift,
-                             factor=factor, symprec=SYMMETRY_TOLERANCE,
+                make_kpoints(mode=kpt_mode,
+                             structure=structure,
+                             kpts_density=kpt_density,
+                             only_even=only_even,
+                             num_split_kpoints=1,
+                             ref_distance=band_ref_dist,
+                             kpts_shift=kpts_shift,
+                             factor=factor,
+                             symprec=SYMPREC,
                              angle_tolerance=ANGLE_TOL,
                              is_magnetization=is_magnetization, **kpt_settings)
         else:
@@ -632,7 +643,7 @@ class ObaSet(DictSet):
 
         # calc num_kpoints
         num_kpoints = num_irreducible_kpoints(structure, kpoints,
-                                              SYMMETRY_TOLERANCE, ANGLE_TOL)
+                                              SYMPREC, ANGLE_TOL)
         kpoints.comment += ", # kpts: {}".format(num_kpoints)
 
         # Tetrahedron method is valid when num_kpoints >= 4
@@ -961,7 +972,7 @@ class ObaSet(DictSet):
         return Poscar(self.structure)
 
     @staticmethod
-    def structure_changed(structure1, structure2, symprec=SYMMETRY_TOLERANCE):
+    def structure_changed(structure1, structure2, symprec=SYMPREC):
         return not np.allclose(structure1.lattice.matrix,
                                structure2.lattice.matrix, atol=symprec)
 
@@ -1041,8 +1052,7 @@ class ObaSet(DictSet):
             vasprun, outcar = get_vasprun_outcar(dirname)
             # When sym_prec=None, the primitive finder does not work.
             # see get_structure_from_prev_run for details.
-            structure = get_structure_from_prev_run(vasprun, outcar,
-                                                    sym_prec=None)
+            structure = get_structure_from_prev_run(vasprun, outcar)
             band_gap, cbm, vbm = vasprun.eigenvalue_band_properties[0:3]
             kwargs.update({"band_gap": band_gap})
             if band_gap > 0.1:

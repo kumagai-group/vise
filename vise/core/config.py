@@ -12,7 +12,7 @@ DISPLACEMENT_DISTANCE = 0.2
 # Cutoff radius in which atoms are considered as neighbors of a defect, and
 # perturbed when DISPLACEMENT_DISTANCE is set.
 CUTOFF_RADIUS = 3.2
-SYMMETRY_TOLERANCE = 0.01
+SYMPREC = 0.01
 # The following must be used after structure optimization anytime.
 DEFECT_SYMMETRY_TOLERANCE = 0.1
 
