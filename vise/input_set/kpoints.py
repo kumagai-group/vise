@@ -13,19 +13,21 @@ from vise.util.structure_handler import structure_to_seekpath, \
 from pymatgen import Structure
 from pymatgen.io.vasp import Kpoints
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from vise.util.logger import get_logger
+
+logger = get_logger(__name__)
 
 __author__ = "Yu Kumagai"
-__copyright__ = "Copyright 2018, Oba group"
-__version__ = "0.1"
 __maintainer__ = "Yu Kumagai"
-__email__ = "yuuukuma@gmail.com"
-__status__ = "Development"
-__date__ = "May 15, 2018"
 
 
-def make_band_kpoints(kpoints, structure, num_split_kpoints=1,
-                      ref_distance=0.025, time_reversal=True, symprec=SYMPREC,
-                      angle_tolerance=ANGLE_TOL):
+def make_band_kpoints(kpoints: Kpoints,
+                      structure: Structure,
+                      num_split_kpoints: int = 1,
+                      ref_distance: float = 0.025,
+                      time_reversal: bool = True,
+                      symprec: float = SYMPREC,
+                      angle_tolerance: float = ANGLE_TOL):
     """
     Write the KPOINTS file for the band structure calculation.
     Args:
@@ -34,9 +36,12 @@ def make_band_kpoints(kpoints, structure, num_split_kpoints=1,
         structure (Structure/IStructure):
         num_split_kpoints (int):
             Number of KPOINTS files used for a band structure calculation.
+        ref_distance (float):
+
         time_reversal (bool):
             Whether time reversal symmetry is considered.
         symprec (float):
+        angle_tolerance (float)
     """
 
     seekpath_full_info = structure_to_seekpath(structure=structure,
@@ -92,10 +97,18 @@ def make_band_kpoints(kpoints, structure, num_split_kpoints=1,
         return kpoints_list, primitive
 
 
-def make_kpoints(mode, structure, kpts_density, only_even=True,
-                 manual_kpts=None, num_split_kpoints=1, ref_distance=0.025,
-                 kpts_shift=None, factor=1, symprec=SYMPREC,
-                 angle_tolerance=ANGLE_TOL, is_magnetization=False):
+def make_kpoints(mode: str,
+                 structure: Structure,
+                 kpts_density: float,
+                 only_even: bool = True,
+                 manual_kpts: list = None,
+                 num_split_kpoints: int = 1,
+                 ref_distance: float = 0.025,
+                 kpts_shift: list = None,
+                 factor: int = 1,
+                 symprec: float = SYMPREC,
+                 angle_tolerance: float = ANGLE_TOL,
+                 is_magnetization: bool = False):
     """
     Constructs a Kpoint object based on default settings depending on the task.
     Note that this function does not check if the primitive cell is standardized
@@ -128,6 +141,7 @@ def make_kpoints(mode, structure, kpts_density, only_even=True,
         num_split_kpoints (int):
             "band" requires this variable.
             Number of KPOINTS files used for a band structure calculation.
+        ref_distance (float):
         kpts_shift (1x3 list):
             K-point shift in the definition of the vasp setting.
         factor (int):
@@ -168,7 +182,7 @@ def make_kpoints(mode, structure, kpts_density, only_even=True,
                                              angle_tolerance=angle_tolerance)
             sg = sg_analyzer.get_space_group_number()
             sg_symbol = sg_analyzer.get_space_group_symbol()
-            print("Space group: {} {}".format(sg, sg_symbol))
+            logger.info(f"Space group: {sg} {sg_symbol}")
 
             # Note that the numbers of k-points along all the directions must be
             # the same to keep the crystal symmetry.
@@ -180,9 +194,10 @@ def make_kpoints(mode, structure, kpts_density, only_even=True,
                     sg in body_centered_tetragonal:
                 average_abc = np.prod(reciprocal_lattice.abc) ** (1.0 / 3.0)
                 reciprocal_abc = (average_abc, average_abc, average_abc)
-                print("To keep the space group symmetry, the number of k-points"
-                      " along three directions are kept the same for oI and tI "
-                      "Bravais lattice.")
+                logger.warning(
+                    "To keep the space group symmetry, the number of k-points"
+                    " along three directions are kept the same for oI and tI "
+                    "Bravais lattice.")
             else:
                 reciprocal_abc = reciprocal_lattice.abc
         else:
@@ -237,6 +252,7 @@ def make_kpoints(mode, structure, kpts_density, only_even=True,
         elif mode == "manual_set":
             kpts_shift = []
             angles = structure.lattice.angles
+
             for i in range(3):
                 # shift kpt mesh center only for the lattice vector being normal
                 # to a lattice plane and even number of k-points.

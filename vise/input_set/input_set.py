@@ -8,7 +8,7 @@ from copy import deepcopy
 from enum import Enum, unique
 from math import ceil
 from os.path import join, isfile, getsize
-
+from typing import Optional
 import numpy as np
 
 from monty.serialization import loadfn
@@ -151,8 +151,7 @@ BEYOND_DFT = HYBRID_FUNCTIONAL + GW
 
 
 class ObaSet(DictSet):
-    """
-    Implementation of DictSet particularly tuned for the research in Oba group.
+    """ Implementation of DictSet tuned for the research in Oba group.
 
     Special cares are as follows.
     1. The magnetization is assumed to be non-magnetic or ferromagnetic. Since
@@ -164,23 +163,42 @@ class ObaSet(DictSet):
     Below, the rules written in the sets file in pymatgen DictSet.
 
     The above are recommendations. The following are UNBREAKABLE rules:
-    1. All input sets must take in a structure or list of structures as the first
-       argument.
-    2. user_incar_settings and user_kpoints_settings are absolute. Any new sets you
-       implement must obey this. If a user wants to override your settings,
+    1. All input sets must take in a structure or list of structures as the
+       first argument.
+    2. user_incar_settings and user_kpoints_settings are absolute. Any new sets
+       you implement must obey this. If a user wants to override your settings,
        you assume he knows what he is doing. Do not magically override user
-       supplied settings. You can issue a warning if you think the user is wrong.
-    3. All input sets must save all supplied args and kwargs as instance variables.
-       E.g., self.my_arg = my_arg and self.kwargs = kwargs in the __init__. This
-       ensures the as_dict and from_dict work correctly.
+       supplied settings. You can issue a warning if you think the user is
+       wrong.
+    3. All input sets must save all supplied args and kwargs as instance
+       variables. E.g., self.my_arg = my_arg and self.kwargs = kwargs in
+       the __init__. This ensures the as_dict and from_dict work correctly.
     """
 
-    def __init__(self, structure, orig_structure, config_dict,
-                 incar_settings, potcar, potcar_functional, kpoints, xc,
-                 task, is_magnetization, sg, kpt_mode, kpt_density,
-                 band_ref_dist, factor, rough, cluster, only_even,
-                 use_structure_charge, files_to_move=None, files_to_link=None,
-                 files_to_transfer=None, **kwargs):
+    def __init__(self,
+                 structure: Structure,
+                 orig_structure: Structure,
+                 config_dict: dict,
+                 incar_settings: dict,
+                 potcar: Potcar,
+                 potcar_functional: str,
+                 kpoints: Kpoints,
+                 xc: str,
+                 task: str,
+                 is_magnetization: bool,
+                 sg: int,
+                 kpt_mode: str,
+                 kpt_density: float,
+                 band_ref_dist: float,
+                 factor: int,
+                 rough: bool,
+                 cluster: bool,
+                 only_even: bool,
+                 use_structure_charge: bool,
+                 files_to_move: Optional[dict] = None,
+                 files_to_link: Optional[dict] = None,
+                 files_to_transfer: Optional[dict] = None,
+                 **kwargs):
 
         """
         Args:
@@ -199,7 +217,7 @@ class ObaSet(DictSet):
                 A string representing task defined in Task.
             is_magnetization (bool):
                 Whether to have magnetization.
-            sg (str):
+            sg (int):
                 Space group number.
             kpt_mode (str):
                 A string representing the k-point style that is used for the
@@ -270,7 +288,7 @@ class ObaSet(DictSet):
                    is_cluster: bool = False,
                    rough: bool = False,
                    factor: int = None,
-                   factor_str_opt: float = ENCUT_FACTOR_STR_OPT,
+                   encut_factor_str_opt: float = ENCUT_FACTOR_STR_OPT,
                    charge: float = None,
                    encut: float = None,
                    vbm_cbm: list = None,
@@ -327,7 +345,7 @@ class ObaSet(DictSet):
                 Factor to be multiplied to the k-points along all the
                 directions. This parameter should be distinguished from the
                 kpt_density as it can be compatible with NKRED = factor.
-            factor_str_opt (float):
+            encut_factor_str_opt (float):
             charge (float):
                 Charge state used for e.g., defect calculations.
             encut (float):
@@ -436,22 +454,20 @@ class ObaSet(DictSet):
         files_to_link = files_to_link or {}
         files_to_transfer = files_to_transfer or {}
 
-        if isinstance(task, Task):
-            pass
-        elif isinstance(task, str):
+        if isinstance(task, str):
             task = Task.from_string(task)
-        else:
+        elif not isinstance(task, Task):
             raise TypeError("task needs to be str or Task object")
 
         xc = Xc.from_string(xc)
 
-        if default_potcar is None:
+        if not default_potcar:
             if xc in GW or task in (Task.gw_pre_calc1, Task.gw_pre_calc2):
                 default_potcar = "default_GW_POTCAR_list"
             else:
                 default_potcar = "default_POTCAR_list"
 
-        # ObaRelaxSet also includes LDAUU and LDAUL lists.
+        # read config_dict and override some values.
         config_dict = _load_oba_yaml_config("ObaRelaxSet", default_potcar,
                                             override_potcar_set)
         if ldauu:
@@ -466,19 +482,21 @@ class ObaSet(DictSet):
 
         # ---- Handling kpt_mode depending on the task--------------------------
         if task == Task.defect:
-           kpt_mode = "manual_set"
+            logger.warning("For defect task, kpt_mode is set to 'manual_set'.")
+            kpt_mode = "manual_set"
 
         # ---- Compatibility check. ---------------
         # kpt_mode is overwritten if task is set to band and vice versa.
-        if task is Task.band:
-            logging.info("kpt_mode is set to band.")
+        if task is Task.band and kpt_mode != "band":
+            logging.warning("For band task, kpt_mode is set to 'manual_set'.")
             kpt_mode = "band"
 
-        if kpt_mode == "band":
-            logging.info("task is set to band.")
+        if kpt_mode == "band" and task != Task.band:
+            logging.warning("For band task, kpt_mode is set to 'manual_set'.")
             task = Task.band
 
-        logger.info("Band gap info: " + str(band_gap))
+        if band_gap:
+            logger.info(f"Band gap : {band_gap} ")
 
         potcar_functional = "LDA" if xc == Xc.lda else "PBE"
 
@@ -486,11 +504,10 @@ class ObaSet(DictSet):
         if weak_incar_settings:
             config_dict["INCAR"].update(weak_incar_settings)
 
-        # sanitize the weak_incar_settings
         # remove the hubbard U parameter for hybrid functionals
         if not (xc in (Xc.lda, Xc.pbe, Xc.pbesol) and hubbard_u):
-            for ldatag in ("LDAU", "LDAUU", "LDAUL", "LDAUTYPE", "LDAUPRINT"):
-                config_dict["INCAR"].pop(ldatag, None)
+            for u_tag in ("LDAU", "LDAUU", "LDAUL", "LDAUTYPE", "LDAUPRINT"):
+                config_dict["INCAR"].pop(u_tag, None)
 
         config_dict["INCAR"].pop("ICHARG", None)
         # ------------------------------------------
@@ -499,10 +516,9 @@ class ObaSet(DictSet):
         if structure.charge:
             if charge:
                 if charge != structure.charge:
-                    raise ValueError(f"structure's charge {structure.charge} and "
-                                     f"kwargs' charge {charge} "
-                                     "are simultaneously specified.")
-
+                    raise ValueError(f"structure's charge {structure.charge} "
+                                     f"and kwargs' charge {charge} are "
+                                     f"simultaneously specified but different.")
             use_structure_charge = True
         elif charge:
             use_structure_charge = True
@@ -528,22 +544,22 @@ class ObaSet(DictSet):
 
             # Note that when applying find_spglib_standard_primitive, site
             # properties are removed.
-            primitive_structure = \
-                find_spglib_standard_primitive(structure, symprec,
-                                               angle_tolerance)[0]
+            primitive_structure, is_structure_changed = \
+                find_spglib_standard_primitive(
+                    structure, symprec, angle_tolerance)
+
             if standardize_structure:
                 structure = primitive_structure
             else:
-                if structure != primitive_structure:
+                if is_structure_changed:
                     if kpt_mode != "manual_set":
                         logger.warning(
-                            "standardizaion is set to False and the given "
-                            "structure is not a primitive cell. Thus, the kpoint "
-                            "set is switched to manual_set for compatibility.")
+                            "Standardizaion is set to False and the given "
+                            "structure is not a primitive cell. Thus, the "
+                            "kpoint set is switched to manual_set.")
                         kpt_mode = "manual_set"
                 else:
-                    logger.info(
-                        "The given structure is a standardized primitive.")
+                    logger.info("The structure is a standardized primitive.")
 
         # Potcar
         potcar_symbols = []
@@ -567,12 +583,12 @@ class ObaSet(DictSet):
         incar_settings, factor = \
             cls.make_incar_setting(structure, xc, task, rough, encut,
                                    vbm_cbm, potcar, band_gap, only_even,
-                                   ionic_contribution, factor, factor_str_opt)
+                                   ionic_contribution, factor, encut_factor_str_opt)
 
         # - kpoints shift
         # To sample the band edges, Gamma-centered mesh is forced for dos and
-        # dielectric function
-        # For the gw calcs, Gamma centering is a must.
+        # dielectric function.
+        # For the gw calcs, Gamma center is a must due to vasp implementation.
         # For tetrahedron method, Gamma-centered mesh is forced.
 
         if kpts_shift is None:
@@ -683,9 +699,18 @@ class ObaSet(DictSet):
                    files_to_transfer, **kwargs)
 
     @staticmethod
-    def make_incar_setting(structure, xc, task, rough, encut,
-                           vbm_cbm, potcar, band_gap, only_even,
-                           ionic_contribution, factor, factor_str_opt):
+    def make_incar_setting(structure: Structure,
+                           xc: Xc,
+                           task: Task,
+                           rough: bool,
+                           encut: float,
+                           vbm_cbm: list,
+                           potcar: Potcar,
+                           band_gap: float,
+                           only_even: bool,
+                           ionic_contribution: bool,
+                           factor: int,
+                           encut_factor_str_opt):
         # Incar
         incar_settings = {}
         # - xc
@@ -733,7 +758,7 @@ class ObaSet(DictSet):
             incar_settings.update({"PREC": "A"})
         # - encut
         if task in (Task.structure_opt, Task.gw_pre_calc1):
-            enmax = round(max([p.enmax for p in potcar]) * factor_str_opt, 4)
+            enmax = round(max([p.enmax for p in potcar]) * encut_factor_str_opt, 4)
             incar_settings.update({"ENCUT": enmax})
         # Always overwrite ENCUT when explicitly given.
         if encut:

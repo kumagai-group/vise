@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import math
-from collections import defaultdict
 import warnings
 
 import numpy as np
@@ -9,10 +8,8 @@ import spglib
 
 from pymatgen import Structure
 from pymatgen.io.vasp import Poscar
-from pymatgen.core.periodic_table import DummySpecie
 
 from obadb.database.atom import symbols_to_atom
-from obadb.database.atom import charge as charge_list
 
 from vise.core.config import ANGLE_TOL, SYMPREC
 
@@ -42,27 +39,27 @@ def get_symmetry_dataset(structure: Structure,
                                        angle_tolerance=angle_tolerance)
 
 
-def get_point_group_from_dataset(sym_dataset: dict,
-                                 coords: list,
-                                 lattice: np.ndarray,
-                                 symprec: float = SYMPREC) -> tuple:
-    """
-    Args:
-        sym_dataset (dict):
-            spglib get_symmetry_dataset.
-        coords (list):
-            Fractional coordinates.
-        lattice (np.ndarray):
-            3x3 numpy ndarray
-        symprec (float):
-            Distance tolerance in cartesian coordinates Unit is compatible with
-            the cell.
-    """
-    full_rotations = sym_dataset["rotations"]
-    translations = sym_dataset["translations"]
-    rotations = get_rotations(coords, lattice, full_rotations, translations,
-                              symprec)
-    return get_point_group_from_rotations(rotations)
+# def get_point_group_from_dataset(sym_dataset: dict,
+#                                  coords: list,
+#                                  lattice: np.ndarray,
+#                                  symprec: float = SYMPREC) -> tuple:
+#     """
+#     Args:
+#         sym_dataset (dict):
+#             spglib get_symmetry_dataset.
+#         coords (list):
+#             Fractional coordinates.
+#         lattice (np.ndarray):
+#             3x3 numpy ndarray
+#         symprec (float):
+#             Distance tolerance in cartesian coordinates Unit is compatible with
+#             the cell.
+#     """
+#     full_rotations = sym_dataset["rotations"]
+#     translations = sym_dataset["translations"]
+#     rotations = get_rotations(coords, lattice, full_rotations, translations,
+#                               symprec)
+#     return get_point_group_from_rotations(rotations)
 
 
 def get_point_group_from_rotations(rotations):
@@ -166,6 +163,7 @@ def find_spglib_standard_primitive(structure: Structure,
             spglib.find_primitive(cell, symprec=symprec,
                                   angle_tolerance=angle_tolerance))
     is_structure_changed = structure.lattice != primitive_structure.lattice
+
     return primitive_structure, is_structure_changed
 
 
@@ -239,84 +237,6 @@ def seekpath_to_hpkot_structure(res):
     species = [symbols_to_atom[i] for i in element_types]
     positions = res["primitive_positions"]
     return Structure(lattice, species, positions)
-
-
-def get_coordination_environment(structure, index, factor=1.3):
-    """
-
-    Since the coordination is determined by the sum of the ionic radii,
-    the coordination may be different around cation and anion.
-    For example, in ZnS, when factor
-        Zn:  S: 2.36 2.36 2.36 2.36
-        S: Zn: 2.36 2.36 2.36 2.36 S: 3.85 3.85 3.85 3.85 3.85 3.85 3.85 3.85
-                                      3.85 3.85 3.85 3.85
-
-    Args:
-        structure (Structure):
-            pmg Structure class object
-        index (int):
-            The atomic index
-        factor (float):
-            Multiple number of the distance of the sum of the averaged ionic
-            radii that is used to detect the coordination.
-
-    Return:
-        coords (dict):
-            values are tuples of Element object and distance.
-            example  {'O': [(PeriodicSite: O (0.0000, 0.0000, -2.1234)
-            [-0.5000, -0.5000, 0.5000], 2.123447), ...
-    """
-    ionic_radii = {}
-    for e in structure.types_of_specie:
-        if isinstance(e, DummySpecie):
-            ionic_radii[e] = 1.5
-            logger.warning("Use atomic radius for {} of {}".
-                           format(str(e), ionic_radii[e]))
-        else:
-            try:
-                charge = e.oxi_state
-            except AttributeError:
-                charge = charge_list[str(e)]
-            try:
-                ionic_radii[e] = e.ionic_radii[charge]
-            except KeyError or TypeError:
-                ionic_radii[e] = e.atomic_radius * 1.2
-                logger.warning("20% increased atomic radius {} is used for "
-                               "ionic radius of {}".
-                               format(ionic_radii[e], str(e)))
-
-    coords = []
-    first_ionic_radius = ionic_radii[structure.sites[index].specie]
-    for e in structure.types_of_specie:
-        second_ionic_radius = ionic_radii[e]
-        cutoff = (first_ionic_radius + second_ionic_radius) * factor
-        neighbors = structure.get_neighbors(structure.sites[index], cutoff)
-        for site in neighbors:
-            if site[0].specie == e:
-                coords.append(site)
-    
-    return coords
-
-
-def get_coordination_distances(structure, index, factor=1.3):
-    """
-    Return:
-        coords (dict):
-            example {"Mg": [1.92, 1.73], "Al": [2.01, 2.11]}
-    """
-    coordination_environment = \
-        get_coordination_environment(structure, index, factor)
-    coordination_distances = defaultdict(list)
-
-    for ce in coordination_environment:
-        # reomve oxidation state from species_string
-        specie = ''.join([i for i in ce[0].species_string if not (i.isdigit() or i == "+" or i == "-")])
-        coordination_distances[specie].append(round(float(ce[1]), 2))
-
-    for k, v in coordination_distances.items():
-        coordination_distances[k] = sorted(v) 
-
-    return dict(coordination_distances)
 
 
 def fold_float(x):

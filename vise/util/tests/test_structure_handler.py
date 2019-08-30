@@ -126,30 +126,7 @@ class StructureToSeekpathTest(unittest.TestCase):
         self.assertEqual("X", res["explicit_kpoints_labels"][-1])
 
 
-class GetCoordinationDistanceTest(unittest.TestCase):
-    def setUp(self):
-        self.structure_s2n2o7 = Structure.from_file("POSCAR-Sn2Nb2O7")
-        self.structure_zns = Structure.from_file("POSCAR-ZnS")
 
-    def test_get_coordination_environment(self):
-        s2n2o7_6th_expected = \
-            (PeriodicSite("O", [5.2888, 8.5916, 5.2888],
-                          self.structure_s2n2o7.lattice,
-                          coords_are_cartesian=True),
-             2.723862367496558)
-        env1 = get_coordination_environment(self.structure_s2n2o7, 0)
-
-        self.assertEqual(env1[5], s2n2o7_6th_expected)
-
-        zns_16th_expected = \
-            (PeriodicSite("S", [-1.3619, -1.3619, 1.3619],
-                          self.structure_zns.lattice,
-                          coords_are_cartesian=True),
-             3.8519712615815305)
-
-        env2 = get_coordination_environment(self.structure_zns, 32)
-
-        self.assertEqual(env2[15], zns_16th_expected)
 
     def test_get_neighbors(self):
         a = get_coordination_distances(self.structure_zns, 0)
