@@ -1,25 +1,27 @@
 #!/usr/bin/env python
 
 import argparse
+from typing import Tuple, Optional
 
-from pymatgen.io.vasp.outputs import BSVasprun
+from pymatgen.io.vasp.outputs import BSVasprun, Vasprun
 
 
-def band_gap_properties(v, round_digit_number=1):
+def band_gap_properties(vasprun: Vasprun, digit: int = 1
+                        ) -> Optional[Tuple[str, dict, dict]]:
     """
     Args:
-        v (Vasprun):
-        round_digit_number (int):
+        vasprun (Vasprun):
+        digit (int):
     """
 
-    for s in v.eigenvalues:
-        occupation = [round(sum([i[1] for i in k]), round_digit_number)
-                      for k in v.eigenvalues[s]]
+    for s in vasprun.eigenvalues:
+        occupation = [round(sum([i[1] for i in k]), digit)
+                      for k in vasprun.eigenvalues[s]]
 
         if len(set(occupation)) != 1:
             return None
 
-    band_structure = v.get_band_structure()
+    band_structure = vasprun.get_band_structure()
     vbm = band_structure.get_vbm()
     cbm = band_structure.get_cbm()
 
@@ -30,29 +32,28 @@ def band_gap_properties(v, round_digit_number=1):
 
     vbm_info = {'energy': vbm['energy'],
                 'band_index': dict(vbm['band_index']),
-                'kpoints': [v.actual_kpoints[x] for x in vbm["kpoint_index"]]}
+                'kpoints': [vasprun.actual_kpoints[x] for x in vbm["kpoint_index"]]}
     cbm_info = {'energy': cbm['energy'],
                 'band_index': dict(cbm['band_index']),
-                'kpoints': [v.actual_kpoints[x] for x in cbm["kpoint_index"]]}
+                'kpoints': [vasprun.actual_kpoints[x] for x in cbm["kpoint_index"]]}
 
     return band_gap, vbm_info, cbm_info
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-v", dest="vasprun", type=str,
-                         default="vasprun.xml", metavar="FILE")
+    parser.add_argument(
+        "-v", dest="vasprun", type=str, default="vasprun.xml", metavar="FILE")
     args = parser.parse_args()
-
     v = BSVasprun(args.vasprun)
-    bgp = band_gap_properties(v)
-    if bgp is None:
+
+    try:
+        band_gap, vbm_info, cbm_info = band_gap_properties(v)
+        print(f"CBM info {cbm_info}")
+        print(f"VBM info {vbm_info}")
+        print(f"band gap info {band_gap}")
+    except TypeError:
         print("Metallic system")
-    else:
-        band_gap, vbm_info, cbm_info = bgp
-        print("CBM info {}".format(cbm_info))
-        print("VBM info {}".format(vbm_info))
-        print("band gap info {}".format(band_gap))
 
 
 if __name__ == "__main__":

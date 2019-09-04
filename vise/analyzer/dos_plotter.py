@@ -18,7 +18,7 @@ __maintainer__ = "Yu Kumagai"
 logger = get_logger(__name__)
 
 
-class ModDosPlotter(DosPlotter):
+class ObaDosPlotter(DosPlotter):
 
     def get_plot(self, xlim=None, ylims=None, cbm_vbm=None, legend=True,
                  crop_first_value=False, title=None):
@@ -315,7 +315,7 @@ def get_dos_plot(vasprun_file: str,
                     dos[name] = pdos
 
     # use complete_dos.efermi for total dos.
-    plotter = ModDosPlotter(zero_at_efermi=zero_at_efermi)
+    plotter = ObaDosPlotter(zero_at_efermi=zero_at_efermi)
     plotter.add_dos_dict(dos)
 
     if xlim is None:

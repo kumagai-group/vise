@@ -5,7 +5,7 @@ from collections import OrderedDict
 
 from pymatgen.electronic_structure.core import Spin, OrbitalType
 from pymatgen.io.vasp import Vasprun
-from vise.analyzer.dos_plotter import ModDosPlotter
+from vise.analyzer.dos_plotter import ObaDosPlotter
 
 __author__ = "Yu Kumagai"
 __maintainer__ = "Yu Kumagai"
@@ -43,7 +43,7 @@ def calc_o2p_band_center(vasprun_file):
     print("center: ", center)
     print((vbm + cbm) / 2 - center)
 
-    plotter = ModDosPlotter(zero_at_efermi=False)
+    plotter = ObaDosPlotter(zero_at_efermi=False)
     plotter.add_dos_dict(dos)
 
     p = plotter.plot_carrier_concentrations(xlim=(-5, 8))
