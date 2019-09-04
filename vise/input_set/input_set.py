@@ -6,23 +6,21 @@ import re
 import warnings
 from copy import deepcopy
 from enum import Enum, unique
-from math import ceil
 from os.path import join, isfile, getsize
 from typing import Optional
-import numpy as np
 
+import numpy as np
 from monty.serialization import loadfn
-from vise.core.config import (
-    KPT_DENSITY, ENCUT_FACTOR_STR_OPT, ANGLE_TOL, SYMPREC)
-from vise.util.logger import get_logger
-from vise.util.structure_handler import find_spglib_standard_primitive
-from vise.input_set.incar import ObaIncar
-from vise.input_set.kpoints import make_kpoints, num_irreducible_kpoints
-from vise.input_set.sets.element_specific_parameters import unoccupied_bands
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Potcar, Kpoints, Poscar
 from pymatgen.io.vasp.sets import (
     get_vasprun_outcar, DictSet, get_structure_from_prev_run)
+from vise.core.config import (
+    KPT_DENSITY, ENCUT_FACTOR_STR_OPT, ANGLE_TOL, SYMPREC)
+from vise.input_set.incar import ObaIncar
+from vise.input_set.kpoints import make_kpoints, num_irreducible_kpoints
+from vise.util.logger import get_logger
+from vise.util.structure_handler import find_spglib_standard_primitive
 
 logger = get_logger(__name__)
 
@@ -36,8 +34,7 @@ CONFIG_DIR = os.path.join(MODULE_DIR, "sets")
 def _load_oba_yaml_config(set_list_name: str,
                           potcar_yaml: str,
                           override_potcar_set: dict = None):
-    """
-    Load the yaml setting files for config and POTCAR list.
+    """Load the yaml setting files for config and POTCAR list.
 
     Args:
         set_list_name (str): Set yaml file name
@@ -55,30 +52,9 @@ def _load_oba_yaml_config(set_list_name: str,
     return config
 
 
-def calc_nbands(structure, potcar):
-    """
-    Calculate the total number of bands required for the unoccupied related
-    properties such as optical absorption, band structure, and DOS.
-
-    Args:
-        structure (Structure/IStructure):
-        potcar (Potcar):
-    """
-
-    if not all([s == p.element for s, p in zip(structure.symbol_set, potcar)]):
-        raise ValueError("The structure and POTCAR file are not compatible.")
-
-    comp = structure.composition
-    nbands = sum([comp[c] * (p.nelectrons / 2 + unoccupied_bands[str(c)])
-                  for c, p in zip(comp, potcar)])
-    return ceil(nbands)
-
-
 @unique
 class Task(Enum):
-    """
-    Supported tasks
-    """
+    """ Supported tasks """
     single_point = "single_point"
     structure_opt = "structure_opt"
     phonon_disp = "phonon_disp"
@@ -108,9 +84,7 @@ class Task(Enum):
 
 @unique
 class Xc(Enum):
-    """
-    Supported exchange-correlation treatment.
-    """
+    """ Supported exchange-correlation treatment. """
     pbe = "pbe"
     pbesol = "pbesol"
     lda = "lda"
@@ -697,184 +671,6 @@ class ObaSet(DictSet):
                    band_ref_dist, factor, rough, is_cluster, only_even,
                    use_structure_charge, files_to_move, files_to_link,
                    files_to_transfer, **kwargs)
-
-    @staticmethod
-    def make_incar_setting(structure: Structure,
-                           xc: Xc,
-                           task: Task,
-                           rough: bool,
-                           encut: float,
-                           vbm_cbm: list,
-                           potcar: Potcar,
-                           band_gap: float,
-                           only_even: bool,
-                           ionic_contribution: bool,
-                           factor: int,
-                           encut_factor_str_opt):
-        # Incar
-        incar_settings = {}
-        # - xc
-        if xc is Xc.pbesol:
-            incar_settings.update({"GGA": "PS"})
-        elif xc is Xc.scan:
-            incar_settings.update({"METAGGA": "SCAN"})
-        elif xc in (Xc.pbe0, Xc.hse):
-            incar_settings.update({"LHFCALC": True, "PRECFOCK": "Fast",
-                                   "ALGO": "D", "AEXX": 0.25, "TIME": 0.5,
-                                   "PREC": "A", "LWAVE": True})
-        elif xc in (Xc.gw0,):
-            incar_settings.update({"NELM": 4, "ALGO": "GW0", "PRECFOCK": "Fast",
-                                   "NOMEGA": 100, "OMEGAMAX": 30, "ANTIRES": 1,
-                                   "NMAXFOCKAE": 2, "LPEAD": False,
-                                   "LOPTICS": False})
-
-        if xc is Xc.hse:
-            incar_settings.update({"HFSCREEN": 0.208})
-
-        # - rough
-        if rough:
-            # POTIM is 1/2.5 of the default, which allows us to relax the atoms
-            # slowly, and useful for prototype calculations.
-            incar_settings.update({"EDIFF": 1e-4, "EDIFFG": -0.2,
-                                   "POTIM": 0.2})
-            # This is fine as long as the num of kpoints are even numbers.
-            if xc in HYBRID_FUNCTIONAL and only_even:
-                incar_settings.update({"NKRED": 2})
-
-        # - algo
-        # To attain the convergence of the unoccupied bands, ALGO=N is needed.
-        # This change is not switched on if ALGO is already set above.
-        if task in (Task.band, Task.dos, Task.dielectric,
-                    Task.dielectric_function) and "ALGO" not in incar_settings:
-            incar_settings.update({"ALGO": "N"})
-        elif task in (Task.gw_pre_calc2,):
-            incar_settings.update({"ALGO": "Exact"})
-        # - lreal & prec
-        # When the number of atoms is less than 40, LREAL = False
-        if len(structure) <= 40:
-            incar_settings.update({"LREAL": False})
-        if task in (Task.gw_pre_calc1, Task.gw_pre_calc2):
-            incar_settings.update({"LREAL": False})
-            incar_settings.update({"PREC": "A"})
-        # - encut
-        if task in (Task.structure_opt, Task.gw_pre_calc1):
-            enmax = round(max([p.enmax for p in potcar]) * encut_factor_str_opt, 4)
-            incar_settings.update({"ENCUT": enmax})
-        # Always overwrite ENCUT when explicitly given.
-        if encut:
-            incar_settings.update({"ENCUT": encut})
-        # - lorbit
-        if task in (Task.band, Task.dos, Task.defect):
-            incar_settings.update({"LORBIT": 12})
-        # - nbands
-        # For Task.gw_pre_calc2 and xc.gw,
-        # NBANDS = (the number of unoccupied bands approximately).
-        # TODO: Check if this is fine for gw_pre_calc2
-        if task in (Task.band, Task.dos, Task.dielectric_function) and \
-                xc not in (Xc.gw0, ):
-            nbands = calc_nbands(structure, potcar)
-            incar_settings.update({"NBANDS": nbands})
-        if xc in (Xc.gw0,):
-            nbandsgw = calc_nbands(structure, potcar)
-            incar_settings.update({"NBANDSGW": nbandsgw})
-        # - emin, emax, nedos
-        if task in (Task.dos, Task.dielectric_function):
-            step_size = 0.01
-            if vbm_cbm:
-                emin = ceil(vbm_cbm[0]) - 15 - step_size
-                emax = ceil(vbm_cbm[1]) + 15
-            else:
-                emin = -20 - step_size
-                emax = 20
-            nedos = int(round((emax - emin) / step_size, 0)) + 1
-            incar_settings.update({"EMIN": emin, "EMAX": emax, "NEDOS": nedos})
-        # - nelem & nelemin
-        if task in (Task.gw_pre_calc2,):
-            incar_settings.update({"NELM": 1})
-            incar_settings.update({"NELMIN": 1})
-        # - ediff
-        if task in (Task.gw_pre_calc1, Task.gw_pre_calc2):
-            incar_settings.update({"EDIFF": 1e-8})
-        # - ediff
-        if task in (Task.defect,):
-            incar_settings.update({"EDIFFG": -0.04})
-        # - ispin
-        if task in (Task.defect,):
-            incar_settings.update({"ISPIN": 2})
-        # - lcharg
-        if task in (Task.gw_pre_calc1,):
-            if xc not in HYBRID_FUNCTIONAL:
-                incar_settings.update({"LCHARG": True})
-        elif task in (Task.gw_pre_calc2,):
-            incar_settings.update({"LCHARG": False})
-        # - icharg
-        if task in (Task.gw_pre_calc2,) and xc in DFT_FUNCTIONAL:
-            incar_settings.update({"ICHARG": 11})
-        # - lwave
-        if task in (Task.gw_pre_calc2,):
-            incar_settings.update({"LWAVE": True})
-        # - ismear
-        # Note1: Task.dielectric assumes insulators.
-        # Note2: band_gap belongs to <class 'numpy.bool_'>, not build-in bool.
-        # Note3: Tetrahedron method is valid when num_kpoints >= 4.
-        #        Thus, num_kpoints will be checked later.
-        # ISMEAR = -5 is now switched off following the vasp warning below
-        # | ALGO = A and IALGO = 5X tend to fail with the tetrahedron method |
-        # | (e.g.Bloechls method ISMEAR=-5 is not variational) |
-        # | please switch to IMSEAR = 0 - n, except for DOS calculations |
-        # if (band_gap and band_gap > BAND_GAP_EXISTENCE_CRITERION) or \
-        #         (vbm_cbm and
-        #          vbm_cbm[1] - vbm_cbm[0] > BAND_GAP_EXISTENCE_CRITERION) or \
-        #         task in (Task.dielectric, ):
-        #     incar_settings.update({"ISMEAR": -5})
-        # - nsw
-        # NSW = 1 (not NSW = 0) is a must for dielectric constant.
-        if task in (Task.single_point, Task.band, Task.dos, Task.dielectric,
-                    Task.dielectric_function, Task.gw_pre_calc2) or \
-                xc in (Xc.gw0,):
-            incar_settings.update({"NSW": 1})
-
-        # Basically INCAR settings for dielectric constants are the same for
-        # SCAN and HSE due to the VASP implementation.
-        # - lepsilon
-        if task in (Task.dielectric,) and xc in LDA_OR_GGA:
-            incar_settings.update({"LEPSILON": True})
-        # - lrpa
-        if task in (Task.dielectric,) and xc in BEYOND_GGA:
-            incar_settings.update({"LRPA": False})
-        # -lcalceps
-        if task in (Task.dielectric,) and xc in BEYOND_GGA:
-            incar_settings.update({"LCALCEPS": True})
-        # - loptics
-        # Note: CSHIFT doesn't affect the results when using the modified vasp.
-        if task in (Task.dielectric_function, Task.gw_pre_calc2):
-            incar_settings.update({"LOPTICS": True})
-        # - isif
-        if task in (Task.single_point, Task.band, Task.dos, Task.dielectric,
-                    Task.dielectric_function, Task.gw_pre_calc2):
-            incar_settings.update({"ISIF": 0})
-        elif task in (Task.defect,):
-            incar_settings.update({"ISIF": 2})
-        # - ibrion
-        # The hybrid functional is not allowed for ionic contribution calc.
-        if xc in BEYOND_GGA and task is Task.dielectric and ionic_contribution:
-            raise ValueError("The {} functional/approximation is not allowed "
-                             "for calculating ionic contribution of "
-                             "dielectric constant.".format(str(xc)))
-
-        if task is Task.dielectric and ionic_contribution:
-            incar_settings.update({"IBRION": 8})
-        # - nkred
-        if not factor:
-            factor = 1
-            if task in (Task.dos, Task.dielectric):
-                factor = 2
-            elif task in (Task.dielectric_function,):
-                factor = 3
-            if xc in HYBRID_FUNCTIONAL and factor > 1:
-                incar_settings.update({"NKRED": factor})
-
-        return incar_settings, factor
 
     # This is needed to overwrite the VaspInputSet potcar.
     @property

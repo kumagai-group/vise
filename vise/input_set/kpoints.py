@@ -1,19 +1,20 @@
 # -*- coding: utf-8 -*-
-import warnings
 from copy import deepcopy
-from math import ceil, modf
+from math import ceil, modf, pow
+from typing import Tuple, Union, List
 
 import numpy as np
 from obadb.atomate.vasp.config import ST_MATCHER_ANGLE_TOL as ANGLE_TOL
 from obadb.atomate.vasp.config import SYMMETRY_TOLERANCE as SYMPREC
-from vise.database.atom import symbols_to_atom
-from vise.database.kpt_centering import kpt_centering
-from vise.util.structure_handler import structure_to_seekpath, \
-    find_spglib_standard_primitive
 from pymatgen import Structure
 from pymatgen.io.vasp import Kpoints
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from vise.core.error_classes import InvalidFileError
+from vise.database.atom import symbols_to_atom
+from vise.database.kpt_centering import kpt_centering
 from vise.util.logger import get_logger
+from vise.util.structure_handler import structure_to_seekpath, \
+    find_spglib_standard_primitive
 
 logger = get_logger(__name__)
 
@@ -27,7 +28,9 @@ def make_band_kpoints(kpoints: Kpoints,
                       ref_distance: float = 0.025,
                       time_reversal: bool = True,
                       symprec: float = SYMPREC,
-                      angle_tolerance: float = ANGLE_TOL):
+                      angle_tolerance: float = ANGLE_TOL
+                      ) -> Union[Tuple[Kpoints, Structure],
+                                 Tuple[List[Kpoints], Structure]]:
     """
     Write the KPOINTS file for the band structure calculation.
     Args:
@@ -42,6 +45,9 @@ def make_band_kpoints(kpoints: Kpoints,
             Whether time reversal symmetry is considered.
         symprec (float):
         angle_tolerance (float)
+
+    Return:
+       (Kpoints, Structure) or ([Kpoints, ..], Structure)
     """
 
     seekpath_full_info = structure_to_seekpath(structure=structure,
@@ -108,11 +114,14 @@ def make_kpoints(mode: str,
                  factor: int = 1,
                  symprec: float = SYMPREC,
                  angle_tolerance: float = ANGLE_TOL,
-                 is_magnetization: bool = False):
-    """
-    Constructs a Kpoint object based on default settings depending on the task.
+                 is_magnetization: bool = False
+                 ) -> Union[Tuple[Kpoints, Structure, int],
+                            Tuple[List[Kpoints], Structure, int]]:
+    """Constructs Kpoint object based on default settings depending on the task.
+
     Note that this function does not check if the primitive cell is standardized
     or not.
+
     Args:
         mode (str):
             "band":
@@ -156,13 +165,14 @@ def make_kpoints(mode: str,
             This modifies the band structure path for cases w/o inversion.
 
     Return:
-        Kpoints (Kpoints/list of Kpoints):
-        structure (Structure/IStructure):
-        sg (int): Space group number
+        Tuple of
+             Kpoints (Kpoints/list of Kpoints):
+             structure (Structure/IStructure):
+             sg (int): Space group number
     """
     reciprocal_lattice = structure.lattice.reciprocal_lattice
 
-    comment = "mode: " + mode
+    comment = f"mode: {mode}"
     sg = None
 
     # numbers of mesh
@@ -171,10 +181,11 @@ def make_kpoints(mode: str,
         # check if the primitive is standardized.
         if mode == "primitive_uniform" or mode == "band":
             structure, is_structure_changed = \
-                find_spglib_standard_primitive(structure, symprec=symprec,
+                find_spglib_standard_primitive(structure=structure,
+                                               symprec=symprec,
                                                angle_tolerance=angle_tolerance)
             if is_structure_changed is True:
-                warnings.warn(
+                logger.warning(
                     "The input structure is not standardized primitive cell.")
 
             sg_analyzer = SpacegroupAnalyzer(structure=structure,
@@ -186,17 +197,16 @@ def make_kpoints(mode: str,
 
             # Note that the numbers of k-points along all the directions must be
             # the same to keep the crystal symmetry.
-            body_centered_orthorhombic = (23, 24, 44, 45, 46, 71, 72, 73, 74)
-            body_centered_tetragonal = (79, 80, 81, 82, 87, 88, 97, 98, 107,
+            body_centered_orthorhombic = [23, 24, 44, 45, 46, 71, 72, 73, 74]
+            body_centered_tetragonal = [79, 80, 81, 82, 87, 88, 97, 98, 107,
                                         108, 109, 110, 119, 120, 121, 122, 139,
-                                        140, 141, 142)
-            if sg in body_centered_orthorhombic or \
-                    sg in body_centered_tetragonal:
-                average_abc = np.prod(reciprocal_lattice.abc) ** (1.0 / 3.0)
+                                        140, 141, 142]
+            if sg in body_centered_orthorhombic + body_centered_tetragonal:
+                average_abc = pow(np.prod(reciprocal_lattice.abc), 1 / 3)
                 reciprocal_abc = (average_abc, average_abc, average_abc)
                 logger.warning(
-                    "To keep the space group symmetry, the number of k-points"
-                    " along three directions are kept the same for oI and tI "
+                    "To keep the space group symmetry, the number of k-points "
+                    "along three directions are kept the same for oI and tI "
                     "Bravais lattice.")
             else:
                 reciprocal_abc = reciprocal_lattice.abc
@@ -209,12 +219,14 @@ def make_kpoints(mode: str,
         else:
             kpt_mesh = [int(ceil(kpts_density * r)) * factor
                         for r in reciprocal_abc]
-        comment += ", kpt density: " + str(kpts_density) + ", " + \
-                   "factor: " + str(factor)
+
+        comment += f", kpt density: {kpts_density}, factor: {factor}"
+
     elif manual_kpts:
         kpt_mesh = manual_kpts
+
     else:
-        raise AttributeError("Task: " + mode + " is not supported.\n")
+        raise AttributeError(f"Task: {mode} is not supported.\n")
 
     kpts = (tuple(kpt_mesh),)
 
@@ -268,7 +280,10 @@ def make_kpoints(mode: str,
         kpts = []
         weights = []
         labels = []
-        ir_kpts = irreducible_kpoints(structure, kpoints, symprec, angle_tolerance)
+        ir_kpts = irreducible_kpoints(structure=structure,
+                                      kpoints=kpoints,
+                                      symprec=symprec,
+                                      angle_tolerance=angle_tolerance)
         for k in ir_kpts:
             kpts.append(k[0])
             weights.append(k[1])
@@ -276,30 +291,37 @@ def make_kpoints(mode: str,
 
         kpoints_with_ir_kpt = Kpoints(comment="",
                                       style=Kpoints.supported_modes.Reciprocal,
-                                      num_kpts=len(kpts), kpts=kpts,
-                                      kpts_weights=weights, labels=labels)
-        time_reversal = not is_magnetization
+                                      num_kpts=len(kpts),
+                                      kpts=kpts,
+                                      kpts_weights=weights,
+                                      labels=labels)
         kpoints, structure = \
-            make_band_kpoints(kpoints_with_ir_kpt, structure, num_split_kpoints,
-                              ref_distance, time_reversal, symprec, angle_tolerance)
+            make_band_kpoints(kpoints=kpoints_with_ir_kpt,
+                              structure=structure,
+                              num_split_kpoints=num_split_kpoints,
+                              ref_distance=ref_distance,
+                              time_reversal=not is_magnetization,
+                              symprec=symprec,
+                              angle_tolerance=angle_tolerance)
 
     return kpoints, structure, sg
-
-
-class KptDensityFromFileError(Exception):
-    pass
 
 
 def get_kpt_dens_from_file(filepath):
     try:
         with open(filepath, "r") as fr:
-            l = fr.readline()
-        return float(l.split()[4].replace(",", ""))
+            lines = fr.readline()
+        return float(lines.split()[4].replace(",", ""))
+
     except:
-        raise KptDensityFromFileError(f"failed to read kpt_density from KPOINTS: {filepath}")
+        raise InvalidFileError(f"failed to read kpt_density from KPOINTS: "
+                               f"{filepath}")
 
 
-def irreducible_kpoints(structure, kpoints, symprec=SYMPREC, angle_tolerance=ANGLE_TOL):
+def irreducible_kpoints(structure: Structure,
+                        kpoints: Kpoints,
+                        symprec: float = SYMPREC,
+                        angle_tolerance: float = ANGLE_TOL):
     """
     kpoints (Kpoints):
     """
@@ -317,12 +339,21 @@ def irreducible_kpoints(structure, kpoints, symprec=SYMPREC, angle_tolerance=ANG
     # modf(x) returns (fraction part, integer part)
     shift = [1 if modf(i)[0] == 0.5 else 0 for i in kpts_shift]
 
-    s = SpacegroupAnalyzer(structure=structure, symprec=symprec, angle_tolerance=angle_tolerance)
+    s = SpacegroupAnalyzer(structure=structure,
+                           symprec=symprec,
+                           angle_tolerance=angle_tolerance)
+
     return s.get_ir_reciprocal_mesh(mesh=kpoints.kpts[0], is_shift=shift)
 
 
-def num_irreducible_kpoints(structure, kpoints, symprec=SYMPREC, angle_tolerance=ANGLE_TOL):
-    return len(irreducible_kpoints(structure, kpoints, symprec=symprec,
+def num_irreducible_kpoints(structure: Structure,
+                            kpoints: Kpoints,
+                            symprec: float = SYMPREC,
+                            angle_tolerance: float = ANGLE_TOL):
+
+    return len(irreducible_kpoints(structure=structure,
+                                   kpoints=kpoints,
+                                   symprec=symprec,
                                    angle_tolerance=angle_tolerance))
 
 

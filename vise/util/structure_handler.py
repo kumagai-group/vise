@@ -5,15 +5,11 @@ import warnings
 import numpy as np
 import seekpath
 import spglib
-
+from atomate.utils.utils import get_logger
+from obadb.database.atom import symbols_to_atom
 from pymatgen import Structure
 from pymatgen.io.vasp import Poscar
-
-from obadb.database.atom import symbols_to_atom
-
 from vise.core.config import ANGLE_TOL, SYMPREC
-
-from atomate.utils.utils import get_logger
 
 __author__ = "Yu Kumagai"
 __maintainer__ = "Yu Kumagai"
@@ -37,34 +33,6 @@ def get_symmetry_dataset(structure: Structure,
     cell = structure_to_spglib_cell(structure)
     return spglib.get_symmetry_dataset(cell, symprec=symprec,
                                        angle_tolerance=angle_tolerance)
-
-
-# def get_point_group_from_dataset(sym_dataset: dict,
-#                                  coords: list,
-#                                  lattice: np.ndarray,
-#                                  symprec: float = SYMPREC) -> tuple:
-#     """
-#     Args:
-#         sym_dataset (dict):
-#             spglib get_symmetry_dataset.
-#         coords (list):
-#             Fractional coordinates.
-#         lattice (np.ndarray):
-#             3x3 numpy ndarray
-#         symprec (float):
-#             Distance tolerance in cartesian coordinates Unit is compatible with
-#             the cell.
-#     """
-#     full_rotations = sym_dataset["rotations"]
-#     translations = sym_dataset["translations"]
-#     rotations = get_rotations(coords, lattice, full_rotations, translations,
-#                               symprec)
-#     return get_point_group_from_rotations(rotations)
-
-
-def get_point_group_from_rotations(rotations):
-    ptg = spglib.get_pointgroup(rotations)
-    return ptg[0].strip(), ptg[2]
 
 
 def get_rotations(coords, lattice, rotations, translations, symprec=SYMPREC):
@@ -225,6 +193,7 @@ def structure_to_seekpath(structure, time_reversal=True, ref_distance=0.025,
 
     return res
 
+
 def seekpath_to_hpkot_structure(res):
     """
     Return a pymatgen Structure class object from seekpath res dictionary.
@@ -237,11 +206,6 @@ def seekpath_to_hpkot_structure(res):
     species = [symbols_to_atom[i] for i in element_types]
     positions = res["primitive_positions"]
     return Structure(lattice, species, positions)
-
-
-def fold_float(x):
-    """ Return the folded float number, e.g., 3.5 -> 0.5 and -0.7 -> 0.3. """
-    return x - math.floor(x)
 
 
 def fold_position_structure(structure):

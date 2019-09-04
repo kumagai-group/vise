@@ -10,7 +10,7 @@ __version__ = "0.1"
 __maintainer__ = "Yu Kumagai"
 __email__ = "yuuukuma@gmail.com"
 __status__ = "Development"
-__date__ = "Aug 3, 2018"
+__date__ = "May 15, 2018"
 
 
 def main():

@@ -3,6 +3,7 @@ import itertools
 import os
 import re
 from copy import deepcopy
+from math import ceil
 
 from monty.io import zopen
 from monty.serialization import loadfn
@@ -10,6 +11,13 @@ from pymatgen.electronic_structure.core import Magmom
 from pymatgen.io.vasp import Incar
 from pymatgen.util.io_utils import clean_lines
 from tabulate import tabulate
+from vise.input_set.input_set import (
+    Task, Xc, LDA_OR_GGA, DFT_FUNCTIONAL, HYBRID_FUNCTIONAL, BEYOND_GGA, GW,
+    BEYOND_DFT)
+from pymatgen.core.structure import Structure
+from pymatgen.io.vasp.inputs import Potcar
+from vise.input_set.sets.element_specific_parameters import unoccupied_bands
+from math import ceil
 
 __author__ = "Yu Kumagai"
 __maintainer__ = "Yu Kumagai"
@@ -21,6 +29,25 @@ incar_flags_yaml = os.path.join(MODULE_DIR, "incar_flags.yaml")
 # dict uses order-preserving semantics. Furthermore, it does not affect vasp
 # result.
 incar_flags = loadfn(incar_flags_yaml)
+
+
+def calc_nbands(structure, potcar):
+    """
+    Calculate the total number of bands required for the unoccupied related
+    properties such as optical absorption, band structure, and DOS.
+
+    Args:
+        structure (Structure/IStructure):
+        potcar (Potcar):
+    """
+
+    if not all([s == p.element for s, p in zip(structure.symbol_set, potcar)]):
+        raise ValueError("The structure and POTCAR file are not compatible.")
+
+    comp = structure.composition
+    nbands = sum([comp[c] * (p.nelectrons / 2 + unoccupied_bands[str(c)])
+                  for c, p in zip(comp, potcar)])
+    return ceil(nbands)
 
 
 class ObaIncar(Incar):
@@ -154,3 +181,190 @@ class ObaIncar(Incar):
                 "{} are not valid in INCAR.".format(incar_keys.keys()))
 
         return "".join(lines)
+
+    @staticmethod
+    def make_incar_setting(structure: Structure,
+                           xc: Xc,
+                           task: Task,
+                           rough: bool,
+                           encut: float,
+                           vbm_cbm: list,
+                           potcar: Potcar,
+                           only_even: bool,
+                           ionic_contribution: bool,
+                           factor: int,
+                           encut_factor_str_opt):
+        # Incar
+        incar_settings = {}
+        # - xc
+        if xc is Xc.pbesol:
+            incar_settings.update({"GGA": "PS"})
+        elif xc is Xc.scan:
+            incar_settings.update({"METAGGA": "SCAN"})
+        elif xc in (Xc.pbe0, Xc.hse):
+            incar_settings.update({"LHFCALC": True,
+                                   "PRECFOCK": "Fast",
+                                   "ALGO": "D",
+                                   "AEXX": 0.25,
+                                   "TIME": 0.5,
+                                   "PREC": "A",
+                                   "LWAVE": True})
+        elif xc in (Xc.gw0,):
+            incar_settings.update({"NELM": 4,
+                                   "ALGO": "GW0",
+                                   "PRECFOCK": "Fast",
+                                   "NOMEGA": 100,
+                                   "OMEGAMAX": 30,
+                                   "ANTIRES": 1,
+                                   "NMAXFOCKAE": 2,
+                                   "LPEAD": False,
+                                   "LOPTICS": False})
+
+        if xc is Xc.hse:
+            incar_settings.update({"HFSCREEN": 0.208})
+
+        # - rough
+        if rough:
+            # POTIM is 1/2.5 of the default, which allows us to relax the atoms
+            # slowly, and useful for prototype calculations.
+            incar_settings.update({"EDIFF": 1e-4,
+                                   "EDIFFG": -0.2,
+                                   "POTIM": 0.2})
+            # This is fine as long as the num of kpoints are even numbers.
+            if xc in HYBRID_FUNCTIONAL and only_even:
+                incar_settings.update({"NKRED": 2})
+
+        # - algo
+        # To attain the convergence of the unoccupied bands, ALGO=N is needed.
+        # This change is not switched on if ALGO is already set above.
+        if task in (Task.band, Task.dos, Task.dielectric,
+                    Task.dielectric_function) and "ALGO" not in incar_settings:
+            incar_settings.update({"ALGO": "N"})
+        elif task in (Task.gw_pre_calc2,):
+            incar_settings.update({"ALGO": "Exact"})
+        # - lreal & prec
+        # When the number of atoms is less than 40, LREAL = False
+        if len(structure) <= 40:
+            incar_settings.update({"LREAL": False})
+        if task in (Task.gw_pre_calc1, Task.gw_pre_calc2):
+            incar_settings.update({"LREAL": False})
+            incar_settings.update({"PREC": "A"})
+        # - encut
+        if task in (Task.structure_opt, Task.gw_pre_calc1):
+            enmax = round(max([p.enmax for p in potcar]) * encut_factor_str_opt, 4)
+            incar_settings.update({"ENCUT": enmax})
+        # Always overwrite ENCUT when explicitly given.
+        if encut:
+            incar_settings.update({"ENCUT": encut})
+        # - lorbit
+        if task in (Task.band, Task.dos, Task.defect):
+            incar_settings.update({"LORBIT": 12})
+        # - nbands
+        # For Task.gw_pre_calc2 and xc.gw,
+        # NBANDS = (the number of unoccupied bands approximately).
+        # TODO: Check if this is fine for gw_pre_calc2
+        if task in (Task.band, Task.dos, Task.dielectric_function) and \
+                xc not in (Xc.gw0, ):
+            nbands = calc_nbands(structure, potcar)
+            incar_settings.update({"NBANDS": nbands})
+        if xc in (Xc.gw0,):
+            nbandsgw = calc_nbands(structure, potcar)
+            incar_settings.update({"NBANDSGW": nbandsgw})
+        # - emin, emax, nedos
+        if task in (Task.dos, Task.dielectric_function):
+            step_size = 0.01
+            if vbm_cbm:
+                emin = ceil(vbm_cbm[0]) - 15 - step_size
+                emax = ceil(vbm_cbm[1]) + 15
+            else:
+                emin = -20 - step_size
+                emax = 20
+            nedos = int(round((emax - emin) / step_size, 0)) + 1
+            incar_settings.update({"EMIN": emin, "EMAX": emax, "NEDOS": nedos})
+        # - nelem & nelemin
+        if task in (Task.gw_pre_calc2,):
+            incar_settings.update({"NELM": 1})
+            incar_settings.update({"NELMIN": 1})
+        # - ediff
+        if task in (Task.gw_pre_calc1, Task.gw_pre_calc2):
+            incar_settings.update({"EDIFF": 1e-8})
+        # - ediff
+        if task in (Task.defect,):
+            incar_settings.update({"EDIFFG": -0.04})
+        # - ispin
+        if task in (Task.defect,):
+            incar_settings.update({"ISPIN": 2})
+        # - lcharg
+        if task in (Task.gw_pre_calc1,):
+            if xc not in HYBRID_FUNCTIONAL:
+                incar_settings.update({"LCHARG": True})
+        elif task in (Task.gw_pre_calc2,):
+            incar_settings.update({"LCHARG": False})
+        # - icharg
+        if task in (Task.gw_pre_calc2,) and xc in DFT_FUNCTIONAL:
+            incar_settings.update({"ICHARG": 11})
+        # - lwave
+        if task in (Task.gw_pre_calc2,):
+            incar_settings.update({"LWAVE": True})
+        # - ismear
+        # Note1: Task.dielectric assumes insulators.
+        # Note2: band_gap belongs to <class 'numpy.bool_'>, not build-in bool.
+        # Note3: Tetrahedron method is valid when num_kpoints >= 4.
+        #        Thus, num_kpoints will be checked later.
+        # ISMEAR = -5 is now switched off following the vasp warning below
+        # | ALGO = A and IALGO = 5X tend to fail with the tetrahedron method |
+        # | (e.g.Bloechls method ISMEAR=-5 is not variational) |
+        # | please switch to IMSEAR = 0 - n, except for DOS calculations |
+        # if (band_gap and band_gap > BAND_GAP_EXISTENCE_CRITERION) or \
+        #         (vbm_cbm and
+        #          vbm_cbm[1] - vbm_cbm[0] > BAND_GAP_EXISTENCE_CRITERION) or \
+        #         task in (Task.dielectric, ):
+        #     incar_settings.update({"ISMEAR": -5})
+        # - nsw
+        # NSW = 1 (not NSW = 0) is a must for dielectric constant.
+        if task in (Task.single_point, Task.band, Task.dos, Task.dielectric,
+                    Task.dielectric_function, Task.gw_pre_calc2) or \
+                xc in (Xc.gw0,):
+            incar_settings.update({"NSW": 1})
+
+        # Basically INCAR settings for dielectric constants are the same for
+        # SCAN and HSE due to the VASP implementation.
+        # - lepsilon
+        if task in (Task.dielectric,) and xc in LDA_OR_GGA:
+            incar_settings.update({"LEPSILON": True})
+        # - lrpa
+        if task in (Task.dielectric,) and xc in BEYOND_GGA:
+            incar_settings.update({"LRPA": False})
+        # -lcalceps
+        if task in (Task.dielectric,) and xc in BEYOND_GGA:
+            incar_settings.update({"LCALCEPS": True})
+        # - loptics
+        # Note: CSHIFT doesn't affect the results when using the modified vasp.
+        if task in (Task.dielectric_function, Task.gw_pre_calc2):
+            incar_settings.update({"LOPTICS": True})
+        # - isif
+        if task in (Task.single_point, Task.band, Task.dos, Task.dielectric,
+                    Task.dielectric_function, Task.gw_pre_calc2):
+            incar_settings.update({"ISIF": 0})
+        elif task in (Task.defect,):
+            incar_settings.update({"ISIF": 2})
+        # - ibrion
+        # The hybrid functional is not allowed for ionic contribution calc.
+        if xc in BEYOND_GGA and task is Task.dielectric and ionic_contribution:
+            raise ValueError("The {} functional/approximation is not allowed "
+                             "for calculating ionic contribution of "
+                             "dielectric constant.".format(str(xc)))
+
+        if task is Task.dielectric and ionic_contribution:
+            incar_settings.update({"IBRION": 8})
+        # - nkred
+        if not factor:
+            factor = 1
+            if task in (Task.dos, Task.dielectric):
+                factor = 2
+            elif task in (Task.dielectric_function,):
+                factor = 3
+            if xc in HYBRID_FUNCTIONAL and factor > 1:
+                incar_settings.update({"NKRED": factor})
+
+        return incar_settings, factor
