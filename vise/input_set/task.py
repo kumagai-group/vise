@@ -4,16 +4,17 @@ from enum import unique, Enum
 @unique
 class Task(Enum):
     """ Supported tasks """
-    single_point = "single_point"
     structure_opt = "structure_opt"
-    phonon_disp = "phonon_disp"
+    structure_opt_rough = "structure_opt_rough"
+    structure_opt_tight = "structure_opt_tight"
+    cluster_opt = "cluster_opt"
+    phonon_force = "phonon_force"
     defect = "defect"
     band = "band"
     dos = "dos"
-    dielectric = "dielectric"
+    dielectric_dfpt = "dielectric_dfpt"
+    dielectric_field = "dielectric_field"
     dielectric_function = "dielectric_function"
-    gw_pre_calc1 = "gw_pre_calc1"
-    gw_pre_calc2 = "gw_pre_calc2"
 
     def __str__(self):
         return self.name
@@ -23,9 +24,13 @@ class Task(Enum):
         for m in Task:
             if m.value == s:
                 return m
-        raise AttributeError("Task: " + str(s) + " is not proper.\n" +
-                             "Supported Task:\n" + cls.name_list())
+        raise AttributeError(f"Task: {s} is not proper.\n"
+                             f"Supported Task:\n {cls.name_list()}")
 
     @classmethod
     def name_list(cls):
         return ', '.join([e.value for e in cls])
+
+
+class TaskInputSet:
+    pass

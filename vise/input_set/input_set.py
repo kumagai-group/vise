@@ -6,7 +6,8 @@ import re
 import warnings
 from copy import deepcopy
 from os.path import join, isfile, getsize
-from typing import Optional
+from typing import Optional, Union
+from pathlib import Path
 
 import numpy as np
 from monty.serialization import loadfn
@@ -19,7 +20,7 @@ from vise.core.config import (
 from vise.input_set.incar import ObaIncar, make_incar_setting
 from vise.input_set.kpoints import make_kpoints, num_irreducible_kpoints
 from vise.input_set.task import Task
-from vise.input_set.xc import Xc, GW
+from vise.input_set.xc import Xc
 from vise.util.logger import get_logger
 from vise.util.structure_handler import find_spglib_standard_primitive
 
@@ -28,41 +29,38 @@ logger = get_logger(__name__)
 __author__ = "Yu Kumagai"
 __maintainer__ = "Yu Kumagai"
 
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-CONFIG_DIR = os.path.join(MODULE_DIR, "sets")
+MODULE_DIR = Path(os.path.dirname(os.path.abspath(__file__)))
+DEFAULT_POTCAR_LIST = MODULE_DIR / "sets" / "default_POTCAR_list.yaml"
 
 
-def _load_oba_yaml_config(set_list_name: str,
-                          potcar_set: str,
-                          potcar_yaml: str,
-                          override_potcar_set: dict = None):
+def load_potcar_yaml(set_name: str,
+                     override_potcar_set: dict = None) -> dict:
     """Load the yaml setting files for config and POTCAR list.
 
     Args:
-        set_list_name (str):
-            Vasp set yaml file name.
-        potcar_set (str):
+        set_name (str):
             Potcar set name.
-        potcar_yaml (str):
-            Potcar list yaml file name
         override_potcar_set (dict):
             User specifying POTCAR set
 
     Return:
-          config (dict):
+          potcar_set (dict):
     """
-    config = loadfn(os.path.join(CONFIG_DIR, "%s.yaml" % set_list_name))
-    potcar_list_file = os.path.join(CONFIG_DIR, "%s.yaml" % potcar_yaml)
-    config["POTCAR"] = loadfn(potcar_list_file)[potcar_set]
+    potcar_set = loadfn(DEFAULT_POTCAR_LIST)
+    try:
+        potcar_set = {"POTCAR": potcar_set[set_name]}
+    except KeyError:
+        logger.warning(f"The accepted potcar set name is {potcar_set.keys()}")
+        raise
 
     if override_potcar_set:
-        config["POTCAR"].update(override_potcar_set)
+        potcar_set["POTCAR"].update(override_potcar_set)
 
-    return config
+    return potcar_set
 
 
-class ObaSet(DictSet):
-    """ Implementation of DictSet tuned for the research in Oba group.
+class InputSet(DictSet):
+    """ Implementation of DictSet constructed by some options
 
     Special cares are as follows.
     1. The magnetization is assumed to be non-magnetic or ferromagnetic. Since
@@ -198,50 +196,36 @@ class ObaSet(DictSet):
     @classmethod
     def make_input(cls,
                    structure: Structure,
-                   incar_from_prev_calc: bool = False,
-                   standardize_structure: bool = True,
                    xc: str = "pbe",
                    task: str = "structure_opt",
-                   is_cluster: bool = False,
-                   rough: bool = False,
+                   incar_from_prev_calc: bool = False,
+                   standardize_structure: bool = True,
+                   sort_structure: bool = True,
+                   vbm_cbm: list = None,
                    factor: int = None,
-                   encut_factor_str_opt: float = ENCUT_FACTOR_STR_OPT,
                    charge: float = None,
                    encut: float = None,
-                   vbm_cbm: list = None,
-                   band_gap: float = None,
-                   is_magnetization: bool = False,
-                   kpt_density: float = KPT_DENSITY,
-                   sort_structure: bool = True,
-                   weak_incar_settings: dict = None,
-                   only_even: bool = True,
+                   encut_factor_str_opt: float = ENCUT_FACTOR_STR_OPT,
                    hubbard_u: bool = True,
-                   ldauu: dict = None,
-                   ldaul: dict = None,
-                   ionic_contribution: bool = True,
+                   is_magnetization: bool = False,
                    kpt_mode: str = "primitive_uniform",
-                   band_ref_dist: float = 0.03,
+                   kpt_density: float = KPT_DENSITY,
                    kpts_shift: list = None,
+                   band_ref_dist: float = 0.03,
+                   ldauu: dict = None, # consider later
+                   ldaul: dict = None, # consider later
                    npar_kpar: bool = True,
                    num_cores_per_node: int = 36,
                    num_nodes: int = 1,
+                   default_potcar: str = None,
+                   override_potcar_set: dict = None,
                    files_to_move: bool = None,
                    files_to_link: bool = None,
                    files_to_transfer: bool = None,
-                   default_potcar: str = None,
-                   override_potcar_set: dict = None,
                    symprec: float = SYMPREC,
                    angle_tolerance: float = ANGLE_TOL,
                    **kwargs):
         """
-         --------------------------------------------------------------------
-        POSCAR: structure, standardize_structure
-        POTCAR: xc, user_potcar_yaml
-         INCAR: incar_from_prev_calc, xc, task, rough, charge, encut, vbm_cbm,
-                band_gap hubbard_u, ionic_contribution, num_cores_per_node,
-                num_nodes, auto_kpar_npar, is_magnetization
-        KPOINTS: task, kpt_mode, generate_kpoints, is_magnetization
-        --------------------------------------------------------------------
         Args:
             structure (Structure):
                 The Structure to create Poscar.
@@ -253,11 +237,6 @@ class ObaSet(DictSet):
                 A string representing exchange-correlation (xc) defined in Xc.
             task (str):
                 A string representing task defined in Task.
-            is_cluster (bool):
-                Whether the calculation is for a cluster including a molecule.
-            rough (bool):
-                Whether to use rough criterion for convergence.
-                Set EDIFF = 1e-5, EDIFFG = -0.04, NKRED = 2 in INCAR.
             factor (int):
                 Factor to be multiplied to the k-points along all the
                 directions. This parameter should be distinguished from the
@@ -275,10 +254,6 @@ class ObaSet(DictSet):
                 The valence band maximum (vbm) and conduction band minimum (cbm)
                 with [vbm, cbm] format. Used for determining the dos and
                 absorption spectra region.
-            band_gap (float):
-                band gap. If it is larger than 0.2 eV, set ISMEAR = -5.
-                It should be determined from previous calculations.
-                If None, it is determined from vbm_cbm if given.
             is_magnetization (bool):
                 Whether to have magnetization. If exists, set
                 ISPIN = 2 and time_reversal = False, the latter of which is
@@ -289,12 +264,6 @@ class ObaSet(DictSet):
             sort_structure (bool):
                 Whether to sort the elements using get_sorted_structure method
                 of Structure class in pymatgen.
-            weak_incar_settings (dict):
-                Incar settings with the weakest hierarchy, meaning the
-                flags are overwritten by other settings.
-                This can be used for inheriting the modification by custodian.
-            only_even (bool):
-                Whether to ceil the kpoints to be even numbers.
             hubbard_u (bool):
                 Whether to add Hubbard U parameter for lda/gga calculations.
                 By default, it is switched off for hybrid functional and GW
@@ -306,9 +275,6 @@ class ObaSet(DictSet):
                 {"Ti": 4, "V": 3, "O": 5}
             ldaul (dict):
                 {"Ti": 2, "V": 2, "O": 1}
-            ionic_contribution (bool):
-                Whether to calculate ionic contribution for dielectric constant.
-                IBRION = 8 (DFPT w/ symmetry) is set.
             kpt_mode (str):
                 A string representing the k-point style that is used for the
                 make_kpoints function. See make_kpoints docstring.
@@ -370,11 +336,7 @@ class ObaSet(DictSet):
         files_to_link = files_to_link or {}
         files_to_transfer = files_to_transfer or {}
 
-        if isinstance(task, str):
-            task = Task.from_string(task)
-        elif not isinstance(task, Task):
-            raise TypeError("task needs to be str or Task object")
-
+        task = Task.from_string(task)
         xc = Xc.from_string(xc)
 
         if not default_potcar:
@@ -385,9 +347,9 @@ class ObaSet(DictSet):
 
         # read config_dict and override some values.
         config_dict = \
-            _load_oba_yaml_config(set_list_name="ObaRelaxSet",
-                                  potcar_yaml=default_potcar,
-                                  override_potcar_set=override_potcar_set)
+            load_potcar_yaml(set_list_name="ObaRelaxSet",
+                             potcar_yaml=default_potcar,
+                             override_potcar_set=override_potcar_set)
         if ldauu:
             config_dict["INCAR"]["LDAUU"].update(ldauu)
         if ldaul:
@@ -917,7 +879,7 @@ class ObaSet(DictSet):
             except:
                 raise FileNotFoundError("KPOINTS file is not found.")
         # TODO: add kpt-density parser.
-#        elif parse_kpoints == "density":
+        #        elif parse_kpoints == "density":
 
         kwargs["files_to_move"] = {}
         kwargs["files_to_link"] = {}
@@ -939,71 +901,10 @@ class ObaSet(DictSet):
                         kwargs["files_to_transfer"][filename] = f
                     else:
                         logger.warning("{} option for {} file is invalid.".
-                                      format(copied_file_names[filename][0],
-                                             filename))
+                                       format(copied_file_names[filename][0],
+                                              filename))
 
         return cls.make_input(structure, **kwargs)
-
-    @classmethod
-    def from_prev_calc_gw(cls, dirname, wavecar_transfer_style="Move",
-                          waveder_transfer_style="Move", **kwargs):
-
-        files = {"WAVECAR": wavecar_transfer_style,
-                 "WAVEDER": waveder_transfer_style}
-
-        return cls.from_prev_calc(dirname=dirname,
-                                  parse_calc_results=True,
-                                  parse_magnetization=True,
-                                  standardize_structure=False,
-                                  sort_structure=False,
-                                  parse_potcar=True,
-                                  parse_incar=True,
-                                  parse_kpoints=True,
-                                  copied_file_names=files,
-                                  task="single_point",
-                                  xc="gw0",
-                                  **kwargs)
-
-    @classmethod
-    def from_prev_calc_gw_pre2(cls, dirname, chgcar_transfer_style="Move",
-                               wavecar_transfer_style="Move", **kwargs):
-
-        vasprun, _ = get_vasprun_outcar(dirname)
-
-        if "LHFCALC" in vasprun.incar and vasprun.incar["LHFCALC"] is True:
-            files = {"WAVECAR": wavecar_transfer_style}
-        else:
-            files = {"CHGCAR": chgcar_transfer_style}
-
-        # need to calculate the number of the minimum G-vectors (plane waves)
-        outcar = os.path.join(dirname, "OUTCAR")
-        with open(outcar) as f:
-            for line in f:
-                if re.search("maximum and minimum number of plane-waves", line):
-                    minimum_num_plane_waves = line.split()[10]
-                    break
-            if not minimum_num_plane_waves:
-                raise ValueError("Number of plane wwaves is unavailable.")
-
-            nbands = int(int(minimum_num_plane_waves) / 36) * 36
-
-            if "user_incar_settings" not in kwargs:
-                user_incar_settings = {"NBANDS": nbands}
-            else:
-                kwargs["user_incar_settings"]["NBANDS"] = nbands
-
-        return cls.from_prev_calc(dirname=dirname,
-                                  parse_calc_results=True,
-                                  parse_magnetization=True,
-                                  standardize_structure=False,
-                                  sort_structure=False,
-                                  parse_potcar=True,
-                                  parse_incar=True,
-                                  parse_kpoints=True,
-                                  copied_file_names=files,
-                                  user_incar_settings=user_incar_settings,
-                                  task="gw_pre_calc2",
-                                  **kwargs)
 
 
 def calc_npar_kpar(num_kpoints, num_cores_per_node, num_nodes):

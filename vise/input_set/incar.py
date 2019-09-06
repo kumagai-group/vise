@@ -11,8 +11,7 @@ from pymatgen.electronic_structure.core import Magmom
 from pymatgen.io.vasp import Incar
 from pymatgen.util.io_utils import clean_lines
 from tabulate import tabulate
-from vise.input_set.xc import Xc, LDA_OR_GGA, DFT_FUNCTIONAL, HYBRID_FUNCTIONAL, \
-    BEYOND_GGA, GW, BEYOND_DFT
+from vise.input_set.xc import Xc, LDA_OR_GGA, HYBRID_FUNCTIONAL
 from vise.input_set.task import Task
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Potcar

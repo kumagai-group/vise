@@ -1,17 +1,15 @@
-"""
-Default POTCARS from potpaw-19Apr12/PBE
-2013.8.5  Rb POTCAR changed from Rb_pv to Rb_sv
-2013.8.5  Tl POTCAR  changed from Tl to Tl_d
-2014.9.18 Re POTCAR  changed from Re to Re_pv
-2016.4.1  Zr POTCAR:  VRHFIN =r: 4s4p5s4d ->  VRHFIN =Zr: 4s4p5s4d
-          This change is needed for vdW corrections.
-2016.5.9  Actinoides: Ac -- Cm, Cf are added
-2016.5.23 D is made from H: H is replaced by D.
-          Ra, Fr and Np are added
-          cp ../potpaw_PBE-v54/Ra_sv/POTCAR POTCAR_Ra
-          cp ../potpaw_PBE-v54/Fr_sv/POTCAR POTCAR_Fr
-          cp ../potpaw_PBE-v54/Np/POTCAR POTCAR_Np
-"""
+# Default POTCARS from potpaw-19Apr12/PBE
+# 2013.8.5  Rb POTCAR changed from Rb_pv to Rb_sv
+# 2013.8.5  Tl POTCAR  changed from Tl to Tl_d
+# 2014.9.18 Re POTCAR  changed from Re to Re_pv
+# 2016.4.1  Zr POTCAR:  VRHFIN =r: 4s4p5s4d ->  VRHFIN =Zr: 4s4p5s4d
+#           This change is needed for vdW corrections.
+# 2016.5.9  Actinoides: Ac -- Cm, Cf are added
+# 2016.5.23 D is made from H: H is replaced by D.
+#           Ra, Fr and Np are added
+#           cp ../potpaw_PBE-v54/Ra_sv/POTCAR POTCAR_Ra
+#           cp ../potpaw_PBE-v54/Fr_sv/POTCAR POTCAR_Fr
+#           cp ../potpaw_PBE-v54/Np/POTCAR POTCAR_Np
 
 normal:
   H: H
@@ -122,27 +120,26 @@ normal:
   Cm: Cm
   Cf: Cf
 
-"""
-One must be careful that the headers of three GW POTCARs show as if they are
-normal POTCARs as follows. (Of course, the parameters are different from
-those in normal ones.
+# One must be careful that the headers of three GW POTCARs show as if they are
+# normal POTCARs as follows. (Of course, the parameters are different from
+# those in normal ones.
+#
+# grep PAW_PBE /home/common/potpaw_PBE-v54/*_GW*/POTCAR| cut -d: -f 2 | grep -v GW                   [~]
+#  PAW_PBE B 28Sep2005
+#   TITEL  = PAW_PBE B 28Sep2005
+#  PAW_PBE Br 20Mar2012
+#   TITEL  = PAW_PBE Br 20Mar2012
+#  PAW_PBE Ge 04Okt2005
+#   TITEL  = PAW_PBE Ge 04Okt2005
+# for i in `file * | grep dir | cut -d: -f1`;do j=`head -n 1 $i/POTCAR|tail -n 1| cut -d" " -f 4`; if [[ $i != $j ]]; then echo $i $j;fi; done
+# F_GW_new F_GW
+# H_AE
+# He_AE He
+# Ne_s_GW Ne_GW
+# O_GW_new O_GW
+#
+# Modified header of those POTCARs except for all electron ones.
 
-grep PAW_PBE /home/common/potpaw_PBE-v54/*_GW*/POTCAR| cut -d: -f 2 | grep -v GW                   [~]
- PAW_PBE B 28Sep2005
-  TITEL  = PAW_PBE B 28Sep2005
- PAW_PBE Br 20Mar2012
-  TITEL  = PAW_PBE Br 20Mar2012
- PAW_PBE Ge 04Okt2005
-  TITEL  = PAW_PBE Ge 04Okt2005
-for i in `file * | grep dir | cut -d: -f1`;do j=`head -n 1 $i/POTCAR|tail -n 1| cut -d" " -f 4`; if [[ $i != $j ]]; then echo $i $j;fi; done
-F_GW_new F_GW
-H_AE
-He_AE He
-Ne_s_GW Ne_GW
-O_GW_new O_GW
-
-Modified header of those POTCARs except for all electron ones.
-"""
 gw:
   H: H_GW
   Li: Li_GW
