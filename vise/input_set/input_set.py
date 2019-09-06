@@ -19,10 +19,11 @@ from vise.core.config import (
     KPT_DENSITY, ENCUT_FACTOR_STR_OPT, ANGLE_TOL, SYMPREC)
 from vise.input_set.incar import ObaIncar, make_incar_setting
 from vise.input_set.kpoints import make_kpoints, num_irreducible_kpoints
-from vise.input_set.task import Task
-from vise.input_set.xc import Xc
+from vise.input_set.set import Task, Xc
 from vise.util.logger import get_logger
 from vise.util.structure_handler import find_spglib_standard_primitive
+#from vise.input_set.xc import XcInputSet
+#from vise.input_set.task import TaskInputSet
 
 logger = get_logger(__name__)
 
@@ -203,7 +204,6 @@ class InputSet(DictSet):
                    sort_structure: bool = True,
                    vbm_cbm: list = None,
                    factor: int = None,
-                   charge: float = None,
                    encut: float = None,
                    encut_factor_str_opt: float = ENCUT_FACTOR_STR_OPT,
                    hubbard_u: bool = True,
@@ -215,8 +215,7 @@ class InputSet(DictSet):
                    ldauu: dict = None, # consider later
                    ldaul: dict = None, # consider later
                    npar_kpar: bool = True,
-                   num_cores_per_node: int = 36,
-                   num_nodes: int = 1,
+                   num_cores: list = [36, 1],
                    default_potcar: str = None,
                    override_potcar_set: dict = None,
                    files_to_move: bool = None,
@@ -339,21 +338,11 @@ class InputSet(DictSet):
         task = Task.from_string(task)
         xc = Xc.from_string(xc)
 
-        if not default_potcar:
-            if xc in GW or task in (Task.gw_pre_calc1, Task.gw_pre_calc2):
-                default_potcar = "default_GW_POTCAR_list"
-            else:
-                default_potcar = "default_POTCAR_list"
 
-        # read config_dict and override some values.
-        config_dict = \
-            load_potcar_yaml(set_list_name="ObaRelaxSet",
-                             potcar_yaml=default_potcar,
-                             override_potcar_set=override_potcar_set)
-        if ldauu:
-            config_dict["INCAR"]["LDAUU"].update(ldauu)
-        if ldaul:
-            config_dict["INCAR"]["LDAUL"].update(ldaul)
+
+
+
+
 
         # Reset only INCAR. Be careful if the INCAR flags depend on the
         # POTCAR files, e.g., NBANDS.

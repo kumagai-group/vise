@@ -1,8 +1,10 @@
 system:
-  - SYSTEM
+  SYSTEM:
+    - Common
+    - Optional
 
 algorithm:
-  - ALGO
+  ALGO:
 
 accuracy:
   - PREC
