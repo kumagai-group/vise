@@ -333,7 +333,7 @@ def irreducible_kpoints(structure: Structure,
     elif kpoints.style == Kpoints.supported_modes.Gamma:
         kpts_shift = [0.0, 0.0, 0.0]
     else:
-        assert ValueError("Other k-points modes are not supported.")
+        raise ValueError("Other k-points modes are not supported.")
 
     kpts_shift = [kpts_shift[x] + kpoints.kpts_shift[x] for x in range(3)]
     # modf(x) returns (fraction part, integer part)

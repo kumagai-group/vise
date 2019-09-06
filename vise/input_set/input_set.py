@@ -5,7 +5,6 @@ import os
 import re
 import warnings
 from copy import deepcopy
-from enum import Enum, unique
 from os.path import join, isfile, getsize
 from typing import Optional
 
@@ -17,8 +16,10 @@ from pymatgen.io.vasp.sets import (
     get_vasprun_outcar, DictSet, get_structure_from_prev_run)
 from vise.core.config import (
     KPT_DENSITY, ENCUT_FACTOR_STR_OPT, ANGLE_TOL, SYMPREC)
-from vise.input_set.incar import ObaIncar
+from vise.input_set.incar import ObaIncar, make_incar_setting
 from vise.input_set.kpoints import make_kpoints, num_irreducible_kpoints
+from vise.input_set.task import Task
+from vise.input_set.xc import Xc, GW
 from vise.util.logger import get_logger
 from vise.util.structure_handler import find_spglib_standard_primitive
 
@@ -32,96 +33,32 @@ CONFIG_DIR = os.path.join(MODULE_DIR, "sets")
 
 
 def _load_oba_yaml_config(set_list_name: str,
+                          potcar_set: str,
                           potcar_yaml: str,
                           override_potcar_set: dict = None):
     """Load the yaml setting files for config and POTCAR list.
 
     Args:
-        set_list_name (str): Set yaml file name
-        potcar_yaml (str): Potcar list yaml file name
-        override_potcar_set (dict): User specifying POTCAR set
+        set_list_name (str):
+            Vasp set yaml file name.
+        potcar_set (str):
+            Potcar set name.
+        potcar_yaml (str):
+            Potcar list yaml file name
+        override_potcar_set (dict):
+            User specifying POTCAR set
 
     Return:
           config (dict):
     """
     config = loadfn(os.path.join(CONFIG_DIR, "%s.yaml" % set_list_name))
     potcar_list_file = os.path.join(CONFIG_DIR, "%s.yaml" % potcar_yaml)
-    config["POTCAR"] = loadfn(potcar_list_file)
+    config["POTCAR"] = loadfn(potcar_list_file)[potcar_set]
+
     if override_potcar_set:
         config["POTCAR"].update(override_potcar_set)
+
     return config
-
-
-@unique
-class Task(Enum):
-    """ Supported tasks """
-    single_point = "single_point"
-    structure_opt = "structure_opt"
-    phonon_disp = "phonon_disp"
-    defect = "defect"
-    band = "band"
-    dos = "dos"
-    dielectric = "dielectric"
-    dielectric_function = "dielectric_function"
-    gw_pre_calc1 = "gw_pre_calc1"
-    gw_pre_calc2 = "gw_pre_calc2"
-
-    def __str__(self):
-        return self.name
-
-    @classmethod
-    def from_string(cls, s):
-        for m in Task:
-            if m.value == s:
-                return m
-        raise AttributeError("Task: " + str(s) + " is not proper.\n" +
-                             "Supported Task:\n" + cls.name_list())
-
-    @classmethod
-    def name_list(cls):
-        return ', '.join([e.value for e in cls])
-
-
-@unique
-class Xc(Enum):
-    """ Supported exchange-correlation treatment. """
-    pbe = "pbe"
-    pbesol = "pbesol"
-    lda = "lda"
-    scan = "scan"
-    pbe0 = "pbe0"
-    hse = "hse"
-    gw0 = "gw0"
-
-    def __str__(self):
-        return self.name
-
-    @classmethod
-    def from_string(cls, s):
-
-        for m in Xc:
-            if m.value == s:
-                return m
-        if s == "perdew-zunger81":
-            return Xc.lda
-        raise AttributeError("Xc: " + str(s) + " is not proper.\n" +
-                             "Supported Xc:\n" + cls.name_list())
-
-    @classmethod
-    def name_list(cls):
-        return ', '.join([e.value for e in cls])
-
-    @property
-    def require_wavefunctions(self):
-        return True if self in BEYOND_DFT else False
-
-
-LDA_OR_GGA = (Xc.pbe, Xc.pbesol, Xc.lda)
-DFT_FUNCTIONAL = (Xc.pbe, Xc.pbesol, Xc.lda, Xc.scan)
-HYBRID_FUNCTIONAL = (Xc.pbe0, Xc.hse)
-BEYOND_GGA = (Xc.pbe0, Xc.hse, Xc.scan)
-GW = (Xc.gw0, )
-BEYOND_DFT = HYBRID_FUNCTIONAL + GW
 
 
 class ObaSet(DictSet):
@@ -181,9 +118,15 @@ class ObaSet(DictSet):
             orig_structure (Structure):
                 The original Structure.
             config_dict (dict):
+                The config dictionary to use.
             incar_settings (dict):
+                  User INCAR settings. See docstring in DictSet.
             potcar (Potcar):
             potcar_functional (str):
+                 Functional to use. Default (None) is to use the functional in
+                 Potcar.DEFAULT_FUNCTIONAL. Valid values: "PBE", "PBE_52",
+                 "PBE_54", "LDA", "LDA_52", "LDA_54", "PW91", "LDA_US",
+                 "PW91_US". (See docstring in DictSet.)
             kpoints (Kpoints):
             xc (str):
                 A string representing xc defined in Xc.
@@ -221,7 +164,7 @@ class ObaSet(DictSet):
                 Files to be moved to the directly where files are to be written.
             files_to_link (dict):
                 Files to be linked via symbolic link with full path name to the
-                directly where files are to be written.
+                directories where files are to be written.
             files_to_transfer (dict):
                 Files to be copied to the directly where files are to be written.
             kwargs (dict):
@@ -293,7 +236,7 @@ class ObaSet(DictSet):
         """
          --------------------------------------------------------------------
         POSCAR: structure, standardize_structure
-        POTCAR: xc, user_potfar_yaml
+        POTCAR: xc, user_potcar_yaml
          INCAR: incar_from_prev_calc, xc, task, rough, charge, encut, vbm_cbm,
                 band_gap hubbard_u, ionic_contribution, num_cores_per_node,
                 num_nodes, auto_kpar_npar, is_magnetization
@@ -313,7 +256,7 @@ class ObaSet(DictSet):
             is_cluster (bool):
                 Whether the calculation is for a cluster including a molecule.
             rough (bool):
-                Whether to ease the convergence criterion.
+                Whether to use rough criterion for convergence.
                 Set EDIFF = 1e-5, EDIFFG = -0.04, NKRED = 2 in INCAR.
             factor (int):
                 Factor to be multiplied to the k-points along all the
@@ -356,7 +299,7 @@ class ObaSet(DictSet):
                 Whether to add Hubbard U parameter for lda/gga calculations.
                 By default, it is switched off for hybrid functional and GW
                 approximations. If one wants to add it, use user_incar_setting.
-                U-parameters are also prefixed in element_specific_parameters.py
+                U-parameters are also prefixed in element_parameters.py
             ldauu (dict):
                 Set when users want to modify U parameters from default.
                 LDAUL also needs to be supplied.
@@ -422,7 +365,6 @@ class ObaSet(DictSet):
                     files_to_transfer (dict):
         """
         structure = deepcopy(structure)
-
         kwargs = kwargs or {}
         files_to_move = files_to_move or {}
         files_to_link = files_to_link or {}
@@ -442,8 +384,10 @@ class ObaSet(DictSet):
                 default_potcar = "default_POTCAR_list"
 
         # read config_dict and override some values.
-        config_dict = _load_oba_yaml_config("ObaRelaxSet", default_potcar,
-                                            override_potcar_set)
+        config_dict = \
+            _load_oba_yaml_config(set_list_name="ObaRelaxSet",
+                                  potcar_yaml=default_potcar,
+                                  override_potcar_set=override_potcar_set)
         if ldauu:
             config_dict["INCAR"]["LDAUU"].update(ldauu)
         if ldaul:
@@ -555,9 +499,17 @@ class ObaSet(DictSet):
 
         # if factor is None, set depending on the task.
         incar_settings, factor = \
-            cls.make_incar_setting(structure, xc, task, rough, encut,
-                                   vbm_cbm, potcar, band_gap, only_even,
-                                   ionic_contribution, factor, encut_factor_str_opt)
+            make_incar_setting(structure=structure,
+                               xc=xc,
+                               task=task,
+                               rough=rough,
+                               encut=encut,
+                               vbm_cbm=vbm_cbm,
+                               potcar=potcar,
+                               only_even_kpt=only_even,
+                               ionic_contribution=ionic_contribution,
+                               factor=factor,
+                               encut_factor_str_opt=encut_factor_str_opt)
 
         # - kpoints shift
         # To sample the band edges, Gamma-centered mesh is forced for dos and
