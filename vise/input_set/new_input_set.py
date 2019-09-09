@@ -27,6 +27,8 @@ __maintainer__ = "Yu Kumagai"
 class InputSet(VaspInputSet):
     def __init__(self,
                  structure: Structure,
+                 xc: Xc,
+                 task: Task,
                  kpoints,
                  potcar,
                  incar_settings,
@@ -34,6 +36,8 @@ class InputSet(VaspInputSet):
                  files_to_transfer,
                  **kwargs):
         self.structure = structure
+        self.xc = xc
+        self.task = task
         self._kpoints = kpoints
         self._potcar = potcar
         self.incar_settings = incar_settings
@@ -45,6 +49,8 @@ class InputSet(VaspInputSet):
     def make_input(cls,
                    structure: Structure,
                    prev_set: "InputSet" = None,
+                   xc: Xc = Xc.pbe,
+                   task: Task = Task.structure_opt,
                    files_to_transfer: Optional[dict] = None,
                    user_incar_settings: Optional[dict] = None,
                    **kwargs) -> "InputSet":
@@ -53,9 +59,7 @@ class InputSet(VaspInputSet):
         user_incar_settings = user_incar_settings or {}
 
         # First, set default.
-        opts = {"xc": Xc.pbe,
-                "task": Task.structure_opt,
-                "sort_structure": True,
+        opts = {"sort_structure": True,
                 "standardize_structure": True,
                 "is_magnetization": False,
                 "kpt_mode": "primitive_uniform",
@@ -81,9 +85,36 @@ class InputSet(VaspInputSet):
                 "ldaul_set_name": None,
                 "charge": 0}
 
+        # Inherit those keys from prev_set if task is the same.
+        task_keys = {"kpt_mode", "kpt_density", "kpt_shift", "only_even",
+                     "band_ref_dist", "factor", "symprec", "angle_tolerance",
+                     "charge"}
+        # Inherit those keys from prev_set if xc is the same.
+        xc_keys = {"potcar_set_name", "override_potcar_set", "band_gap",
+                   "vbm_cbm", "aexx", "hubbard_u", "ldauu", "ldaul",
+                   "ldaul_set_name"}
+        # Inherit those keys from prev_set if xc and task are the same.
+        # encut depends on the potcar which depends on xc.
+        xc_task_keys = {"npar_kpar", "encut"}
+        # Inherit those keys from prev_set anytime.
+        common_keys = {"is_magnetization", "num_cores",
+                       "structure_opt_encut_factor"}
+
+        check = set(opts.keys()) - (task_keys | xc_keys | xc_task_keys | common_keys)
+        print(check)
+
         # Second, override with previous condition
         if prev_set:
-            opts.update(prev_set.kwargs)
+            key_set = common_keys
+            if prev_set.task == task:
+                key_set.update(task_keys)
+            if prev_set.xc == xc:
+                key_set.update(xc_keys)
+            if prev_set.task == task and prev_set.xc == xc:
+                key_set.update(xc_task_keys)
+            for k in key_set:
+                opts[k] = prev_set.kwargs[k]
+
         # Third, override with keyword arguments
         for k in kwargs:
             if k not in opts.keys():
@@ -95,7 +126,13 @@ class InputSet(VaspInputSet):
 
         orig_matrix = structure.lattice.matrix
         matrix = task_str_kpt.structure.lattice.matrix
-        if not np.allclose(orig_matrix, matrix, atol=opts["symprec"]):
+        structure_changed = \
+            not np.allclose(orig_matrix, matrix, atol=opts["symprec"])
+
+        if structure_changed and opts["charge"] != 0:
+            raise ValueError("Structure is changed but charge is set.")
+
+        if structure_changed:
             # The following files are useless when lattice is changed.
             pattern = \
                 re.compile("|".join([r"CHGCAR$", r"WAVECAR$", r"WAVEDER"]))
@@ -131,14 +168,13 @@ class InputSet(VaspInputSet):
                 {k: v for k, v in prev_set.incar_settings.items()
                  if k in OTHER_FLAGS}
             incar_settings.update(prev_other_settings)
-            # Previous user_incar_settings is inherited, but current one is
-            # prioritized.
-            d = deepcopy(prev_set.user_incar_settings)
-            user_incar_settings = d.update(user_incar_settings)
 
+        # user_incar_settings is prioritized.
         incar_settings.update(user_incar_settings)
 
         return cls(structure=task_str_kpt.structure,
+                   xc=xc,
+                   task=task,
                    kpoints=task_str_kpt.kpoints,
                    potcar=xc_task_potcar.potcar,
                    incar_settings=incar_settings,
