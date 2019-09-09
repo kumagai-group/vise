@@ -8,6 +8,10 @@ from pathlib import Path
 import numpy as np
 import os
 import re
+
+from vise.analyzer.band_gap import band_gap_properties
+from pymatgen.io.vasp.sets import (
+    get_vasprun_outcar, DictSet, get_structure_from_prev_run)
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.sets import VaspInputSet, Poscar
 from vise.core.config import (
@@ -49,8 +53,6 @@ class InputSet(VaspInputSet):
     def make_input(cls,
                    structure: Structure,
                    prev_set: "InputSet" = None,
-                   xc: Xc = Xc.pbe,
-                   task: Task = Task.structure_opt,
                    files_to_transfer: Optional[dict] = None,
                    user_incar_settings: Optional[dict] = None,
                    **kwargs) -> "InputSet":
@@ -59,7 +61,9 @@ class InputSet(VaspInputSet):
         user_incar_settings = user_incar_settings or {}
 
         # First, set default.
-        opts = {"sort_structure": True,
+        opts = {"xc": Xc.pbe,
+                "task": Task.structure_opt,
+                "sort_structure": True,
                 "standardize_structure": True,
                 "is_magnetization": False,
                 "kpt_mode": "primitive_uniform",
@@ -85,6 +89,7 @@ class InputSet(VaspInputSet):
                 "ldaul_set_name": None,
                 "charge": 0}
 
+        # Don't forget to add keys below when add to opts.
         # Inherit those keys from prev_set if task is the same.
         task_keys = {"kpt_mode", "kpt_density", "kpt_shift", "only_even",
                      "band_ref_dist", "factor", "symprec", "angle_tolerance",
@@ -100,17 +105,20 @@ class InputSet(VaspInputSet):
         common_keys = {"is_magnetization", "num_cores",
                        "structure_opt_encut_factor"}
 
-        check = set(opts.keys()) - (task_keys | xc_keys | xc_task_keys | common_keys)
-        print(check)
+        # Only for check.
+        check = (set(opts.keys())
+                 - (task_keys | xc_keys | xc_task_keys | common_keys))
+        if check != {"standardize_structure", "sort_structure", "task", "xc"}:
+            raise KeyError("Keys are not consistent.")
 
         # Second, override with previous condition
         if prev_set:
             key_set = common_keys
-            if prev_set.task == task:
+            if prev_set.task == opts["task"]:
                 key_set.update(task_keys)
-            if prev_set.xc == xc:
+            if prev_set.xc == opts["xc"]:
                 key_set.update(xc_keys)
-            if prev_set.task == task and prev_set.xc == xc:
+            if prev_set.task == opts["task"] and prev_set.xc == opts["xc"]:
                 key_set.update(xc_task_keys)
             for k in key_set:
                 opts[k] = prev_set.kwargs[k]
@@ -144,6 +152,7 @@ class InputSet(VaspInputSet):
             symbol_set=task_str_kpt.structure.symbol_set, **opts)
 
         task_settings = TaskIncarSettings.from_options(
+            structure=task_str_kpt.structure,
             composition=task_str_kpt.structure.composition,
             potcar=xc_task_potcar.potcar,
             num_kpoints=task_str_kpt.num_kpts,
@@ -169,12 +178,12 @@ class InputSet(VaspInputSet):
                  if k in OTHER_FLAGS}
             incar_settings.update(prev_other_settings)
 
+        # Note: user_incar_settings is not inherited from prev_set.
+        #       This is a specification of vise.
         # user_incar_settings is prioritized.
         incar_settings.update(user_incar_settings)
 
         return cls(structure=task_str_kpt.structure,
-                   xc=xc,
-                   task=task,
                    kpoints=task_str_kpt.kpoints,
                    potcar=xc_task_potcar.potcar,
                    incar_settings=incar_settings,
@@ -225,4 +234,39 @@ class InputSet(VaspInputSet):
             except FileNotFoundError:
                 logger.warning(f"{k} does not exist.")
 
+    @classmethod
+    def from_prev_calc(cls,
+                       dirname,
+                       parse_calc_results=True,
+                       sort_structure=True,
+                       standardize_structure=False,
+                       files_to_transfer=None,
+                       **kwargs):
+
+        kwargs = kwargs or {}
+        if parse_calc_results:
+            vasprun, outcar = get_vasprun_outcar(dirname)
+            structure = get_structure_from_prev_run(vasprun, outcar)
+            gap_properties = band_gap_properties(vasprun)
+            if gap_properties:
+                band_gap, cbm, vbm = gap_properties
+                kwargs["band_gap"] = band_gap
+                kwargs["vbm_cbm"] = [vbm["energy"], cbm["energy"]]
+
+            if vasprun.is_spin and max(structure.site_properties["magmom"]) > 0.05:
+                kwargs["is_magnetization"] = True
+
+        else:
+            if isfile(join(dirname, "CONTCAR")) and \
+                    getsize(join(dirname, "CONTCAR")) > 0:
+                structure = Structure.from_file(join(dirname, "CONTCAR"))
+            elif isfile(join(dirname, "POSCAR-finish")) and \
+                    getsize(join(dirname, "POSCAR-finish")) > 0:
+                structure = Structure.from_file(join(dirname, "POSCAR-finish"))
+            elif isfile(join(dirname, "POSCAR")) and \
+                    getsize(join(dirname, "POSCAR")) > 0:
+                structure = Structure.from_file(join(dirname, "POSCAR"))
+            # This file name is only used in Oba group.
+            else:
+                raise OSError("CONTCAR or POSCAR does not exist.")
 

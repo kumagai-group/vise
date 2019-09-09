@@ -6,8 +6,8 @@ from typing import Tuple, Optional
 from pymatgen.io.vasp.outputs import BSVasprun, Vasprun
 
 
-def band_gap_properties(vasprun: Vasprun, digit: int = 1
-                        ) -> Optional[Tuple[str, dict, dict]]:
+def band_gap_properties(vasprun: Vasprun,
+                        digit: int = 1) -> Optional[Tuple[str, dict, dict]]:
     """
     Args:
         vasprun (Vasprun):

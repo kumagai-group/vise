@@ -453,6 +453,7 @@ class TaskIncarSettings:
     @classmethod
     def from_options(cls,
                      task: Task,
+                     structure: Structure,
                      composition: Optional[Composition],
                      potcar: Potcar,
                      num_kpoints: int,
@@ -489,6 +490,8 @@ class TaskIncarSettings:
 
         if task == Task.defect or is_magnetization:
             settings["ISPIN"] = 2
+            if hasattr(structure, "site_properties"):
+                settings["MAGMOM"] = structure.site_properties["magmom"]
 
         if npar_kpar:
             settings["KPAR"] = 2
