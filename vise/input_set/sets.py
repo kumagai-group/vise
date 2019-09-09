@@ -17,6 +17,7 @@ from vise.util.structure_handler import find_spglib_primitive
 
 logger = get_logger(__name__)
 
+
 @unique
 class Xc(Enum):
     """ Supported exchange-correlation treatment. """
@@ -210,6 +211,78 @@ def nbands(composition: Composition, potcar: Potcar) -> int:
     return ceil(num_bands)
 
 
+def calc_npar_kpar(num_kpoints, num_cores_per_node, num_nodes):
+    """
+    :param structure:
+    :param kpoints:
+    :param num_cores_per_node:
+    :param num_nodes:
+    :param symprec:
+    :return:
+    """
+
+    kpar_set = {
+        1:        [1, 1, 1],
+        2:        [2, 2, 2],
+        3:        [3, 3, 3],
+        4:        [2, 4, 4],
+        5:        [1, 2, 2],
+        6:        [3, 6, 6],
+        7:        [2, 2, 4],
+        8:        [4, 8, 8],
+        9:        [3, 3, 3],
+        10:       [2, 2, 2],
+        11:       [2, 2, 2],
+        12:       [3, 4, 4],
+        13:       [2, 2, 2],
+        14:       [2, 2, 2],
+        15:       [3, 2, 2],
+        16:       [4, 4, 8],
+        17:       [2, 4, 4],
+        18:       [3, 6, 4],
+        19:       [2, 4, 4],
+        20:       [2, 4, 4],
+        21:       [3, 3, 3],
+        22:       [2, 4, 4],
+        23:       [2, 4, 4],
+        24:       [3, 6, 8],
+        25:       [2, 4, 4],
+        26:       [2, 4, 4],
+        27:       [3, 4, 4],
+        28:       [2, 4, 4],
+        29:       [2, 4, 4],
+        30:       [3, 6, 4],
+        31:       [3, 4, 4],
+        32:       [3, 4, 8],
+        33:       [3, 4, 4],
+        34:       [3, 4, 4],
+        35:       [3, 4, 4],
+        36:       [4, 8, 16],
+        48:       [4, 8, 16],
+        60:       [4, 8, 16],
+        72:       [4, 8, 16],
+        "others": [4, 8, 16]}
+
+    if num_kpoints in kpar_set:
+        num_kpt_key = num_kpoints
+    else:
+        num_kpt_key = "others"
+
+    if num_nodes == 2:
+        kpar = kpar_set[num_kpt_key][1]
+    elif num_nodes == 4:
+        kpar = kpar_set[num_kpt_key][2]
+    else:
+        kpar = kpar_set[num_kpt_key][0]
+
+    if kpar == 1:
+        npar = 2
+    else:
+        npar = 1
+
+    return kpar, npar, num_kpoints
+
+
 class TaskStructureKpoints:
 
     def __init__(self,
@@ -239,7 +312,8 @@ class TaskStructureKpoints:
                      band_ref_dist: float,
                      factor: Optional[int],
                      symprec: float,
-                     angle_tolerance: float):
+                     angle_tolerance: float,
+                     **kwargs):
         """
 
         See docstrings in the make_input method in InputSet class
@@ -247,6 +321,13 @@ class TaskStructureKpoints:
         """
         if sort_structure:
             structure = original_structure.get_sorted_structure()
+            if structure.symbol_set != original_structure.symbol_set:
+                logger.warning(
+                    "CAUTION: The sequence of the species is changed."
+                    f"Symbol set in the original structure " 
+                    f"{original_structure.symbol_set} "
+                    f"Symbol set in the generated structure "
+                    f"{structure.symbol_set}")
         else:
             structure = original_structure.copy()
 
@@ -264,6 +345,12 @@ class TaskStructureKpoints:
             primitive_structure, is_structure_changed = \
                 find_spglib_primitive(structure, symprec, angle_tolerance)
 
+            if is_structure_changed:
+                logger.warning(
+                    "CAUTION: The structure is changed."
+                    f"Original lattice: {original_structure.lattice}"
+                    f"Generated lattice: {primitive_structure.lattice}")
+
             if standardize_structure:
                 structure = primitive_structure
             else:
@@ -275,6 +362,15 @@ class TaskStructureKpoints:
                     kpt_mode = "manual_set"
                 else:
                     logger.info("The structure is a standardized primitive.")
+
+        if factor is None:
+            if task == Task.dielectric_function:
+                factor = 3
+            elif task in (Task.dos, Task.dielectric_dfpt,
+                          Task.dielectric_finite_field):
+                factor = 2
+            else:
+                factor = 1
 
         # - KPOINTS construction
         kpoints, structure, sg, num_kpts = \
@@ -307,7 +403,8 @@ class XcTaskPotcar:
                      task: Task,
                      symbol_set: tuple,
                      potcar_set_name: str = None,
-                     override_potcar_set: dict = None):
+                     override_potcar_set: dict = None,
+                     **kwargs):
 
         potcar_functional = "LDA" if xc == Xc.lda else "PBE"
         potcar_set_name = potcar_set_name or "normal"
@@ -366,7 +463,8 @@ class TaskIncarSettings:
                      npar_kpar: bool,
                      num_cores: list,
                      encut: Optional[float],
-                     structure_opt_encut_factor: float):
+                     structure_opt_encut_factor: float,
+                     **kwargs):
         """
         See docstrings in the make_input method in InputSet class
         """
@@ -410,7 +508,6 @@ class TaskIncarSettings:
 class XcIncarSettings:
 
     def __init__(self, settings: dict):
-        print(XC_OPTIONAL_FLAGS)
         check_keys(settings, XC_REQUIRED_FLAGS, XC_OPTIONAL_FLAGS)
         self.settings = settings
 
@@ -423,7 +520,8 @@ class XcIncarSettings:
                      hubbard_u: Optional[bool] = None,
                      ldauu: Optional[dict] = None,
                      ldaul: Optional[dict] = None,
-                     ldaul_set_name: Optional[str] = "lda_gga_normal"):
+                     ldaul_set_name: Optional[str] = None,
+                     **kwargs):
 
         settings = \
             load_default_incar_settings(yaml_filename="xc_incar_set.yaml",
@@ -431,25 +529,31 @@ class XcIncarSettings:
                                         optional_flags=XC_OPTIONAL_FLAGS,
                                         key_name=str(xc))
 
-        if not hubbard_u:
+        if hubbard_u is None:
             hubbard_u = xc in LDA_OR_GGA
+        ldaul_set_name = ldaul_set_name or "lda_gga_normal"
+        ldauu = ldauu or {}
+        ldaul = ldaul or {}
 
         if hubbard_u:
-            settings.update({"LDAU": True, "LDAUTYPE": 2, "LDAUPRINT": 1})
             u_set = loadfn(SET_DIR / "u_parameter_set.yaml")
             ldauu_set = u_set["LDAUU"][ldaul_set_name]
             ldauu_set.update(ldauu)
-            ldaul_set = u_set["LDAUL"][ldaul_set_name]
-            ldaul_set.update(ldaul)
+            ldauu = [ldauu_set.get(el, 0) for el in symbol_set]
 
-            settings["LDAUU"] = [ldauu_set[el] for el in symbol_set]
-            settings["LDAUL"] = [ldaul_set[el] for el in symbol_set]
+            if sum(ldauu) > 0:
+                settings["LDAUU"] = ldauu
 
-            # contains f-electrons
-            if any([Element(el).Z > 56 for el in symbol_set]):
-                settings["LMAXMIX"] = 6
-            else:
-                settings["LMAXMIX"] = 4
+                ldaul_set = u_set["LDAUL"][ldaul_set_name]
+                ldaul_set.update(ldaul)
+                settings["LDAUL"] = [ldaul_set.get(el, -1) for el in symbol_set]
+
+                settings.update({"LDAU": True, "LDAUTYPE": 2, "LDAUPRINT": 1})
+                # contains f-electrons
+                if any([Element(el).Z > 56 for el in symbol_set]):
+                    settings["LMAXMIX"] = 6
+                else:
+                    settings["LMAXMIX"] = 4
 
         if xc in HYBRID_FUNCTIONAL:
             settings["AEXX"] = aexx
@@ -473,17 +577,19 @@ class XcTaskIncarSettings:
 
 class CommonIncarSettings:
     def __init__(self, settings: dict):
-        check_keys(settings, XC_REQUIRED_FLAGS, XC_OPTIONAL_FLAGS)
+        check_keys(settings, COMMON_REQUIRED_FLAGS, COMMON_OPTIONAL_FLAGS)
         self.settings = settings
 
     @classmethod
     def from_options(cls,
                      potcar: Potcar,
                      composition: Composition,
-                     charge: int):
+                     charge: int,
+                     **kwargs):
         """ """
         settings = {"NELM": 100, "LASPH": True, "LORBIT": 12, "LCHARG": False,
                     "SIGMA": 0.1}
+        # Structure charge is ignored.
         if charge:
             settings["NELCT"] = nelect(composition, potcar, charge)
 

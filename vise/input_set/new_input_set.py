@@ -2,16 +2,20 @@
 
 from copy import deepcopy
 from typing import Optional
-
+from monty.io import zopen
+import shutil
+from pathlib import Path
 import numpy as np
+import os
+import re
 from pymatgen.core.structure import Structure
-from pymatgen.io.vasp.sets import (
-    VaspInputSet)
+from pymatgen.io.vasp.sets import VaspInputSet, Poscar
 from vise.core.config import (
     KPT_DENSITY, ENCUT_FACTOR_STR_OPT, ANGLE_TOL, SYMPREC)
+from vise.input_set.incar import ViseIncar
 from vise.input_set.sets import (
     Task, Xc, TaskStructureKpoints, XcTaskPotcar, TaskIncarSettings,
-    XcIncarSettings, XcTaskIncarSettings, CommonIncarSettings)
+    XcIncarSettings, XcTaskIncarSettings, CommonIncarSettings, OTHER_FLAGS)
 from vise.util.logger import get_logger
 
 logger = get_logger(__name__)
@@ -23,146 +27,166 @@ __maintainer__ = "Yu Kumagai"
 class InputSet(VaspInputSet):
     def __init__(self,
                  structure: Structure,
-                 orig_structure: Structure,
-                 incar,
-                 potcar,
                  kpoints,
-                 task,
-                 xc,
-                 kpt_mode,
-                 kpt_density,
-                 band_ref_dist: float,
-                 factor,
-                 encut,
-                 structure_opt_encut_factor: float,
-                 is_magnetization: bool,
-                 hubbard_u: Optional[bool],
-                 ldauu: Optional[dict],
-                 ldaul: Optional[dict],
+                 potcar,
+                 incar_settings,
+                 user_incar_settings,
+                 files_to_transfer,
                  **kwargs):
-        pass
+        self.structure = structure
+        self._kpoints = kpoints
+        self._potcar = potcar
+        self.incar_settings = incar_settings
+        self.user_incar_settings = user_incar_settings
+        self.files_to_transfer = files_to_transfer
+        self.kwargs = kwargs
 
     @classmethod
     def make_input(cls,
                    structure: Structure,
                    prev_set: "InputSet" = None,
-                   xc: Xc = Xc.pbe,
-                   task: Task = Task.structure_opt,
                    files_to_transfer: Optional[dict] = None,
-                   user_incar_settings: dict = None,
-                   #  ---- TaskStructureKpoints
-                   standardize_structure: bool = True,
-                   sort_structure: bool = True,
-                   is_magnetization: bool = False,
-                   kpt_mode: str = "primitive_uniform",
-                   kpt_density: float = KPT_DENSITY,
-                   kpts_shift: list = None,
-                   only_even: bool = False,
-                   band_ref_dist: float = 0.03,
-                   factor: int = None,
-                   symprec: float = SYMPREC,
-                   angle_tolerance: float = ANGLE_TOL,
-                   #  ---- XcTaskPotcar
-                   potcar_set_name: str = "normal",
-                   override_potcar_set: dict = None,
-                   #  ---- TaskIncarSettings
-                   band_gap: float = None,
-                   vbm_cbm: list = None,
-                   npar_kpar: bool = True,
-                   num_cores=None,
-                   encut: float = None,
-                   structure_opt_encut_factor: float = ENCUT_FACTOR_STR_OPT,
-                   #  ---- XcIncarSettings
-                   aexx: Optional[float] = 0.25,
-                   hubbard_u: bool = True,
-                   ldauu: Optional[dict] = None,
-                   ldaul: Optional[dict] = None,
-                   ldaul_set_name: Optional[dict] = None,
-                   #  ---- CommonSettings
-                   charge: int = 0):
+                   user_incar_settings: Optional[dict] = None,
+                   **kwargs) -> "InputSet":
 
-        num_cores = num_cores or [36, 1]
         files_to_transfer = files_to_transfer or {}
         user_incar_settings = user_incar_settings or {}
 
-        use_prev_xc = True if prev_set and prev_set.xc == xc else False
-        use_prev_task = True if (prev_set and prev_set.task == task and
-                                 prev_set.structure == structure) else False
+        # First, set default.
+        opts = {"xc": Xc.pbe,
+                "task": Task.structure_opt,
+                "sort_structure": True,
+                "standardize_structure": True,
+                "is_magnetization": False,
+                "kpt_mode": "primitive_uniform",
+                "kpt_density": KPT_DENSITY,
+                "kpt_shift": None,
+                "only_even": False,
+                "band_ref_dist": 0.03,
+                "factor": None,
+                "symprec": SYMPREC,
+                "angle_tolerance": ANGLE_TOL,
+                "potcar_set_name": "normal",
+                "override_potcar_set": None,
+                "band_gap": None,
+                "vbm_cbm": None,
+                "npar_kpar": True,
+                "num_cores": [36, 1],
+                "encut": None,
+                "structure_opt_encut_factor": ENCUT_FACTOR_STR_OPT,
+                "aexx": 0.25,
+                "hubbard_u": None,
+                "ldauu": None,
+                "ldaul": None,
+                "ldaul_set_name": None,
+                "charge": 0}
 
-        if use_prev_task:
-            task_str_kpt = prev_set.task_str_kpt
-        else:
-            task_str_kpt = TaskStructureKpoints.from_options(
-                task=task,
-                original_structure=structure,
-                standardize_structure=standardize_structure,
-                sort_structure=sort_structure,
-                is_magnetization=is_magnetization,
-                kpt_mode=kpt_mode,
-                kpt_density=kpt_density,
-                kpt_shift=kpts_shift,
-                only_even=only_even,
-                band_ref_dist=band_ref_dist,
-                factor=factor,
-                symprec=symprec,
-                angle_tolerance=angle_tolerance)
+        # Second, override with previous condition
+        if prev_set:
+            opts.update(prev_set.kwargs)
+        # Third, override with keyword arguments
+        for k in kwargs:
+            if k not in opts.keys():
+                logger.warning(f"Keyword {k} is not adequate in vise InputSet.")
+        opts.update(kwargs)
+
+        task_str_kpt = TaskStructureKpoints.from_options(
+            original_structure=structure, **opts)
 
         orig_matrix = structure.lattice.matrix
         matrix = task_str_kpt.structure.lattice.matrix
-        if not np.allclose(orig_matrix, matrix, atol=symprec):
+        if not np.allclose(orig_matrix, matrix, atol=opts["symprec"]):
             # The following files are useless when lattice is changed.
-            for f in ["CHGCAR", "WAVECAR"]:
-                files_to_transfer.pop(f, None)
+            pattern = \
+                re.compile("|".join([r"CHGCAR$", r"WAVECAR$", r"WAVEDER"]))
+            for f in files_to_transfer:
+                if pattern.match(f):
+                    files_to_transfer.pop(f, None)
 
-        if use_prev_task and use_prev_xc:
-            xc_task_potcar = prev_set.xc_task_potcar
-        else:
-            xc_task_potcar = XcTaskPotcar.from_options(
-                xc=xc,
-                task=task,
-                symbol_set=task_str_kpt.structure.symbol_set,
-                potcar_set_name=potcar_set_name,
-                override_potcar_set=override_potcar_set)
+        xc_task_potcar = XcTaskPotcar.from_options(
+            symbol_set=task_str_kpt.structure.symbol_set, **opts)
 
-        if use_prev_task:
-            task_settings = prev_set.task_settings
-        else:
-            task_settings = TaskIncarSettings.from_options(
-                task=task,
-                composition=task_str_kpt.structure.composition,
-                potcar=xc_task_potcar.potcar,
-                num_kpoints=task_str_kpt.num_kpts,
-                max_enmax=xc_task_potcar.max_enmax,
-                is_magnetization=is_magnetization,
-                band_gap=band_gap,
-                vbm_cbm=vbm_cbm,
-                npar_kpar=npar_kpar,
-                num_cores=num_cores,
-                encut=encut,
-                structure_opt_encut_factor=structure_opt_encut_factor)
+        task_settings = TaskIncarSettings.from_options(
+            composition=task_str_kpt.structure.composition,
+            potcar=xc_task_potcar.potcar,
+            num_kpoints=task_str_kpt.num_kpts,
+            max_enmax=xc_task_potcar.max_enmax, **opts)
 
-        if use_prev_xc:
-            xc_settings = prev_set.xc_settings
-        else:
-            xc_settings = XcIncarSettings.from_options(
-                xc=xc,
-                symbol_set=task_str_kpt.structure.symbol_set,
-                factor=factor,
-                aexx=aexx,
-                hubbard_u=hubbard_u,
-                ldauu=ldauu,
-                ldaul=ldaul,
-                ldaul_set_name=ldaul_set_name)
+        xc_settings = XcIncarSettings.from_options(
+            symbol_set=task_str_kpt.structure.symbol_set, **opts)
 
-        if use_prev_task and use_prev_xc:
-            xc_task_settings = prev_set.xc_task_settings
-        else:
-            xc_task_settings = XcTaskIncarSettings()
+        xc_task_settings = XcTaskIncarSettings.from_options()
 
         common_settings = CommonIncarSettings.from_options(
             potcar=xc_task_potcar.potcar,
-            composition=task_str_kpt.structure.composition,
-            charge=charge)
+            composition=task_str_kpt.structure.composition, **opts)
 
+        incar_settings = deepcopy(task_settings.settings)
+        incar_settings.update(xc_settings.settings)
+        incar_settings.update(xc_task_settings.settings)
+        incar_settings.update(common_settings.settings)
+
+        if prev_set:
+            prev_other_settings = \
+                {k: v for k, v in prev_set.incar_settings.items()
+                 if k in OTHER_FLAGS}
+            incar_settings.update(prev_other_settings)
+            # Previous user_incar_settings is inherited, but current one is
+            # prioritized.
+            d = deepcopy(prev_set.user_incar_settings)
+            user_incar_settings = d.update(user_incar_settings)
+
+        incar_settings.update(user_incar_settings)
+
+        return cls(structure=task_str_kpt.structure,
+                   kpoints=task_str_kpt.kpoints,
+                   potcar=xc_task_potcar.potcar,
+                   incar_settings=incar_settings,
+                   user_incar_settings=user_incar_settings,
+                   files_to_transfer=files_to_transfer, **opts)
+
+    @property
+    def potcar(self):
+        return self._potcar
+
+    @property
+    def kpoints(self):
+        return self._kpoints
+
+    @property
+    def incar(self):
+        incar = ViseIncar.from_dict(self.incar_settings)
+        return incar
+
+    @property
+    def poscar(self):
+        return Poscar(self.structure)
+
+    def write_input(self,
+                    output_dir: str,
+                    make_dir_if_not_present: bool = True,
+                    include_cif: bool = False) -> None:
+
+        super().write_input(output_dir=output_dir,
+                            make_dir_if_not_present=make_dir_if_not_present,
+                            include_cif=include_cif)
+
+        out_dir = Path(output_dir).absolute()
+        for k, v in self.files_to_transfer.items():
+            try:
+                # full path is usually safer though it depends.
+                filepath = Path(k).absolute()
+                name = filepath.name
+                with zopen(str(filepath), "rb") as fin, \
+                        zopen(str(out_dir / name), "wb") as fout:
+                    if v[0] == "c":
+                        shutil.copyfileobj(fin, fout)
+                    elif v[0] == "m":
+                        shutil.move(fin, fout)
+                    elif v[0] == "l":
+                        os.symlink(fin, fout)
+
+            except FileNotFoundError:
+                logger.warning(f"{k} does not exist.")
 
 
