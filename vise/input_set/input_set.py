@@ -17,13 +17,13 @@ from pymatgen.io.vasp.sets import (
     get_vasprun_outcar, DictSet, get_structure_from_prev_run)
 from vise.core.config import (
     KPT_DENSITY, ENCUT_FACTOR_STR_OPT, ANGLE_TOL, SYMPREC)
-from vise.input_set.incar import ObaIncar, make_incar_setting
+from vise.input_set.incar import ViseIncar, make_incar_setting
 from vise.input_set.kpoints import make_kpoints, num_irreducible_kpoints
 from vise.input_set.set import Task, Xc
 from vise.util.logger import get_logger
-from vise.util.structure_handler import find_spglib_standard_primitive
-#from vise.input_set.xc import XcInputSet
-#from vise.input_set.task import TaskInputSet
+from vise.util.structure_handler import find_spglib_primitive
+#from vise.input_set.xc import XcIncarSet
+#from vise.input_set.task import TaskIncarSet
 
 logger = get_logger(__name__)
 
@@ -86,6 +86,7 @@ class InputSet(DictSet):
     """
 
     def __init__(self,
+                 a: "InputSet",
                  structure: Structure,
                  orig_structure: Structure,
                  config_dict: dict,
@@ -199,6 +200,7 @@ class InputSet(DictSet):
                    structure: Structure,
                    xc: str = "pbe",
                    task: str = "structure_opt",
+                   a: "InputSet" = None,
                    incar_from_prev_calc: bool = False,
                    standardize_structure: bool = True,
                    sort_structure: bool = True,
@@ -335,14 +337,26 @@ class InputSet(DictSet):
         files_to_link = files_to_link or {}
         files_to_transfer = files_to_transfer or {}
 
-        task = Task.from_string(task)
+        if isinstance(task, str):
+            task = Task.from_string(task)
+        elif not isinstance(task, Task):
+            raise TypeError("task needs to be str or Task object")
+
         xc = Xc.from_string(xc)
 
+        if not default_potcar:
+            if xc in GW or task in (Task.gw_pre_calc1, Task.gw_pre_calc2):
+                default_potcar = "default_GW_POTCAR_list"
+            else:
+                default_potcar = "default_POTCAR_list"
 
-
-
-
-
+        # read config_dict and override some values.
+        config_dict = _load_oba_yaml_config("ObaRelaxSet", default_potcar,
+                                            override_potcar_set)
+        if ldauu:
+            config_dict["INCAR"]["LDAUU"].update(ldauu)
+        if ldaul:
+            config_dict["INCAR"]["LDAUL"].update(ldaul)
 
         # Reset only INCAR. Be careful if the INCAR flags depend on the
         # POTCAR files, e.g., NBANDS.
@@ -414,7 +428,7 @@ class InputSet(DictSet):
             # Note that when applying find_spglib_standard_primitive, site
             # properties are removed.
             primitive_structure, is_structure_changed = \
-                find_spglib_standard_primitive(
+                find_spglib_primitive(
                     structure, symprec, angle_tolerance)
 
             if standardize_structure:
@@ -525,7 +539,7 @@ class InputSet(DictSet):
                              only_even=only_even,
                              num_split_kpoints=1,
                              ref_distance=band_ref_dist,
-                             kpts_shift=kpts_shift,
+                             kpt_shift=kpts_shift,
                              factor=factor,
                              symprec=SYMPREC,
                              angle_tolerance=ANGLE_TOL,
@@ -597,7 +611,7 @@ class InputSet(DictSet):
             else:
                 settings[k] = v
         structure = self.structure
-        incar = ObaIncar()
+        incar = ViseIncar()
         comp = structure.composition
         elements = sorted([el for el in comp.elements if comp[el] > 0],
                           key=lambda e: e.X)
@@ -828,7 +842,7 @@ class InputSet(DictSet):
         if parse_incar:
             kwargs["incar_from_prev_calc"] = True
             try:
-                incar = ObaIncar.from_file(join(dirname, "INCAR"))
+                incar = ViseIncar.from_file(join(dirname, "INCAR"))
                 weak_incar_settings = incar.as_dict()
                 # Manually set potcar and xc are always prioritized.
                 if "weak_incar_settings" in kwargs:

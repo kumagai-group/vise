@@ -10,6 +10,8 @@ ANGLE_TOL = 5
 KPT_DENSITY = 2.5
 ENCUT_FACTOR_STR_OPT = 1.3
 
+BAND_GAP_CRITERION = 0.2
+
 COLOR = [
     "xkcd:blue",
     "xkcd:brown",

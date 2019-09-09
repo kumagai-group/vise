@@ -1,0 +1,103 @@
+# task
+LREAL:
+  structure_opt: A
+  structure_opt_rough: False
+  structure_opt_tight: False
+  cluster_opt: False
+  phonon_force: False
+  defect: False
+  band: False
+  dos: False
+  dielectric_dfpt: False
+  dielectric_finite_field: False
+  dielectric_function: False
+
+ISPIN:
+  structure_opt: False
+  structure_opt_rough: False
+  structure_opt_tight: False
+  cluster_opt: False
+  phonon_force: False
+  defect: True
+  band: False
+  dos: False
+  dielectric_dfpt: False
+  dielectric_finite_field: False
+  dielectric_function: False
+
+ISIF:
+  structure_opt: 3
+  structure_opt_rough: 3
+  structure_opt_tight: 3
+  cluster_opt: 2
+  phonon_force: 2
+  defect: 2
+  band: 0
+  dos: 0
+  dielectric_dfpt: 0
+  dielectric_finite_field: 0
+  dielectric_function: 0
+
+EDIFF:
+  structure_opt: 1e-7
+  structure_opt_rough: 1e-4
+  structure_opt_tight: 1e-8
+  cluster_opt: 1e-7
+  phonon_force: 1e-8
+  defect: 1e-5
+  band: 1e-5
+  dos: 1e-5
+  dielectric_dfpt: 1e-6
+  dielectric_finite_field: 1e-6
+  dielectric_function: 1e-5
+
+IBRION:
+  structure_opt: 2
+  structure_opt_rough: 2
+  structure_opt_tight: 2
+  cluster_opt: 2
+  phonon_force: 2
+  defect: 2
+  band: 2
+  dos: 2
+  dielectric_dfpt: 8
+  dielectric_finite_field: 2
+  dielectric_function: 2
+
+# -5 is acceptable for num_kpt >= 4 and is_band_gap = True
+ISMEAR:
+  structure_opt: 0
+  structure_opt_rough: 0
+  structure_opt_tight: 0
+  cluster_opt: 0
+  phonon_force: 0
+  defect: 0
+  band: 0
+  dos: -5
+  dielectric_dfpt: 0
+  dielectric_finite_field: 0
+  dielectric_function: -5
+
+NSW:
+  structure_opt: 100
+  structure_opt_rough: 100
+  structure_opt_tight: 100
+  cluster_opt: 100
+  phonon_force: 0
+  defect: 100
+
+EDIFFG:
+  structure_opt: -0.005
+  structure_opt_rough: -0.2
+  structure_opt_tight: -0.001
+  cluster_opt: -0.005
+  defect: -0.05
+
+POTIM:
+  structure_opt_rough: 0.1
+
+ADDGRID:
+  structure_opt_tight: True
+  phonon_force:  True
+
+# KPAR depends on the number of kpoints.

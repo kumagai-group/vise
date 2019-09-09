@@ -1,0 +1,21 @@
+LDAUU:
+  lda_gga_normal:
+    Cr: 3
+    Mn: 3
+    Fe: 3
+    Co: 3
+    Ni: 5
+    Cu: 5
+    Zn: 5
+    Eu: 5
+
+LDAUL:
+  lda_gga_normal:
+    Cr: 2
+    Mn: 2
+    Fe: 2
+    Co: 2
+    Ni: 2
+    Cu: 2
+    Zn: 2
+    Eu: 3

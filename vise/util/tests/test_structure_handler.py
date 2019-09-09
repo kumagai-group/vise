@@ -2,25 +2,21 @@
 
 import numpy as np
 import os
-import unittest
 
 from pymatgen.core.structure import Structure
 from pymatgen.core.sites import PeriodicSite
 
-from obadb.util.structure_handler \
-    import get_symmetry_dataset, get_point_group_from_dataset, \
-    structure_to_spglib_cell, spglib_cell_to_structure, find_hpkot_primitive, \
-    structure_to_seekpath, get_coordination_environment, \
-    get_coordination_distances, NotAppropriatePrimitiveError
+from vise.util.structure_handler import (
+    get_symmetry_dataset, structure_to_spglib_cell, spglib_cell_to_structure,
+    find_hpkot_primitive, structure_to_seekpath )
+from vise.util.testing import ViseTest
+from vise.core.error_classes import InvalidStructureError
 
 __author__ = "Yu Kumagai"
 __maintainer__ = "Yu Kumagai"
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                        "test_files", "vasp")
 
-
-class GetSymmetryDatasetTest(unittest.TestCase):
+class GetSymmetryDatasetTest(ViseTest):
 
     def setUp(self):
         self.structure = Structure.from_file("POSCAR-MgSe300atoms")
@@ -30,21 +26,7 @@ class GetSymmetryDatasetTest(unittest.TestCase):
         print(dataset)
 
 
-class GetPointGroupFromDatasetTest(unittest.TestCase):
-
-    def setUp(self):
-        structure = Structure.from_file("POSCAR-MgSe300atoms")
-        self.sym_dataset = get_symmetry_dataset(structure, symprec=0.1)
-        self.lattice = structure.lattice.matrix
-
-    def test(self):
-        coords = [0.133333, 0.066667, 0.166252]
-
-        print(get_point_group_from_dataset(self.sym_dataset, coords,
-                                           self.lattice, symprec=0.1))
-
-
-class StructureToSpglibCellTest(unittest.TestCase):
+class StructureToSpglibCellTest(ViseTest):
 
     def setUp(self):
         structure = Structure.from_file("BPOSCAR-MgO")
@@ -63,7 +45,7 @@ class StructureToSpglibCellTest(unittest.TestCase):
         self.assertTrue(expected_atomic_numbers, self.cell[2])
 
 
-class SpglibCellToStructureTest(unittest.TestCase):
+class SpglibCellToStructureTest(ViseTest):
     def setUp(self):
         self.structure = Structure.from_file("BPOSCAR-MgO")
         self.cell = structure_to_spglib_cell(self.structure)
@@ -73,13 +55,13 @@ class SpglibCellToStructureTest(unittest.TestCase):
         self.assertTrue(self.structure == self.returned_structure)
 
 
-class FindSpglibStandardConventionalTest(unittest.TestCase):
+class FindSpglibStandardConventionalTest(ViseTest):
     def setUp(self):
         self.structure = Structure.from_file("PPOSCAR-MgO")
         self.cell = structure_to_spglib_cell(self.structure)
 
 
-class FindHPKOTPrimitiveTest(unittest.TestCase):
+class FindHPKOTPrimitiveTest(ViseTest):
     def test(self):
         expected = Structure.from_file("PPOSCAR-MgO")
         actual = find_hpkot_primitive(Structure.from_file("BPOSCAR-MgO"))
@@ -90,7 +72,7 @@ class FindHPKOTPrimitiveTest(unittest.TestCase):
         self.assertTrue(sm.fit(expected, actual))
 
 
-class StructureToSeekpathTest(unittest.TestCase):
+class StructureToSeekpathTest(ViseTest):
 
     def setUp(self):
         self.conventional_cell_structure = \
@@ -98,7 +80,7 @@ class StructureToSeekpathTest(unittest.TestCase):
         self.primitive_cell_structure = Structure.from_file("PPOSCAR-MgO")
 
     def test_raise_error(self):
-        with self.assertRaises(NotAppropriatePrimitiveError) as cm:
+        with self.assertRaises(InvalidStructureError):
             structure_to_seekpath(self.conventional_cell_structure)
 
     def test_return_res(self):
@@ -108,7 +90,7 @@ class StructureToSeekpathTest(unittest.TestCase):
         self.assertEqual("X", res["explicit_kpoints_labels"][-1])
 
 
-class StructureToSeekpathTest(unittest.TestCase):
+class StructureToSeekpathTest(ViseTest):
 
     def setUp(self):
         self.conventional_cell_structure = \
@@ -116,7 +98,7 @@ class StructureToSeekpathTest(unittest.TestCase):
         self.primitive_cell_structure = Structure.from_file("PPOSCAR-MgO")
 
     def test_raise_error(self):
-        with self.assertRaises(NotAppropriatePrimitiveError) as cm:
+        with self.assertRaises(InvalidStructureError):
             structure_to_seekpath(self.conventional_cell_structure)
 
     def test_return_res(self):
@@ -124,13 +106,5 @@ class StructureToSeekpathTest(unittest.TestCase):
         expected = np.array([0.5, 0, 0.5])
         np.testing.assert_equal(expected, res["explicit_kpoints_rel"][-1])
         self.assertEqual("X", res["explicit_kpoints_labels"][-1])
-
-
-
-
-    def test_get_neighbors(self):
-        a = get_coordination_distances(self.structure_zns, 0)
-        for k, v in a.items():
-            print(k + ": " + " ".join([str(round(i, 2)) for i in v]))
 
 

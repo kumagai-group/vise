@@ -2,7 +2,7 @@
 import filecmp
 import unittest
 
-from vise.input_set.incar import calc_nbands, ObaIncar, make_incar_setting
+from vise.input_set.incar import nbands, ViseIncar, make_incar_setting
 from vise.util.testing import ViseTest
 
 __author__ = "Yu Kumagai"
