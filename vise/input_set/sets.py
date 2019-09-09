@@ -237,7 +237,7 @@ class TaskStructureKpoints:
                      kpt_shift: list,
                      only_even: bool,
                      band_ref_dist: float,
-                     factor: int,
+                     factor: Optional[int],
                      symprec: float,
                      angle_tolerance: float):
         """
@@ -364,6 +364,7 @@ class TaskIncarSettings:
                      band_gap: float,
                      vbm_cbm: list,
                      npar_kpar: bool,
+                     num_cores: list,
                      encut: Optional[float],
                      structure_opt_encut_factor: float):
         """
@@ -422,7 +423,7 @@ class XcIncarSettings:
                      hubbard_u: Optional[bool] = None,
                      ldauu: Optional[dict] = None,
                      ldaul: Optional[dict] = None,
-                     set_name: Optional[str] = "lda_gga_normal"):
+                     ldaul_set_name: Optional[str] = "lda_gga_normal"):
 
         settings = \
             load_default_incar_settings(yaml_filename="xc_incar_set.yaml",
@@ -436,9 +437,9 @@ class XcIncarSettings:
         if hubbard_u:
             settings.update({"LDAU": True, "LDAUTYPE": 2, "LDAUPRINT": 1})
             u_set = loadfn(SET_DIR / "u_parameter_set.yaml")
-            ldauu_set = u_set["LDAUU"][set_name]
+            ldauu_set = u_set["LDAUU"][ldaul_set_name]
             ldauu_set.update(ldauu)
-            ldaul_set = u_set["LDAUL"][set_name]
+            ldaul_set = u_set["LDAUL"][ldaul_set_name]
             ldaul_set.update(ldaul)
 
             settings["LDAUU"] = [ldauu_set[el] for el in symbol_set]
@@ -458,7 +459,7 @@ class XcIncarSettings:
         return cls(settings=settings)
 
 
-class XcTaskIncarSet:
+class XcTaskIncarSettings:
 
     def __init__(self, settings: dict):
         check_keys(settings, XC_TASK_REQUIRED_FLAGS, XC_TASK_OPTIONAL_FLAGS)
@@ -470,7 +471,7 @@ class XcTaskIncarSet:
         return cls(settings)
 
 
-class CommonIncarSet:
+class CommonIncarSettings:
     def __init__(self, settings: dict):
         check_keys(settings, XC_REQUIRED_FLAGS, XC_OPTIONAL_FLAGS)
         self.settings = settings
@@ -478,13 +479,13 @@ class CommonIncarSet:
     @classmethod
     def from_options(cls,
                      potcar: Potcar,
-                     structure: Structure,
+                     composition: Composition,
                      charge: int):
         """ """
         settings = {"NELM": 100, "LASPH": True, "LORBIT": 12, "LCHARG": False,
                     "SIGMA": 0.1}
         if charge:
-            settings["NELCT"] = nelect(structure, potcar, charge)
+            settings["NELCT"] = nelect(composition, potcar, charge)
 
         return cls(settings=settings)
 
