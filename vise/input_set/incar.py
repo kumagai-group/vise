@@ -3,7 +3,7 @@ import itertools
 import os
 import re
 from copy import deepcopy
-from math import ceil
+from pathlib import Path
 
 from monty.io import zopen
 from monty.serialization import loadfn
@@ -11,21 +11,14 @@ from pymatgen.electronic_structure.core import Magmom
 from pymatgen.io.vasp import Incar
 from pymatgen.util.io_utils import clean_lines
 from tabulate import tabulate
-from vise.input_set.sets import Task, Xc, LDA_OR_GGA, HYBRID_FUNCTIONAL
-from pymatgen.core.structure import Structure
-from pymatgen.io.vasp.inputs import Potcar
-from math import ceil
-from vise.input_set.sets import nbands
 
 __author__ = "Yu Kumagai"
 __maintainer__ = "Yu Kumagai"
 
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-incar_flags_yaml = os.path.join(MODULE_DIR, "incar_flags.yaml")
-
+MODULE_DIR = Path(os.path.dirname(os.path.abspath(__file__)))
 # This incar_flags should be OrderedDict, but from python 3.6, dict uses
 # order-preserving semantics. Furthermore, it does not affect vasp result.
-incar_flags = loadfn(incar_flags_yaml)
+incar_flags = loadfn(MODULE_DIR / "datasets" / "incar_flags.yaml")
 
 
 class ViseIncar(Incar):

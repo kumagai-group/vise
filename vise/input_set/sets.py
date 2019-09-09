@@ -1,18 +1,19 @@
-from enum import unique, Enum
-from typing import Optional
-import numpy as np
-from pathlib import Path
 from copy import deepcopy
+from enum import unique, Enum
+from math import ceil
+from pathlib import Path
+from typing import Optional
+
 from monty.serialization import loadfn
-from pymatgen.io.vasp import Potcar, Kpoints
+from pymatgen.core.composition import Composition
+from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure
+from pymatgen.io.vasp import Potcar, Kpoints
+from vise.core.config import BAND_GAP_CRITERION
+from vise.input_set.datasets.element_parameters import unoccupied_bands
+from vise.input_set.kpoints import make_kpoints
 from vise.util.logger import get_logger
 from vise.util.structure_handler import find_spglib_primitive
-from vise.input_set.kpoints import make_kpoints
-from vise.core.config import BAND_GAP_CRITERION
-from math import ceil
-from vise.input_set.datasets.element_parameters import unoccupied_bands
-
 
 logger = get_logger(__name__)
 
@@ -91,10 +92,11 @@ LATTICE_RELAX_TASK = (Task.structure_opt, Task.structure_opt_rough,
                       Task.structure_opt_tight)
 SPECTRA_TASK = (Task.dos, Task.dielectric_function)
 
-SET_DIR = Path(__file__) / "datasets"
+SET_DIR = Path(__file__).parent / "datasets"
 
-def load_potcar_yaml(set_name: str,
-                     override_potcar_set: dict = None) -> dict:
+
+def load_potcar_yaml(set_name: Optional[str] = "normal",
+                     override_potcar_set: Optional[dict] = None) -> dict:
     """Load the yaml setting files for config and POTCAR list.
 
     Args:
@@ -104,7 +106,7 @@ def load_potcar_yaml(set_name: str,
             User specifying POTCAR set
 
     Return:
-          potcar_set (dict):
+          Dictionary of potcar_set, like {"Zr": "Zr_pv", ...}
     """
     potcar_set = loadfn(SET_DIR / "potcar_set.yaml")
     try:
@@ -119,14 +121,21 @@ def load_potcar_yaml(set_name: str,
     return potcar
 
 
-def load_incar_yaml(yaml_filename: str,
-                    required_flags: set,
-                    optional_flags: set,
-                    key_name: str) -> dict:
+def load_default_incar_settings(yaml_filename: str,
+                                required_flags: set,
+                                optional_flags: set,
+                                key_name: str) -> dict:
     """Load the yaml setting files for config and POTCAR list.
 
     Args:
-
+        yaml_filename (str):
+            Yaml filename with xxx_incar_set.yaml.
+        required_flags (set):
+            Required INCAR flags.
+        optional_flags (set):
+            Optional INCAR flags.
+        key_name (str):
+            Key name such as "structure_opt" or "hse".
 
     Return:
           settings (dict):
@@ -145,49 +154,59 @@ def load_incar_yaml(yaml_filename: str,
     return settings
 
 
-def check_keys(d: dict, required: set, optional: set):
+def check_keys(d: dict, required: set, optional: set) -> bool:
+    """Check if the required keys exist and other keys are included in optional
 
+    Args:
+        d (dict):
+            Dictionary to be checked.
+        required (set):
+            Required key set.
+        optional (set):
+            Optional key set.
+
+    Return:
+        Simply raise KeyError if the condition is not satisfied.
+        If succeed, True is returned.
+    """
     check_required = set(required)
     for key in d:
-        check_required.remove(key)
+        check_required.discard(key)
         if key not in required | optional:
             raise KeyError(f"{key} does not belong.")
 
     if check_required:
-        raise KeyError(f"{check_required} must be set.")
+        raise KeyError(f"{check_required} must exist in {d}.")
+
+    return True
 
 
-def nelect(structure: Structure, potcar: Potcar):
-    """ Gets the default number of electrons for a given structure. """
+def nelect(composition: Composition, potcar: Potcar, charge: int = 0) -> int:
+    """Gets the default number of electrons for a given structure.
+
+
+     """
     # if structure is not sorted this can cause problems, so must take
     # care to remove redundant symbols when counting electrons
-    site_symbols = list(set(structure.site_symbols))
     num_nelect = 0
-    for ps in potcar:
-        if ps.element in site_symbols:
-            site_symbols.remove(ps.element)
-            num_nelect += structure.composition.element_composition[
-                          ps.element] * ps.ZVAL
+    for pt in potcar:
+        num_nelect += composition.element_composition[pt.element] * pt.ZVAL
 
-    return num_nelect - structure.charge
+    return int(num_nelect) - charge
 
 
-def nbands(structure: Structure, potcar: Potcar) -> int:
+def nbands(composition: Composition, potcar: Potcar) -> int:
     """
     Calculate the total number of bands required for the unoccupied related
     properties such as optical absorption, band structure, and DOS.
 
     Args:
-        structure (Structure/IStructure):
+        composition:
         potcar (Potcar):
     """
+    num_bands = sum([composition[c] * (p.nelectrons / 2 + unoccupied_bands[str(c)])
+                    for c, p in zip(composition, potcar)])
 
-    if not all([s == p.element for s, p in zip(structure.symbol_set, potcar)]):
-        raise ValueError("The structure and POTCAR file are not compatible.")
-
-    comp = structure.composition
-    num_bands = sum([comp[c] * (p.nelectrons / 2 + unoccupied_bands[str(c)])
-                    for c, p in zip(comp, potcar)])
     return ceil(num_bands)
 
 
@@ -209,7 +228,7 @@ class TaskStructureKpoints:
     @classmethod
     def from_options(cls,
                      task: Task,
-                     org_structure: Structure,
+                     original_structure: Structure,
                      standardize_structure: bool,
                      sort_structure: bool,
                      is_magnetization: bool,
@@ -227,9 +246,9 @@ class TaskStructureKpoints:
         :return:
         """
         if sort_structure:
-            structure = org_structure.get_sorted_structure()
+            structure = original_structure.get_sorted_structure()
         else:
-            structure = org_structure.copy()
+            structure = original_structure.copy()
 
         is_structure_changed = False
         if task == Task.defect:
@@ -270,10 +289,10 @@ class TaskStructureKpoints:
                          angle_tolerance=angle_tolerance,
                          is_magnetization=is_magnetization)
 
-        return structure, kpoints, is_structure_changed, sg, num_kpts
+        return cls(structure, kpoints, is_structure_changed, sg, num_kpts)
 
 
-class XcPotcarSet:
+class XcTaskPotcar:
 
     def __init__(self,
                  potcar: Potcar,
@@ -285,14 +304,16 @@ class XcPotcarSet:
     @classmethod
     def from_options(cls,
                      xc: Xc,
-                     structure: Structure,
-                     potcar_set_name: str = "normal",
+                     task: Task,
+                     symbol_set: tuple,
+                     potcar_set_name: str = None,
                      override_potcar_set: dict = None):
 
         potcar_functional = "LDA" if xc == Xc.lda else "PBE"
+        potcar_set_name = potcar_set_name or "normal"
+
         potcar_list = load_potcar_yaml(potcar_set_name, override_potcar_set)
-        elements = structure.symbol_set
-        potcar_symbols = [potcar_list.get(el, el) for el in elements]
+        potcar_symbols = [potcar_list.get(el, el) for el in symbol_set]
         potcar = Potcar(potcar_symbols, functional=potcar_functional)
 
         max_enmax = max([p.enmax for p in potcar])
@@ -300,12 +321,16 @@ class XcPotcarSet:
         return cls(potcar, max_enmax)
 
 
-TASK_REQUIRED_FLAGS = {"LREAL", "ISPIN", "ISIF", "EDIFF", "IBRION", "ISMEAR", "PREC"}
-TASK_OPTIONAL_FLAGS = {"NSW", "EDIFFG", "POTIM", "ADDGRID", "KPAR", "ENCUT", "NBANDS"}
+TASK_REQUIRED_FLAGS = {"LREAL", "ISPIN", "ISIF", "EDIFF", "IBRION", "ISMEAR",
+                       "PREC"}
+TASK_OPTIONAL_FLAGS = {"NSW", "EDIFFG", "POTIM", "ADDGRID", "KPAR", "ENCUT",
+                       "NBANDS"}
 TASK_FLAGS = TASK_REQUIRED_FLAGS | TASK_OPTIONAL_FLAGS
 
-XC_REQUIRED_FLAGS = {"ALGO", "LWAVE", "ICHARG"}
-XC_OPTIONAL_FLAGS = {"LDAU", "NKRED", "LHFCALC", "TIME"}
+XC_REQUIRED_FLAGS = {"ALGO", "LWAVE"}
+XC_OPTIONAL_FLAGS = {"LDAU", "LDAUTYPE", "LDAUPRINT", "LDAUU", "LDAUL",
+                     "LMAXMIX", "NKRED", "LHFCALC", "PRECFOCK", "TIME",
+                     "LHFSCREEN", "AEXX", "NKRED"}
 XC_FLAGS = XC_REQUIRED_FLAGS | XC_OPTIONAL_FLAGS
 
 XC_TASK_REQUIRED_FLAGS = set()
@@ -317,12 +342,10 @@ COMMON_OPTIONAL_FLAGS = {"NELECT"}
 COMMON_FLAGS = COMMON_REQUIRED_FLAGS | COMMON_OPTIONAL_FLAGS
 
 ALL_FLAGS = set(sum(loadfn(SET_DIR / "incar_flags.yaml").values(), []))
-OTHER_FLAGS = ALL_FLAGS - TASK_FLAGS | XC_FLAGS | XC_TASK_FLAGS | COMMON_FLAGS
-
-#TASK_ARGS =
+OTHER_FLAGS = ALL_FLAGS - (TASK_FLAGS | XC_FLAGS | XC_TASK_FLAGS | COMMON_FLAGS)
 
 
-class TaskIncarSet:
+class TaskIncarSettings:
 
     def __init__(self,
                  settings: dict):
@@ -333,7 +356,7 @@ class TaskIncarSet:
     @classmethod
     def from_options(cls,
                      task: Task,
-                     structure: Optional[Structure],
+                     composition: Optional[Composition],
                      potcar: Potcar,
                      num_kpoints: int,
                      max_enmax: float,
@@ -341,7 +364,7 @@ class TaskIncarSet:
                      band_gap: float,
                      vbm_cbm: list,
                      npar_kpar: bool,
-                     encut: float,
+                     encut: Optional[float],
                      structure_opt_encut_factor: float):
         """
         See docstrings in the make_input method in InputSet class
@@ -354,11 +377,11 @@ class TaskIncarSet:
             is_band_gap = None
 
         required = deepcopy(TASK_REQUIRED_FLAGS)
-        required.remove("KPAR")
-        settings = load_incar_yaml(yaml_filename="task_incar_set.yaml",
-                                   required_flags=required,
-                                   optional_flags=TASK_OPTIONAL_FLAGS,
-                                   key_name=str(task))
+        settings = \
+            load_default_incar_settings(yaml_filename="task_incar_set.yaml",
+                                        required_flags=required,
+                                        optional_flags=TASK_OPTIONAL_FLAGS,
+                                        key_name=str(task))
 
         settings["LREAL"] = "A" if task == Task.defect else "F"
 
@@ -378,21 +401,22 @@ class TaskIncarSet:
                 settings["ENCUT"] = max_enmax * structure_opt_encut_factor
 
         if task in SPECTRA_TASK:
-            settings["NBANDS"] = nbands(structure, potcar)
+            settings["NBANDS"] = nbands(composition, potcar)
 
         return cls(settings=settings)
 
 
-class XcIncarSet:
+class XcIncarSettings:
 
     def __init__(self, settings: dict):
+        print(XC_OPTIONAL_FLAGS)
         check_keys(settings, XC_REQUIRED_FLAGS, XC_OPTIONAL_FLAGS)
         self.settings = settings
 
     @classmethod
     def from_options(cls,
                      xc: Xc,
-                     structure: Structure,
+                     symbol_set: tuple,
                      factor: int,
                      aexx: Optional[float] = 0.25,
                      hubbard_u: Optional[bool] = None,
@@ -400,10 +424,11 @@ class XcIncarSet:
                      ldaul: Optional[dict] = None,
                      set_name: Optional[str] = "lda_gga_normal"):
 
-        settings = load_incar_yaml(yaml_filename="xc_incar_set.yaml",
-                                   required_flags=XC_REQUIRED_FLAGS,
-                                   optional_flags=XC_OPTIONAL_FLAGS,
-                                   key_name=str(xc))
+        settings = \
+            load_default_incar_settings(yaml_filename="xc_incar_set.yaml",
+                                        required_flags=XC_REQUIRED_FLAGS,
+                                        optional_flags=XC_OPTIONAL_FLAGS,
+                                        key_name=str(xc))
 
         if not hubbard_u:
             hubbard_u = xc in LDA_OR_GGA
@@ -416,12 +441,11 @@ class XcIncarSet:
             ldaul_set = u_set["LDAUL"][set_name]
             ldaul_set.update(ldaul)
 
-            elements = structure.symbol_set
-            settings["LDAUU"] = [ldauu_set[el] for el in elements]
-            settings["LDAUL"] = [ldaul_set[el] for el in elements]
+            settings["LDAUU"] = [ldauu_set[el] for el in symbol_set]
+            settings["LDAUL"] = [ldaul_set[el] for el in symbol_set]
 
             # contains f-electrons
-            if any([el.Z > 56 for el in structure.composition]):
+            if any([Element(el).Z > 56 for el in symbol_set]):
                 settings["LMAXMIX"] = 6
             else:
                 settings["LMAXMIX"] = 4
@@ -460,7 +484,7 @@ class CommonIncarSet:
         settings = {"NELM": 100, "LASPH": True, "LORBIT": 12, "LCHARG": False,
                     "SIGMA": 0.1}
         if charge:
-            settings["NELCT"] = nelect(structure, potcar) + charge
+            settings["NELCT"] = nelect(structure, potcar, charge)
 
         return cls(settings=settings)
 

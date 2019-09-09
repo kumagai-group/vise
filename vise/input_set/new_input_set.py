@@ -1,35 +1,22 @@
 # -*- coding: utf-8 -*-
 
-import logging
-import os
-import re
-import warnings
 from copy import deepcopy
-from os.path import join, isfile, getsize
-from typing import Optional, Union
-from pathlib import Path
+from typing import Optional
 
 import numpy as np
-from monty.serialization import loadfn
 from pymatgen.core.structure import Structure
-from pymatgen.io.vasp.inputs import Potcar, Kpoints, Poscar
 from pymatgen.io.vasp.sets import (
-    get_vasprun_outcar, VaspInputSet, get_structure_from_prev_run)
+    VaspInputSet)
 from vise.core.config import (
     KPT_DENSITY, ENCUT_FACTOR_STR_OPT, ANGLE_TOL, SYMPREC)
-from vise.input_set.incar import ViseIncar, make_incar_setting
-from vise.input_set.kpoints import make_kpoints, num_irreducible_kpoints
-from vise.input_set.sets import Task, Xc, TaskIncarSet, XcTaskIncarSet
+from vise.input_set.sets import (
+    Task, Xc, TaskStructureKpoints, TaskIncarSettings)
 from vise.util.logger import get_logger
-from vise.util.structure_handler import find_spglib_primitive
 
 logger = get_logger(__name__)
 
 __author__ = "Yu Kumagai"
 __maintainer__ = "Yu Kumagai"
-
-MODULE_DIR = Path(os.path.dirname(os.path.abspath(__file__)))
-DEFAULT_POTCAR_LIST = MODULE_DIR / "datasets" / "default_POTCAR_list.yaml"
 
 
 class InputSet(VaspInputSet):
@@ -83,12 +70,9 @@ class InputSet(VaspInputSet):
                    files_to_transfer: Optional[dict] = None,
                    symprec: float = SYMPREC,
                    angle_tolerance: float = ANGLE_TOL):
-        pass
-
-        if num_cores is None:
-            num_cores = [36, 1]
 
         structure = deepcopy(structure)
+        num_cores = num_cores or [36, 1]
         files_to_transfer = files_to_transfer or {}
         user_incar_settings = user_incar_settings or {}
 
@@ -100,16 +84,19 @@ class InputSet(VaspInputSet):
             else:
                 raise ValueError
 
-        if prev_set and prev_set.task == task:
+        if prev_set and prev_set.task == task and original_structure == structure:
+            str_kpt = prev_set.str_kpt
             task_set = prev_set.task_set
         else:
-            str_kpt = TaskStructureKpoints.from_options(task=task)
-            task_set = TaskIncarSet.from_options(task=task,
-                                                 num_kpoints=str_kpt.num_kpts,
-                                                 is_magnetization=is_magnetization,
-                                                 band_gap=band_gap,
-                                                 vbm_cbm=vbm_cbm,
-                                                 npar_kpar=npar_kpar)
+            str_kpt = TaskStructureKpoints.from_options(task=task,
+                                                        original_structure=structure,
+                                                        )
+            task_set = TaskIncarSettings.from_options(task=task,
+                                                      num_kpoints=str_kpt.num_kpts,
+                                                      is_magnetization=is_magnetization,
+                                                      band_gap=band_gap,
+                                                      vbm_cbm=vbm_cbm,
+                                                      npar_kpar=npar_kpar)
 
         if prev_set and prev_set.xc == xc:
             xc_set = prev_set.xc_set

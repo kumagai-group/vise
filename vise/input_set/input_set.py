@@ -2,12 +2,11 @@
 
 import logging
 import os
-import re
 import warnings
 from copy import deepcopy
 from os.path import join, isfile, getsize
-from typing import Optional, Union
 from pathlib import Path
+from typing import Optional
 
 import numpy as np
 from monty.serialization import loadfn
@@ -17,13 +16,13 @@ from pymatgen.io.vasp.sets import (
     get_vasprun_outcar, DictSet, get_structure_from_prev_run)
 from vise.core.config import (
     KPT_DENSITY, ENCUT_FACTOR_STR_OPT, ANGLE_TOL, SYMPREC)
-from vise.input_set.incar import ViseIncar, make_incar_setting
+from vise.input_set.incar import ViseIncar
 from vise.input_set.kpoints import make_kpoints, num_irreducible_kpoints
-from vise.input_set.set import Task, Xc
 from vise.util.logger import get_logger
 from vise.util.structure_handler import find_spglib_primitive
-#from vise.input_set.xc import XcIncarSet
-#from vise.input_set.task import TaskIncarSet
+
+#from vise.input_set.xc import XcIncarSettings
+#from vise.input_set.task import TaskIncarSettings
 
 logger = get_logger(__name__)
 
@@ -31,7 +30,7 @@ __author__ = "Yu Kumagai"
 __maintainer__ = "Yu Kumagai"
 
 MODULE_DIR = Path(os.path.dirname(os.path.abspath(__file__)))
-DEFAULT_POTCAR_LIST = MODULE_DIR / "sets" / "default_POTCAR_list.yaml"
+DEFAULT_POTCAR_LIST = MODULE_DIR / "datasets" / "potcar_set.yaml"
 
 
 def load_potcar_yaml(set_name: str,
@@ -47,15 +46,15 @@ def load_potcar_yaml(set_name: str,
     Return:
           potcar_set (dict):
     """
-    potcar_set = loadfn(DEFAULT_POTCAR_LIST)
+    d = loadfn(DEFAULT_POTCAR_LIST)
     try:
-        potcar_set = {"POTCAR": potcar_set[set_name]}
+        potcar_set = d[set_name]
     except KeyError:
-        logger.warning(f"The accepted potcar set name is {potcar_set.keys()}")
+        logger.warning(f"The accepted potcar set name is {d.keys()}")
         raise
 
     if override_potcar_set:
-        potcar_set["POTCAR"].update(override_potcar_set)
+        potcar_set.update(override_potcar_set)
 
     return potcar_set
 
@@ -381,7 +380,7 @@ class InputSet(DictSet):
         if band_gap:
             logger.info(f"Band gap : {band_gap} ")
 
-        potcar_functional = "LDA" if xc == Xc.lda else "PBE"
+        potcar_functional = "LDA" if xc == Xc.lda else "PBE_54"
 
         # ---- Handling of weak_incar_settings--------------------------------
         if weak_incar_settings:

@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
-import os
-import unittest
-from copy import deepcopy
 
-from pymatgen.core.structure import Structure
 from vise.input_set.input_set import load_potcar_yaml
 from vise.util.testing import ViseTest
 

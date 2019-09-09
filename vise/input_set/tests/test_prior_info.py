@@ -2,8 +2,8 @@
 
 import tempfile
 
-from vise.input_set.prior_info import PriorInfo
 from pydefect.util.testing import PydefectTest
+from vise.input_set.prior_info import PriorInfo
 
 __author__ = "Yu Kumagai"
 __maintainer__ = "Yu Kumagai"
