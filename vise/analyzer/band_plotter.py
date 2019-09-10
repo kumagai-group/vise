@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 from atomate.utils.utils import get_logger
-from obadb.atomate.vasp.config import SYMMETRY_TOLERANCE as SYMPREC
+from vise.config import SYMMETRY_TOLERANCE
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.electronic_structure.bandstructure \
     import get_reconstructed_band_structure
@@ -31,7 +31,7 @@ class PrettyBSPlotter:
         bs_plotter = ModBSPlotter(band)
         composition = str(band.structure.composition)
         from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-        sga = SpacegroupAnalyzer(band.structure, symprec=SYMPREC)
+        sga = SpacegroupAnalyzer(band.structure, symprec=SYMMETRY_TOLERANCE)
         self.sg = " SG: " + sga.get_space_group_symbol() + " (" + \
                   str(sga.get_space_group_number()) + ")"
         self.title = composition + self.sg

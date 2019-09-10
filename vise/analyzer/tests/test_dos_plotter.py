@@ -4,7 +4,7 @@ from pymatgen.util.testing import PymatgenTest
 
 from pymatgen.electronic_structure.core import Spin
 
-from obadb.analyzer.dos_plotter import ModDosPlotter, get_dos_plot, \
+from vise.analyzer.dos_plotter import ModDosPlotter, get_dos_plot, \
     divide_densities, max_density
 
 __author__ = "Yu Kumagai"

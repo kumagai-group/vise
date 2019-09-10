@@ -12,7 +12,7 @@ __author__ = "Yu Kumagai"
 __maintainer__ = "Yu Kumagai"
 
 
-class ObaChgcar(Chgcar):
+class ViseChgcar(Chgcar):
 
     @classmethod
     def from_file(cls, filename):
@@ -176,7 +176,7 @@ def main():
 
     args = parser.parse_args()
 
-    c = ObaChgcar.from_file(args.parchg)
+    c = ViseChgcar.from_file(args.parchg)
     if args.center is not None:
         if len(args.center) == 3:
             c.structure.append("X", args.center)

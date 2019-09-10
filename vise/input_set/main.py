@@ -11,7 +11,7 @@ from pymatgen.core.periodic_table import Element
 from vise.input_set.incar import incar_flags
 from vise.input_set.input_set import InputSet, OPTS
 from vise.input_set.prior_info import PriorInfo
-from vise.util.config import SYMMETRY_TOLERANCE, ANGLE_TOL, KPT_DENSITY
+from vise.config import SYMMETRY_TOLERANCE, ANGLE_TOL, KPT_DENSITY
 from vise.util.logger import get_logger
 from vise.util.main_tools import potcar_str2dict, list2dict
 
@@ -150,7 +150,7 @@ def main():
         "-uis", "--user_incar_setting", dest="user_incar_setting", type=str,
         nargs="+",
         default=vs_defaults["user_incar_setting"],
-        help="user_incar_setting in make_input classmethod of ObaSet in vise. "
+        help="user_incar_setting in make_input classmethod of InputSet in vise."
              "See document in vise for details.")
     parser_vasp_set.add_argument(
         "--dirs", dest="dirs", nargs="+", type=str, default=None,

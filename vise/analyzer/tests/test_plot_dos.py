@@ -5,15 +5,10 @@ import unittest
 from pymatgen.electronic_structure.bandstructure \
     import get_reconstructed_band_structure
 
-from pydefect.vasp_util.script.plot_dos import ModDosPlotter, get_dos_plot
+from vise.analyzer.dos_plotter import ModDosPlotter, get_dos_plot
 
 __author__ = "Yu Kumagai"
-__copyright__ = "Copyright 2018, Oba group"
-__version__ = "0.1"
 __maintainer__ = "Yu Kumagai"
-__email__ = "yuuukuma@gmail.com"
-__status__ = "Development"
-__date__ = "May 15, 2018"
 
 
 class PlotDosTest(unittest.TestCase):

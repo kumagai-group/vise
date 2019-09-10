@@ -16,7 +16,7 @@ from pymatgen.io.vasp.sets import (
     get_vasprun_outcar, DictSet, get_structure_from_prev_run)
 from vise.input_set.incar import ViseIncar
 from vise.input_set.kpoints import make_kpoints, num_irreducible_kpoints
-from vise.util.config import (
+from vise.config import (
     KPT_DENSITY, ENCUT_FACTOR_STR_OPT, ANGLE_TOL, SYMMETRY_TOLERANCE)
 from vise.util.logger import get_logger
 from vise.util.structure_handler import find_spglib_primitive
@@ -67,7 +67,7 @@ class InputSet(DictSet):
        the other magnetic configurations lower the host symmetry, one can use
        only kpt_mode="manual_set" and mostly kpts_shift=[0, 0, 0].
     2. Many options can be set in the **kwargs. See also the document of the
-       DictSet and VaspInputSet, which are superclasses of the ObaSet.
+       DictSet and VaspInputSet, which are superclasses of the InputSet.
 
     Below, the rules written in the sets file in pymatgen DictSet.
 

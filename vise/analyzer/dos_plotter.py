@@ -4,7 +4,7 @@ from collections import OrderedDict, defaultdict
 
 import numpy as np
 from atomate.utils.utils import get_logger
-from obadb.util.structure_handler import SYMPREC
+
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.dos import Dos
 from pymatgen.electronic_structure.dos import add_densities
@@ -12,13 +12,15 @@ from pymatgen.electronic_structure.plotter import DosPlotter
 from pymatgen.io.vasp import Vasprun
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
+from vise.config import SYMMETRY_TOLERANCE
+
 __author__ = "Yu Kumagai"
 __maintainer__ = "Yu Kumagai"
 
 logger = get_logger(__name__)
 
 
-class ObaDosPlotter(DosPlotter):
+class ViseDosPlotter(DosPlotter):
 
     def get_plot(self, xlim=None, ylims=None, cbm_vbm=None, legend=True,
                  crop_first_value=False, title=None):
@@ -184,7 +186,7 @@ def get_dos_plot(vasprun_file: str,
                  legend: bool = True,
                  crop_first_value: bool = True,
                  show_spg: bool = True,
-                 symprec: float = SYMPREC):
+                 symprec: float = SYMMETRY_TOLERANCE):
     """
 
     Args:
@@ -315,7 +317,7 @@ def get_dos_plot(vasprun_file: str,
                     dos[name] = pdos
 
     # use complete_dos.efermi for total dos.
-    plotter = ObaDosPlotter(zero_at_efermi=zero_at_efermi)
+    plotter = ViseDosPlotter(zero_at_efermi=zero_at_efermi)
     plotter.add_dos_dict(dos)
 
     if xlim is None:

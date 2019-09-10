@@ -1,2 +1,2 @@
-# obadb
-Package for construcing the computational materials database in Oba group at Tokyo Institute of Technology.
+# vise
+Vasp Integrated Simulation Environment.

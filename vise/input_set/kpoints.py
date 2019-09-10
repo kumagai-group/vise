@@ -9,7 +9,7 @@ from pymatgen.core.periodic_table import Element
 from pymatgen.io.vasp import Kpoints
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from vise.input_set.datasets.kpt_centering import kpt_centering
-from vise.util.config import SYMMETRY_TOLERANCE, ANGLE_TOL
+from vise.config import SYMMETRY_TOLERANCE, ANGLE_TOL
 from vise.util.logger import get_logger
 from vise.util.structure_handler import (
     structure_to_seekpath, find_spglib_primitive)

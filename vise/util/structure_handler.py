@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 from typing import Tuple
+from pymatgen.core.periodic_table import Element
 
 import seekpath
 import spglib
 from atomate.utils.utils import get_logger
-from obadb.database.atom import symbols_to_atom
 from pymatgen import Structure
-from vise.util.config import ANGLE_TOL, SYMMETRY_TOLERANCE
+from vise.config import ANGLE_TOL, SYMMETRY_TOLERANCE
 
 __author__ = "Yu Kumagai"
 __maintainer__ = "Yu Kumagai"
@@ -64,7 +64,7 @@ def spglib_cell_to_structure(cell: tuple) -> Structure:
             Lattice parameters, atomic positions in fractional coordinates,
             and corresponding atom numbers
     """
-    species = [symbols_to_atom[i] for i in cell[2]]
+    species = [[i] for i in cell[2]]
     return Structure(cell[0], species, cell[1])
 
 
@@ -199,7 +199,7 @@ def seekpath_to_hpkot_structure(res: dict) -> Structure:
     """
     lattice = res["primitive_lattice"]
     element_types = res["primitive_types"]
-    species = [symbols_to_atom[i] for i in element_types]
+    species = [Element.from_Z(i) for i in element_types]
     positions = res["primitive_positions"]
 
     return Structure(lattice, species, positions)

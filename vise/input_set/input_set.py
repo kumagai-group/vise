@@ -21,7 +21,7 @@ from vise.input_set.incar import ViseIncar
 from vise.input_set.sets import (
     Task, Xc, TaskStructureKpoints, XcTaskPotcar, TaskIncarSettings,
     XcIncarSettings, XcTaskIncarSettings, CommonIncarSettings, OTHER_FLAGS)
-from vise.util.config import (
+from vise.config import (
     KPT_DENSITY, ENCUT_FACTOR_STR_OPT, ANGLE_TOL, SYMMETRY_TOLERANCE)
 from vise.util.logger import get_logger
 
