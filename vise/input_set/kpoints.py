@@ -6,11 +6,10 @@ from typing import Tuple
 import numpy as np
 from pymatgen import Structure
 from pymatgen.io.vasp import Kpoints
+from pymatgen.core.periodic_table import Element
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from vise.core.config import SYMPREC, ANGLE_TOL
-from vise.core.error_classes import InvalidFileError
-from vise.database.atom import symbols_to_atom
-from vise.database.kpt_centering import kpt_centering
+from vise.util.config import SYMMETRY_TOLERANCE, ANGLE_TOL
+from vise.input_set.datasets.kpt_centering import kpt_centering
 from vise.util.logger import get_logger
 from vise.util.structure_handler import (
     structure_to_seekpath, find_spglib_primitive)
@@ -25,7 +24,7 @@ def make_band_kpoints(kpoints: Kpoints,
                       structure: Structure,
                       ref_distance: float = 0.025,
                       time_reversal: bool = True,
-                      symprec: float = SYMPREC,
+                      symprec: float = SYMMETRY_TOLERANCE,
                       angle_tolerance: float = ANGLE_TOL
                       ) -> Tuple[Kpoints, Structure, int]:
     """ Write the KPOINTS file for the band structure calculation.
@@ -52,7 +51,7 @@ def make_band_kpoints(kpoints: Kpoints,
     # primitive structure
     lattice = seekpath_full_info["primitive_lattice"]
     element_types = seekpath_full_info["primitive_types"]
-    species = [symbols_to_atom[i] for i in element_types]
+    species = [Element.from_Z(i) for i in element_types]
     positions = seekpath_full_info["primitive_positions"]
     primitive = Structure(lattice, species, positions)
     sg = seekpath_full_info["spacegroup_number"]
@@ -81,7 +80,7 @@ def make_kpoints(mode: str,
                  ref_distance: float = 0.025,
                  kpt_shift: list = None,
                  factor: int = 1,
-                 symprec: float = SYMPREC,
+                 symprec: float = SYMMETRY_TOLERANCE,
                  angle_tolerance: float = ANGLE_TOL,
                  is_magnetization: bool = False
                  ) -> Tuple[Kpoints, Structure, int, int]:
@@ -273,20 +272,9 @@ def make_kpoints(mode: str,
     return kpoints, structure, sg, num_kpts
 
 
-def get_kpt_dens_from_file(filepath):
-    try:
-        with open(filepath, "r") as fr:
-            lines = fr.readline()
-        return float(lines.split()[4].replace(",", ""))
-
-    except:
-        raise InvalidFileError(f"failed to read kpt_density from KPOINTS: "
-                               f"{filepath}")
-
-
 def irreducible_kpoints(structure: Structure,
                         kpoints: Kpoints,
-                        symprec: float = SYMPREC,
+                        symprec: float = SYMMETRY_TOLERANCE,
                         angle_tolerance: float = ANGLE_TOL):
     """
     kpoints (Kpoints):
@@ -314,7 +302,7 @@ def irreducible_kpoints(structure: Structure,
 
 def num_irreducible_kpoints(structure: Structure,
                             kpoints: Kpoints,
-                            symprec: float = SYMPREC,
+                            symprec: float = SYMMETRY_TOLERANCE,
                             angle_tolerance: float = ANGLE_TOL):
 
     return len(irreducible_kpoints(structure=structure,

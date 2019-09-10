@@ -1,15 +1,12 @@
 # -*- coding: utf-8 -*-
-import math
 from typing import Tuple
 
-import numpy as np
 import seekpath
 import spglib
 from atomate.utils.utils import get_logger
 from obadb.database.atom import symbols_to_atom
 from pymatgen import Structure
-from pymatgen.io.vasp import Poscar
-from vise.core.config import ANGLE_TOL, SYMPREC
+from vise.util.config import ANGLE_TOL, SYMMETRY_TOLERANCE
 
 __author__ = "Yu Kumagai"
 __maintainer__ = "Yu Kumagai"
@@ -18,7 +15,7 @@ logger = get_logger(__name__)
 
 
 def get_symmetry_dataset(structure: Structure,
-                         symprec: float = SYMPREC,
+                         symprec: float = SYMMETRY_TOLERANCE,
                          angle_tolerance: float = ANGLE_TOL) -> dict:
     """ Get spglib symmetry dataset from a Structure.
     Args:
@@ -72,7 +69,7 @@ def spglib_cell_to_structure(cell: tuple) -> Structure:
 
 
 def find_spglib_standard_conventional(structure: Structure,
-                                      symprec: float = SYMPREC,
+                                      symprec: float = SYMMETRY_TOLERANCE,
                                       angle_tolerance: float = ANGLE_TOL
                                       ) -> Structure:
     """
@@ -96,7 +93,7 @@ def find_spglib_standard_conventional(structure: Structure,
 
 
 def find_spglib_primitive(structure: Structure,
-                          symprec: float = SYMPREC,
+                          symprec: float = SYMMETRY_TOLERANCE,
                           angle_tolerance: float = ANGLE_TOL
                           ) -> Tuple[Structure, bool]:
     """
@@ -122,7 +119,7 @@ def find_spglib_primitive(structure: Structure,
 
 
 def find_hpkot_primitive(structure: Structure,
-                         symprec: float = SYMPREC,
+                         symprec: float = SYMMETRY_TOLERANCE,
                          angle_tolerance: float = ANGLE_TOL
                          ) -> Structure:
     """
@@ -149,7 +146,7 @@ def structure_to_seekpath(structure: Structure,
                           ref_distance: float = 0.025,
                           recipe: str = 'hpkot',
                           threshold: float = 1e-7,
-                          symprec: float = SYMPREC,
+                          symprec: float = SYMMETRY_TOLERANCE,
                           angle_tolerance: float = ANGLE_TOL) -> dict:
     """
     Return the full information for the band path of the given Structure class
@@ -206,43 +203,4 @@ def seekpath_to_hpkot_structure(res: dict) -> Structure:
     positions = res["primitive_positions"]
 
     return Structure(lattice, species, positions)
-
-
-def fold_position_structure(structure: Structure) -> Structure:
-    """ Modify positions out of box (x<0 or x>=1) into box (0 <= x < 1)
-
-    For example, coords of site changes from [-0.3, 1.9, 0.5] to [0.7, 0.9, 0.5]
-
-    Args:
-        structure(Structure):
-            Input Structure.
-
-    Returns:
-        structure(Structure):
-            Structure with folded fractional coordinates
-    """
-    for i, site in enumerate(structure):
-        modification_vector = [-math.floor(v) for v in site.frac_coords]
-        structure.translate_sites(i, modification_vector)
-
-    return structure
-
-
-def fold_position_poscar(poscar: Poscar) -> Poscar:
-    """ Same as fold_position_structure but for POSCAR.
-
-    Args:
-        poscar(Poscar):
-            Input POSCAR.
-
-    Returns:
-        poscar(Poscar):
-            POSCAR with folded fractional coordinates
-    """
-    s = poscar.structure
-    fold_position_structure(s)
-
-    return Poscar(s)
-
-
 

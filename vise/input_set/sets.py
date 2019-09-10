@@ -9,7 +9,7 @@ from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp import Potcar, Kpoints
-from vise.core.config import BAND_GAP_CRITERION
+from vise.util.config import BAND_GAP_CRITERION
 from vise.input_set.datasets.element_parameters import unoccupied_bands
 from vise.input_set.kpoints import make_kpoints
 from vise.util.logger import get_logger
@@ -205,8 +205,9 @@ def nbands(composition: Composition, potcar: Potcar) -> int:
         composition:
         potcar (Potcar):
     """
-    num_bands = sum([composition[c] * (p.nelectrons / 2 + unoccupied_bands[str(c)])
-                    for c, p in zip(composition, potcar)])
+    num_bands = \
+        sum([composition[c] * (p.nelectrons / 2 + unoccupied_bands[str(c)])
+             for c, p in zip(composition, potcar)])
 
     return ceil(num_bands)
 
@@ -387,7 +388,8 @@ class TaskStructureKpoints:
                          angle_tolerance=angle_tolerance,
                          is_magnetization=is_magnetization)
 
-        return cls(structure, kpoints, is_structure_changed, sg, num_kpts, factor)
+        return cls(structure, kpoints, is_structure_changed, sg, num_kpts,
+                   factor)
 
 
 class XcTaskPotcar:

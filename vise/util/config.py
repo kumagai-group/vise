@@ -4,7 +4,7 @@ __author__ = "Yu Kumagai"
 __maintainer__ = "Yu Kumagai"
 
 
-SYMPREC = 0.01
+SYMMETRY_TOLERANCE = 0.01
 ANGLE_TOL = 5
 
 KPT_DENSITY = 2.5

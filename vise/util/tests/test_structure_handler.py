@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-import os
 
 from pymatgen.core.structure import Structure
-from pymatgen.core.sites import PeriodicSite
 
 from vise.util.structure_handler import (
     get_symmetry_dataset, structure_to_spglib_cell, spglib_cell_to_structure,
     find_hpkot_primitive, structure_to_seekpath )
 from vise.util.testing import ViseTest
-from vise.core.error_classes import InvalidStructureError
+from vise.util.error_classes import InvalidStructureError
 
 __author__ = "Yu Kumagai"
 __maintainer__ = "Yu Kumagai"
