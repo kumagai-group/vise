@@ -290,13 +290,15 @@ class TaskStructureKpoints:
                  kpoints: Kpoints,
                  is_structure_changed: bool,
                  sg: int,
-                 num_kpts: int):
+                 num_kpts: int,
+                 factor: int):
 
         self.structure = structure
         self.kpoints = kpoints
         self.is_structure_changed = is_structure_changed
         self.sg = sg
         self.num_kpts = num_kpts
+        self.factor = factor
 
     @classmethod
     def from_options(cls,
@@ -385,7 +387,7 @@ class TaskStructureKpoints:
                          angle_tolerance=angle_tolerance,
                          is_magnetization=is_magnetization)
 
-        return cls(structure, kpoints, is_structure_changed, sg, num_kpts)
+        return cls(structure, kpoints, is_structure_changed, sg, num_kpts, factor)
 
 
 class XcTaskPotcar:
@@ -427,7 +429,7 @@ TASK_FLAGS = TASK_REQUIRED_FLAGS | TASK_OPTIONAL_FLAGS
 XC_REQUIRED_FLAGS = {"ALGO", "LWAVE"}
 XC_OPTIONAL_FLAGS = {"LDAU", "LDAUTYPE", "LDAUPRINT", "LDAUU", "LDAUL",
                      "LMAXMIX", "NKRED", "LHFCALC", "PRECFOCK", "TIME",
-                     "LHFSCREEN", "AEXX", "NKRED"}
+                     "HFSCREEN", "AEXX", "NKRED"}
 XC_FLAGS = XC_REQUIRED_FLAGS | XC_OPTIONAL_FLAGS
 
 XC_TASK_REQUIRED_FLAGS = set()

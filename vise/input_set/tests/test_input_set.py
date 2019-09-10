@@ -8,7 +8,15 @@ __maintainer__ = "Yu Kumagai"
 
 
 class InputSetTest(ViseTest):
-    def test(self):
-        mgo = self.get_structure_by_name("MgO")
-        input_set = InputSet.make_input(structure=mgo)
-        input_set.write_input(output_dir=".")
+    def setUp(self) -> None:
+        mgo = self.get_structure_by_name("YMnO3")
+        self.input_set = InputSet.make_input(structure=mgo,
+                                             xc="hse")
+
+    def test_write(self):
+        self.input_set.write_input(output_dir=".")
+
+    def test_dict(self):
+        expected = self.input_set.as_dict()
+        actual = InputSet.from_dict(expected).as_dict()
+        self.assertEqual(expected, actual)

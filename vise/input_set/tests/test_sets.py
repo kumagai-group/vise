@@ -40,7 +40,7 @@ class LoadDefaultIncarSettingsTest(ViseTest):
         expected = {'LWAVE': True,
                     'ALGO': 'D',
                     'PRECFOCK': 'Fast',
-                    'LHFSCREEN': 0.208,
+                    'HFSCREEN': 0.208,
                     'LHFCALC': True,
                     'TIME': 0.4}
         self.assertEqual(expected, self.hse)

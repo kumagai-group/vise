@@ -1,19 +1,22 @@
 # -*- coding: utf-8 -*-
 
-from copy import deepcopy
-from typing import Optional
-from monty.io import zopen
-import shutil
-from pathlib import Path
-import numpy as np
+import json
 import os
 import re
+import shutil
+from copy import deepcopy
+from pathlib import Path
+from typing import Optional
 
-from vise.analyzer.band_gap import band_gap_properties
-from pymatgen.io.vasp.sets import (
-    get_vasprun_outcar, DictSet, get_structure_from_prev_run)
+import numpy as np
+from monty.io import zopen
+from monty.json import MontyEncoder
+from monty.serialization import loadfn
 from pymatgen.core.structure import Structure
-from pymatgen.io.vasp.sets import VaspInputSet, Poscar
+from pymatgen.io.vasp.sets import VaspInputSet, Poscar, Potcar
+from pymatgen.io.vasp.sets import (
+    get_vasprun_outcar, get_structure_from_prev_run)
+from vise.analyzer.band_gap import band_gap_properties
 from vise.core.config import (
     KPT_DENSITY, ENCUT_FACTOR_STR_OPT, ANGLE_TOL, SYMPREC)
 from vise.input_set.incar import ViseIncar
@@ -26,6 +29,9 @@ logger = get_logger(__name__)
 
 __author__ = "Yu Kumagai"
 __maintainer__ = "Yu Kumagai"
+
+
+__version__ = "0.0.1dev"
 
 
 class InputSet(VaspInputSet):
@@ -125,12 +131,17 @@ class InputSet(VaspInputSet):
 
         # Third, override with keyword arguments
         for k in kwargs:
+            if "xc" in kwargs and type(kwargs["xc"]) == str:
+                kwargs["xc"] = Xc.from_string(kwargs["xc"])
+            if "task" in kwargs and type(kwargs["task"]) == str:
+                kwargs["task"] = Xc.from_string(kwargs["task"])
             if k not in opts.keys():
                 logger.warning(f"Keyword {k} is not adequate in vise InputSet.")
         opts.update(kwargs)
 
         task_str_kpt = TaskStructureKpoints.from_options(
             original_structure=structure, **opts)
+        opts["factor"] = task_str_kpt.factor
 
         orig_matrix = structure.lattice.matrix
         matrix = task_str_kpt.structure.lattice.matrix
@@ -180,8 +191,10 @@ class InputSet(VaspInputSet):
 
         # Note: user_incar_settings is not inherited from prev_set.
         #       This is a specification of vise.
-        # user_incar_settings is prioritized.
+        # user_incar_settings is the top prioritized.
         incar_settings.update(user_incar_settings)
+
+        print(incar_settings)
 
         return cls(structure=task_str_kpt.structure,
                    kpoints=task_str_kpt.kpoints,
@@ -217,56 +230,135 @@ class InputSet(VaspInputSet):
                             include_cif=include_cif)
 
         out_dir = Path(output_dir).absolute()
-        for k, v in self.files_to_transfer.items():
+        for key, value in self.files_to_transfer.items():
             try:
-                # full path is usually safer though it depends.
-                filepath = Path(k).absolute()
+                # full path is usually safer for symbolic link.
+                filepath = Path(key).absolute()
                 name = filepath.name
-                with zopen(str(filepath), "rb") as fin, \
-                        zopen(str(out_dir / name), "wb") as fout:
-                    if v[0] == "c":
+                with zopen(filepath, "rb") as fin, \
+                        zopen((out_dir / name), "wb") as fout:
+                    if value == "c":
                         shutil.copyfileobj(fin, fout)
-                    elif v[0] == "m":
+                    elif value == "m":
                         shutil.move(fin, fout)
-                    elif v[0] == "l":
+                    elif value == "l":
                         os.symlink(fin, fout)
 
             except FileNotFoundError:
-                logger.warning(f"{k} does not exist.")
+                logger.warning(f"{key} does not exist.")
+
+    def as_dict(self, verbosity=2):
+        # Xc and Task objects must be converted to string for to_json_file as
+        # Enum is not compatible with MSONable.
+        xc = str(self.xc)
+        task = str(self.task)
+        potcar = self.potcar.as_dict()
+
+        d = {"@module":             self.__class__.__module__,
+             "@class":              self.__class__.__name__,
+             "structure":           self.structure,
+             "xc":                  xc,
+             "task":                task,
+             "kpoints":             self.kpoints,
+             "potcar":              potcar,
+             "incar_settings":      self.incar_settings,
+             "user_incar_settings": self.user_incar_settings,
+             "files_to_transfer":   self.files_to_transfer,
+             "kwargs":              self.kwargs}
+
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        # Programmatic access to enumeration members in Enum class.
+        xc = Xc.from_string(d["xc"])
+        task = Task.from_string(d["task"])
+        potcar = Potcar.from_dict(d["potcar"])
+
+        structure = d["structure"]
+        if isinstance(structure, dict):
+            structure = Structure.from_dict(structure)
+
+        return cls(structure=structure,
+                   xc=xc,
+                   task=task,
+                   kpoints=d["kpoints"],
+                   potcar=potcar,
+                   incar_settings=d["incar_settings"],
+                   user_incar_settings=d["user_incar_settings"],
+                   files_to_transfer=d["files_to_transfer"],
+                   **d["kwargs"])
+
+    @classmethod
+    def load_json(cls, filename: str = "vise.json"):
+        return loadfn(filename)
+
+    def to_json_file(self, filename: str = "vise.json"):
+        with open(filename, 'w') as fw:
+            json.dump(self.as_dict(), fw, indent=2, cls=MontyEncoder)
 
     @classmethod
     def from_prev_calc(cls,
                        dirname,
-                       parse_calc_results=True,
-                       sort_structure=True,
-                       standardize_structure=False,
-                       files_to_transfer=None,
+                       json_filename: str = "vise.json",
+                       parse_calc_results: bool = True,
+                       sort_structure: bool = True,
+                       standardize_structure: bool = False,
+                       files_to_transfer: Optional[dict] = None,
+                       user_incar_settings: Optional[dict] = None,
+                       contcar_filename: str = "CONTCAR",
                        **kwargs):
 
         kwargs = kwargs or {}
+        directory_path = Path(dirname)
+
+        input_set = InputSet.load_json(json_filename)
+
         if parse_calc_results:
             vasprun, outcar = get_vasprun_outcar(dirname)
             structure = get_structure_from_prev_run(vasprun, outcar)
+
             gap_properties = band_gap_properties(vasprun)
             if gap_properties:
                 band_gap, cbm, vbm = gap_properties
                 kwargs["band_gap"] = band_gap
                 kwargs["vbm_cbm"] = [vbm["energy"], cbm["energy"]]
 
-            if vasprun.is_spin and max(structure.site_properties["magmom"]) > 0.05:
+            abs_max_mag = abs(max(structure.site_properties["magmom"], key=abs))
+            if vasprun.is_spin and abs_max_mag > 0.05:
                 kwargs["is_magnetization"] = True
 
         else:
-            if isfile(join(dirname, "CONTCAR")) and \
-                    getsize(join(dirname, "CONTCAR")) > 0:
-                structure = Structure.from_file(join(dirname, "CONTCAR"))
-            elif isfile(join(dirname, "POSCAR-finish")) and \
-                    getsize(join(dirname, "POSCAR-finish")) > 0:
-                structure = Structure.from_file(join(dirname, "POSCAR-finish"))
-            elif isfile(join(dirname, "POSCAR")) and \
-                    getsize(join(dirname, "POSCAR")) > 0:
-                structure = Structure.from_file(join(dirname, "POSCAR"))
-            # This file name is only used in Oba group.
+            contcar = directory_path / contcar_filename
+            poscar = directory_path / "POSCAR"
+            if contcar.is_file and os.stat(contcar).st_size == 0:
+                logger.info(f"{contcar} is parsed for structure.")
+                structure = Structure.from_file(contcar)
+            elif poscar.is_file and os.stat(poscar).st_size == 0:
+                logger.warning(f"{poscar} is parsed for structure.")
+                structure = Structure.from_file(poscar)
             else:
-                raise OSError("CONTCAR or POSCAR does not exist.")
+                raise FileNotFoundError("CONTCAR or POSCAR does not exist.")
+
+        if files_to_transfer:
+            abs_files_to_transfer = {}
+            for filename, value in files_to_transfer.items():
+                f = directory_path / filename
+                if not f.is_file:
+                    logger.warning(f"{f} does not exist.")
+                elif os.stat(f).st_size == 0:
+                    logger.warning(f"{f} is empty.")
+                else:
+                    if value[0].lower() not in ["l", "c", "m"]:
+                        logger.warning(f"{value} option for {filename} is "
+                                       f"invalid.")
+                abs_files_to_transfer[str(f)] = value[0].lower()
+            files_to_transfer = abs_files_to_transfer
+
+        return cls.make_input(structure=structure,
+                              prev_set=input_set,
+                              files_to_transfer=files_to_transfer,
+                              user_incar_settings=user_incar_settings,
+                              sort_structure=sort_structure,
+                              standardize_structure=standardize_structure)
 
