@@ -3,6 +3,7 @@ from enum import unique, Enum
 from math import ceil
 from pathlib import Path
 from typing import Optional
+import numpy as np
 
 from monty.serialization import loadfn
 from pymatgen.core.composition import Composition
@@ -348,13 +349,15 @@ class TaskStructureKpoints:
             primitive_structure, is_structure_changed = \
                 find_spglib_primitive(structure, symprec, angle_tolerance)
 
-            if is_structure_changed:
-                logger.warning(
-                    "CAUTION: The structure is changed."
-                    f"Original lattice: {original_structure.lattice}"
-                    f"Generated lattice: {primitive_structure.lattice}")
-
             if standardize_structure:
+                org = original_structure.lattice.matrix
+                primitive = primitive_structure.lattice.matrix
+                if is_structure_changed:
+                    with np.printoptions(precision=3, suppress=True):
+                        logger.warning(
+                            "CAUTION: The structure is changed.\n"
+                            f"Original lattice\n {org} \n"
+                            f"Generated lattice\n {primitive} \n")
                 structure = primitive_structure
             else:
                 if is_structure_changed and kpt_mode != "manual_set":
@@ -504,7 +507,8 @@ class TaskIncarSettings:
             settings["ENCUT"] = encut
         else:
             if task in LATTICE_RELAX_TASK:
-                settings["ENCUT"] = max_enmax * structure_opt_encut_factor
+                settings["ENCUT"] = \
+                    round(max_enmax * structure_opt_encut_factor, 3)
 
         if task in SPECTRA_TASK:
             settings["NBANDS"] = nbands(composition, potcar)
@@ -598,7 +602,7 @@ class CommonIncarSettings:
                     "SIGMA": 0.1}
         # Structure charge is ignored.
         if charge:
-            settings["NELCT"] = nelect(composition, potcar, charge)
+            settings["NELECT"] = nelect(composition, potcar, charge)
 
         return cls(settings=settings)
 

@@ -93,14 +93,6 @@ unoccupied_bands = {
     'Pa': 16,
      'U': 16}
 
-u_parameter = {
-    "Cr": [2, 3],
-    "Mn": [2, 3],
-    "Fe": [2, 3],
-    "Co": [2, 3],
-    "Ni": [2, 5],
-    "Cu": [2, 5],
-    "Zn": [2, 5]}
 
 magmom = {
     "Ti": 2,

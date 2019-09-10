@@ -33,8 +33,38 @@ __maintainer__ = "Yu Kumagai"
 
 __version__ = "0.0.1dev"
 
+OPTS = {"xc": Xc.pbe,
+        "task": Task.structure_opt,
+        "sort_structure": True,
+        "standardize_structure": True,
+        "is_magnetization": False,
+        "kpt_mode": "primitive_uniform",
+        "kpt_density": KPT_DENSITY,
+        "kpt_shift": None,
+        "only_even": False,
+        "band_ref_dist": 0.03,
+        "factor": None,
+        "symprec": SYMMETRY_TOLERANCE,
+        "angle_tolerance": ANGLE_TOL,
+        "potcar_set_name": "normal",
+        "override_potcar_set": None,
+        "band_gap": None,
+        "vbm_cbm": None,
+        "npar_kpar": True,
+        "num_cores": [36, 1],
+        "encut": None,
+        "structure_opt_encut_factor": ENCUT_FACTOR_STR_OPT,
+        "aexx": 0.25,
+        "hubbard_u": None,
+        "ldauu": None,
+        "ldaul": None,
+        "ldaul_set_name": None,
+        "charge": 0}
+
 
 class InputSet(VaspInputSet):
+    # First, set default.
+
     def __init__(self,
                  structure: Structure,
                  xc: Xc,
@@ -66,35 +96,7 @@ class InputSet(VaspInputSet):
         files_to_transfer = files_to_transfer or {}
         user_incar_settings = user_incar_settings or {}
 
-        # First, set default.
-        opts = {"xc": Xc.pbe,
-                "task": Task.structure_opt,
-                "sort_structure": True,
-                "standardize_structure": True,
-                "is_magnetization": False,
-                "kpt_mode": "primitive_uniform",
-                "kpt_density": KPT_DENSITY,
-                "kpt_shift": None,
-                "only_even": False,
-                "band_ref_dist": 0.03,
-                "factor": None,
-                "symprec": SYMMETRY_TOLERANCE,
-                "angle_tolerance": ANGLE_TOL,
-                "potcar_set_name": "normal",
-                "override_potcar_set": None,
-                "band_gap": None,
-                "vbm_cbm": None,
-                "npar_kpar": True,
-                "num_cores": [36, 1],
-                "encut": None,
-                "structure_opt_encut_factor": ENCUT_FACTOR_STR_OPT,
-                "aexx": 0.25,
-                "hubbard_u": None,
-                "ldauu": None,
-                "ldaul": None,
-                "ldaul_set_name": None,
-                "charge": 0}
-
+        opts = deepcopy(OPTS)
         # Don't forget to add keys below when add to opts.
         # Inherit those keys from prev_set if task is the same.
         task_keys = {"kpt_mode", "kpt_density", "kpt_shift", "only_even",
@@ -134,7 +136,7 @@ class InputSet(VaspInputSet):
             if "xc" in kwargs and type(kwargs["xc"]) == str:
                 kwargs["xc"] = Xc.from_string(kwargs["xc"])
             if "task" in kwargs and type(kwargs["task"]) == str:
-                kwargs["task"] = Xc.from_string(kwargs["task"])
+                kwargs["task"] = Task.from_string(kwargs["task"])
             if k not in opts.keys():
                 logger.warning(f"Keyword {k} is not adequate in vise InputSet.")
         opts.update(kwargs)

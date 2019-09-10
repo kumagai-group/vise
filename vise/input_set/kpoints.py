@@ -236,6 +236,9 @@ def make_kpoints(mode: str,
                     kpt_shift.append(0.5)
                 else:
                     kpt_shift.append(0.0)
+        else:
+            raise ValueError("Supported kpt mode is only primitive_uniform, "
+                             "band or manual_set.")
 
     kpoints = Kpoints(comment=comment, kpts=kpts, kpts_shift=kpt_shift)
 

@@ -4,17 +4,16 @@
 import argparse
 import os
 from copy import deepcopy
-from inspect import signature
 from itertools import chain
 
-from pydefect.util.logger import get_logger
-from pydefect.util.main_tools import list2dict, potcar_str2dict
 from pymatgen import Structure
 from pymatgen.core.periodic_table import Element
-from vise.util.config import SYMMETRY_TOLERANCE, ANGLE_TOL, KPT_DENSITY
 from vise.input_set.incar import incar_flags
-from vise.input_set.new_input_set import InputSet
+from vise.input_set.input_set import InputSet, OPTS
 from vise.input_set.prior_info import PriorInfo
+from vise.util.config import SYMMETRY_TOLERANCE, ANGLE_TOL, KPT_DENSITY
+from vise.util.logger import get_logger
+from vise.util.main_tools import potcar_str2dict, list2dict
 
 __author__ = "Yu Kumagai"
 __maintainer__ = "Yu Kumagai"
@@ -23,6 +22,63 @@ logger = get_logger(__name__)
 
 __version__ = '0.0.1'
 __date__ = 'will be inserted'
+
+
+def vasp_set(args):
+    flags = [str(s) for s in list(Element)]
+    ldauu = list2dict(args.ldauu, flags)
+    ldaul = list2dict(args.ldaul, flags)
+    potcar_set = potcar_str2dict(args.potcar_set)
+
+    base_kwargs = {"task": args.task,
+                   "xc": args.xc,
+                   "kpt_density": args.kpt_density,
+                   "standardize_structure": args.standardize,
+                   "ldauu": ldauu,
+                   "ldaul": ldaul}
+
+    flags = list(chain.from_iterable(incar_flags.values()))
+    base_user_incar_settings = list2dict(args.user_incar_setting, flags)
+
+    flags = list(OPTS.keys())
+    base_kwargs.update(list2dict(args.vise_opts, flags))
+
+    print(base_kwargs)
+
+    original_dir = os.getcwd()
+    dirs = args.dirs or ["."]
+
+    for d in dirs:
+        os.chdir(os.path.join(original_dir, d))
+        logger.info(f"Constructing vasp set in {d}")
+        user_incar_settings = deepcopy(base_user_incar_settings)
+        kwargs = deepcopy(base_kwargs)
+
+        if args.prior_info:
+            if os.path.exists("prior_info.json"):
+                prior_info = PriorInfo.load_json("prior_info.json")
+                kwargs["band_gap"] = prior_info["band_gap"]
+                kwargs["is_magnetization"] = \
+                    abs(prior_info["total_magnetization"]) > 0.1
+
+        if args.prev_dir:
+            files = {"CHGCAR": "C", "WAVECAR": "M", "WAVEDER": "M"}
+            input_set = InputSet.from_prev_calc(args.prev_dir,
+                                               charge=args.charge,
+                                               files_to_transfer=files,
+                                               **kwargs)
+        else:
+            s = Structure.from_file(args.poscar)
+            input_set = \
+                InputSet.make_input(structure=s,
+                                    charge=args.charge,
+                                    user_incar_settings=user_incar_settings,
+                                    override_potcar_set=potcar_set,
+                                    **kwargs)
+
+        input_set.write_input(".")
+
+    os.chdir(original_dir)
 
 
 def main():
@@ -47,32 +103,35 @@ def main():
         aliases=['vs'])
 
     # all the defaults must be declared here.
-    vos_defaults = {"vos_kwargs": {"symprec": SYMMETRY_TOLERANCE,
-                                   "angle_tolerance": ANGLE_TOL},
-                    "xc":         "pbesol",
-                    "kpt_density": KPT_DENSITY,
-                    "perfect_incar_setting": None,
-                    "potcar_set": None,
-                    "ldauu":      None,
-                    "ldaul":      None}
+    vs_defaults = {"symprec":             SYMMETRY_TOLERANCE,
+                   "angle_tolerance":     ANGLE_TOL,
+                   "xc":                  "pbesol",
+                   "task":                "structure_opt",
+                   "kpt_density":         KPT_DENSITY,
+                   "vise_opts":             None,
+                   "user_incar_setting":  None,
+                   "override_potcar_set": None,
+                   "ldauu":               None,
+                   "ldaul":               None}
 
     # write use potcar setting
     parser_vasp_set.add_argument(
         "-p", "--poscar", dest="poscar", default="POSCAR", type=str,
         help="POSCAR-type file name.")
     parser_vasp_set.add_argument(
-        "--potcar", dest="potcar_set", default=vos_defaults["potcar_set"],
+        "--potcar", dest="potcar_set",
+        default=vs_defaults["override_potcar_set"],
         type=str, nargs="+",
         help="User specifying POTCAR set. E.g., Mg_pv O_h")
     parser_vasp_set.add_argument(
-        "-x", "--xc", dest="xc", default=vos_defaults["xc"], type=str,
+        "-x", "--xc", dest="xc", default=vs_defaults["xc"], type=str,
         help="Exchange-correlation (XC) interaction treatment.")
     parser_vasp_set.add_argument(
-        "-t", "--task", dest="task", default="structure_opt", type=str,
+        "-t", "--task", dest="task", default=vs_defaults["task"], type=str,
         help="The task name. See document of vise.")
     parser_vasp_set.add_argument(
         "-k", "--kpt_density", dest="kpt_density",
-        default=vos_defaults["kpt_density"], type=float,
+        default=vs_defaults["kpt_density"], type=float,
         help="K-point density in Angstrom along each direction .")
     parser_vasp_set.add_argument(
         "-s", "--standardize", dest="standardize", action="store_false",
@@ -85,85 +144,35 @@ def main():
         "-c", "--charge", dest="charge", type=int, default=0,
         help="Supercell charge state.")
     parser_vasp_set.add_argument(
-        "-vos_kw", "--vos_kwargs", dest="vos_kwargs", type=str, nargs="+",
-        default=vos_defaults["vos_kwargs"],
-        help="Keyword arguments in make_input classmethod of ObaSet in vise. "
-             "See document in vise for details.")
+        "-vise_opts", dest="vise_opts", type=str, nargs="+",
+        default=vs_defaults["vise_opts"],
+        help="Keyword arguments for options in make_input classmethod of "
+             "InputSet in vise. See document in vise for details.")
     parser_vasp_set.add_argument(
-        "-is", "--incar_setting", dest="incar_setting", type=str, nargs="+",
-        default=vos_defaults["perfect_incar_setting"],
+        "-is", "--incar_setting", dest="user_incar_setting", type=str,
+        nargs="+",
+        default=vs_defaults["user_incar_setting"],
         help="user_incar_setting in make_input classmethod of ObaSet in vise. "
              "See document in vise for details.")
     parser_vasp_set.add_argument(
-        "--dirs", dest="dirs", nargs="+", type=str,
-        help="Make vasp set for the directories in the same condition."
-             "In pydefect, it is used especially for competing phases.")
+        "--dirs", dest="dirs", nargs="+", type=str, default=None,
+        help="Make vasp set for the directories in the same condition.")
     parser_vasp_set.add_argument(
         "-pi", "-prior_info", dest="prior_info", action="store_true",
         help="Set if prior_info.json is read for competing phase calculations.")
     parser_vasp_set.add_argument(
-        "-ldauu", dest="ldauu", type=dict, default=vos_defaults["ldauu"],
-        nargs="+", help=".")
+        "-ldauu", dest="ldauu", type=dict, default=vs_defaults["ldauu"],
+        nargs="+", help="Dict of LDAUU values")
     parser_vasp_set.add_argument(
-        "-ldaul", dest="ldaul", type=str, default=vos_defaults["ldaul"],
-        nargs="+", help=".")
-
-    # delete the default dict to avoid bugs.
-    del vos_defaults
+        "-ldaul", dest="ldaul", type=str, default=vs_defaults["ldaul"],
+        nargs="+", help="Dict of LDAUL values.")
 
     parser_vasp_set.set_defaults(func=vasp_set)
 
+    args = parser.parse_args()
+    args.func(args)
 
-def vasp_set(args):
 
-    flags = [str(s) for s in list(Element)]
-    ldauu = list2dict(args.ldauu, flags)
-    ldaul = list2dict(args.ldaul, flags)
-    potcar_set = potcar_str2dict(args.potcar_set)
-    base_kwargs = {"task": args.task,
-                   "xc": args.xc,
-                   "kpt_density": args.kpt_density,
-                   "standardize_structure": args.standardize,
-                   "ldauu": ldauu,
-                   "ldaul": ldaul}
+if __name__ == "__main__":
+    main()
 
-    flags = list(chain.from_iterable(incar_flags.values()))
-    base_user_incar_settings = list2dict(args.incar_setting, flags)
-
-    flags = list(signature(InputSet.make_input).parameters.keys())
-    base_kwargs.update(list2dict(args.vos_kwargs, flags))
-
-    original_dir = os.getcwd()
-    dirs = args.dirs if args.dirs else ["."]
-
-    for d in dirs:
-        os.chdir(os.path.join(original_dir, d))
-        logger.info(f"Constructing vasp set in {d}")
-        user_incar_settings = deepcopy(base_user_incar_settings)
-        kwargs = deepcopy(base_kwargs)
-
-        if args.prior_info:
-            if os.path.exists("prior_info.json"):
-                prior_info = PriorInfo.load_json("prior_info.json")
-                kwargs["band_gap"] = prior_info["band_gap"]
-                kwargs["is_magnetization"] = \
-                    abs(prior_info["total_magnetization"]) > 0.1
-
-        if args.prev_dir:
-            files = {"CHGCAR": "C", "WAVECAR": "M", "WAVEDER": "M"}
-            vasp_set = InputSet.from_prev_calc(args.prev_dir,
-                                               charge=args.charge,
-                                               files_to_transfer=files,
-                                               **kwargs)
-        else:
-            s = Structure.from_file(args.poscar)
-            vasp_set = \
-                InputSet.make_input(structure=s,
-                                    charge=args.charge,
-                                    user_incar_settings=user_incar_settings,
-                                    override_potcar_set=potcar_set,
-                                    **kwargs)
-
-        vasp_set.write_input(".")
-
-    os.chdir(original_dir)
