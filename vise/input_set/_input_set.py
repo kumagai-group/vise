@@ -14,10 +14,10 @@ from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Potcar, Kpoints, Poscar
 from pymatgen.io.vasp.sets import (
     get_vasprun_outcar, DictSet, get_structure_from_prev_run)
-from vise.util.config import (
-    KPT_DENSITY, ENCUT_FACTOR_STR_OPT, ANGLE_TOL, SYMMETRY_TOLERANCE)
 from vise.input_set.incar import ViseIncar
 from vise.input_set.kpoints import make_kpoints, num_irreducible_kpoints
+from vise.util.config import (
+    KPT_DENSITY, ENCUT_FACTOR_STR_OPT, ANGLE_TOL, SYMMETRY_TOLERANCE)
 from vise.util.logger import get_logger
 from vise.util.structure_handler import find_spglib_primitive
 

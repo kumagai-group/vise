@@ -20,7 +20,7 @@ __maintainer__ = "Yu Kumagai"
 
 logger = get_logger(__name__)
 
-__version__ = '0.0.1'
+__version__ = '0.0.1dev'
 __date__ = 'will be inserted'
 
 
@@ -37,13 +37,11 @@ def vasp_set(args):
                    "ldauu": ldauu,
                    "ldaul": ldaul}
 
-    flags = list(chain.from_iterable(incar_flags.values()))
-    base_user_incar_settings = list2dict(args.user_incar_setting, flags)
-
     flags = list(OPTS.keys())
     base_kwargs.update(list2dict(args.vise_opts, flags))
 
-    print(base_kwargs)
+    flags = list(chain.from_iterable(incar_flags.values()))
+    base_user_incar_settings = list2dict(args.user_incar_setting, flags)
 
     original_dir = os.getcwd()
     dirs = args.dirs or ["."]
@@ -64,9 +62,9 @@ def vasp_set(args):
         if args.prev_dir:
             files = {"CHGCAR": "C", "WAVECAR": "M", "WAVEDER": "M"}
             input_set = InputSet.from_prev_calc(args.prev_dir,
-                                               charge=args.charge,
-                                               files_to_transfer=files,
-                                               **kwargs)
+                                                charge=args.charge,
+                                                files_to_transfer=files,
+                                                **kwargs)
         else:
             s = Structure.from_file(args.poscar)
             input_set = \
@@ -108,7 +106,7 @@ def main():
                    "xc":                  "pbesol",
                    "task":                "structure_opt",
                    "kpt_density":         KPT_DENSITY,
-                   "vise_opts":             None,
+                   "vise_opts":           None,
                    "user_incar_setting":  None,
                    "override_potcar_set": None,
                    "ldauu":               None,
@@ -149,7 +147,7 @@ def main():
         help="Keyword arguments for options in make_input classmethod of "
              "InputSet in vise. See document in vise for details.")
     parser_vasp_set.add_argument(
-        "-is", "--incar_setting", dest="user_incar_setting", type=str,
+        "-uis", "--user_incar_setting", dest="user_incar_setting", type=str,
         nargs="+",
         default=vs_defaults["user_incar_setting"],
         help="user_incar_setting in make_input classmethod of ObaSet in vise. "
@@ -159,7 +157,7 @@ def main():
         help="Make vasp set for the directories in the same condition.")
     parser_vasp_set.add_argument(
         "-pi", "-prior_info", dest="prior_info", action="store_true",
-        help="Set if prior_info.json is read for competing phase calculations.")
+        help="Set if prior_info.json is read.")
     parser_vasp_set.add_argument(
         "-ldauu", dest="ldauu", type=dict, default=vs_defaults["ldauu"],
         nargs="+", help="Dict of LDAUU values")

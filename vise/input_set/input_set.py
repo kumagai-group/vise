@@ -17,12 +17,12 @@ from pymatgen.io.vasp.sets import VaspInputSet, Poscar, Potcar
 from pymatgen.io.vasp.sets import (
     get_vasprun_outcar, get_structure_from_prev_run)
 from vise.analyzer.band_gap import band_gap_properties
-from vise.util.config import (
-    KPT_DENSITY, ENCUT_FACTOR_STR_OPT, ANGLE_TOL, SYMMETRY_TOLERANCE)
 from vise.input_set.incar import ViseIncar
 from vise.input_set.sets import (
     Task, Xc, TaskStructureKpoints, XcTaskPotcar, TaskIncarSettings,
     XcIncarSettings, XcTaskIncarSettings, CommonIncarSettings, OTHER_FLAGS)
+from vise.util.config import (
+    KPT_DENSITY, ENCUT_FACTOR_STR_OPT, ANGLE_TOL, SYMMETRY_TOLERANCE)
 from vise.util.logger import get_logger
 
 logger = get_logger(__name__)

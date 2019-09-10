@@ -3,16 +3,16 @@ from enum import unique, Enum
 from math import ceil
 from pathlib import Path
 from typing import Optional
-import numpy as np
 
+import numpy as np
 from monty.serialization import loadfn
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp import Potcar, Kpoints
-from vise.util.config import BAND_GAP_CRITERION
 from vise.input_set.datasets.element_parameters import unoccupied_bands
 from vise.input_set.kpoints import make_kpoints
+from vise.util.config import BAND_GAP_CRITERION
 from vise.util.logger import get_logger
 from vise.util.structure_handler import find_spglib_primitive
 
