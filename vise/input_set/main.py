@@ -9,8 +9,10 @@ from itertools import chain
 from pymatgen import Structure
 from pymatgen.core.periodic_table import Element
 from vise.input_set.vise_incar import incar_flags
-from vise.input_set.input_set import ViseInputSet, OPTIONS
+from vise.input_set.vise_input_set import ViseInputSet
 from vise.input_set.prior_info import PriorInfo
+from vise.input_set.xc import Xc
+from vise.input_set.task import Task
 from vise.config import SYMMETRY_TOLERANCE, ANGLE_TOL, KPT_DENSITY
 from vise.util.logger import get_logger
 from vise.util.main_tools import potcar_str2dict, list2dict
@@ -30,14 +32,14 @@ def vasp_set(args):
     ldaul = list2dict(args.ldaul, flags)
     potcar_set = potcar_str2dict(args.potcar_set)
 
-    base_kwargs = {"task": args.task,
-                   "xc": args.xc,
+    base_kwargs = {"task": Task.from_string(args.task),
+                   "xc": Xc.from_string(args.xc),
                    "kpt_density": args.kpt_density,
                    "standardize_structure": args.standardize,
                    "ldauu": ldauu,
                    "ldaul": ldaul}
 
-    flags = list(OPTIONS.keys())
+    flags = list(ViseInputSet.OPTIONS.keys())
     base_kwargs.update(list2dict(args.vise_opts, flags))
 
     flags = list(chain.from_iterable(incar_flags.values()))
@@ -76,6 +78,7 @@ def vasp_set(args):
                                         **kwargs)
 
         input_set.write_input(".")
+        input_set.to_json_file()
 
     os.chdir(original_dir)
 

@@ -143,51 +143,48 @@ def calc_npar_kpar(num_kpoints, num_cores_per_node, num_nodes):
     """
 
     kpar_set = {
-        1:        [1, 1, 1],
-        2:        [2, 2, 2],
-        3:        [3, 3, 3],
-        4:        [2, 4, 4],
-        5:        [1, 2, 2],
-        6:        [3, 6, 6],
-        7:        [2, 2, 4],
-        8:        [4, 8, 8],
-        9:        [3, 3, 3],
-        10:       [2, 2, 2],
-        11:       [2, 2, 2],
-        12:       [3, 4, 4],
-        13:       [2, 2, 2],
-        14:       [2, 2, 2],
-        15:       [3, 2, 2],
-        16:       [4, 4, 8],
-        17:       [2, 4, 4],
-        18:       [3, 6, 4],
-        19:       [2, 4, 4],
-        20:       [2, 4, 4],
-        21:       [3, 3, 3],
-        22:       [2, 4, 4],
-        23:       [2, 4, 4],
-        24:       [3, 6, 8],
-        25:       [2, 4, 4],
-        26:       [2, 4, 4],
-        27:       [3, 4, 4],
-        28:       [2, 4, 4],
-        29:       [2, 4, 4],
-        30:       [3, 6, 4],
-        31:       [3, 4, 4],
-        32:       [3, 4, 8],
-        33:       [3, 4, 4],
-        34:       [3, 4, 4],
-        35:       [3, 4, 4],
-        36:       [4, 8, 16],
-        48:       [4, 8, 16],
-        60:       [4, 8, 16],
-        72:       [4, 8, 16],
-        "others": [4, 8, 16]}
+        1:    [1, 1, 1],
+        2:    [2, 2, 2],
+        3:    [3, 3, 3],
+        4:    [2, 4, 4],
+        5:    [1, 2, 2],
+        6:    [3, 6, 6],
+        7:    [2, 2, 4],
+        8:    [4, 8, 8],
+        9:    [3, 3, 3],
+        10:   [2, 2, 2],
+        11:   [2, 2, 2],
+        12:   [3, 4, 4],
+        13:   [2, 2, 2],
+        14:   [2, 2, 2],
+        15:   [3, 2, 2],
+        16:   [4, 4, 8],
+        17:   [2, 4, 4],
+        18:   [3, 6, 4],
+        19:   [2, 4, 4],
+        20:   [2, 4, 4],
+        21:   [3, 3, 3],
+        22:   [2, 4, 4],
+        23:   [2, 4, 4],
+        24:   [3, 6, 8],
+        25:   [2, 4, 4],
+        26:   [2, 4, 4],
+        27:   [3, 4, 4],
+        28:   [2, 4, 4],
+        29:   [2, 4, 4],
+        30:   [3, 6, 4],
+        31:   [3, 4, 4],
+        32:   [3, 4, 8],
+        33:   [3, 4, 4],
+        34:   [3, 4, 4],
+        35:   [3, 4, 4],
+        36:   [4, 8, 16],
+        48:   [4, 8, 16],
+        60:   [4, 8, 16],
+        72:   [4, 8, 16],
+        None: [4, 8, 16]}
 
-    if num_kpoints in kpar_set:
-        num_kpt_key = num_kpoints
-    else:
-        num_kpt_key = "others"
+    num_kpt_key = num_kpoints if num_kpoints in kpar_set else None
 
     if num_nodes == 2:
         kpar = kpar_set[num_kpt_key][1]
@@ -235,8 +232,7 @@ class TaskStructureKpoints:
                      band_ref_dist: float,
                      factor: Optional[int],
                      symprec: float,
-                     angle_tolerance: float,
-                     **kwargs):
+                     angle_tolerance: float):
         """
 
         See docstrings in the make_input method in ViseInputSet class
@@ -264,6 +260,12 @@ class TaskStructureKpoints:
             kpt_shift = [0, 0, 0]
         elif task == Task.band:
             kpt_mode = "band"
+        elif task == Task.phonon_force:
+            kpt_mode = "manual_set"
+            if kpt_shift != [0, 0, 0]:
+                logger.warning("For phonon force calculaitons, Gamma centering "
+                               "is forced for k-point sampling.")
+            kpt_shift = [0, 0, 0]
         else:
             primitive_structure, is_structure_changed = \
                 find_spglib_primitive(structure, symprec, angle_tolerance)
@@ -296,7 +298,7 @@ class TaskStructureKpoints:
                 factor = 2
             else:
                 factor = 1
-
+        print(kpt_density)
         # - KPOINTS construction
         kpoints, structure, sg, num_kpts = \
             make_kpoints(mode=kpt_mode,
@@ -326,11 +328,9 @@ class XcTaskPotcar:
     @classmethod
     def from_options(cls,
                      xc: Xc,
-                     task: Task,
                      symbol_set: tuple,
                      potcar_set_name: str = None,
-                     override_potcar_set: dict = None,
-                     **kwargs):
+                     override_potcar_set: dict = None):
 
         potcar_functional = "LDA" if xc == Xc.lda else "PBE"
         potcar_set_name = potcar_set_name or "normal"

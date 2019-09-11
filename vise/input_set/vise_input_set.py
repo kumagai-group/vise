@@ -125,12 +125,11 @@ class ViseInputSet(VaspInputSet):
             Encut multiplied factor for structure optimization, where encut
             needs to be increased to reduce the Pulay Stress errors.
     """
-    GENERAL_OPTIONS = {"xc": Xc.pbe,
-                       "task": Task.structure_opt,
-                       "sort_structure": True,
+    GENERAL_OPTIONS = {"sort_structure": True,
                        "standardize_structure": True}
 
-    TASK_OPTIONS = {"kpt_mode": "primitive_uniform",
+    TASK_OPTIONS = {"task": Task.structure_opt,
+                    "kpt_mode": "primitive_uniform",
                     "kpt_density": KPT_DENSITY,
                     "kpt_shift": None,
                     "only_even": False,
@@ -140,9 +139,9 @@ class ViseInputSet(VaspInputSet):
                     "angle_tolerance": ANGLE_TOL,
                     "charge": 0}
 
-    XC_OPTIONS = {"potcar_set_name": "normal",
+    XC_OPTIONS = {"xc": Xc.pbe,
+                  "potcar_set_name": "normal",
                   "override_potcar_set": None,
-                  "band_gap": None,
                   "vbm_cbm": None,
                   "aexx": 0.25,
                   "hubbard_u": None,
@@ -212,21 +211,22 @@ class ViseInputSet(VaspInputSet):
             kwargs (dict): OPTION arguments.
         :return:
         """
-
         files_to_transfer = files_to_transfer or {}
         user_incar_settings = user_incar_settings or {}
 
         # First, set default.
         opts = deepcopy(cls.OPTIONS)
-
         # Second, override with previous condition
         if prev_set:
             key_set = set(cls.COMMON_OPTIONS.keys())
-            if prev_set.task == opts["task"]:
+
+            task = kwargs.get("task", cls.OPTIONS["task"])
+            xc = kwargs.get("xc", cls.OPTIONS["xc"])
+            if prev_set.task == task:
                 key_set.update(cls.TASK_OPTIONS.keys())
-            if prev_set.xc == opts["xc"]:
+            if prev_set.xc == xc:
                 key_set.update(cls.XC_OPTIONS.keys())
-            if prev_set.task == opts["task"] and prev_set.xc == opts["xc"]:
+            if prev_set.task == task and prev_set.xc == xc:
                 key_set.update(cls.XC_TASK_OPTIONS)
 
             for k in key_set:
@@ -234,17 +234,24 @@ class ViseInputSet(VaspInputSet):
 
         # Third, override with keyword arguments
         for k in kwargs:
-            if "xc" in kwargs and type(kwargs["xc"]) == str:
-                kwargs["xc"] = Xc.from_string(kwargs["xc"])
-            if "task" in kwargs and type(kwargs["task"]) == str:
-                kwargs["task"] = Task.from_string(kwargs["task"])
             if k not in opts.keys():
                 logger.warning(f"Keyword {k} is not adequate for ViseInputSet.")
         opts.update(kwargs)
 
         task_str_kpt = TaskStructureKpoints.from_options(
-            original_structure=structure, **opts)
-        opts["factor"] = task_str_kpt.factor
+            task=opts["task"],
+            original_structure=structure,
+            standardize_structure=opts["standardize_structure"],
+            sort_structure=opts["sort_structure"],
+            is_magnetization=opts["is_magnetization"],
+            kpt_mode=opts["kpt_mode"],
+            kpt_density=opts["kpt_density"],
+            kpt_shift=opts["kpt_shift"],
+            only_even=opts["only_even"],
+            band_ref_dist=opts["band_ref_dist"],
+            factor=opts["factor"],
+            symprec=opts["symprec"],
+            angle_tolerance=opts["angle_tolerance"])
 
         orig_matrix = structure.lattice.matrix
         matrix = task_str_kpt.structure.lattice.matrix
@@ -263,28 +270,45 @@ class ViseInputSet(VaspInputSet):
                     files_to_transfer.pop(f, None)
 
         xc_task_potcar = XcTaskPotcar.from_options(
-            symbol_set=task_str_kpt.structure.symbol_set, **opts)
+            xc=opts["xc"],
+            symbol_set=task_str_kpt.structure.symbol_set,
+            potcar_set_name=opts["potcar_set_name"],
+            override_potcar_set=opts["override_potcar_set"])
 
         task_settings = TaskIncarSettings.from_options(
+            task=opts["task"],
             structure=task_str_kpt.structure,
             composition=task_str_kpt.structure.composition,
             potcar=xc_task_potcar.potcar,
             num_kpoints=task_str_kpt.num_kpts,
-            max_enmax=xc_task_potcar.max_enmax, **opts)
+            max_enmax=xc_task_potcar.max_enmax,
+            is_magnetization=opts["is_magnetization"],
+            vbm_cbm=opts["vbm_cbm"],
+            npar_kpar=opts["npar_kpar"],
+            num_cores=opts["num_cores"],
+            encut=opts["encut"],
+            structure_opt_encut_factor=opts["structure_opt_encut_factor"])
 
         xc_settings = XcIncarSettings.from_options(
-            symbol_set=task_str_kpt.structure.symbol_set, **opts)
+            xc=opts["xc"],
+            symbol_set=task_str_kpt.structure.symbol_set,
+            factor=task_str_kpt.factor,
+            aexx=opts["aexx"],
+            hubbard_u=opts["hubbard_u"],
+            ldauu=opts["ldauu"],
+            ldaul=opts["ldaul"],
+            ldaul_set_name=opts["ldaul_set_name"])
 
         xc_task_settings = XcTaskIncarSettings.from_options()
 
         common_settings = CommonIncarSettings.from_options(
             potcar=xc_task_potcar.potcar,
-            composition=task_str_kpt.structure.composition, **opts)
+            composition=task_str_kpt.structure.composition,
+            charge=opts["charge"])
 
-        incar_settings = deepcopy(task_settings.settings)
-        incar_settings.update(xc_settings.settings)
-        incar_settings.update(xc_task_settings.settings)
-        incar_settings.update(common_settings.settings)
+        incar_settings = \
+            {**task_settings.settings, **xc_settings.settings,
+             **xc_task_settings.settings, **common_settings.settings}
 
         if prev_set:
             prev_other_settings = \
@@ -403,6 +427,7 @@ class ViseInputSet(VaspInputSet):
                        dirname,
                        json_filename: str = "vise.json",
                        parse_calc_results: bool = True,
+                       parse_incar: bool = True,
                        sort_structure: bool = True,
                        standardize_structure: bool = False,
                        files_to_transfer: Optional[dict] = None,
@@ -413,7 +438,7 @@ class ViseInputSet(VaspInputSet):
         kwargs = kwargs or {}
         directory_path = Path(dirname)
 
-        input_set = ViseInputSet.load_json(json_filename)
+        input_set = ViseInputSet.load_json(directory_path / json_filename)
 
         if parse_calc_results:
             vasprun, outcar = get_vasprun_outcar(dirname)
@@ -421,11 +446,14 @@ class ViseInputSet(VaspInputSet):
 
             gap_properties = band_gap_properties(vasprun)
             if gap_properties:
-                band_gap, cbm, vbm = gap_properties
-                kwargs["band_gap"] = band_gap
+                _, vbm, cbm = gap_properties
                 kwargs["vbm_cbm"] = [vbm["energy"], cbm["energy"]]
 
-            abs_max_mag = abs(max(structure.site_properties["magmom"], key=abs))
+            if "magmom" in structure.site_properties.keys():
+                abs_max_mag = abs(max(structure.site_properties["magmom"],
+                                      key=abs))
+            else:
+                abs_max_mag = 0
             if vasprun.is_spin and abs_max_mag > 0.05:
                 kwargs["is_magnetization"] = True
 
@@ -441,19 +469,21 @@ class ViseInputSet(VaspInputSet):
             else:
                 raise FileNotFoundError("CONTCAR or POSCAR does not exist.")
 
+        if parse_incar:
+            pass
+
         if files_to_transfer:
             abs_files_to_transfer = {}
             for filename, value in files_to_transfer.items():
                 f = directory_path / filename
-                if not f.is_file:
+                if not f.is_file():
                     logger.warning(f"{f} does not exist.")
                 elif os.stat(f).st_size == 0:
                     logger.warning(f"{f} is empty.")
+                elif value[0].lower() not in ["l", "c", "m"]:
+                    logger.warning(f"{value} option for {filename} is invalid.")
                 else:
-                    if value[0].lower() not in ["l", "c", "m"]:
-                        logger.warning(f"{value} option for {filename} is "
-                                       f"invalid.")
-                abs_files_to_transfer[str(f)] = value[0].lower()
+                    abs_files_to_transfer[str(f)] = value[0].lower()
             files_to_transfer = abs_files_to_transfer
 
         return cls.make_input(structure=structure,
@@ -461,5 +491,6 @@ class ViseInputSet(VaspInputSet):
                               files_to_transfer=files_to_transfer,
                               user_incar_settings=user_incar_settings,
                               sort_structure=sort_structure,
-                              standardize_structure=standardize_structure)
+                              standardize_structure=standardize_structure,
+                              **kwargs)
 

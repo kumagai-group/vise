@@ -13,17 +13,17 @@ LREAL:
   dielectric_function: False
 
 ISPIN:
-  structure_opt: False
-  structure_opt_rough: False
-  structure_opt_tight: False
-  cluster_opt: False
-  phonon_force: False
-  defect: True
-  band: False
-  dos: False
-  dielectric_dfpt: False
-  dielectric_finite_field: False
-  dielectric_function: False
+  structure_opt: 1
+  structure_opt_rough: 1
+  structure_opt_tight: 1
+  cluster_opt: 1
+  phonon_force: 1
+  defect: 2
+  band: 1
+  dos: 1
+  dielectric_dfpt: 1
+  dielectric_finite_field: 1
+  dielectric_function: 1
 
 ISIF:
   structure_opt: 3
