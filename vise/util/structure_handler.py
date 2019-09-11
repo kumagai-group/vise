@@ -64,7 +64,7 @@ def spglib_cell_to_structure(cell: tuple) -> Structure:
             Lattice parameters, atomic positions in fractional coordinates,
             and corresponding atom numbers
     """
-    species = [[i] for i in cell[2]]
+    species = [Element.from_Z(i) for i in cell[2]]
     return Structure(cell[0], species, cell[1])
 
 

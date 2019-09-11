@@ -28,8 +28,8 @@ class ViseIncar(Incar):
     constructor, we need to override them.
     """
 
-    @staticmethod
-    def from_file(filename):
+    @classmethod
+    def from_file(cls, filename: str) -> "ViseIncar":
         """
         Reads an Incar object from a file.
 
@@ -40,22 +40,22 @@ class ViseIncar(Incar):
             ViseIncar object
         """
         with zopen(filename, "rt") as f:
-            return ViseIncar.from_string(f.read())
+            return cls.from_string(f.read())
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, d: dict) -> "ViseIncar":
         if d.get("MAGMOM") and isinstance(d["MAGMOM"][0], dict):
             d["MAGMOM"] = [Magmom.from_dict(m) for m in d["MAGMOM"]]
 
         return cls({k: v for k, v in d.items() if k not in ("@module",
                                                             "@class")})
 
-    @staticmethod
-    def from_string(string: str):
+    @classmethod
+    def from_string(cls, string: str):
         """ Reads an Incar object from a string.
 
         This method is different from that of Incar superclass at it does not
-        support ";" semantic wich split the incar flaggs.
+        support ";" semantic which split the incar flags.
 
         Args:
             string (str): Incar string
@@ -75,9 +75,9 @@ class ViseIncar(Incar):
                     val = ViseIncar.proc_val(key, val)
                     params[key] = val
 
-        return ViseIncar(params)
+        return cls(params)
 
-    def __add__(self, other):
+    def __add__(self, other: Incar) -> "ViseIncar":
         """
         Add all the values of another INCAR object to this object.
         Facilitates the use of "standard" INCARs.
@@ -90,17 +90,17 @@ class ViseIncar(Incar):
                 params[k] = v
         return ViseIncar(params)
 
-    def get_string(self, sort_keys=False, pretty=False):
+    def get_string(self, sort_keys: bool = False, pretty: bool = False) -> str:
         """ This method is overridden for the pretty printing. """
         lines = []
-        incar_keys = deepcopy(self)
+        check_incar_keys = deepcopy(self)
         for key, val in incar_flags.items():
             comment = False
             blank_line = False
             ll = []
 
             for v in val:
-                if v in incar_keys:
+                if v in check_incar_keys:
                     if comment is False:
                         lines.append(f"# {key} \n")
                         comment = True
@@ -137,19 +137,19 @@ class ViseIncar(Incar):
                     else:
                         ll.append([v, self[v]])
                     blank_line = True
-                    incar_keys.pop(v)
+                    check_incar_keys.pop(v)
             if blank_line:
                 lines.append(str(tabulate([[l[0], "=", l[1]] for l in ll],
                                           tablefmt="plain")))
                 lines.append("\n\n")
 
         for mson_key in ["@module", "@class"]:
-            if mson_key in incar_keys:
-                incar_keys.pop(mson_key)
+            if mson_key in check_incar_keys:
+                check_incar_keys.pop(mson_key)
 
-        if len(incar_keys) > 0:
-            raise ValueError(
-                "{} are not valid in INCAR.".format(incar_keys.keys()))
+        if check_incar_keys:
+            raise ValueError(f"{check_incar_keys.keys()} are not valid in "
+                             f"INCAR.")
 
         return "".join(lines)
 

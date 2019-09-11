@@ -74,7 +74,7 @@ def make_band_kpoints(kpoints: Kpoints,
 
 def make_kpoints(mode: str,
                  structure: Structure,
-                 kpts_density: float,
+                 kpt_density: float,
                  only_even: bool = True,
                  manual_kpts: list = None,
                  ref_distance: float = 0.025,
@@ -108,15 +108,12 @@ def make_kpoints(mode: str,
                 This mode is useful when calculating the supercells.
         structure (Structure/IStructure):
             An input Structure object.
-        kpts_density (float):
+        kpt_density (float):
             Density of k-point mesh along each direction.
         only_even (bool):
             Only even numbered k points are allowed.
         manual_kpts (3x1 list):
             Manual set of the numbers of k-points.
-        num_split_kpoints (int):
-            "band" requires this variable.
-            Number of KPOINTS files used for a band structure calculation.
         ref_distance (float):
         kpt_shift (1x3 list):
             K-point shift in the definition of the vasp setting.
@@ -183,13 +180,13 @@ def make_kpoints(mode: str,
             reciprocal_abc = reciprocal_lattice.abc
 
         if only_even:
-            kpt_mesh = [int(ceil(kpts_density * r / 2)) * 2 * factor
+            kpt_mesh = [int(ceil(kpt_density * r / 2)) * 2 * factor
                         for r in reciprocal_abc]
         else:
-            kpt_mesh = [int(ceil(kpts_density * r)) * factor
+            kpt_mesh = [int(ceil(kpt_density * r)) * factor
                         for r in reciprocal_abc]
 
-        comment += f", kpt density: {kpts_density}, factor: {factor}"
+        comment += f", kpt density: {kpt_density}, factor: {factor}"
 
     kpts = (tuple(kpt_mesh),)
 

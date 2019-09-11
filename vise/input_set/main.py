@@ -8,8 +8,8 @@ from itertools import chain
 
 from pymatgen import Structure
 from pymatgen.core.periodic_table import Element
-from vise.input_set.incar import incar_flags
-from vise.input_set.input_set import InputSet, OPTS
+from vise.input_set.vise_incar import incar_flags
+from vise.input_set.input_set import ViseInputSet, OPTIONS
 from vise.input_set.prior_info import PriorInfo
 from vise.config import SYMMETRY_TOLERANCE, ANGLE_TOL, KPT_DENSITY
 from vise.util.logger import get_logger
@@ -37,7 +37,7 @@ def vasp_set(args):
                    "ldauu": ldauu,
                    "ldaul": ldaul}
 
-    flags = list(OPTS.keys())
+    flags = list(OPTIONS.keys())
     base_kwargs.update(list2dict(args.vise_opts, flags))
 
     flags = list(chain.from_iterable(incar_flags.values()))
@@ -61,18 +61,19 @@ def vasp_set(args):
 
         if args.prev_dir:
             files = {"CHGCAR": "C", "WAVECAR": "M", "WAVEDER": "M"}
-            input_set = InputSet.from_prev_calc(args.prev_dir,
-                                                charge=args.charge,
-                                                files_to_transfer=files,
-                                                **kwargs)
+            input_set = ViseInputSet.from_prev_calc(args.prev_dir,
+                                                    charge=args.charge,
+                                                    files_to_transfer=files,
+                                                    **kwargs)
         else:
             s = Structure.from_file(args.poscar)
+            print(kwargs)
             input_set = \
-                InputSet.make_input(structure=s,
-                                    charge=args.charge,
-                                    user_incar_settings=user_incar_settings,
-                                    override_potcar_set=potcar_set,
-                                    **kwargs)
+                ViseInputSet.make_input(structure=s,
+                                        charge=args.charge,
+                                        user_incar_settings=user_incar_settings,
+                                        override_potcar_set=potcar_set,
+                                        **kwargs)
 
         input_set.write_input(".")
 
@@ -145,12 +146,12 @@ def main():
         "-vise_opts", dest="vise_opts", type=str, nargs="+",
         default=vs_defaults["vise_opts"],
         help="Keyword arguments for options in make_input classmethod of "
-             "InputSet in vise. See document in vise for details.")
+             "ViseInputSet in vise. See document in vise for details.")
     parser_vasp_set.add_argument(
         "-uis", "--user_incar_setting", dest="user_incar_setting", type=str,
         nargs="+",
         default=vs_defaults["user_incar_setting"],
-        help="user_incar_setting in make_input classmethod of InputSet in vise."
+        help="user_incar_setting in make_input classmethod of ViseInputSet in vise."
              "See document in vise for details.")
     parser_vasp_set.add_argument(
         "--dirs", dest="dirs", nargs="+", type=str, default=None,

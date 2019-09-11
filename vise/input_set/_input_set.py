@@ -67,7 +67,7 @@ class InputSet(DictSet):
        the other magnetic configurations lower the host symmetry, one can use
        only kpt_mode="manual_set" and mostly kpts_shift=[0, 0, 0].
     2. Many options can be set in the **kwargs. See also the document of the
-       DictSet and VaspInputSet, which are superclasses of the InputSet.
+       DictSet and VaspInputSet, which are superclasses of the ViseInputSet.
 
     Below, the rules written in the sets file in pymatgen DictSet.
 
@@ -85,7 +85,7 @@ class InputSet(DictSet):
     """
 
     def __init__(self,
-                 a: "InputSet",
+                 a: "ViseInputSet",
                  structure: Structure,
                  orig_structure: Structure,
                  config_dict: dict,
@@ -199,7 +199,7 @@ class InputSet(DictSet):
                    structure: Structure,
                    xc: str = "pbe",
                    task: str = "structure_opt",
-                   a: "InputSet" = None,
+                   a: "ViseInputSet" = None,
                    incar_from_prev_calc: bool = False,
                    standardize_structure: bool = True,
                    sort_structure: bool = True,

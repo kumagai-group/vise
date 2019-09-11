@@ -6,21 +6,26 @@ import re
 import shutil
 from copy import deepcopy
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Dict
 
 import numpy as np
 from monty.io import zopen
 from monty.json import MontyEncoder
 from monty.serialization import loadfn
 from pymatgen.core.structure import Structure
-from pymatgen.io.vasp.sets import VaspInputSet, Poscar, Potcar
+from pymatgen.io.vasp.sets import VaspInputSet, Poscar, Potcar, Kpoints
 from pymatgen.io.vasp.sets import (
     get_vasprun_outcar, get_structure_from_prev_run)
+
 from vise.analyzer.band_gap import band_gap_properties
-from vise.input_set.incar import ViseIncar
-from vise.input_set.sets import (
-    Task, Xc, TaskStructureKpoints, XcTaskPotcar, TaskIncarSettings,
-    XcIncarSettings, XcTaskIncarSettings, CommonIncarSettings, OTHER_FLAGS)
+from vise.input_set.vise_incar import ViseIncar
+from vise.input_set.vise_incar_settings import (
+    TaskIncarSettings, XcIncarSettings, XcTaskIncarSettings,
+    CommonIncarSettings, OTHER_FLAGS)
+from vise.input_set.xc import Xc
+from vise.input_set.task import Task
+from vise.input_set.vise_other_settings import (
+    TaskStructureKpoints, XcTaskPotcar)
 from vise.config import (
     KPT_DENSITY, ENCUT_FACTOR_STR_OPT, ANGLE_TOL, SYMMETRY_TOLERANCE)
 from vise.util.logger import get_logger
@@ -33,48 +38,152 @@ __maintainer__ = "Yu Kumagai"
 
 __version__ = "0.0.1dev"
 
-OPTS = {"xc": Xc.pbe,
-        "task": Task.structure_opt,
-        "sort_structure": True,
-        "standardize_structure": True,
-        "is_magnetization": False,
-        "kpt_mode": "primitive_uniform",
-        "kpt_density": KPT_DENSITY,
-        "kpt_shift": None,
-        "only_even": False,
-        "band_ref_dist": 0.03,
-        "factor": None,
-        "symprec": SYMMETRY_TOLERANCE,
-        "angle_tolerance": ANGLE_TOL,
-        "potcar_set_name": "normal",
-        "override_potcar_set": None,
-        "band_gap": None,
-        "vbm_cbm": None,
-        "npar_kpar": True,
-        "num_cores": [36, 1],
-        "encut": None,
-        "structure_opt_encut_factor": ENCUT_FACTOR_STR_OPT,
-        "aexx": 0.25,
-        "hubbard_u": None,
-        "ldauu": None,
-        "ldaul": None,
-        "ldaul_set_name": None,
-        "charge": 0}
 
+class ViseInputSet(VaspInputSet):
+    """
 
-class InputSet(VaspInputSet):
-    # First, set default.
+    Options:
+        xc (Xc):
+            Exchange-correlation (xc) defined in Xc.
+        task (Task):
+            Task defined in Task.
+        sort_structure (bool):
+            Whether to sort the elements using get_sorted_structure method
+            of Structure class in pymatgen.
+        standardize_structure (bool):
+            Whether to convert the structure to a standardized primitive.
+        kpt_mode (str):
+            A string representing the k-point style that is used for the
+            make_kpoints function. Now, "band", "primitive_uniform" and
+            "manual_set" are supported. See make_kpoints docstring.
+        kpt_density (float):
+            K-point density in Angstrom along each direction used for
+            determining k-point uniform mesh.
+        kpt_shift (list):
+            K-point shift in vasp definition.
+        only_even (bool):
+            Whether to ceil the numbers of kpoints to be even.
+        band_ref_dist (float):
+            A reference target distance between neighboring k-points in the
+            path, in units of 1/Angstrom. The actual value will be as close
+            as possible to this value, to have an integer number of points
+            in each path. Note that seekpath default is 0.025.
+        factor (int):
+            Factor to be multiplied to the k-points along all the
+            directions. This parameter should be distinguished from the
+            kpt_density as it sets NKRED = factor for hybrid calculations:w
+        symprec (float):
+            Distance precision in Angstrom used for symmetry analysis.
+        angle_tolerance (float):
+            Angle precision in degrees used for symmetry analysis.
+        charge (float):
+            Charge state used for e.g., defect calculations.
+        default_potcar (str / None):
+            Default potcar name defined in potcar_set.yaml.
+            By default, use "normal", but one needs to use GW potcars for GW
+            calculation, which will be supported in the future.
+        override_potcar_set (dict /None):
+            Dict representation for overriding the potcar set, e.g.,
+            {"Mg": "Mg_pv", "O": "O_h"}
+        vbm_cbm (list):
+            The absolute valence band maximum (vbm) and conduction band minimum
+            (cbm) with [vbm, cbm] format in eV, which are used for determining
+            ISMEAR and the spectra region of the dos and absorption spectra.
+        aexx (float):
+            Exchange mixing parameter, namely AEXX in INCAR for hybrid
+            functional calculations.
+        hubbard_u (bool):
+            Whether to add Hubbard U parameter.
+            By default (None), it is switched on for LDA and GGA calculations,
+            while switched off for hybrid functional and GW approximations.
+            Default U-parameters are determined in u_parameter_set.yaml.
+        ldauu (dict):
+            Set when users want to modify U parameters from default. E.g.,
+            {"Ti": 4, "V": 3, "O": 5}
+        ldaul (dict):
+            Set when users want to modify orbitals from default.
+            If ldauu add elements that are not set in u_parameter_set.yaml,
+            ldaul also needs to be supplied for these elements. E.g.,
+            {"Ti": 2, "V": 2, "O": 1}
+        ldaul_set_name:
+            LDAUU and LDAUL default set name defined in u_parameter_set.yaml.
+        npar_kpar (bool):
+            Whether to automatically set the NPAR and KPAR tags.
+        encut (float):
+            Cutoff energy in eV.
+            This argument is useful when performing a set of calculations
+            for models with different elements yet their energies to be
+            compared, e.g., defect calculations with impurity.
+        is_magnetization (bool):
+            Whether to have magnetization. If exists, set
+            ISPIN = 2 and time_reversal = False, the latter of which is
+            necessary for band structure calculations.
+        num_cores_per_node (int):
+            Numbers of cores per node and nodes used to determine KPAR and NPAR
+            INCAR setting.
+        structure_opt_encut_factor (float):
+            Encut multiplied factor for structure optimization, where encut
+            needs to be increased to reduce the Pulay Stress errors.
+    """
+    GENERAL_OPTIONS = {"xc": Xc.pbe,
+                       "task": Task.structure_opt,
+                       "sort_structure": True,
+                       "standardize_structure": True}
+
+    TASK_OPTIONS = {"kpt_mode": "primitive_uniform",
+                    "kpt_density": KPT_DENSITY,
+                    "kpt_shift": None,
+                    "only_even": False,
+                    "band_ref_dist": 0.03,
+                    "factor": None,
+                    "symprec": SYMMETRY_TOLERANCE,
+                    "angle_tolerance": ANGLE_TOL,
+                    "charge": 0}
+
+    XC_OPTIONS = {"potcar_set_name": "normal",
+                  "override_potcar_set": None,
+                  "band_gap": None,
+                  "vbm_cbm": None,
+                  "aexx": 0.25,
+                  "hubbard_u": None,
+                  "ldauu": None,
+                  "ldaul": None,
+                  "ldaul_set_name": None}
+
+    XC_TASK_OPTIONS = {"npar_kpar": True,
+                       "encut": None}
+
+    COMMON_OPTIONS = {"is_magnetization": False,
+                      "num_cores": [36, 1],
+                      "structure_opt_encut_factor": ENCUT_FACTOR_STR_OPT}
+
+    OPTIONS = {**GENERAL_OPTIONS, **TASK_OPTIONS, **XC_OPTIONS,
+               **XC_TASK_OPTIONS, **COMMON_OPTIONS}
 
     def __init__(self,
                  structure: Structure,
                  xc: Xc,
                  task: Task,
-                 kpoints,
-                 potcar,
-                 incar_settings,
-                 user_incar_settings,
-                 files_to_transfer,
+                 kpoints: Kpoints,
+                 potcar: Potcar,
+                 incar_settings: dict,
+                 user_incar_settings: dict,
+                 files_to_transfer: dict,
                  **kwargs):
+        """
+
+        Args:
+            structure (Structure): The Structure to create inputs for.
+            xc (Xc): Exchange-correlation (xc) defined in Xc.
+            task (Task): Task defined in Task.
+            kpoints (Kpoints): Kpoints class object
+            potcar (Potcar): Potcar class object
+            incar_settings (dict): INCAR settings generated by some options
+            user_incar_settings (dict): User INCAR settings.
+            files_to_transfer (dict):
+            kwargs (dict): OPTION arguments.
+        """
+
         self.structure = structure
         self.xc = xc
         self.task = task
@@ -88,46 +197,38 @@ class InputSet(VaspInputSet):
     @classmethod
     def make_input(cls,
                    structure: Structure,
-                   prev_set: "InputSet" = None,
+                   prev_set: "ViseInputSet" = None,
                    files_to_transfer: Optional[dict] = None,
                    user_incar_settings: Optional[dict] = None,
-                   **kwargs) -> "InputSet":
+                   **kwargs) -> "ViseInputSet":
+        """
+
+        Args:
+            structure (Structure):
+                The Structure to create inputs for.
+            prev_set (ViseInputSet):
+            files_to_transfer:
+            user_incar_settings (dict): User INCAR settings.
+            kwargs (dict): OPTION arguments.
+        :return:
+        """
 
         files_to_transfer = files_to_transfer or {}
         user_incar_settings = user_incar_settings or {}
 
-        opts = deepcopy(OPTS)
-        # Don't forget to add keys below when add to opts.
-        # Inherit those keys from prev_set if task is the same.
-        task_keys = {"kpt_mode", "kpt_density", "kpt_shift", "only_even",
-                     "band_ref_dist", "factor", "symprec", "angle_tolerance",
-                     "charge"}
-        # Inherit those keys from prev_set if xc is the same.
-        xc_keys = {"potcar_set_name", "override_potcar_set", "band_gap",
-                   "vbm_cbm", "aexx", "hubbard_u", "ldauu", "ldaul",
-                   "ldaul_set_name"}
-        # Inherit those keys from prev_set if xc and task are the same.
-        # encut depends on the potcar which depends on xc.
-        xc_task_keys = {"npar_kpar", "encut"}
-        # Inherit those keys from prev_set anytime.
-        common_keys = {"is_magnetization", "num_cores",
-                       "structure_opt_encut_factor"}
-
-        # Only for check.
-        check = (set(opts.keys())
-                 - (task_keys | xc_keys | xc_task_keys | common_keys))
-        if check != {"standardize_structure", "sort_structure", "task", "xc"}:
-            raise KeyError("Keys are not consistent.")
+        # First, set default.
+        opts = deepcopy(cls.OPTIONS)
 
         # Second, override with previous condition
         if prev_set:
-            key_set = common_keys
+            key_set = set(cls.COMMON_OPTIONS.keys())
             if prev_set.task == opts["task"]:
-                key_set.update(task_keys)
+                key_set.update(cls.TASK_OPTIONS.keys())
             if prev_set.xc == opts["xc"]:
-                key_set.update(xc_keys)
+                key_set.update(cls.XC_OPTIONS.keys())
             if prev_set.task == opts["task"] and prev_set.xc == opts["xc"]:
-                key_set.update(xc_task_keys)
+                key_set.update(cls.XC_TASK_OPTIONS)
+
             for k in key_set:
                 opts[k] = prev_set.kwargs[k]
 
@@ -138,7 +239,7 @@ class InputSet(VaspInputSet):
             if "task" in kwargs and type(kwargs["task"]) == str:
                 kwargs["task"] = Task.from_string(kwargs["task"])
             if k not in opts.keys():
-                logger.warning(f"Keyword {k} is not adequate in vise InputSet.")
+                logger.warning(f"Keyword {k} is not adequate for ViseInputSet.")
         opts.update(kwargs)
 
         task_str_kpt = TaskStructureKpoints.from_options(
@@ -312,7 +413,7 @@ class InputSet(VaspInputSet):
         kwargs = kwargs or {}
         directory_path = Path(dirname)
 
-        input_set = InputSet.load_json(json_filename)
+        input_set = ViseInputSet.load_json(json_filename)
 
         if parse_calc_results:
             vasprun, outcar = get_vasprun_outcar(dirname)
