@@ -8,8 +8,8 @@ from pymatgen import Structure
 from pymatgen.core.periodic_table import Element
 from pymatgen.io.vasp import Kpoints
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from vise.input_set.datasets.kpt_centering import kpt_centering
 from vise.config import SYMMETRY_TOLERANCE, ANGLE_TOL
+from vise.input_set.datasets.kpt_centering import kpt_centering
 from vise.util.logger import get_logger
 from vise.util.structure_handler import (
     structure_to_seekpath, find_spglib_primitive)
@@ -136,11 +136,11 @@ def make_kpoints(mode: str,
              num_kpts (int): Number of k-points
     """
     reciprocal_lattice = structure.lattice.reciprocal_lattice
-    comment = f"mode: {mode}"
     sg = None
 
     # numbers of mesh
     if manual_kpts:
+        comment = f"mode: {mode}, manual kpt setting:"
         kpt_mesh = manual_kpts
     else:
         # check if the primitive is standardized.
@@ -186,7 +186,7 @@ def make_kpoints(mode: str,
             kpt_mesh = [int(ceil(kpt_density * r)) * factor
                         for r in reciprocal_abc]
 
-        comment += f", kpt density: {kpt_density}, factor: {factor}"
+        comment = f"mode: {mode}, kpt density: {kpt_density}, factor: {factor}"
 
     kpts = (tuple(kpt_mesh),)
 
@@ -309,6 +309,5 @@ def num_irreducible_kpoints(structure: Structure,
                                    kpoints=kpoints,
                                    symprec=symprec,
                                    angle_tolerance=angle_tolerance))
-
 
 

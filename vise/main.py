@@ -31,10 +31,10 @@ def vasp_set(args):
     ldauu = list2dict(args.ldauu, flags)
     ldaul = list2dict(args.ldaul, flags)
     potcar_set = potcar_str2dict(args.potcar_set)
+    task = Task.from_string(args.task)
+    xc = Xc.from_string(args.xc)
 
-    base_kwargs = {"task": Task.from_string(args.task),
-                   "xc": Xc.from_string(args.xc),
-                   "kpt_density": args.kpt_density,
+    base_kwargs = {"kpt_density": args.kpt_density,
                    "standardize_structure": args.standardize,
                    "ldauu": ldauu,
                    "ldaul": ldaul}
@@ -64,6 +64,8 @@ def vasp_set(args):
         if args.prev_dir:
             files = {"CHGCAR": "C", "WAVECAR": "M", "WAVEDER": "M"}
             input_set = ViseInputSet.from_prev_calc(args.prev_dir,
+                                                    task=task,
+                                                    xc=xc,
                                                     charge=args.charge,
                                                     files_to_transfer=files,
                                                     **kwargs)
@@ -72,6 +74,8 @@ def vasp_set(args):
             print(kwargs)
             input_set = \
                 ViseInputSet.make_input(structure=s,
+                                        task=task,
+                                        xc=xc,
                                         charge=args.charge,
                                         user_incar_settings=user_incar_settings,
                                         override_potcar_set=potcar_set,

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from vise.input_set.new_input_set import InputSet
+from vise.input_set.vise_input_set import ViseInputSet
+from vise.input_set.xc import Xc
 from vise.util.testing import ViseTest
 
 __author__ = "Yu Kumagai"
@@ -10,13 +11,12 @@ __maintainer__ = "Yu Kumagai"
 class InputSetTest(ViseTest):
     def setUp(self) -> None:
         mgo = self.get_structure_by_name("YMnO3")
-        self.input_set = InputSet.make_input(structure=mgo,
-                                             xc="hse")
+        self.input_set = ViseInputSet.make_input(structure=mgo, xc=Xc.hse)
 
     def test_write(self):
         self.input_set.write_input(output_dir=".")
 
     def test_dict(self):
         expected = self.input_set.as_dict()
-        actual = InputSet.from_dict(expected).as_dict()
+        actual = ViseInputSet.from_dict(expected).as_dict()
         self.assertEqual(expected, actual)

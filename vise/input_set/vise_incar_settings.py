@@ -1,35 +1,47 @@
 from copy import deepcopy
+from pathlib import Path
 from typing import Optional
 
 from monty.serialization import loadfn
 from pymatgen import Structure, Composition, Element
 from pymatgen.io.vasp import Potcar
 from vise.config import BAND_GAP_CRITERION
-from vise.input_set.vise_other_settings import SET_DIR, check_keys, logger, load_default_incar_settings, nbands, \
-    nelect
-from vise.input_set.xc import Xc, LDA_OR_GGA, HYBRID_FUNCTIONAL
 from vise.input_set.task import LATTICE_RELAX_TASK, SPECTRA_TASK, Task
+from vise.input_set.vise_settings_util import (
+    load_default_incar_settings, check_keys, nelect, nbands)
+from vise.input_set.xc import Xc, LDA_OR_GGA, HYBRID_FUNCTIONAL
+from vise.util.logger import get_logger
+
+logger = get_logger(__name__)
+
+SET_DIR = Path(__file__).parent / "datasets"
 
 TASK_REQUIRED_FLAGS = {"LREAL", "ISPIN", "ISIF", "EDIFF", "IBRION", "ISMEAR",
                        "PREC"}
 TASK_OPTIONAL_FLAGS = {"NSW", "EDIFFG", "POTIM", "ADDGRID", "KPAR", "ENCUT",
                        "NBANDS"}
 TASK_FLAGS = TASK_REQUIRED_FLAGS | TASK_OPTIONAL_FLAGS
+
 XC_REQUIRED_FLAGS = {"ALGO", "LWAVE"}
 XC_OPTIONAL_FLAGS = {"LDAU", "LDAUTYPE", "LDAUPRINT", "LDAUU", "LDAUL",
                      "LMAXMIX", "NKRED", "LHFCALC", "PRECFOCK", "TIME",
                      "HFSCREEN", "AEXX", "NKRED"}
 XC_FLAGS = XC_REQUIRED_FLAGS | XC_OPTIONAL_FLAGS
+
 XC_TASK_REQUIRED_FLAGS = set()
 XC_TASK_OPTIONAL_FLAGS = set()
 XC_TASK_FLAGS = XC_TASK_REQUIRED_FLAGS | XC_TASK_OPTIONAL_FLAGS
+
 COMMON_REQUIRED_FLAGS = {"NELM", "LASPH", "LORBIT", "LCHARG", "SIGMA"}
 COMMON_OPTIONAL_FLAGS = {"NELECT"}
 COMMON_FLAGS = COMMON_REQUIRED_FLAGS | COMMON_OPTIONAL_FLAGS
+
 ALL_FLAGS = set(sum(loadfn(SET_DIR / "incar_flags.yaml").values(), []))
+
 OTHER_FLAGS = ALL_FLAGS - (TASK_FLAGS | XC_FLAGS | XC_TASK_FLAGS | COMMON_FLAGS)
 
 
+# TODO: rewrite check_keys with decorator.
 class TaskIncarSettings:
 
     def __init__(self,
@@ -51,9 +63,12 @@ class TaskIncarSettings:
                      npar_kpar: bool,
                      num_cores: list,
                      encut: Optional[float],
-                     structure_opt_encut_factor: float):
-        """
-        See docstrings in the make_input method in ViseInputSet class
+                     structure_opt_encut_factor: float) -> "TaskIncarSettings":
+        """ Construct incar settings related to task with some options.
+
+        Args: See ViseInputSet docstrings
+
+        Return: TaskIncarSettings class object
         """
         band_gap = vbm_cbm[1] - vbm_cbm[0] if vbm_cbm else None
         if band_gap:
@@ -69,7 +84,7 @@ class TaskIncarSettings:
                                         optional_flags=TASK_OPTIONAL_FLAGS,
                                         key_name=str(task))
 
-        settings["LREAL"] = "A" if task == Task.defect else "F"
+        settings["LREAL"] = "A" if task == Task.defect else False
 
         if is_band_gap is False or num_kpoints < 4:
             settings["ISMEAR"] = 0
@@ -82,12 +97,12 @@ class TaskIncarSettings:
         if npar_kpar:
             settings["KPAR"] = 2
 
-        if encut:
-            settings["ENCUT"] = encut
-        else:
+        if not encut:
             if task in LATTICE_RELAX_TASK:
-                settings["ENCUT"] = \
-                    round(max_enmax * structure_opt_encut_factor, 3)
+                encut = round(max_enmax * structure_opt_encut_factor, 3)
+            else:
+                encut = max_enmax
+        settings["ENCUT"] = encut
 
         if task in SPECTRA_TASK:
             settings["NBANDS"] = nbands(composition, potcar)
@@ -110,16 +125,20 @@ class XcIncarSettings:
                      hubbard_u: Optional[bool] = None,
                      ldauu: Optional[dict] = None,
                      ldaul: Optional[dict] = None,
-                     ldaul_set_name: Optional[str] = None):
+                     ldaul_set_name: Optional[str] = None) -> "XcIncarSettings":
+        """ Construct incar settings related to xc with some options.
 
+        Args: See ViseInputSet docstrings
+
+        Return: XcIncarSettings class object
+        """
         settings = \
             load_default_incar_settings(yaml_filename="xc_incar_set.yaml",
                                         required_flags=XC_REQUIRED_FLAGS,
                                         optional_flags=XC_OPTIONAL_FLAGS,
                                         key_name=str(xc))
 
-        if hubbard_u is None:
-            hubbard_u = xc in LDA_OR_GGA
+        hubbard_u = xc in LDA_OR_GGA if hubbard_u is None else hubbard_u
         ldaul_set_name = ldaul_set_name or "lda_gga_normal"
         ldauu = ldauu or {}
         ldaul = ldaul or {}
@@ -132,17 +151,12 @@ class XcIncarSettings:
 
             if sum(ldauu) > 0:
                 settings["LDAUU"] = ldauu
-
+                settings.update({"LDAU": True, "LDAUTYPE": 2, "LDAUPRINT": 1})
                 ldaul_set = u_set["LDAUL"][ldaul_set_name]
                 ldaul_set.update(ldaul)
                 settings["LDAUL"] = [ldaul_set.get(el, -1) for el in symbol_set]
-
-                settings.update({"LDAU": True, "LDAUTYPE": 2, "LDAUPRINT": 1})
-                # contains f-electrons
-                if any([Element(el).Z > 56 for el in symbol_set]):
-                    settings["LMAXMIX"] = 6
-                else:
-                    settings["LMAXMIX"] = 4
+                settings["LMAXMIX"] = \
+                    6 if any([Element(el).Z > 56 for el in symbol_set]) else 4
 
         if xc in HYBRID_FUNCTIONAL:
             settings["AEXX"] = aexx
@@ -159,7 +173,16 @@ class XcTaskIncarSettings:
         self.settings = settings
 
     @classmethod
-    def from_options(cls):
+    def from_options(cls) -> "XcTaskIncarSettings":
+        """ Construct incar settings related to task and xc with options.
+
+        Note: When the GW related task and xc are implemented, this class will
+              be used.
+
+        Args: See ViseInputSet docstrings
+
+        Return: XcTaskIncarSettings class object
+        """
         settings = {}
         return cls(settings)
 
@@ -173,8 +196,13 @@ class CommonIncarSettings:
     def from_options(cls,
                      potcar: Potcar,
                      composition: Composition,
-                     charge: int):
-        """ """
+                     charge: int) -> "CommonIncarSettings":
+        """ Construct incar settings related to task and xc with options.
+
+        Args: See ViseInputSet docstrings
+
+        Return: CommonIncarSettings class object
+        """
         settings = {"NELM": 100, "LASPH": True, "LORBIT": 12, "LCHARG": False,
                     "SIGMA": 0.1}
         # Structure charge is ignored.
