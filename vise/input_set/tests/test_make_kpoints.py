@@ -2,7 +2,7 @@
 
 from pymatgen.io.vasp import Kpoints
 
-from vise.input_set.kpoints import make_band_kpoints
+from vise.input_set.make_kpoints import make_band_kpoints
 from vise.util.testing import ViseTest
 
 __author__ = "Yu Kumagai"

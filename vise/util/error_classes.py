@@ -17,3 +17,11 @@ class InvalidStructureError(Exception):
 class VaspNotConvergedError(Exception):
     """Raised when the vasp calculation is not converged."""
     pass
+
+
+class EnergyNotConvergedError(Exception):
+    pass
+
+
+class KptNotConvergedError(Exception):
+    pass

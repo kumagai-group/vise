@@ -1,30 +1,22 @@
 # -*- coding: utf-8 -*-
 
-from pymatgen.io.vasp import Poscar
+from vise.custodian.vise_vaspjob import ViseVaspJob
+from custodian.custodian import Custodian
+from vise.custodian.vise_custodian_vasp_handler import ViseMemorySwapHandler
 
-from obadb.vasp.input_set import ObaSet
-from obadb.custodian.oba_vaspjob import ObaVaspJob
+import argparse
+
 
 __author__ = "Yu Kumagai"
 __maintainer__ = "Yu Kumagai"
 
 
 if __name__ == "__main__":
-    from custodian.custodian import Custodian
-    from obadb.custodian.custodian_vasp_handler \
-        import MeshSymmetryErrorHandler, NonConvergingErrorHandler, \
-        PotimErrorHandler
-    from obadb.custodian.oba_custodian_vasp_handler \
-        import ObaUnconvergedErrorHandler, ObaVaspErrorHandler,\
-        ObaMemorySwapHandler
-
-    import argparse
-
     parser = argparse.ArgumentParser()
 
     mpi_exec = "/home/common/bin/openmpi-1.8.8_intel-16.0.2/bin/mpirun"
     vasp_exec = "/home/kuma/bin/vasp.5.4.4/bin/vasp_std"
-    default_cmd = "{} {}".format(mpi_exec, vasp_exec)
+    default_cmd = f"{mpi_exec} {vasp_exec}"
 
     parser.add_argument(
         "-c", "--command", dest="command", nargs="?",
@@ -56,7 +48,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # handlers
-    handlers = [ObaMemorySwapHandler()]
+    handlers = [ViseMemorySwapHandler()]
     # handlers = [ObaVaspErrorHandler(), MeshSymmetryErrorHandler(),
     #             ObaUnconvergedErrorHandler(), NonConvergingErrorHandler(),
     #             PotimErrorHandler()]
@@ -67,7 +59,7 @@ if __name__ == "__main__":
 
     if args.converge_kpt:
         c = Custodian(handlers,
-                      ObaVaspJob.kpt_converge(
+                      ViseVaspJob.kpt_converge(
                           cmd, max_relax_number, kpoints_criteria,
                       removes_wavecar=removes_wavecar),
                       polling_time_step=5, monitor_freq=1,
@@ -84,7 +76,7 @@ if __name__ == "__main__":
         # #                           parse_kpoints=True)
         # oba_vis.write_input(".")
         c = Custodian(handlers,
-                      ObaVaspJob.get_runs_geom(
+                      ViseVaspJob.get_runs_geom(
                           cmd, max_relax_number,
                           removes_wavecar=removes_wavecar,
                           removes_outputs_in_current_dir=True),

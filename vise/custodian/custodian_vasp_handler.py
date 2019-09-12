@@ -1,34 +1,28 @@
 # -*- coding: utf-8 -*-
 
-# coding: utf-8
-
 from __future__ import unicode_literals, division
 
-from monty.os.path import zpath
-import os
-import time
 import datetime
 import operator
-import shutil
-from functools import reduce
-from collections import Counter
+import os
 import re
+import shutil
+import time
+from collections import Counter
+from functools import reduce
 
 import numpy as np
-
+from custodian.ansible.actions import FileActions
+from custodian.ansible.interpreter import Modder
+from custodian.custodian import ErrorHandler
+from custodian.utils import backup
+from monty.os.path import zpath
 from monty.serialization import loadfn
-
+from obadb.custodian.oba_vaspjob import ObaVaspModder
 from pymatgen.io.vasp import Poscar, VaspInput, Incar, Kpoints, Vasprun, \
     Oszicar, Outcar
 from pymatgen.transformations.standard_transformations import \
     SupercellTransformation
-
-from custodian.ansible.interpreter import Modder
-from custodian.ansible.actions import FileActions
-from custodian.custodian import ErrorHandler
-from custodian.utils import backup
-
-from obadb.custodian.oba_vaspjob import ObaVaspModder
 
 """
 This module implements specific error handlers for VASP runs. These handlers

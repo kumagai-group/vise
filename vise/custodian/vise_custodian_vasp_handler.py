@@ -1,27 +1,23 @@
 # -*- coding: utf-8 -*-
 
-from monty.os.path import zpath
-import os
-from collections import Counter
 import subprocess
+from collections import Counter
 
 from custodian.custodian import ErrorHandler
 from custodian.utils import backup
-from custodian.vasp.handlers import VASP_BACKUP_FILES, UnconvergedErrorHandler, NonConvergingErrorHandler
-
+from custodian.vasp.handlers import VASP_BACKUP_FILES, UnconvergedErrorHandler, \
+    NonConvergingErrorHandler
+from vise.custodian.vise_vaspjob import ViseVaspModder
+from pymatgen.io.vasp import VaspInput, Incar, Kpoints, Vasprun, \
+    Oszicar
 from pymatgen.transformations.standard_transformations import \
     SupercellTransformation
-from pymatgen.io.vasp import VaspInput, Incar, Kpoints, Vasprun, \
-    Oszicar, Outcar
-
-from obadb.custodian.oba_vaspjob import ObaVaspModder
-
 
 __author__ = "Yu Kumagai"
 __maintainer__ = "Yu Kumagai"
 
 
-class ObaVaspErrorHandler(ErrorHandler):
+class ViseVaspErrorHandler(ErrorHandler):
     """
     Master VaspErrorHandler class that handles a number of common errors
     that occur during VASP runs.
@@ -110,7 +106,7 @@ class ObaVaspErrorHandler(ErrorHandler):
         self.natoms_large_cell = natoms_large_cell
         self.errors_subset_to_catch = errors_subset_to_catch or \
                                       list(
-                                          ObaVaspErrorHandler.error_msgs.keys())
+                                          ViseVaspErrorHandler.error_msgs.keys())
 
     def check(self):
         incar = Incar.from_file("INCAR")
@@ -118,7 +114,7 @@ class ObaVaspErrorHandler(ErrorHandler):
         with open(self.output_filename, "r") as f:
             for line in f:
                 l = line.strip()
-                for err, msgs in ObaVaspErrorHandler.error_msgs.items():
+                for err, msgs in ViseVaspErrorHandler.error_msgs.items():
                     if err in self.errors_subset_to_catch:
                         for msg in msgs:
                             if l.find(msg) != -1:
@@ -144,7 +140,7 @@ class ObaVaspErrorHandler(ErrorHandler):
             actions.append({"dict":   "INCAR",
                             "action": {"_set": {"SYMPREC": 1e-8}}})
 
-        # Oba-Group original
+        # Vise-Group original
         if "plane_wave_coeff" in self.errors:
             actions.append({"file": "WAVECAR",
                             "action": {
@@ -413,11 +409,11 @@ class ObaVaspErrorHandler(ErrorHandler):
             actions.append({"dict":   "INCAR",
                             "action": {"_set": {"ISYM": 0}}})
 
-        ObaVaspModder(vi=vi).apply_actions(actions)
+        ViseVaspModder(vi=vi).apply_actions(actions)
         return {"errors": list(self.errors), "actions": actions}
 
 
-class ObaUnconvergedErrorHandler(UnconvergedErrorHandler):
+class ViseUnconvergedErrorHandler(UnconvergedErrorHandler):
 
     def correct(self):
         backup(VASP_BACKUP_FILES)
@@ -451,11 +447,11 @@ class ObaUnconvergedErrorHandler(UnconvergedErrorHandler):
                             "action": {"_set": {"EDIFF": ediff * 0.5}}})
             actions.append({"dict":   "INCAR",
                             "action": {"_set": {"ADDGRID": True}}})
-        ObaVaspModder().apply_actions(actions)
+        ViseVaspModder().apply_actions(actions)
         return {"errors": ["Unconverged"], "actions": actions}
 
 
-class ObaDielectricMaxIterationErrorHandler(ErrorHandler):
+class ViseDielectricMaxIterationErrorHandler(ErrorHandler):
 
     is_monitor = True
 
@@ -479,7 +475,7 @@ class ObaDielectricMaxIterationErrorHandler(ErrorHandler):
         # if self.error_count == 0:
         #     actions.append({"dict":   "INCAR",
         #                     "action": {"_set": {"NELM": self.nelm * 2}}})
-        #     ObaVaspModder(vi=vi).apply_actions(actions)
+        #     ViseVaspModder(vi=vi).apply_actions(actions)
         #     return {"errors": list(self.errors), "actions": actions}
 
         # else:
@@ -487,7 +483,7 @@ class ObaDielectricMaxIterationErrorHandler(ErrorHandler):
         return {"errors": ["No_DFPT_convergence"], "actions": None}
 
 
-class ObaReturnErrorHandler(ErrorHandler):
+class ViseReturnErrorHandler(ErrorHandler):
     is_monitor = True
     def __init__(self):
         pass
@@ -500,7 +496,7 @@ class ObaReturnErrorHandler(ErrorHandler):
         return {"errors": ["Always return Error with this."], "actions": None}
 
 
-class ObaMemorySwapHandler(ErrorHandler):
+class ViseMemorySwapHandler(ErrorHandler):
     """
     Detects if the memory is overflowed.
     """
@@ -527,7 +523,7 @@ class ObaMemorySwapHandler(ErrorHandler):
         return {"errors": ["Too_much_memory_usage"], "actions": None}
 
 
-class ObaTooLongTimeCalcErrorHandler(ErrorHandler):
+class ViseTooLongTimeCalcErrorHandler(ErrorHandler):
     """
     Detects if the memory is overflowed.
     """
@@ -556,7 +552,7 @@ class ObaTooLongTimeCalcErrorHandler(ErrorHandler):
         return {"errors": ["Too_long_calc"], "actions": None}
 
 
-class ObaNonConvergingErrorHandler(NonConvergingErrorHandler):
+class ViseNonConvergingErrorHandler(NonConvergingErrorHandler):
 
     def __init__(self, output_filename="OSZICAR", incar="INCAR",
                  change_algo=False):
@@ -591,7 +587,7 @@ class ObaNonConvergingErrorHandler(NonConvergingErrorHandler):
         return False
 
 
-class ObaDivergingEnergyErrorHandler(ErrorHandler):
+class ViseDivergingEnergyErrorHandler(ErrorHandler):
 
     def __init__(self, output_filename="OSZICAR"):
         """
