@@ -20,12 +20,12 @@ from vise.analyzer.band_gap import band_gap_properties
 from vise.config import (
     KPT_DENSITY, ENCUT_FACTOR_STR_OPT, ANGLE_TOL, SYMMETRY_TOLERANCE)
 from vise.input_set.task import Task
-from vise.input_set.vise_incar import ViseIncar
-from vise.input_set.vise_incar_settings import (
+from vise.input_set.incar import ViseIncar
+from vise.input_set.settings_incar import (
     TaskIncarSettings, XcIncarSettings, XcTaskIncarSettings,
     CommonIncarSettings, OTHER_FLAGS)
-from vise.input_set.vise_structure_kpoints_settings import TaskStructureKpoints
-from vise.input_set.vise_potcar_settings import XcTaskPotcar
+from vise.input_set.settings_structure_kpoints import TaskStructureKpoints
+from vise.input_set.settings_potcar import XcTaskPotcar
 from vise.input_set.xc import Xc
 from vise.util.logger import get_logger
 
@@ -326,6 +326,7 @@ class ViseInputSet(VaspInputSet):
             {**task_settings.settings, **xc_settings.settings,
              **xc_task_settings.settings, **common_settings.settings}
 
+        # TODO: Shouldn't override other flags for safety at least by default.
         if prev_set:
             prev_other_settings = \
                 {k: v for k, v in prev_set.incar_settings.items()

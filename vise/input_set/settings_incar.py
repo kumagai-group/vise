@@ -7,7 +7,7 @@ from pymatgen import Structure, Composition, Element
 from pymatgen.io.vasp import Potcar
 from vise.config import BAND_GAP_CRITERION
 from vise.input_set.task import LATTICE_RELAX_TASK, SPECTRA_TASK, Task
-from vise.input_set.vise_settings_util import (
+from vise.input_set.settings_util import (
     load_default_incar_settings, check_keys, nelect, nbands)
 from vise.input_set.xc import Xc, LDA_OR_GGA, HYBRID_FUNCTIONAL
 from vise.util.logger import get_logger
@@ -41,7 +41,7 @@ ALL_FLAGS = set(sum(loadfn(SET_DIR / "incar_flags.yaml").values(), []))
 OTHER_FLAGS = ALL_FLAGS - (TASK_FLAGS | XC_FLAGS | XC_TASK_FLAGS | COMMON_FLAGS)
 
 
-# TODO: rewrite check_keys with decorator.
+# TODO: rewrite check_keys with decorator?
 class TaskIncarSettings:
 
     def __init__(self,

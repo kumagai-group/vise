@@ -1,5 +1,5 @@
 from pymatgen.io.vasp import Potcar
-from vise.input_set.vise_settings_util import load_potcar_yaml
+from vise.input_set.settings_util import load_potcar_yaml
 from vise.input_set.xc import Xc
 
 

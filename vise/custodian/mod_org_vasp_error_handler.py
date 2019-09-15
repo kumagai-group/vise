@@ -17,7 +17,7 @@ from custodian.ansible.interpreter import Modder
 from custodian.custodian import ErrorHandler
 from custodian.utils import backup
 from monty.os.path import zpath
-from monty.serialization import loadfn
+from monty.serialization import loadf
 from obadb.custodian.oba_vaspjob import ObaVaspModder
 from pymatgen.io.vasp import Poscar, VaspInput, Incar, Kpoints, Vasprun, \
     Oszicar, Outcar
