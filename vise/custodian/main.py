@@ -65,9 +65,9 @@ if __name__ == "__main__":
         # #                           parse_incar=True,
         # #                           parse_kpoints=True)
         # oba_vis.write_input(".")
-    geom_opt_job = ViseVaspJob.geom_opt_run(vasp_cmd=args.vasp_cmd,
-                                            max_relax_num=args.max_relax_num,
-                                            removes_wavecar=args.rm_wavecar)
+    geom_opt_job = ViseVaspJob.structure_optimization_run(vasp_cmd=args.vasp_cmd,
+                                                          max_relax_num=args.max_relax_num,
+                                                          removes_wavecar=args.rm_wavecar)
     c = Custodian(handlers=handlers,
                   jobs=geom_opt_job,
                   polling_time_step=5,
