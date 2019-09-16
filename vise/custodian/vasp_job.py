@@ -38,6 +38,18 @@ VASP_INPUT_FILES = {"INCAR", "POSCAR", "POTCAR", "KPOINTS"}
 VASP_SAVED_FILES = {"INCAR",  "vasprun.xml", "CONTCAR", "OUTCAR"}
 
 
+def rm_wavecar(does_remove, remove_subdirectories=False):
+    if does_remove:
+        try:
+            os.remove("WAVECAR")
+        except FileNotFoundError:
+            pass
+
+    if remove_subdirectories:
+        for i in glob("**/WAVECAR"):
+            os.remove(i)
+
+
 class StructureOptResult(MSONable):
     def __init__(self,
                  uuid: int,
@@ -132,6 +144,7 @@ class StructureOptResult(MSONable):
                    initial_sg=initial_sg,
                    prev_structure_opt_uuid=prev_structure_opt_uuid)
 
+    @property
     def is_sg_changed(self):
         return self.initial_sg == self.final_sg
 
@@ -200,11 +213,11 @@ class KptConvResult(UserList):
             return False
 
         std_idx = -(self.num_kpt_check + 1)
-        print(self[std_idx].energy_atom)
         for i in range(self.num_kpt_check):
             if abs(self[std_idx].energy_atom - self[std_idx + i].energy_atom) \
                     > self.convergence_criterion:
                 return False
+            # check structure or lattice
 
         return self[std_idx]
 
@@ -316,11 +329,7 @@ class ViseVaspJob(VaspJob):
             shutil.move(f"{f}.{job_number}", finish_name)
             left_files.add(finish_name)
 
-        if removes_wavecar:
-            try:
-                os.remove("WAVECAR")
-            except FileNotFoundError:
-                pass
+        rm_wavecar(removes_wavecar)
 
         if move_unimportant_files:
             os.mkdir("files")
@@ -342,14 +351,15 @@ class ViseVaspJob(VaspJob):
                      xc: Xc.pbe,
                      user_incar_settings: None,
                      initial_kpt_density: KPT_INIT_DENSITY,
-                     kwargs: None,
+                     vis_kwargs: None,
                      gamma_vasp_cmd: Optional[list] = None,
                      max_relax_num: int = 10,
                      max_kpt_num: int = 10,
                      convergence_criterion: float = 0.003,
                      removes_wavecar: bool = False,
                      std_out: str = "vasp.out",
-                     copy_wavecar_to_next_kpt=True):
+                     symprec=SYMMETRY_TOLERANCE,
+                     angle_tolerance=ANGLE_TOL):
         """ kpt convergence
 
         Args:
@@ -362,51 +372,56 @@ class ViseVaspJob(VaspJob):
             max_kpt_num (str):
                 Max k-point iteration number
         """
-        kwargs = kwargs or {}
+        vis_kwargs = vis_kwargs or {}
         results = KptConvResult.from_dirs(convergence_criterion)
+        is_sg_changed = results[-1].is_sg_changd if results else None
 
-        is_sg_changed = True
-        while results.conv_str_opt_result is False and len(results) < max_kpt_num:
+        while not results.conv_str_opt_result and len(results) < max_kpt_num:
 
-            if is_sg_changed:
+            vis_kwargs.update({"task": Task.structure_opt,
+                               "xc": xc,
+                               "user_incar_settings": user_incar_settings,
+                               "symprec": symprec,
+                               "angle_tolerance": angle_tolerance})
+
+            if is_sg_changed is None or is_sg_changed is True:
                 structure = Poscar.from_file("POSCAR")
                 kpt_density = initial_kpt_density
                 vis = ViseInputSet.make_input(
                     structure=structure,
-                    task=Task.structure_opt,
-                    xc=xc,
-                    user_incar_settings=user_incar_settings,
                     kpt_density=kpt_density,
-                    kwargs=kwargs)
+                    kwargs=vis_kwargs)
             else:
-                kpt_density *= KPT_FACTOR
-                vis = ViseInputSet.from_prev_calc(
-                    dirname=results[-1].dirname,
-                    task=Task.structure_opt,
-                    xc=xc,
-                    parse_calc_results=False,
-                    parse_incar=True,
-                    sort_structure=False,
-                    standardize_structure=True,
-                    user_incar_settings=user_incar_settings,
-                    contcar_filename="CONTCAR.finish",
-                    kpt_density=kpt_density,
-                    kwargs=kwargs)
+                prev_str_opt = results[-1]
+                prev_kpt = prev_str_opt.num_kpt
+                kpt_density = prev_str_opt.kpt_density
+                while True:
+                    kpt_density *= KPT_FACTOR
+                    vis = ViseInputSet.from_prev_calc(
+                        dirname=prev_str_opt.dirname,
+                        parse_calc_results=False,
+                        parse_incar=True,
+                        sort_structure=False,
+                        standardize_structure=True,
+                        files_to_transfer={"WAVECAR": "m"},
+                        contcar_filename="CONTCAR.finish",
+                        kpt_density=kpt_density,
+                        kwargs=vis_kwargs)
+                    kpt = vis.kpoints.num_kpts
+                    if (not kpt == prev_kpt and
+                            all([i >= j for i, j in zip(kpt, prev_kpt)])):
+                        break
 
             vis.write_input(".")
-            str_opt = \
-                cls.structure_optimization_run(vasp_cmd=vasp_cmd,
-                                               gamma_vasp_cmd=gamma_vasp_cmd,
-                                               max_relax_num=max_relax_num,
-                                               std_out=std_out)
+            cls.structure_optimization_run(vasp_cmd=vasp_cmd,
+                                           gamma_vasp_cmd=gamma_vasp_cmd,
+                                           max_relax_num=max_relax_num,
+                                           std_out=std_out)
+            str_opt = StructureOptResult.from_dir(".")
             results.append(str_opt)
-            is_sg_changed = std_out.is_sg_changd
+            is_sg_changed = str_opt.is_sg_changed
 
-        if removes_wavecar:
-            try:
-                os.remove("WAVECAR")
-            except FileNotFoundError:
-                pass
+        rm_wavecar(removes_wavecar, remove_subdirectories=True)
 
         if results.conv_str_opt_result:
             print(results.conv_str_opt_result)
