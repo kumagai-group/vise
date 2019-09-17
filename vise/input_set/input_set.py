@@ -202,7 +202,19 @@ class ViseInputSet(VaspInputSet):
         """Construct ViseInputSet from xc, task and some options.
 
         To make a rule how to inherit the previous calculation condition and
-        results are very complicated.
+        results are usually very complicated and depend on the researchers,
+        research interest, and so on. Therefore, we adopt fail-safe rule for
+        inheritance.
+
+        When, the prev_set is input, we compare task and xc between current
+        input an prev_set, and inherit some input set depending on whether
+        task and/or xc are common. For instance, when one performed
+        (task=Task.band, xc=Xc.pbe) job and then wants to calculate with
+        (task=Task.band, xc=Xc.hse), task is common. So, input set related to
+        TaskStructureKpoints and TaskIncarSettings are inherited. Note that,
+        input set related to CommonIncarSettings is always inherited.
+
+        Other notes are as follows.
 
         Note1: Charge set to structure is ignored when determining NELECT.
         Note2: When the structure is changed via find_spglib_standard_primitive,
@@ -210,10 +222,20 @@ class ViseInputSet(VaspInputSet):
         Note3: When different version of ViseInputSet with different defaults,
                the consistency of input set is broken, so the same version must
                be used.
+        Note4: Other INCAR flags than those defined by TaskIncarSettings,
+               XcIncarSettings, XcTaskIncarSettings, and CommonIncarSettings are
+               not inherited. When some of them need to be inherited, they
+               should be added to COMMON_OPTIONAL_FLAGS.
+        Note5: user_incar_settings is not inherited from prev_set. One needs
+               to explicitly specify it, again.
 
         Args:
             structure (Structure):
                 The Structure to create inputs for.
+            task (Task):
+                Task defined in Task.
+            xc (Xc):
+                Exchange-correlation (xc) defined in Xc.
             prev_set (ViseInputSet):
                 Previous ViseInputSet.
             abs_files_to_transfer (dict):
@@ -326,19 +348,10 @@ class ViseInputSet(VaspInputSet):
             {**task_settings.settings, **xc_settings.settings,
              **xc_task_settings.settings, **common_settings.settings}
 
-        # TODO: Shouldn't override other flags for safety at least by default.
-        if prev_set:
-            prev_other_settings = \
-                {k: v for k, v in prev_set.incar_settings.items()
-                 if k in OTHER_FLAGS}
-            incar_settings.update(prev_other_settings)
-
-        # Note: user_incar_settings is not inherited from prev_set.
-        #       This is a specification of vise.
         # user_incar_settings is the top prioritized.
         incar_settings.update(user_incar_settings)
 
-        # Here, tweak the unfavorable input set.
+        # TODO: tweak the unfavorable input set.
         # e.g., Avoiding ICHARG = 11 is a must for hybrid functional.
 
         return cls(structure=task_str_kpt.structure,
@@ -462,7 +475,7 @@ class ViseInputSet(VaspInputSet):
                        user_incar_settings: Optional[dict] = None,
                        contcar_filename: str = "CONTCAR",
                        **kwargs) -> "ViseInputSet":
-        """
+        """Constructor based on the previous calculations.
 
         Args:
             dirname (str):
