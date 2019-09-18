@@ -182,7 +182,8 @@ class StructureOptResult(MSONable):
 
     def dirname(self):
         """ Used for generating and parsing directory"""
-        name = [f"kpt{'x'.join(self.num_kpt)}",
+
+        name = [f"kpt{self.num_kpt[0]}x{self.num_kpt[1]}x{self.num_kpt[2]}",
                 f"pre-sg{self.initial_sg}", f"pos-sg{self.final_sg}"]
         return '_'.join(name)
 
@@ -285,13 +286,15 @@ class KptConvResult(UserList):
         if len(self) <= self.num_kpt_check:
             return False
 
+        # The target index is the num_kpt_check-th last.
         target_idx = -(self.num_kpt_check + 1)
         for i in range(self.num_kpt_check):
-            target_e = self[target_idx].energy_atom
-            compared_e = self[target_idx + i].energy_atom
-            if abs(target_e - compared_e) > self.convergence_criterion:
+            target_energy = self[target_idx].energy_atom
+            compared_energy = self[target_idx + i].energy_atom
+            if abs(target_energy - compared_energy) > self.convergence_criterion:
                 return False
 
+            # Check convergence of lattice.
             target_lat = self[target_idx].final_structure.lattice.matrix
             compared_lat = self[target_idx + i].final_structure.lattice.matrix
             if not np.allclose(target_lat, compared_lat, atol=self.symprec):
@@ -383,8 +386,6 @@ class ViseVaspJob(VaspJob):
 
         Yield:
             ViseVaspJob class object.
-
-
         """
         backup = True
         for job_number in range(1, max_relax_num + 1):
@@ -424,10 +425,10 @@ class ViseVaspJob(VaspJob):
     @classmethod
     def kpt_converge(cls,
                      vasp_cmd: list,
-                     xc: Xc.pbe,
-                     user_incar_settings: None,
-                     initial_kpt_density: KPT_INIT_DENSITY,
-                     vis_kwargs: None,
+                     xc: Xc = Xc.pbe,
+                     user_incar_settings: Optional[dict] = None,
+                     initial_kpt_density: Optional[float] = KPT_INIT_DENSITY,
+                     vis_kwargs: Optional[dict] = None,
                      gamma_vasp_cmd: Optional[list] = None,
                      max_relax_num: int = 10,
                      max_kpt_num: int = 10,
@@ -479,12 +480,12 @@ class ViseVaspJob(VaspJob):
                                "angle_tolerance": angle_tolerance})
 
             if is_sg_changed is None or is_sg_changed is True:
-                structure = Poscar.from_file("POSCAR")
+                structure = Structure.from_file("POSCAR")
                 kpt_density = initial_kpt_density
                 vis = ViseInputSet.make_input(
                     structure=structure,
                     kpt_density=kpt_density,
-                    kwargs=vis_kwargs)
+                    **vis_kwargs)
             else:
                 prev_str_opt = results[-1]
                 prev_kpt = prev_str_opt.num_kpt
@@ -502,26 +503,45 @@ class ViseVaspJob(VaspJob):
                         files_to_transfer={"WAVECAR": "m"},
                         contcar_filename="CONTCAR.finish",
                         kpt_density=kpt_density,
-                        kwargs=vis_kwargs)
+                        **vis_kwargs)
                     kpt = vis.kpoints.num_kpts
                     if (not kpt == prev_kpt and
                             all([i >= j for i, j in zip(kpt, prev_kpt)])):
                         break
 
             vis.write_input(".")
-            cls.structure_optimization_run(vasp_cmd=vasp_cmd,
-                                           gamma_vasp_cmd=gamma_vasp_cmd,
-                                           max_relax_num=max_relax_num,
-                                           std_out=std_out)
+            # Need to put forward the generator in structure_optimization_run
+            for run in cls.structure_optimization_run(
+                    vasp_cmd=vasp_cmd,
+                    gamma_vasp_cmd=gamma_vasp_cmd,
+                    max_relax_num=max_relax_num,
+                    std_out=std_out):
+                yield run
+
             str_opt = StructureOptResult.from_dir(".")
             results.append(str_opt)
+
+            print(f"is_sg_changed {is_sg_changed}")
+            print(f"kpt_density {kpt_density}")
+
+            os.mkdir(str_opt.dirname())
+            for f in glob("*"):
+                if f == "CONTCAR.finish":
+                    shutil.copy(f, "POSCAR")
+                elif f == "WAVECAR":
+                    continue
+                else:
+                    shutil.move(f, str_opt.dirname())
+
             is_sg_changed = str_opt.is_sg_changed
 
-        rm_wavecar(removes_wavecar, remove_subdirectories=True)
+        rm_wavecar(remove_current=removes_wavecar, remove_subdirectories=True)
 
         if results.conv_str_opt_result:
             print(results.conv_str_opt_result)
         else:
             raise KptNotConvergedError("Energy was not converged w.r.t. number "
                                        "of k-points ")
+
+
 

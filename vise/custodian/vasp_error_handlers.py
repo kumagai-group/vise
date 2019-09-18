@@ -1,9 +1,10 @@
 import subprocess
 from collections import Counter
+from copy import deepcopy
 
 from custodian.custodian import ErrorHandler
 from custodian.utils import backup
-from custodian.vasp import handlers
+from custodian.vasp import handlers as orig_handlers
 from pymatgen.io.vasp import Incar, Oszicar, Vasprun
 from vise.input_set.incar import ViseIncar
 from vise.input_set.vasp_input import ViseVaspInput
@@ -15,23 +16,21 @@ from pymatgen.transformations.standard_transformations import \
 __author__ = "Yu Kumagai"
 __maintainer__ = "Yu Kumagai"
 
-# When the original error handlers are modified, add *Vise* to the class name.
-
 # Monkey patch
-handlers.Incar = ViseIncar
-handlers.VaspModder = ViseVaspModder
-handlers.VaspInput = ViseVaspInput
+orig_handlers.Incar = ViseIncar
+orig_handlers.VaspModder = ViseVaspModder
+orig_handlers.VaspInput = ViseVaspInput
 
 
-class ViseVaspErrorHandler(handlers.VaspErrorHandler):
+# When the original error handlers are modified, add *Vise* to the class name.
+class ViseVaspErrorHandler(orig_handlers.VaspErrorHandler):
 
-    error_msgs = super().error_msgs
-    error_msgs.update(
-        {"plane_wave_coeff":
-             ["ERROR: while reading WAVECAR, plane wave coefficients changed"]})
+    error_msgs = deepcopy(super().error_msgs)
+    error_msgs["plane_wave_coeff"] = \
+        ["ERROR: while reading WAVECAR, plane wave coefficients changed"]
 
     def correct(self):
-        backup(handlers.VASP_BACKUP_FILES | {self.output_filename})
+        backup(orig_handlers.VASP_BACKUP_FILES | {self.output_filename})
         actions = []
         vi = VaspInput.from_directory(".")
 
@@ -256,10 +255,10 @@ class ViseVaspErrorHandler(handlers.VaspErrorHandler):
         return {"errors": list(self.errors), "actions": actions}
 
 
-class ViseUnconvergedErrorHandler(handlers.UnconvergedErrorHandler):
+class ViseUnconvergedErrorHandler(orig_handlers.UnconvergedErrorHandler):
 
     def correct(self):
-        backup(handlers.VASP_BACKUP_FILES)
+        backup(orig_handlers.VASP_BACKUP_FILES)
         v = Vasprun(self.output_filename)
         actions = [{"file":   "CONTCAR",
                     "action": {"_file_copy": {"dest": "POSCAR"}}}]
@@ -284,7 +283,7 @@ class ViseUnconvergedErrorHandler(handlers.UnconvergedErrorHandler):
 
         # Instead of changing the IBRION, we reduce the EDIFF since we usually
         # use the constant EDIFF value as default.
-        if not v.converged_ionic:
+        elif not v.converged_ionic:
             ediff = v.incar["EDIFF"]
             actions.append({"dict":   "INCAR",
                             "action": {"_set": {"EDIFF": ediff * 0.5}}})
@@ -292,41 +291,6 @@ class ViseUnconvergedErrorHandler(handlers.UnconvergedErrorHandler):
                             "action": {"_set": {"ADDGRID": True}}})
         ViseVaspModder().apply_actions(actions)
         return {"errors": ["Unconverged"], "actions": actions}
-
-
-class ViseNonConvergingErrorHandler(handlers.NonConvergingErrorHandler):
-
-    def __init__(self, output_filename="OSZICAR", incar="INCAR",
-                 change_algo=False):
-        """
-        Initializes the handler with the output file to check.
-
-        Args:
-            output_filename (str): This is the OSZICAR file. Change
-                this only if it is different from the default (unlikely).
-            nionic_steps (int): The threshold number of ionic steps that
-                needs to hit the maximum number of electronic steps for the
-                run to be considered non-converging.
-            change_algo (bool): Whether to attempt to correct the job by
-                changing the ALGO from Fast to Normal.
-        """
-        self.output_filename = output_filename
-        self.incar = incar
-        self.change_algo = change_algo
-
-    def check(self):
-        incar = Incar.from_file(self.incar)
-        nionic_steps = incar.get("NELM", 1)
-        nelm = incar.get("NELM", 60)
-        try:
-            oszicar = Oszicar(self.output_filename)
-            esteps = oszicar.electronic_steps
-            if len(esteps) > nionic_steps:
-                return all([len(e) == nelm
-                            for e in esteps[-(nionic_steps + 1):-1]])
-        except:
-            pass
-        return False
 
 
 class DielectricMaxIterationErrorHandler(ErrorHandler):
@@ -348,19 +312,6 @@ class DielectricMaxIterationErrorHandler(ErrorHandler):
 
     def correct(self):
         return {"errors": ["No_DFPT_convergence"], "actions": None}
-
-
-class ReturnErrorHandler(ErrorHandler):
-    is_monitor = True
-    def __init__(self):
-        pass
-
-    def check(self):
-        return True
-
-    def correct(self):
-        # Unfixable error. Just return None for actions.
-        return {"errors": ["Always return Error with this."], "actions": None}
 
 
 class MemorySwapHandler(ErrorHandler):
@@ -391,9 +342,7 @@ class MemorySwapHandler(ErrorHandler):
 
 
 class TooLongTimeCalcErrorHandler(ErrorHandler):
-    """
-    Detects if the memory is overflowed.
-    """
+    """ Detects if the memory is overflowed. """
 
     is_monitor = True
 
@@ -428,11 +377,6 @@ class DivergingEnergyErrorHandler(ErrorHandler):
         Args:
             output_filename (str): This is the OSZICAR file. Change
                 this only if it is different from the default (unlikely).
-            nionic_steps (int): The threshold number of ionic steps that
-                needs to hit the maximum number of electronic steps for the
-                run to be considered non-converging.
-            change_algo (bool): Whether to attempt to correct the job by
-                changing the ALGO from Fast to Normal.
         """
         self.output_filename = output_filename
 
@@ -442,7 +386,7 @@ class DivergingEnergyErrorHandler(ErrorHandler):
         # OSZICAR file can be empty, thus we needs try-except here.
         try:
             max_energy = max([es["E"] for es in esteps[-1]])
-        except:
+        except IndexError:
             return False
 
         if max_energy > 10 ** 6:
@@ -451,3 +395,20 @@ class DivergingEnergyErrorHandler(ErrorHandler):
     def correct(self):
         # Unfixable error. Just return None for actions.
         return {"errors": ["Energy_diverging"], "actions": None}
+
+
+class ReturnErrorHandler(ErrorHandler):
+
+    is_monitor = True
+
+    def __init__(self):
+        pass
+
+    def check(self):
+        return True
+
+    def correct(self):
+        # Unfixable error. Just return None for actions.
+        return {"errors": ["Always return Error with this."], "actions": None}
+
+
