@@ -5,7 +5,7 @@ from copy import deepcopy
 from custodian.custodian import ErrorHandler
 from custodian.utils import backup
 from custodian.vasp import handlers as orig_handlers
-from pymatgen.io.vasp import Incar, Oszicar, Vasprun
+from pymatgen.io.vasp import Vasprun
 from vise.input_set.incar import ViseIncar
 from vise.input_set.vasp_input import ViseVaspInput
 from vise.custodian.vasp_modder import ViseVaspModder

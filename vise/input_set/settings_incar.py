@@ -23,9 +23,9 @@ TASK_OPTIONAL_FLAGS = {"NSW", "EDIFFG", "POTIM", "ADDGRID", "KPAR", "ENCUT",
 TASK_FLAGS = TASK_REQUIRED_FLAGS | TASK_OPTIONAL_FLAGS
 
 XC_REQUIRED_FLAGS = {"ALGO", "LWAVE"}
-XC_OPTIONAL_FLAGS = {"LDAU", "LDAUTYPE", "LDAUPRINT", "LDAUU", "LDAUL",
-                     "LMAXMIX", "NKRED", "LHFCALC", "PRECFOCK", "TIME",
-                     "HFSCREEN", "AEXX", "NKRED"}
+XC_OPTIONAL_FLAGS = {"GGA", "METAGGA", "LDAU", "LDAUTYPE", "LDAUPRINT",
+                     "LDAUU", "LDAUL", "LMAXMIX", "NKRED", "LHFCALC",
+                     "PRECFOCK", "TIME", "HFSCREEN", "AEXX", "NKRED"}
 XC_FLAGS = XC_REQUIRED_FLAGS | XC_OPTIONAL_FLAGS
 
 XC_TASK_REQUIRED_FLAGS = set()
@@ -143,6 +143,11 @@ class XcIncarSettings:
         ldauu = ldauu or {}
         ldaul = ldaul or {}
 
+        if xc == Xc.pbesol:
+            settings["GGA"] = "PS"
+        elif xc == Xc.scan:
+            settings["METAGGA"] = "SCAN"
+
         if hubbard_u:
             u_set = loadfn(SET_DIR / "u_parameter_set.yaml")
             ldauu_set = u_set["LDAUU"][ldaul_set_name]
@@ -203,7 +208,10 @@ class CommonIncarSettings:
 
         Return: CommonIncarSettings class object
         """
-        settings = {"NELM": 100, "LASPH": True, "LORBIT": 12, "LCHARG": False,
+        settings = {"NELM": 100,
+                    "LASPH": True,
+                    "LORBIT": 12,
+                    "LCHARG": False,
                     "SIGMA": 0.1}
         # Structure charge is ignored.
         if charge:

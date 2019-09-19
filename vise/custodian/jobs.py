@@ -36,7 +36,8 @@ __maintainer__ = "Yu Kumagai"
 
 
 VASP_INPUT_FILES = {"INCAR", "POSCAR", "POTCAR", "KPOINTS"}
-VASP_SAVED_FILES = {"INCAR",  "vasprun.xml", "CONTCAR", "OUTCAR"}
+VASP_SAVED_FILES = {"INCAR", "vasprun.xml", "CONTCAR", "OUTCAR"}
+VASP_FINISHED_FILES = {i + ".finish" for i in VASP_SAVED_FILES}
 
 
 def rm_wavecar(remove_current: bool,
@@ -139,9 +140,10 @@ class StructureOptResult(MSONable):
 
         try:
             vise = ViseInputSet.load_json(d_path / "vise.json")
-            kpt_density = vise.kwargs("kpt_density")
+            kpt_density = vise.kwargs["kpt_density"]
         except FileNotFoundError:
-            kpt_density = None
+            print("vise.json does not exist")
+            raise
 
         final_structure = Structure.from_file(d_path / contcar)
         sga = SpacegroupAnalyzer(structure=final_structure,
@@ -178,8 +180,9 @@ class StructureOptResult(MSONable):
 
     @property
     def is_sg_changed(self):
-        return self.initial_sg == self.final_sg
+        return self.initial_sg != self.final_sg
 
+    @property
     def dirname(self):
         """ Used for generating and parsing directory"""
 
@@ -197,6 +200,7 @@ class StructureOptResult(MSONable):
 
     def __str__(self):
         outs = [f"kpt{self.num_kpt}",
+                f"kpt density{self.kpt_density}",
                 f"sg{self.initial_sg} -> {self.final_sg}",
                 f"energy{self.energy_atom}",
                 f"uuid {self.uuid}",
@@ -307,9 +311,16 @@ class KptConvResult(UserList):
         return len(set(self.space_groups)) > 1
 
     def __str__(self):
-        pass
+        outs = [f"{'kpt':>10} {'energy/atom':>12}"]
+        for result in self:
+            outs.append(f"{'x'.join(map(str, result.num_kpt)):>10} "
+                        f"{result.energy_atom}:>12:4")
 
-#     # TODO: show/hold warning when the energy is increased when the symmetry is increased.
+        outs.append("")
+
+
+    # TODO: show/hold warning in case the energy is increased when the symmetry
+    #  is increased.
 
 
 class ViseVaspJob(VaspJob):
@@ -402,8 +413,8 @@ class ViseVaspJob(VaspJob):
         else:
             raise EnergyNotConvergedError("get_runs_geom not converged")
 
-        left_files = VASP_INPUT_FILES
-        for f in [std_out, "OUTCAR", "vasprun.xml", "CONTCAR"]:
+        left_files = VASP_INPUT_FILES | {"vise.json"}
+        for f in VASP_SAVED_FILES | {std_out}:
             finish_name = f"{f}.finish"
             shutil.move(f"{f}.{job_number}", finish_name)
             left_files.add(finish_name)
@@ -414,7 +425,9 @@ class ViseVaspJob(VaspJob):
             os.mkdir("files")
 
         for f in glob("*"):
-            if os.stat(f).st_size == 0:
+            if not os.path.isfile(f):
+                continue
+            elif os.stat(f).st_size == 0:
                 os.remove(f)
             elif move_unimportant_files and f not in left_files:
                 shutil.move(f, "files")
@@ -446,16 +459,16 @@ class ViseVaspJob(VaspJob):
             removes_wavecar:
             std_out:
                 See docstrings of geom_opt_run.
-
+            -------
             xc:
             user_incar_settings:
             initial_kpt_density:
             vis_kwargs:
                 See docstrings of ViseInputSet.
-
+            -------
             convergence_criterion:
                 See docstrings of KptConvResult.
-
+            -------
             max_kpt_num (str):
                 Max k-point iteration number
             symprec (float):
@@ -469,7 +482,7 @@ class ViseVaspJob(VaspJob):
         """
         vis_kwargs = vis_kwargs or {}
         results = KptConvResult.from_dirs(convergence_criterion)
-        is_sg_changed = results[-1].is_sg_changd if results else None
+        is_sg_changed = results[-1].is_sg_changed if results else None
 
         while not results.conv_str_opt_result and len(results) < max_kpt_num:
 
@@ -504,9 +517,8 @@ class ViseVaspJob(VaspJob):
                         contcar_filename="CONTCAR.finish",
                         kpt_density=kpt_density,
                         **vis_kwargs)
-                    kpt = vis.kpoints.num_kpts
-                    if (not kpt == prev_kpt and
-                            all([i >= j for i, j in zip(kpt, prev_kpt)])):
+                    kpt = vis.kpoints.kpts[0]
+                    if (not kpt == prev_kpt and all([i >= j for i, j in zip(kpt, prev_kpt)])):
                         break
 
             vis.write_input(".")
@@ -521,24 +533,21 @@ class ViseVaspJob(VaspJob):
             str_opt = StructureOptResult.from_dir(".")
             results.append(str_opt)
 
-            print(f"is_sg_changed {is_sg_changed}")
-            print(f"kpt_density {kpt_density}")
-
-            os.mkdir(str_opt.dirname())
-            for f in glob("*"):
-                if f == "CONTCAR.finish":
-                    shutil.copy(f, "POSCAR")
-                elif f == "WAVECAR":
-                    continue
-                else:
-                    shutil.move(f, str_opt.dirname())
+            os.mkdir(str_opt.dirname)
+            for filename in glob("*"):
+                if filename == "files" or os.path.isfile(filename):
+                    shutil.move(filename, str_opt.dirname)
 
             is_sg_changed = str_opt.is_sg_changed
 
         rm_wavecar(remove_current=removes_wavecar, remove_subdirectories=True)
 
         if results.conv_str_opt_result:
-            print(results.conv_str_opt_result)
+            conv_dirname = Path(results.conv_str_opt_result.dirname)
+            for filename in VASP_INPUT_FILES | VASP_FINISHED_FILES:
+                os.symlink(str(conv_dirname / filename), filename)
+#            print(results)
+#            logger.log(results)
         else:
             raise KptNotConvergedError("Energy was not converged w.r.t. number "
                                        "of k-points ")

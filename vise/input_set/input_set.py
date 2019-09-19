@@ -382,7 +382,9 @@ class ViseInputSet(VaspInputSet):
     def write_input(self,
                     output_dir: str,
                     make_dir_if_not_present: bool = True,
-                    include_cif: bool = False) -> None:
+                    include_cif: bool = False,
+                    to_json_file: bool = True,
+                    json_filename: str = "vise.json") -> None:
         """Write vasp input files and handle transferred files.
 
         Args:
@@ -412,6 +414,9 @@ class ViseInputSet(VaspInputSet):
 
             except FileNotFoundError:
                 logger.warning(f"{key} does not exist.")
+
+        if to_json_file:
+            self.to_json_file(json_filename)
 
     def as_dict(self, verbosity=2):
         # Xc and Task objects must be converted to string for to_json_file as
@@ -542,10 +547,10 @@ class ViseInputSet(VaspInputSet):
         else:
             contcar = path / contcar_filename
             poscar = path / "POSCAR"
-            if contcar.is_file and os.stat(contcar).st_size == 0:
+            if contcar.is_file and os.stat(contcar).st_size != 0:
                 logger.info(f"{contcar} is parsed for structure.")
                 structure = Structure.from_file(contcar)
-            elif poscar.is_file and os.stat(poscar).st_size == 0:
+            elif poscar.is_file and os.stat(poscar).st_size != 0:
                 logger.warning(f"{poscar} is parsed for structure.")
                 structure = Structure.from_file(poscar)
             else:

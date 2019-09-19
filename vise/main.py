@@ -8,8 +8,8 @@ from itertools import chain
 
 from pymatgen import Structure
 from pymatgen.core.periodic_table import Element
-from vise.input_set.vise_incar import incar_flags
-from vise.input_set.vise_input_set import ViseInputSet
+from vise.input_set.incar import incar_flags
+from vise.input_set.input_set import ViseInputSet
 from vise.input_set.prior_info import PriorInfo
 from vise.input_set.xc import Xc
 from vise.input_set.task import Task
@@ -71,7 +71,6 @@ def vasp_set(args):
                                                     **kwargs)
         else:
             s = Structure.from_file(args.poscar)
-            print(kwargs)
             input_set = \
                 ViseInputSet.make_input(structure=s,
                                         task=task,
@@ -82,7 +81,6 @@ def vasp_set(args):
                                         **kwargs)
 
         input_set.write_input(".")
-        input_set.to_json_file()
 
     os.chdir(original_dir)
 

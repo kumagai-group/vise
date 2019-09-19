@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from pydash import max_
-from vise.custodian.vasp_job import ViseVaspJob
+from vise.custodian.jobs import ViseVaspJob
 from custodian.custodian import Custodian
 #from vise.custodian.vise_custodian_vasp_handler import ViseMemorySwapHandler
 
