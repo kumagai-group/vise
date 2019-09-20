@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import subprocess
 from collections import Counter
 from copy import deepcopy
@@ -8,7 +9,7 @@ from custodian.vasp import handlers as orig_handlers
 from pymatgen.io.vasp import Vasprun
 from vise.input_set.incar import ViseIncar
 from vise.input_set.vasp_input import ViseVaspInput
-from vise.custodian.vasp_modder import ViseVaspModder
+from vise.custodian.modder import ViseVaspModder
 from pymatgen.io.vasp import VaspInput, Incar, Kpoints, Oszicar
 from pymatgen.transformations.standard_transformations import \
     SupercellTransformation
@@ -25,7 +26,7 @@ orig_handlers.VaspInput = ViseVaspInput
 # When the original error handlers are modified, add *Vise* to the class name.
 class ViseVaspErrorHandler(orig_handlers.VaspErrorHandler):
 
-    error_msgs = deepcopy(super().error_msgs)
+    error_msgs = deepcopy(orig_handlers.VaspErrorHandler.error_msgs)
     error_msgs["plane_wave_coeff"] = \
         ["ERROR: while reading WAVECAR, plane wave coefficients changed"]
 

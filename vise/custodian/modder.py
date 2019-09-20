@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from custodian.vasp.interpreter import VaspModder
 
 from vise.input_set.vasp_input import ViseVaspInput

@@ -441,19 +441,15 @@ class ViseInputSet(VaspInputSet):
     @classmethod
     def from_dict(cls, d):
         # Programmatic access to enumeration members in Enum class.
-        xc = Xc.from_string(d["xc"])
-        task = Task.from_string(d["task"])
-        potcar = Potcar.from_dict(d["potcar"])
-
         structure = d["structure"]
         if isinstance(structure, dict):
             structure = Structure.from_dict(structure)
 
         return cls(structure=structure,
-                   xc=xc,
-                   task=task,
-                   kpoints=d["kpoints"],
-                   potcar=potcar,
+                   xc=Xc.from_string(d["xc"]),
+                   task=Task.from_string(d["task"]),
+                   kpoints=Kpoints.from_dict(d["kpoints"]),
+                   potcar=Potcar.from_dict(d["potcar"]),
                    incar_settings=d["incar_settings"],
                    files_to_transfer=d["files_to_transfer"],
                    **d["kwargs"])
