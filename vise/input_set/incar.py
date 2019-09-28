@@ -78,10 +78,7 @@ class ViseIncar(Incar):
         return cls(params)
 
     def __add__(self, other: Incar) -> "ViseIncar":
-        """
-        Add all the values of another INCAR object to this object.
-        Facilitates the use of "standard" INCARs.
-        """
+        """ Add all the values of another INCAR object to this object. """
         params = {k: v for k, v in self.items()}
         for k, v in other.items():
             if k in self and v != self[k]:
@@ -90,8 +87,8 @@ class ViseIncar(Incar):
                 params[k] = v
         return ViseIncar(params)
 
-    def get_string(self, sort_keys: bool = False, pretty: bool = False) -> str:
-        """ This method is overridden for the pretty printing. """
+    def get_string(self, **kwargs) -> str:
+        """Override for the pretty printing. """
         lines = []
         check_incar_keys = deepcopy(self)
         for key, val in incar_flags.items():
@@ -140,16 +137,15 @@ class ViseIncar(Incar):
                     check_incar_keys.pop(v)
             if blank_line:
                 lines.append(str(tabulate([[l[0], "=", l[1]] for l in ll],
-                                          tablefmt="plain")))
-                lines.append("\n\n")
+                                          tablefmt="plain")) + "\n")
+                lines.append("\n")  # blank space
 
         for mson_key in ["@module", "@class"]:
             if mson_key in check_incar_keys:
                 check_incar_keys.pop(mson_key)
 
         if check_incar_keys:
-            raise ValueError(f"{check_incar_keys.keys()} are not valid in "
-                             f"INCAR.")
+            raise ValueError(f"{check_incar_keys.keys()} are invalid in INCAR.")
 
         return "".join(lines)
 

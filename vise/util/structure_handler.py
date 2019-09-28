@@ -6,7 +6,7 @@ import seekpath
 import spglib
 from atomate.utils.utils import get_logger
 from pymatgen import Structure
-from vise.config import ANGLE_TOL, SYMMETRY_TOLERANCE
+from vise.config import ANGLE_TOL, SYMMETRY_TOLERANCE, BAND_REF_DIST
 
 __author__ = "Yu Kumagai"
 __maintainer__ = "Yu Kumagai"
@@ -143,7 +143,7 @@ def find_hpkot_primitive(structure: Structure,
 
 def structure_to_seekpath(structure: Structure,
                           time_reversal: bool = True,
-                          ref_distance: float = 0.025,
+                          ref_distance: float = BAND_REF_DIST,
                           recipe: str = 'hpkot',
                           threshold: float = 1e-7,
                           symprec: float = SYMMETRY_TOLERANCE,

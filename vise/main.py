@@ -27,6 +27,11 @@ __date__ = 'will be inserted'
 
 
 def vasp_set(args):
+    if args.print_json:
+        vis = ViseInputSet.load_json(args.print_json)
+        print(vis)
+        return
+
     flags = [str(s) for s in list(Element)]
     ldauu = list2dict(args.ldauu, flags)
     ldaul = list2dict(args.ldaul, flags)
@@ -119,6 +124,9 @@ def main():
                    "ldaul":               None}
 
     # write use potcar setting
+    parser_vasp_set.add_argument(
+        "--pj", dest="print_json", type=str,
+        help="Print the ViseInputSet info from the given json file.")
     parser_vasp_set.add_argument(
         "-p", "--poscar", dest="poscar", default="POSCAR", type=str,
         help="POSCAR-type file name.")

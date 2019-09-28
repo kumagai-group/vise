@@ -22,8 +22,7 @@ from vise.config import SYMMETRY_TOLERANCE, ANGLE_TOL, KPT_INIT_DENSITY, \
 from vise.input_set.input_set import ViseInputSet
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc
-from vise.util.error_classes import EnergyNotConvergedError, \
-    KptNotConvergedError
+from vise.util.error_classes import VaspNotConvergedError, KptNotConvergedError
 from vise.util.logger import get_logger
 
 """ Provides structure optimization and kpt convergence jobs for VASP runs. """
@@ -411,7 +410,7 @@ class ViseVaspJob(VaspJob):
             if len(Vasprun("vasprun.xml").ionic_steps) == 1:
                 break
         else:
-            raise EnergyNotConvergedError("get_runs_geom not converged")
+            raise VaspNotConvergedError("get_runs_geom not converged")
 
         left_files = VASP_INPUT_FILES | {"vise.json"}
         for f in VASP_SAVED_FILES | {std_out}:

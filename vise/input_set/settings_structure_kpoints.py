@@ -4,7 +4,7 @@ from typing import Optional
 import numpy as np
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp import Kpoints
-from vise.input_set.make_kpoints import make_kpoints
+from vise.input_set.make_kpoints import MakeKpoints
 from vise.input_set.task import Task, SPECTRA_TASK
 from vise.util.logger import get_logger
 from vise.util.structure_handler import find_spglib_primitive
@@ -121,19 +121,23 @@ class TaskStructureKpoints:
             else:
                 factor = 1
 
-        kpoints, structure, sg, num_kpts = \
-            make_kpoints(mode=kpt_mode,
-                         structure=structure,
-                         kpt_density=kpt_density,
-                         only_even=only_even,
-                         ref_distance=band_ref_dist,
-                         kpt_shift=kpt_shift,
-                         factor=factor,
-                         symprec=symprec,
-                         angle_tolerance=angle_tolerance,
-                         is_magnetization=is_magnetization)
+        kpoints = MakeKpoints(mode=kpt_mode,
+                              structure=structure,
+                              kpt_density=kpt_density,
+                              only_even=only_even,
+                              ref_distance=band_ref_dist,
+                              kpt_shift=kpt_shift,
+                              factor=factor,
+                              symprec=symprec,
+                              angle_tolerance=angle_tolerance,
+                              is_magnetization=is_magnetization)
+        kpoints.make_kpoints()
 
-        return cls(structure, kpoints, is_structure_changed, sg, num_kpts,
-                   factor)
+        return cls(structure=structure,
+                   kpoints=kpoints.kpoints,
+                   is_structure_changed=kpoints.is_structure_changed,
+                   sg=kpoints.sg,
+                   num_kpts=kpoints.num_kpts,
+                   factor=factor)
 
 

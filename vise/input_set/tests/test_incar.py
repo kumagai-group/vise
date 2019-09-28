@@ -1,22 +1,29 @@
 # -*- coding: utf-8 -*-
 
+from vise.util.testing import ViseTest
+from vise.input_set.incar import incar_flags, ViseIncar
+
 __author__ = "Yu Kumagai"
 __maintainer__ = "Yu Kumagai"
 
-# class CalcNbandsTest(ViseTest):
-#      def setUp(self) -> None:
+
+class IncarFlagsTest(ViseTest):
+
+    def test(self) -> None:
+        expected = ["SMASS", "NBLOCK"]
+        actual = incar_flags["md"]
+        self.assertEqual(expected, actual)
 
 
 
-#
-# class ModIncarTest(unittest.TestCase):
-#     #
-#     # def test_ModIncar(self):
-#     #     i = ModIncar.from_file("INCAR-ModIncar_before")
-#     #     i.pretty_write_file("INCAR-ModIncar_actual")
-#     #     self.assertTrue(
-#            filecmp.cmp("INCAR-ModIncar_expected", "INCAR-ModIncar_actual"))
-#
+class ViseIncarTest(ViseTest):
+    pass
+    # def test_ModIncar(self):
+    #     i = ModIncar.from_file("INCAR-ModIncar_before")
+    #     i.pretty_write_file("INCAR-ModIncar_actual")
+    #     self.assertTrue(
+#           filecmp.cmp("INCAR-ModIncar_expected", "INCAR-ModIncar_actual"))
+
 # #
 # class MakeIncarTest(unittest.TestCase):
 #     #

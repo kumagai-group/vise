@@ -418,25 +418,29 @@ class ViseInputSet(VaspInputSet):
         if to_json_file:
             self.to_json_file(json_filename)
 
-    def as_dict(self, verbosity=2):
+    def as_dict(self, **kwargs):
         # Xc and Task objects must be converted to string for to_json_file as
         # Enum is not compatible with MSONable.
-        xc = str(self.xc)
-        task = str(self.task)
-        potcar = self.potcar.as_dict()
-
         d = {"@module":             self.__class__.__module__,
              "@class":              self.__class__.__name__,
              "structure":           self.structure,
-             "xc":                  xc,
-             "task":                task,
+             "xc":                  str(self.xc),
+             "task":                str(self.task),
              "kpoints":             self.kpoints,
-             "potcar":              potcar,
+             "potcar":              self.potcar.as_dict(),
              "incar_settings":      self.incar_settings,
              "files_to_transfer":   self.files_to_transfer,
              "kwargs":              self.kwargs}
 
         return d
+
+    def __repr__(self):
+        out = [f"task: {self.task}",
+               f"xc: {self.xc}"]
+        return "\n".join(out)
+
+    def __str__(self):
+        return self.__repr__()
 
     @classmethod
     def from_dict(cls, d):
@@ -465,8 +469,8 @@ class ViseInputSet(VaspInputSet):
     @classmethod
     def from_prev_calc(cls,
                        dirname,
-                       task: Task = Task.structure_opt,
-                       xc: Xc = Xc.pbe,
+                       task: Optional[Task] = None,
+                       xc: Optional[Xc] = None,
                        json_filename: str = "vise.json",
                        parse_calc_results: bool = True,
                        parse_incar: bool = True,
@@ -477,6 +481,8 @@ class ViseInputSet(VaspInputSet):
                        contcar_filename: str = "CONTCAR",
                        **kwargs) -> "ViseInputSet":
         """Constructor based on the previous calculations.
+
+        If the task and/or xc are not set, the previous ones are assumed.
 
         Args:
             dirname (str):
@@ -570,10 +576,9 @@ class ViseInputSet(VaspInputSet):
             files_to_transfer = abs_files_to_transfer
 
         return cls.make_input(structure=structure,
-                              task=task,
-                              xc=xc,
+                              task=task or input_set.task,
+                              xc=xc or input_set.xc,
                               prev_set=input_set,
                               abs_files_to_transfer=files_to_transfer,
                               user_incar_settings=user_incar_settings,
                               **kwargs)
-

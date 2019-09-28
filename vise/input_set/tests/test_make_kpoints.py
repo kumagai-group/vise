@@ -2,19 +2,35 @@
 
 from pymatgen.io.vasp import Kpoints
 
-from vise.input_set.make_kpoints import make_band_kpoints
+from vise.input_set.make_kpoints import MakeKpoints
 from vise.util.testing import ViseTest
 
 __author__ = "Yu Kumagai"
 __maintainer__ = "Yu Kumagai"
 
 
-class MakeBandKpointsTest(ViseTest):
+class MakeKpointsTest(ViseTest):
 
-    def test_make_band_kpoints_mgo(self):
-        structure = self.get_structure_by_name("MgO")
-        kpoints = Kpoints.from_string("kpt\n 0\n M\n 4 4 4")
-        k, primitive, sg = make_band_kpoints(kpoints=kpoints, structure=structure)
+    def setUp(self) -> None:
+        self.sg1 = self.get_structure_by_sg(1)  # test for hinuma reduced cell
+        self.sg23 = self.get_structure_by_sg(23)  # I222, body-centered ortho
+        self.sg38 = self.get_structure_by_sg(38)  # Amm2, base-centered ortho
+
+    def test_manual_set(self):
+        k = MakeKpoints(mode="primitive_uniform", structure=self.sg23)
+#        k = MakeKpoints(mode="manual_set", structure=self.sg23)
+        k.make_kpoints()
+#        expected = [3, 3, 2]
+#        actual = k.kpt_mesh
+#        self.assertEqual(expected, actual)
+        print(k.kpt_mesh)
+        print(k.corresponding_structure)
+        print(k.kpt_shift)
+        print(k.kpoints)
+
+
+#        kpoints = Kpoints.from_string("kpt\n 0\n M\n 4 4 4")
+#        k, primitive, sg = make_band_kpoints(kpoints=kpoints, structure=structure)
 #        print(k)
 
 #    def test_make_band_kpoints_ymo3_fail(self):

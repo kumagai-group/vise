@@ -19,9 +19,6 @@ class VaspNotConvergedError(Exception):
     pass
 
 
-class EnergyNotConvergedError(Exception):
-    pass
-
-
 class KptNotConvergedError(Exception):
+    """Raised when the k-point set is not converged."""
     pass

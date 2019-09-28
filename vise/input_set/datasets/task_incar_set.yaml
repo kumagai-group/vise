@@ -94,11 +94,11 @@ PREC:
 
 # optional
 NSW:
-  structure_opt: 100
-  structure_opt_rough: 100
-  structure_opt_tight: 100
-  cluster_opt: 100
-  defect: 100
+  structure_opt: 50
+  structure_opt_rough: 50
+  structure_opt_tight: 50
+  cluster_opt: 50
+  defect: 50
 
 EDIFFG:
   structure_opt: -0.005
