@@ -18,3 +18,4 @@ ENCUT_FACTOR_STR_OPT = 1.3  # This times ENMAX is used for structure opt calc.
 
 BAND_GAP_CRITERION = 0.2  # Criterion in eV to determine if band gap exists.
 
+DEFAULT_NUM_CORES = [36, 1]

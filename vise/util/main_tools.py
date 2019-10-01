@@ -1,4 +1,8 @@
+import re
+from pathlib import Path
 from typing import Optional
+
+import yaml
 
 from pydefect.util.tools import is_str_int, is_str_digit
 
@@ -86,3 +90,74 @@ def list2dict(flattened_list: Optional[list], key_candidates: list) -> dict:
             insert()
 
     return d
+
+
+def get_user_settings(yaml_filename: str, setting_keys: list) -> dict:
+    """Get the user specifying settings written in yaml_filename
+
+    Note1: The yaml_filename is explored in the parent folders up to home
+           or root directory until it's found. If it does not exist, empty
+           dictionary is returned.
+    Note2: When the key includes "/", the absolute path is added as a prefix.
+           E.g., unitcell/unitcell.json -> /something/../unitcell/unitcell.json
+    Note3: The value of "potcar_set: Mg_pv O_h" is "Mg_pv O_h" string, which
+           is suited used for main default value.
+
+    Args:
+        yaml_filename (str): User setting yaml filename.
+
+    Return:
+        Dictionary of configs.
+    """
+
+    config_path = Path.cwd()
+    home = Path.home()
+
+    while True:
+        if config_path == home or config_path == Path("/"):
+            return {}
+
+        f = config_path / yaml_filename
+        if f.exists():
+            with open(f, "r") as f:
+                user_settings = yaml.load(f)
+            break
+
+        else:
+            config_path = config_path.parent
+
+    # Add full path
+    for k, v in user_settings.items():
+        if k not in setting_keys:
+            raise ValueError(f"Key {k} in {yaml_filename} is invalid."
+                             f"The candidate keys are {setting_keys}")
+        if isinstance(v, str) and re.match(r'\S*/\S*', v):
+            user_settings[k] = str(config_path / v)
+
+    return user_settings
+
+
+def dict2list(d: dict) -> list:
+    """Sanitize the string type potcar setting to dict.
+
+    The string is also separated by space. An example is
+    dict2list({"a": 1, "b": "2 3 4", "c": True}) =
+                                 ["a", "1", "b", "2", "3", "4", "c", "True"]
+
+    Args:
+         d (dict)
+
+    Return:
+         list of flattened dict
+    """
+
+    d = d if d else {}
+    flattened_list = []
+    for k, v in d.items():
+        flattened_list.append(k)
+        if isinstance(v, str):
+            flattened_list.extend(v.split())
+        else:
+            flattened_list.append(str(v))
+
+    return flattened_list

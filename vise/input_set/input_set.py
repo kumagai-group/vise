@@ -18,12 +18,13 @@ from pymatgen.io.vasp.sets import (
     get_vasprun_outcar, get_structure_from_prev_run)
 from vise.analyzer.band_gap import band_gap_properties
 from vise.config import (
-    KPT_DENSITY, ENCUT_FACTOR_STR_OPT, ANGLE_TOL, SYMMETRY_TOLERANCE)
+    KPT_DENSITY, ENCUT_FACTOR_STR_OPT, ANGLE_TOL, SYMMETRY_TOLERANCE,
+    BAND_REF_DIST, DEFAULT_NUM_CORES)
 from vise.input_set.task import Task
 from vise.input_set.incar import ViseIncar
 from vise.input_set.settings_incar import (
     TaskIncarSettings, XcIncarSettings, XcTaskIncarSettings,
-    CommonIncarSettings, OTHER_FLAGS)
+    CommonIncarSettings)
 from vise.input_set.settings_structure_kpoints import TaskStructureKpoints
 from vise.input_set.settings_potcar import XcTaskPotcar
 from vise.input_set.xc import Xc
@@ -124,7 +125,7 @@ class ViseInputSet(VaspInputSet):
             Numbers of cores per node and nodes used to determine KPAR and NPAR
             INCAR setting.
         structure_opt_encut_factor (float):
-            Encut multiplied factor for structure optimization, where encut
+            ENCUT multiplied factor for structure optimization, where encut
             needs to be increased to reduce the Pulay Stress errors.
     """
     GENERAL_OPTIONS = {"sort_structure": True,
@@ -134,7 +135,7 @@ class ViseInputSet(VaspInputSet):
                     "kpt_density": KPT_DENSITY,
                     "kpt_shift": None,
                     "only_even": False,
-                    "band_ref_dist": 0.03,
+                    "band_ref_dist": BAND_REF_DIST,
                     "factor": None,
                     "symprec": SYMMETRY_TOLERANCE,
                     "angle_tolerance": ANGLE_TOL,
@@ -153,11 +154,11 @@ class ViseInputSet(VaspInputSet):
                        "encut": None}
 
     COMMON_OPTIONS = {"is_magnetization": False,
-                      "num_cores": [36, 1],
+                      "num_cores": DEFAULT_NUM_CORES,
                       "structure_opt_encut_factor": ENCUT_FACTOR_STR_OPT}
 
-    OPTIONS = {**GENERAL_OPTIONS, **TASK_OPTIONS, **XC_OPTIONS,
-               **XC_TASK_OPTIONS, **COMMON_OPTIONS}
+    ALL_OPTIONS = {**GENERAL_OPTIONS, **TASK_OPTIONS, **XC_OPTIONS,
+                   **XC_TASK_OPTIONS, **COMMON_OPTIONS}
 
     def __init__(self,
                  structure: Structure,
@@ -169,7 +170,6 @@ class ViseInputSet(VaspInputSet):
                  files_to_transfer: dict,
                  **kwargs):
         """
-
         Args:
             structure (Structure): The Structure to create inputs for.
             xc (Xc): Exchange-correlation (xc) defined in Xc.
@@ -199,35 +199,38 @@ class ViseInputSet(VaspInputSet):
                    abs_files_to_transfer: Optional[dict] = None,
                    user_incar_settings: Optional[dict] = None,
                    **kwargs) -> "ViseInputSet":
-        """Construct ViseInputSet from xc, task and some options.
+        """Construct ViseInputSet from some options including xc and task.
 
-        To make a rule how to inherit the previous calculation condition and
-        results are usually very complicated and depend on the researchers,
-        research interest, and so on. Therefore, we adopt fail-safe rule for
-        inheritance.
+        To make a simple but practical rule for inheriting the previous
+        calculation condition and effectively use its results, we adopt
+        fail-safe rule.
 
-        When, the prev_set is input, we compare task and xc between current
-        input an prev_set, and inherit some input set depending on whether
-        task and/or xc are common. For instance, when one performed
-        (task=Task.band, xc=Xc.pbe) job and then wants to calculate with
-        (task=Task.band, xc=Xc.hse), task is common. So, input set related to
-        TaskStructureKpoints and TaskIncarSettings are inherited. Note that,
-        input set related to CommonIncarSettings is always inherited.
+        When, the prev_set is set, we compare task and xc between current
+        input and prev_set, and inherit some options depending on whether
+        task and/or xc are common. For instance, when we calculate the band
+        structure with the HSE06 hybrid functional, it would be better to
+        generate the WAVECAR file with e.g., PBE functional to reduce the
+        computational cost. Then, the initial task was done with task=Task.band
+        and xc=Xc.pbe with user_incar_setting={"LWAVE": True}, and next task is
+        performed with task=Task.band, xc=Xc.hs. Then, task is common, so
+        input set related to TaskStructureKpoints and TaskIncarSettings are
+        inherited. Note that, CommonIncarSettings options are always inherited.
 
         Other notes are as follows.
 
-        Note1: Charge set to structure is ignored when determining NELECT.
+        Note1: Charge set to structure is ignored when determining NELECT. For
+               this purpose, charge option needs to be used.
         Note2: When the structure is changed via find_spglib_standard_primitive,
-               site properties are removed.
+               all the site properties are removed.
         Note3: When different version of ViseInputSet with different defaults,
-               the consistency of input set is broken, so the same version must
-               be used.
+               the consistency of input set is destroyed, so the same version
+               must be used when options are inherited.
         Note4: Other INCAR flags than those defined by TaskIncarSettings,
                XcIncarSettings, XcTaskIncarSettings, and CommonIncarSettings are
                not inherited. When some of them need to be inherited, they
                should be added to COMMON_OPTIONAL_FLAGS.
         Note5: user_incar_settings is not inherited from prev_set. One needs
-               to explicitly specify it, again.
+               to explicitly specify it, again, if needed.
 
         Args:
             structure (Structure):
@@ -256,7 +259,7 @@ class ViseInputSet(VaspInputSet):
         user_incar_settings = user_incar_settings or {}
 
         # First, set default.
-        opts = deepcopy(cls.OPTIONS)
+        opts = deepcopy(cls.ALL_OPTIONS)
         # Second, override with previous condition
         if prev_set:
             key_set = set(cls.COMMON_OPTIONS.keys())
@@ -351,7 +354,7 @@ class ViseInputSet(VaspInputSet):
         # user_incar_settings is the top prioritized.
         incar_settings.update(user_incar_settings)
 
-        # TODO: tweak the unfavorable input set.
+        # TODO: tweak the unfavorable combination of the input set.
         # e.g., Avoiding ICHARG = 11 is a must for hybrid functional.
 
         return cls(structure=task_str_kpt.structure,
@@ -520,7 +523,6 @@ class ViseInputSet(VaspInputSet):
         Return:
             ViseInputSet class object.
         """
-
         kwargs = kwargs or {}
         kwargs["sort_structure"] = sort_structure
         kwargs["standardize_structure"] = standardize_structure

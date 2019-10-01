@@ -5,6 +5,7 @@ import argparse
 import os
 from copy import deepcopy
 from itertools import chain
+from typing import Union
 
 from pymatgen import Structure
 from pymatgen.core.periodic_table import Element
@@ -15,7 +16,8 @@ from vise.input_set.xc import Xc
 from vise.input_set.task import Task
 from vise.config import SYMMETRY_TOLERANCE, ANGLE_TOL, KPT_DENSITY
 from vise.util.logger import get_logger
-from vise.util.main_tools import potcar_str2dict, list2dict
+from vise.util.main_tools import (
+    potcar_str2dict, list2dict, dict2list, get_user_settings)
 
 __author__ = "Yu Kumagai"
 __maintainer__ = "Yu Kumagai"
@@ -44,7 +46,7 @@ def vasp_set(args):
                    "ldauu": ldauu,
                    "ldaul": ldaul}
 
-    flags = list(ViseInputSet.OPTIONS.keys())
+    flags = list(ViseInputSet.ALL_OPTIONS.keys())
     base_kwargs.update(list2dict(args.vise_opts, flags))
 
     flags = list(chain.from_iterable(incar_flags.values()))
@@ -92,6 +94,35 @@ def vasp_set(args):
 
 def main():
 
+    setting_keys = ["symprec",
+                    "angle_tolerance",
+                    "kpt_density",
+                    "user_incar_setting",
+                    "vise_options",
+                    "ldauu",
+                    "ldaul",
+                    "xc",
+                    "no_wavecar",
+                    "potcar_set"]
+
+    user_settings = get_user_settings(yaml_filename="vise.yaml",
+                                      setting_keys=setting_keys)
+
+    def simple_override(d: dict, keys: Union[list, str]) -> None:
+        """Override dict if keys exist in user_settings.
+
+        When the value in the user_settings is a dict, it will be changed to
+        list using dict2list.
+        """
+        if isinstance(keys, str):
+            keys = [keys]
+        for key in keys:
+            if key in user_settings:
+                v = user_settings[key]
+                if isinstance(v, dict):
+                    v = dict2list(v)
+                d[key] = v
+
     parser = argparse.ArgumentParser(
         description="""                            
     vise is a package that helps researchers to do first-principles calculations 
@@ -122,6 +153,8 @@ def main():
                    "override_potcar_set": None,
                    "ldauu":               None,
                    "ldaul":               None}
+
+    simple_override(vs_defaults, list(vs_defaults.keys()))
 
     # write use potcar setting
     parser_vasp_set.add_argument(
@@ -160,12 +193,13 @@ def main():
         default=vs_defaults["vise_opts"],
         help="Keyword arguments for options in make_input classmethod of "
              "ViseInputSet in vise. See document in vise for details.")
+    # TODO: the vise.yaml is completely overridden. Should we partly override?
     parser_vasp_set.add_argument(
         "-uis", "--user_incar_setting", dest="user_incar_setting", type=str,
         nargs="+",
         default=vs_defaults["user_incar_setting"],
-        help="user_incar_setting in make_input classmethod of ViseInputSet in vise."
-             "See document in vise for details.")
+        help="user_incar_setting in make_input classmethod of ViseInputSet in "
+             "vise. See document in vise for details.")
     parser_vasp_set.add_argument(
         "--dirs", dest="dirs", nargs="+", type=str, default=None,
         help="Make vasp set for the directories in the same condition.")
