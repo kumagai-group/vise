@@ -1,2 +1,2 @@
 # vise
-Vasp Integrated Simulation Environment.
+Vasp Integrated Simulation Environment. 
