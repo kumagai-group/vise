@@ -7,7 +7,7 @@ from enum import Enum, unique
 import numpy as np
 from pymatgen import Structure
 from pymatgen.core.periodic_table import Element
-from pymatgen.io.vasp import Kpoints, Kpoints_supported_modes
+from pymatgen.io.vasp.inputs import Kpoints
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from vise.config import SYMMETRY_TOLERANCE, ANGLE_TOL
 from vise.input_set.datasets.kpt_centering import kpt_centering
