@@ -35,4 +35,5 @@ setup(
     install_requires=['numpy','pymatgen','matplotlib','seekpath','spglib'],
     cmdclass = cmdclass,
     ext_modules=ext_modules,
+    include_package_data=True,
 )
