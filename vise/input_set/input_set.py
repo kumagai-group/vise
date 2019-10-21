@@ -5,6 +5,8 @@ import os
 import re
 import shutil
 from copy import deepcopy
+from itertools import groupby
+import operator
 from pathlib import Path
 from typing import Optional
 
@@ -310,9 +312,15 @@ class ViseInputSet(VaspInputSet):
                 if pattern.match(f):
                     abs_files_to_transfer.pop(f, None)
 
+        species = [str(s) for s in task_str_kpt.structure.species]
+        # unique_justseen https://docs.python.org/ja/3/library/itertools.html
+        # ["H", "H", "O", "O", "H"] -> ['H', 'O', 'H']
+        symbol_list = \
+            list(map(next, map(operator.itemgetter(1), groupby(species, None))))
+
         xc_task_potcar = XcTaskPotcar.from_options(
             xc=xc,
-            symbol_set=task_str_kpt.structure.symbol_set,
+            symbol_list=symbol_list,
             potcar_set_name=opts["potcar_set_name"],
             override_potcar_set=opts["override_potcar_set"])
 

@@ -15,7 +15,7 @@ class XcTaskPotcar:
     @classmethod
     def from_options(cls,
                      xc: Xc,
-                     symbol_set: tuple,
+                     symbol_list: list,
                      potcar_set_name: str = None,
                      override_potcar_set: dict = None):
         """ Construct Potcar from xc and some options.
@@ -29,7 +29,7 @@ class XcTaskPotcar:
         potcar_set_name = potcar_set_name or "normal"
 
         potcar_list = load_potcar_yaml(potcar_set_name, override_potcar_set)
-        potcar_symbols = [potcar_list.get(el, el) for el in symbol_set]
+        potcar_symbols = [potcar_list.get(el, el) for el in symbol_list]
         potcar = Potcar(potcar_symbols, functional=potcar_functional)
 
         max_enmax = max([p.enmax for p in potcar])
