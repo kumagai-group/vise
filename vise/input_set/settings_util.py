@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from math import ceil
 from pathlib import Path
 from typing import Optional

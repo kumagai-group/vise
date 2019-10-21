@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from pathlib import Path
 
 from pymatgen.io.vasp import inputs as orig_inputs
