@@ -14,6 +14,11 @@ class InvalidStructureError(Exception):
     pass
 
 
+class NoVaspCommandError(Exception):
+    """Raised when the vasp command is not set."""
+    pass
+
+
 class VaspNotConvergedError(Exception):
     """Raised when the vasp calculation is not converged."""
     pass

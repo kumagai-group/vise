@@ -1,13 +1,17 @@
 # -*- coding: utf-8 -*-
 import numpy as np
-from atomate.utils.utils import get_logger
-from vise.config import SYMMETRY_TOLERANCE
+
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.electronic_structure.bandstructure \
     import get_reconstructed_band_structure
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.plotter import BSPlotter
 from pymatgen.io.vasp import Kpoints, Vasprun
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+from vise.config import SYMMETRY_TOLERANCE, ANGLE_TOL
+from vise.util.logger import get_logger
+
 
 __author__ = "Yu Kumagai"
 __maintainer__ = "Yu Kumagai"
@@ -17,8 +21,15 @@ logger = get_logger(__name__)
 
 class PrettyBSPlotter:
 
-    def __init__(self, kpoints, vasprun, vasprun2=None, absolute=False,
-                 y_range=None, legend=False):
+    def __init__(self,
+                 kpoints: list,
+                 vasprun: list,
+                 vasprun2: list = None,
+                 absolute: bool = False,
+                 y_range: list = None,
+                 legend: bool = False,
+                 symprec: float = SYMMETRY_TOLERANCE,
+                 angle_tolerance: float = ANGLE_TOL):
 
         if isinstance(kpoints, list):
             bands = []
@@ -30,8 +41,9 @@ class PrettyBSPlotter:
         band = get_reconstructed_band_structure(bands)
         bs_plotter = ModBSPlotter(band)
         composition = str(band.structure.composition)
-        from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-        sga = SpacegroupAnalyzer(band.structure, symprec=SYMMETRY_TOLERANCE)
+        sga = SpacegroupAnalyzer(structure=band.structure,
+                                 symprec=symprec,
+                                 angle_tolerance=angle_tolerance)
         self.sg = " SG: " + sga.get_space_group_symbol() + " (" + \
                   str(sga.get_space_group_number()) + ")"
         self.title = composition + self.sg
@@ -52,11 +64,11 @@ class PrettyBSPlotter:
                                               legend=legend,
                                               zero_to_efermi=absolute)
 
-    def save_fig(self, filename, format_type="pdf"):
-        self.p.savefig(filename, format=format_type)
-
-    def show_fig(self):
-        self.p.show()
+    def show(self, filename: str = None, format_type: str = "pdf") -> None:
+        if filename:
+            self.p.savefig(filename, format=format_type)
+        else:
+            self.p.show()
 
 
 class ModBSPlotter(BSPlotter):

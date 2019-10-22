@@ -9,7 +9,7 @@ from custodian.vasp import handlers as orig_handlers
 from pymatgen.io.vasp import Vasprun
 from vise.input_set.incar import ViseIncar
 from vise.input_set.vasp_input import ViseVaspInput
-from vise.custodian.modder import ViseVaspModder
+from vise.custodian_extension.modder import ViseVaspModder
 from pymatgen.io.vasp import VaspInput, Incar, Kpoints, Oszicar
 from pymatgen.transformations.standard_transformations import \
     SupercellTransformation

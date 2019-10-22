@@ -4,15 +4,20 @@ import os
 from copy import deepcopy
 from itertools import chain
 
+from custodian.custodian import Custodian
+
 from pymatgen import Structure
 from pymatgen.core.periodic_table import Element
+
 from vise.analyzer.band_plotter import PrettyBSPlotter
 from vise.analyzer.dos_plotter import get_dos_plot
+from vise.custodian_extension.jobs import ViseVaspJob
 from vise.input_set.incar import incar_flags
 from vise.input_set.input_set import ViseInputSet
 from vise.input_set.prior_info import PriorInfo
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc
+from vise.util.error_classes import NoVaspCommandError
 from vise.util.logger import get_logger
 from vise.util.main_tools import potcar_str2dict, list2dict
 
@@ -88,13 +93,16 @@ def vasp_set(args):
 
 def plot_band(args):
 
-    p = PrettyBSPlotter(args.kpoints, args.vasprun, args.vasprun2,
-                        args.absolute, args.y_range, args.legend)
+    p = PrettyBSPlotter(kpoints=args.kpoints,
+                        vasprun=args.vasprun,
+                        vasprun2=args.vasprun2,
+                        absolute=args.absolute,
+                        y_range=args.y_range,
+                        legend=args.legend,
+                        symprec=args.symprec,
+                        angle_tolerance=args.angle_tolerance)
 
-    if args.filename:
-        p.save_fig(args.filename, format_type="pdf")
-    else:
-        p.show_fig()
+    p.show(args.filename, format_type="pdf")
 
 
 def plot_dos(args):
@@ -108,7 +116,8 @@ def plot_dos(args):
                        zero_at_efermi=args.absolute,
                        legend=args.legend,
                        crop_first_value=args.cfv,
-                       symprec=args.symprec)
+                       symprec=args.symprec,
+                       angle_tolerance=args.angle_tolerance)
 
     if args.filename:
         dos.savefig(args.filename, format="pdf")
@@ -116,3 +125,47 @@ def plot_dos(args):
         dos.show()
 
 
+def vasp_run(args):
+    if len(args.vasp_cmd) == 0:
+        raise NoVaspCommandError
+    elif len(args.vasp_cmd) == 1:
+        vasp_cmd = args.vasp_cmd[0].split()
+    else:
+        vasp_cmd = args.vasp_cmd
+
+    # handlers
+    handlers = []
+    # handlers = [ObaVaspErrorHandler(), MeshSymmetryErrorHandler(),
+    #             ObaUnconvergedErrorHandler(), NonConvergingErrorHandler(),
+    #             PotimErrorHandler()]
+    #    kpoints_criteria = args.kpoints_criteria
+
+    # if args.converge_kpt:
+    #     c = Custodian(handlers,
+    #                   ViseVaspJob.kpt_converge(
+    #                       cmd, max_relax_number, kpoints_criteria,
+    #                   removes_wavecar=removes_wavecar),
+    #                   polling_time_step=5, monitor_freq=1,
+    #                   max_errors=10, gzipped_output=False)
+    # else:
+    # st = Poscar.from_file("POSCAR").structure
+    # oba_vis = ObaSet.make_input(st)
+    # # oba_vis = \
+    # #     ObaSet.from_prev_calc(".",
+    # #                           parse_calc_results=False,
+    # #                           standardize_structure=True,
+    # #                           parse_potcar=True,
+    # #                           parse_incar=True,
+    # #                           parse_kpoints=True)
+    # oba_vis.write_input(".")
+    # job = ViseVaspJob.structure_optimization_run(vasp_cmd=args.vasp_cmd,
+    #                                              max_relax_num=args.max_relax_num,
+    #                                              removes_wavecar=args.rm_wavecar)
+    #    job =
+    c = Custodian(handlers=handlers,
+                  jobs=ViseVaspJob.kpt_converge(vasp_cmd=vasp_cmd),
+                  polling_time_step=5,
+                  monitor_freq=1,
+                  max_errors=10,
+                  gzipped_output=False)
+    c.run()

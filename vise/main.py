@@ -5,10 +5,9 @@ import argparse
 from typing import Union
 
 from vise.config import SYMMETRY_TOLERANCE, ANGLE_TOL, KPT_DENSITY
-from vise.main_function import vasp_set, plot_band, plot_dos
+from vise.main_function import vasp_set, plot_band, plot_dos, vasp_run
 from vise.util.logger import get_logger
-from vise.util.main_tools import (
-    dict2list, get_user_settings)
+from vise.util.main_tools import dict2list, get_user_settings
 
 __author__ = "Yu Kumagai"
 __maintainer__ = "Yu Kumagai"
@@ -21,16 +20,17 @@ __date__ = 'will be inserted'
 
 def main():
     # The following keys are set by vise.yaml
-    setting_keys = ["symprec",
+    setting_keys = ["vasp_command",
+                    "symprec",
                     "angle_tolerance",
+                    "xc",
                     "kpt_density",
                     "user_incar_setting",
-                    "vise_options",
                     "ldauu",
                     "ldaul",
-                    "xc",
-                    "no_wavecar",
-                    "potcar_set"]
+                    "override_potcar_set",
+                    "relax_iter_num",
+                    "kpoints_criteria"]
 
     user_settings = get_user_settings(yaml_filename="vise.yaml",
                                       setting_keys=setting_keys)
@@ -173,7 +173,7 @@ def main():
     parser_plot_band.add_argument(
         "-y", dest="y_range", nargs="+", type=float)
     parser_plot_band.add_argument(
-        "-f", dest="filename", type=str, help="pdf file name.")
+        "-f", dest="filename", type=str, default=None, help="pdf file name.")
     parser_plot_band.add_argument(
         "-a", dest="absolute", action="store_false",
         help="Show in the absolute energy scale.")
@@ -222,8 +222,8 @@ def main():
         help="Set energy minimum and maximum.")
     parser_plot_dos.add_argument(
         "-y", dest="ymaxs", nargs="+", type=float, default=None,
-        help="Set max values of y ranges. Support two ways." +
-             "1st: total_max, each_atom" +
+        help="Set max values of y ranges. Support two ways."
+             "1st: total_max, each_atom" 
              "2nd: total_max, 1st_atom, 2nd_atom, ...")
     parser_plot_dos.add_argument(
         "-f", dest="filename", type=str, help="pdf file name.")
@@ -248,6 +248,47 @@ def main():
     del pd_defaults
 
     parser_plot_dos.set_defaults(func=plot_dos)
+
+    # -- vasp_run --------------------------------------------------------------
+    parser_vasp_run = subparsers.add_parser(
+        name="vasp_run",
+        description="Tools for vasp run",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        aliases=['vr'])
+
+    vr_defaults = {"symprec":          SYMMETRY_TOLERANCE,
+                   "angle_tolerance":  ANGLE_TOL,
+                   "vasp_command":     None,
+                   "relax_iter_num":   10,
+                   "kpoints_criteria": 0.03}
+
+    simple_override(vr_defaults, list(vr_defaults.keys()))
+
+    parser_vasp_run.add_argument(
+        "-vc", "--vasp_command", dest="vasp_cmd", nargs="+", type=str,
+        default=None,
+        help="VASP command. If you are using mpirun, set this to something "
+             "like \"mpirun pvasp\".",)
+    parser_vasp_run.add_argument(
+        "-rw", "--remove_wavecar", dest="rm_wavecar", action="store_true",
+        help="Remove WAVECAR file after the calculation is finished.")
+    parser_vasp_run.add_argument(
+        "--max_relax_num", dest="max_relax_num",
+        default=vr_defaults["relax_iter_num"], type=int,
+        help="Maximum number of relaxations.")
+    parser_vasp_run.add_argument(
+        "-criteria", dest="kpoints_criteria",
+        default=vr_defaults["kpoints_criteria"], type=float,
+        help="Convergence criteria of kpoints in eV/(num kpoints).")
+    parser_vasp_set.add_argument(
+        "-kc", "-kpoint_conv", dest="kpoint_conv", action="store_true",
+        help="Set if k-point convergence is checked.")
+    parser_vasp_set.add_argument(
+        "-kd", "-kpoint_density", dest="kpoint_density", type=float,
+        help="Initial k-point density.")
+
+    del vr_defaults
+    parser_vasp_run.set_defaults(func=vasp_run)
 
     args = parser.parse_args()
     args.func(args)

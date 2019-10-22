@@ -4,15 +4,13 @@ from collections import OrderedDict, defaultdict
 
 import numpy as np
 from atomate.utils.utils import get_logger
-
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.dos import Dos
 from pymatgen.electronic_structure.dos import add_densities
 from pymatgen.electronic_structure.plotter import DosPlotter
 from pymatgen.io.vasp import Vasprun
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-
-from vise.config import SYMMETRY_TOLERANCE
+from vise.config import SYMMETRY_TOLERANCE, ANGLE_TOL
 
 __author__ = "Yu Kumagai"
 __maintainer__ = "Yu Kumagai"
@@ -186,7 +184,8 @@ def get_dos_plot(vasprun_file: str,
                  legend: bool = True,
                  crop_first_value: bool = True,
                  show_spg: bool = True,
-                 symprec: float = SYMMETRY_TOLERANCE):
+                 symprec: float = SYMMETRY_TOLERANCE,
+                 angle_tolerance: float = ANGLE_TOL):
     """
 
     Args:
@@ -257,7 +256,9 @@ def get_dos_plot(vasprun_file: str,
             grouped_indices[str(s.specie)].append(indices)
     elif pdos_type == "site":
         # equivalent_sites: Equivalent site indices from SpacegroupAnalyzer.
-        sga = SpacegroupAnalyzer(structure, symprec=symprec)
+        sga = SpacegroupAnalyzer(structure=structure,
+                                 symprec=symprec,
+                                 angle_tolerance=angle_tolerance)
         symmetrized_structure = sga.get_symmetrized_structure()
         # equiv_indices = [[0], [1], [2, 3], [4, 5]]
         equiv_index_lists = symmetrized_structure.equivalent_indices
@@ -350,10 +351,10 @@ def get_dos_plot(vasprun_file: str,
     if show_spg:
         if sga is None:
             sga = SpacegroupAnalyzer(structure, symprec=symprec)
-        sg = sga.get_space_group_symbol() + " (" + \
-             str(sga.get_space_group_number()) + ")"
-        print("Space group number: {}".format(sg))
-        title = str(structure.composition) + "SG: " + sg
+        sg_num_str = str(sga.get_space_group_number())
+        sg = f" {sga.get_space_group_symbol()} ({sg_num_str})"
+        print(f"Space group number: {sg}")
+        title = f"{structure.composition} SG: {sg}"
     else:
         title = str(structure.composition)
 
