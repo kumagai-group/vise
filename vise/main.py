@@ -2,22 +2,13 @@
 # -*- coding: utf-8 -*-
 
 import argparse
-import os
-from copy import deepcopy
-from itertools import chain
 from typing import Union
 
-from pymatgen import Structure
-from pymatgen.core.periodic_table import Element
-from vise.input_set.incar import incar_flags
-from vise.input_set.input_set import ViseInputSet
-from vise.input_set.prior_info import PriorInfo
-from vise.input_set.xc import Xc
-from vise.input_set.task import Task
 from vise.config import SYMMETRY_TOLERANCE, ANGLE_TOL, KPT_DENSITY
+from vise.main_function import vasp_set, plot_band, plot_dos
 from vise.util.logger import get_logger
 from vise.util.main_tools import (
-    potcar_str2dict, list2dict, dict2list, get_user_settings)
+    dict2list, get_user_settings)
 
 __author__ = "Yu Kumagai"
 __maintainer__ = "Yu Kumagai"
@@ -28,72 +19,8 @@ __version__ = '0.0.1dev'
 __date__ = 'will be inserted'
 
 
-def vasp_set(args):
-    if args.print_json:
-        vis = ViseInputSet.load_json(args.print_json)
-        print(vis)
-        return
-
-    flags = [str(s) for s in list(Element)]
-    ldauu = list2dict(args.ldauu, flags)
-    ldaul = list2dict(args.ldaul, flags)
-    potcar_set = potcar_str2dict(args.potcar_set)
-    task = Task.from_string(args.task)
-    xc = Xc.from_string(args.xc)
-
-    base_kwargs = {"kpt_density": args.kpt_density,
-                   "standardize_structure": args.standardize,
-                   "ldauu": ldauu,
-                   "ldaul": ldaul}
-
-    flags = list(ViseInputSet.ALL_OPTIONS.keys())
-    base_kwargs.update(list2dict(args.vise_opts, flags))
-
-    flags = list(chain.from_iterable(incar_flags.values()))
-    base_user_incar_settings = list2dict(args.user_incar_setting, flags)
-
-    original_dir = os.getcwd()
-    dirs = args.dirs or ["."]
-
-    for d in dirs:
-        os.chdir(os.path.join(original_dir, d))
-        logger.info(f"Constructing vasp set in {d}")
-        user_incar_settings = deepcopy(base_user_incar_settings)
-        kwargs = deepcopy(base_kwargs)
-
-        if args.prior_info:
-            if os.path.exists("prior_info.json"):
-                prior_info = PriorInfo.load_json("prior_info.json")
-                kwargs["band_gap"] = prior_info["band_gap"]
-                kwargs["is_magnetization"] = \
-                    abs(prior_info["total_magnetization"]) > 0.1
-
-        if args.prev_dir:
-            files = {"CHGCAR": "C", "WAVECAR": "M", "WAVEDER": "M"}
-            input_set = ViseInputSet.from_prev_calc(args.prev_dir,
-                                                    task=task,
-                                                    xc=xc,
-                                                    charge=args.charge,
-                                                    files_to_transfer=files,
-                                                    **kwargs)
-        else:
-            s = Structure.from_file(args.poscar)
-            input_set = \
-                ViseInputSet.make_input(structure=s,
-                                        task=task,
-                                        xc=xc,
-                                        charge=args.charge,
-                                        user_incar_settings=user_incar_settings,
-                                        override_potcar_set=potcar_set,
-                                        **kwargs)
-
-        input_set.write_input(".")
-
-    os.chdir(original_dir)
-
-
 def main():
-
+    # The following keys are set by vise.yaml
     setting_keys = ["symprec",
                     "angle_tolerance",
                     "kpt_density",
@@ -109,7 +36,7 @@ def main():
                                       setting_keys=setting_keys)
 
     def simple_override(d: dict, keys: Union[list, str]) -> None:
-        """Override dict if keys exist in user_settings.
+        """Override dict if keys exist in vise.yaml.
 
         When the value in the user_settings is a dict, it will be changed to
         list using dict2list.
@@ -125,7 +52,7 @@ def main():
 
     parser = argparse.ArgumentParser(
         description="""                            
-    vise is a package that helps researchers to do first-principles calculations 
+    Vise is a package that helps researchers to do first-principles calculations 
     with the VASP code.""",
         epilog=f"""                                 
     Author: Yu Kumagai
@@ -212,8 +139,115 @@ def main():
     parser_vasp_set.add_argument(
         "-ldaul", dest="ldaul", type=str, default=vs_defaults["ldaul"],
         nargs="+", help="Dict of LDAUL values.")
+    parser_vasp_set.add_argument(
+        "--symprec", dest="symprec", type=float,
+        default=vs_defaults["symprec"],
+        help="Set length precision used for symmetry analysis [A].")
+    parser_vasp_set.add_argument(
+        "--angle_tolerance", dest="angle_tolerance", type=float,
+        default=vs_defaults["angle_tolerance"],
+        help="Set angle precision used for symmetry analysis.")
+
+    del vs_defaults
 
     parser_vasp_set.set_defaults(func=vasp_set)
+
+    # -- plot_band -----------------------------------------------------------
+    parser_plot_band = subparsers.add_parser(
+        name="plot_band",
+        description="Tools for plotting band structures",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        aliases=['pb'])
+
+    pb_defaults = {"symprec":         SYMMETRY_TOLERANCE,
+                   "angle_tolerance": ANGLE_TOL}
+
+    simple_override(pb_defaults, list(pb_defaults.keys()))
+
+    parser_plot_band.add_argument(
+        "-v", dest="vasprun", nargs="+", type=str)
+    parser_plot_band.add_argument(
+        "-v2", dest="vasprun2", nargs="+", type=str)
+    parser_plot_band.add_argument(
+        "-k", dest="kpoints", nargs="+", type=str)
+    parser_plot_band.add_argument(
+        "-y", dest="y_range", nargs="+", type=float)
+    parser_plot_band.add_argument(
+        "-f", dest="filename", type=str, help="pdf file name.")
+    parser_plot_band.add_argument(
+        "-a", dest="absolute", action="store_false",
+        help="Show in the absolute energy scale.")
+    parser_plot_band.add_argument(
+        "-l", dest="legend", action="store_false",
+        help="Not show the legend.")
+    parser_plot_band.add_argument(
+        "--symprec", dest="symprec", type=float,
+        default=pb_defaults["symprec"],
+        help="Set length precision used for symmetry analysis [A].")
+    parser_plot_band.add_argument(
+        "--angle_tolerance", dest="angle_tolerance", type=float,
+        default=pb_defaults["angle_tolerance"],
+        help="Set angle precision used for symmetry analysis.")
+
+    del pb_defaults
+    parser_plot_band.set_defaults(func=plot_band)
+
+    # -- plot_dos -----------------------------------------------------------
+    parser_plot_dos = subparsers.add_parser(
+        name="plot_dos",
+        description="Tools for plotting density of states",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        aliases=['pd'])
+
+    pd_defaults = {"symprec":         SYMMETRY_TOLERANCE,
+                   "angle_tolerance": ANGLE_TOL}
+
+    simple_override(pd_defaults, list(pd_defaults.keys()))
+
+    parser_plot_dos.add_argument(
+        "-v", dest="vasprun", type=str)
+    parser_plot_dos.add_argument(
+        "-cv", dest="cbm_vbm", type=float, nargs="+",
+        help="Set CBM and VBM.")
+    parser_plot_dos.add_argument(
+        "-t", dest="pdos_type", type=str, default="element",
+        help=".")
+    parser_plot_dos.add_argument(
+        "-s", dest="specific", type=str, nargs="+", default=None, help=".")
+    parser_plot_dos.add_argument(
+        "-o", dest="orbital", action="store_false",
+        help="Switch off the orbital decomposition.")
+    parser_plot_dos.add_argument(
+        "-x", dest="x_range", nargs="+", type=float, default=None,
+        help="Set energy minimum and maximum.")
+    parser_plot_dos.add_argument(
+        "-y", dest="ymaxs", nargs="+", type=float, default=None,
+        help="Set max values of y ranges. Support two ways." +
+             "1st: total_max, each_atom" +
+             "2nd: total_max, 1st_atom, 2nd_atom, ...")
+    parser_plot_dos.add_argument(
+        "-f", dest="filename", type=str, help="pdf file name.")
+    parser_plot_dos.add_argument(
+        "-a", dest="absolute", action="store_false",
+        help="Show in the absolute energy scale.")
+    parser_plot_dos.add_argument(
+        "-l", dest="legend", action="store_false",
+        help="Not show the legend.")
+    parser_plot_dos.add_argument(
+        "-cfv", dest="cfv", action="store_false",
+        help="Not crop the first value.")
+    parser_plot_dos.add_argument(
+        "--symprec", dest="symprec", type=float,
+        default=pd_defaults["symprec"],
+        help="Set length precision used for symmetry analysis [A].")
+    parser_plot_dos.add_argument(
+        "--angle_tolerance", dest="angle_tolerance", type=float,
+        default=pd_defaults["angle_tolerance"],
+        help="Set angle precision used for symmetry analysis.")
+
+    del pd_defaults
+
+    parser_plot_dos.set_defaults(func=plot_dos)
 
     args = parser.parse_args()
     args.func(args)
