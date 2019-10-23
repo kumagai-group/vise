@@ -50,8 +50,8 @@ def rm_wavecar(remove_current: bool,
             pass
 
     if remove_subdirectories:
-        for i in glob("**/WAVECAR"):
-            os.remove(i)
+        for wavecar in Path(".").glob('**/WAVECAR'):
+            wavecar.unlink()
 
 
 class StructureOptResult(MSONable):
