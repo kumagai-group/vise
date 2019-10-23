@@ -5,7 +5,7 @@ import argparse
 from typing import Union
 
 from vise.config import SYMMETRY_TOLERANCE, ANGLE_TOL, KPT_DENSITY
-from vise.main_function import vasp_set, plot_band, plot_dos, vasp_run
+from vise.main_function import vasp_set, plot_band, plot_dos, vasp_run, band_gap
 from vise.util.logger import get_logger
 from vise.util.main_tools import dict2list, get_user_settings
 
@@ -289,6 +289,25 @@ def main():
 
     del vr_defaults
     parser_vasp_run.set_defaults(func=vasp_run)
+
+    # -- band_gap --------------------------------------------------------------
+    parser_band_gap = subparsers.add_parser(
+        name="band_gap",
+        description="Calculate the band gap from vasprun.xml",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        aliases=['bg'])
+
+    vr_defaults = {"symprec":          SYMMETRY_TOLERANCE,
+                   "angle_tolerance":  ANGLE_TOL,
+                   "vasp_command":     None,
+                   "relax_iter_num":   10,
+                   "kpoints_criteria": 0.03}
+
+    simple_override(vr_defaults, list(vr_defaults.keys()))
+
+    parser_band_gap.add_argument(
+        "-v", dest="vasprun", type=str, default="vasprun.xml", metavar="FILE")
+    parser_band_gap.set_defaults(func=band_gap)
 
     args = parser.parse_args()
     args.func(args)

@@ -8,7 +8,9 @@ from custodian.custodian import Custodian
 
 from pymatgen import Structure
 from pymatgen.core.periodic_table import Element
+from pymatgen.io.vasp.outputs import BSVasprun
 
+from vise.analyzer.band_gap import band_gap_properties
 from vise.analyzer.band_plotter import PrettyBSPlotter
 from vise.analyzer.dos_plotter import get_dos_plot
 from vise.custodian_extension.jobs import ViseVaspJob
@@ -20,6 +22,7 @@ from vise.input_set.xc import Xc
 from vise.util.error_classes import NoVaspCommandError
 from vise.util.logger import get_logger
 from vise.util.main_tools import potcar_str2dict, list2dict
+
 
 __author__ = "Yu Kumagai"
 __maintainer__ = "Yu Kumagai"
@@ -169,3 +172,14 @@ def vasp_run(args):
                   max_errors=10,
                   gzipped_output=False)
     c.run()
+
+
+def band_gap(args):
+    v = BSVasprun(args.vasprun)
+    try:
+        band_gap_value, vbm_info, cbm_info = band_gap_properties(v)
+        print(f"CBM info {cbm_info}")
+        print(f"VBM info {vbm_info}")
+        print(f"band gap info {band_gap_value}")
+    except TypeError:
+        print("Metallic system")

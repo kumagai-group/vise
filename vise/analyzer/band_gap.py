@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 
-import argparse
 from typing import Tuple, Optional
 
-from pymatgen.io.vasp.outputs import BSVasprun, Vasprun
+from pymatgen.io.vasp.outputs import Vasprun
 
 
 def band_gap_properties(vasprun: Vasprun,
@@ -32,29 +31,12 @@ def band_gap_properties(vasprun: Vasprun,
 
     vbm_info = {'energy': vbm['energy'],
                 'band_index': dict(vbm['band_index']),
-                'kpoints': [vasprun.actual_kpoints[x] for x in vbm["kpoint_index"]]}
+                'kpoints':
+                    [vasprun.actual_kpoints[x] for x in vbm["kpoint_index"]]}
     cbm_info = {'energy': cbm['energy'],
                 'band_index': dict(cbm['band_index']),
-                'kpoints': [vasprun.actual_kpoints[x] for x in cbm["kpoint_index"]]}
+                'kpoints':
+                    [vasprun.actual_kpoints[x] for x in cbm["kpoint_index"]]}
 
     return band_gap, vbm_info, cbm_info
 
-
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "-v", dest="vasprun", type=str, default="vasprun.xml", metavar="FILE")
-    args = parser.parse_args()
-    v = BSVasprun(args.vasprun)
-
-    try:
-        band_gap, vbm_info, cbm_info = band_gap_properties(v)
-        print(f"CBM info {cbm_info}")
-        print(f"VBM info {vbm_info}")
-        print(f"band gap info {band_gap}")
-    except TypeError:
-        print("Metallic system")
-
-
-if __name__ == "__main__":
-    main()
