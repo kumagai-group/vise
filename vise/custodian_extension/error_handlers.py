@@ -10,7 +10,8 @@ from pymatgen.io.vasp import Vasprun
 from vise.input_set.incar import ViseIncar
 from vise.input_set.vasp_input import ViseVaspInput
 from vise.custodian_extension.modder import ViseVaspModder
-from pymatgen.io.vasp import VaspInput, Incar, Kpoints, Oszicar
+from pymatgen.io.vasp.inputs import VaspInput, Incar, Kpoints
+from pymatgen.io.vasp.outputs import Oszicar
 from pymatgen.transformations.standard_transformations import \
     SupercellTransformation
 
@@ -384,7 +385,7 @@ class DivergingEnergyErrorHandler(ErrorHandler):
     def check(self):
         oszicar = Oszicar(self.output_filename)
         esteps = oszicar.electronic_steps
-        # OSZICAR file can be empty, thus we needs try-except here.
+        # OSZICAR file can be empty, thus we need try-except here.
         try:
             max_energy = max([es["E"] for es in esteps[-1]])
         except IndexError:

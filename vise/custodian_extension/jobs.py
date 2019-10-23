@@ -30,7 +30,6 @@ from vise.util.logger import get_logger
 logger = get_logger(__name__)
 
 
-__author__ = "Yu Kumagai, Akira Takahashi"
 __maintainer__ = "Yu Kumagai"
 
 
@@ -183,7 +182,7 @@ class StructureOptResult(MSONable):
 
     @property
     def dirname(self):
-        """ Used for generating and parsing directory"""
+        """Used for generating and parsing directory in k-point convergence"""
 
         name = [f"kpt{self.num_kpt[0]}x{self.num_kpt[1]}x{self.num_kpt[2]}",
                 f"pre-sg{self.initial_sg}", f"pos-sg{self.final_sg}"]
@@ -198,14 +197,12 @@ class StructureOptResult(MSONable):
         return loadfn(filename)
 
     def __str__(self):
-        outs = [f"kpt{self.num_kpt}",
-                f"kpt density{self.kpt_density}",
-                f"sg{self.initial_sg} -> {self.final_sg}",
-                f"energy{self.energy_atom}",
-                f"uuid {self.uuid}",
-                f" prev_uuid {self.prev_structure_opt_uuid}"]
-#        outs = " ".join(['x'.join(self.num_kpt), self.energy_atom,
-#                         str(self.initial_sg), self.final_sg])
+        outs = [f"k-points: {self.num_kpt}",
+                f"k-point density {self.kpt_density}",
+                f"space group: {self.initial_sg} -> {self.final_sg}",
+                f"energy per atom (eV): {self.energy_atom}",
+                f"uuid: {self.uuid}",
+                f"prev_uuid: {self.prev_structure_opt_uuid}"]
         return "\n".join(outs)
 
 
@@ -213,9 +210,9 @@ class KptConvResult(UserList):
 
     def __init__(self,
                  structure_opt_results: List[StructureOptResult],
-                 convergence_energy_criterion,
-                 num_kpt_check=2,
-                 symprec=SYMMETRY_TOLERANCE):
+                 convergence_energy_criterion: float,
+                 num_kpt_check: int = 2,
+                 symprec: float = SYMMETRY_TOLERANCE):
         """Container object with k-point convergence results."
 
         structure_opt_results (list):
@@ -244,8 +241,8 @@ class KptConvResult(UserList):
                   convergence_criterion: float,
                   dirs: Optional[list] = None,
                   str_opt_filename: str = "structure_opt.json",
-                  num_kpt_check=2,
-                  symprec=SYMMETRY_TOLERANCE) -> "KptConvResult":
+                  num_kpt_check: int = 2,
+                  symprec: float = SYMMETRY_TOLERANCE) -> "KptConvResult":
         """Constructor from directories
 
         convergence_criterion:
@@ -294,13 +291,17 @@ class KptConvResult(UserList):
         for i in range(self.num_kpt_check):
             target_energy = self[target_idx].energy_atom
             compared_energy = self[target_idx + i].energy_atom
-            if abs(target_energy - compared_energy) > self.convergence_criterion:
+            energy_diff = target_energy - compared_energy
+            if abs(energy_diff) > self.convergence_criterion:
+                logger.log("Energy is not converged, yet")
                 return False
 
             # Check convergence of lattice.
             target_lat = self[target_idx].final_structure.lattice.matrix
             compared_lat = self[target_idx + i].final_structure.lattice.matrix
-            if not np.allclose(target_lat, compared_lat, atol=self.symprec):
+            if not np.allclose(target_lat, compared_lat,  rtol=0,
+                               atol=self.symprec):
+                logger.log("Structure is not converged, yet")
                 return False
 
         return self[target_idx]
@@ -517,7 +518,8 @@ class ViseVaspJob(VaspJob):
                         kpt_density=kpt_density,
                         **vis_kwargs)
                     kpt = vis.kpoints.kpts[0]
-                    if (not kpt == prev_kpt and all([i >= j for i, j in zip(kpt, prev_kpt)])):
+                    if (not kpt == prev_kpt
+                            and all([i >= j for i, j in zip(kpt, prev_kpt)])):
                         break
 
             vis.write_input(".")
@@ -548,8 +550,7 @@ class ViseVaspJob(VaspJob):
 #            print(results)
 #            logger.log(results)
         else:
-            raise KptNotConvergedError("Energy was not converged w.r.t. number "
-                                       "of k-points ")
-
+            raise KptNotConvergedError(
+                "Energy was not converged w.r.t. the number of k-points ")
 
 

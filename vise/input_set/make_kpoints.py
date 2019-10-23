@@ -26,6 +26,7 @@ __maintainer__ = "Yu Kumagai"
 class KpointsMode(Enum):
     """K-point generation type
 
+       Supporting modes are:
        "band":
            Kpoints with the band path will be returned based on the
            seekpath program. The space group is analyzed and primitive
@@ -105,7 +106,7 @@ class MakeKpoints:
                  is_magnetization: bool = False):
         """Kpoint object based on default settings depending on the task.
 
-        Note that it does not check if the primitive cell is standardized or not.
+        Note that it does not check if primitive cell is standardized or not.
 
         Args:
             mode (str):
