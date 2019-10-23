@@ -101,7 +101,7 @@ class StructureOptResult(MSONable):
     def from_dir(cls,
                  dir_name: str,
                  kpoints: Optional[str] = "KPOINTS",
-                 poscar: Optional[str] = "POSCAR",
+                 poscar: Optional[str] = "POSCAR.orig",
                  contcar: Optional[str] = "CONTCAR.finish",
                  vasprun: Optional[str] = "vasprun.xml.finish",
                  symprec: float = SYMMETRY_TOLERANCE,
@@ -378,6 +378,7 @@ class ViseVaspJob(VaspJob):
                                    max_relax_num: int = 10,
                                    removes_wavecar: bool = False,
                                    std_out: str = "vasp.out",
+                                   runshell: str = "runshell.sh",
                                    move_unimportant_files: bool = True):
         """Vasp job for structure optimization
 
@@ -398,22 +399,23 @@ class ViseVaspJob(VaspJob):
         Yield:
             ViseVaspJob class object.
         """
-        backup = True
+        backup_initial_input_files = True
         for job_number in range(1, max_relax_num + 1):
             yield cls(vasp_cmd=vasp_cmd,
                       gamma_vasp_cmd=gamma_vasp_cmd,
                       final=True,
-                      backup=backup,
+                      backup=backup_initial_input_files,
                       suffix=f".{job_number}")
             shutil.copy(".".join(["CONTCAR", str(job_number)]), "POSCAR")
-            backup = False
+            backup_initial_input_files = False
 
             if len(Vasprun("vasprun.xml").ionic_steps) == 1:
                 break
         else:
-            raise VaspNotConvergedError("get_runs_geom not converged")
+            raise VaspNotConvergedError("Structure optimization not converged")
 
-        left_files = VASP_INPUT_FILES | {"vise.json"}
+        left_files = \
+            VASP_INPUT_FILES | {"vise.json", "structure_opt.json", runshell}
         for f in VASP_SAVED_FILES | {std_out}:
             finish_name = f"{f}.finish"
             shutil.move(f"{f}.{job_number}", finish_name)
@@ -424,16 +426,16 @@ class ViseVaspJob(VaspJob):
         if move_unimportant_files:
             os.mkdir("files")
 
-        for f in glob("*"):
-            if not os.path.isfile(f):
-                continue
-            elif os.stat(f).st_size == 0:
-                os.remove(f)
-            elif move_unimportant_files and f not in left_files:
-                shutil.move(f, "files")
-
         result = StructureOptResult.from_dir(".")
         result.to_json_file("structure_opt.json")
+
+        for f in glob("*"):
+            if not os.path.isfile(f):
+                continue  # continue if f is directory.
+            elif os.stat(f).st_size == 0:
+                os.remove(f)  # remove empty files
+            elif move_unimportant_files and f not in left_files:
+                shutil.move(f, "files")
 
     @classmethod
     def kpt_converge(cls,
@@ -492,7 +494,7 @@ class ViseVaspJob(VaspJob):
                                "symprec": symprec,
                                "angle_tolerance": angle_tolerance})
 
-            if is_sg_changed is None or is_sg_changed is True:
+            if is_sg_changed in (None, True):
                 structure = Structure.from_file("POSCAR")
                 kpt_density = initial_kpt_density
                 vis = ViseInputSet.make_input(
@@ -531,9 +533,9 @@ class ViseVaspJob(VaspJob):
                     std_out=std_out):
                 yield run
 
-            str_opt = StructureOptResult.from_dir(".")
+            str_opt = StructureOptResult.load_json("structure_opt.json")
             results.append(str_opt)
-
+            logger.info("dirname", str_opt.dirname)
             os.mkdir(str_opt.dirname)
             for filename in glob("*"):
                 if filename == "files" or os.path.isfile(filename):

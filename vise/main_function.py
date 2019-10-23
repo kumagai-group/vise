@@ -94,40 +94,6 @@ def vasp_set(args):
     os.chdir(original_dir)
 
 
-def plot_band(args):
-
-    p = PrettyBSPlotter(kpoints=args.kpoints,
-                        vasprun=args.vasprun,
-                        vasprun2=args.vasprun2,
-                        absolute=args.absolute,
-                        y_range=args.y_range,
-                        legend=args.legend,
-                        symprec=args.symprec,
-                        angle_tolerance=args.angle_tolerance)
-
-    p.show(args.filename, format_type="pdf")
-
-
-def plot_dos(args):
-    dos = get_dos_plot(vasprun_file=args.vasprun,
-                       cbm_vbm=args.cbm_vbm,
-                       pdos_type=args.pdos_type,
-                       specific=args.specific,
-                       orbital=args.orbital,
-                       xlim=args.x_range,
-                       ymaxs=args.ymaxs,
-                       zero_at_efermi=args.absolute,
-                       legend=args.legend,
-                       crop_first_value=args.cfv,
-                       symprec=args.symprec,
-                       angle_tolerance=args.angle_tolerance)
-
-    if args.filename:
-        dos.savefig(args.filename, format="pdf")
-    else:
-        dos.show()
-
-
 def vasp_run(args):
     if len(args.vasp_cmd) == 0:
         raise NoVaspCommandError
@@ -172,6 +138,40 @@ def vasp_run(args):
                   max_errors=10,
                   gzipped_output=False)
     c.run()
+
+
+def plot_band(args):
+
+    p = PrettyBSPlotter(kpoints=args.kpoints,
+                        vasprun=args.vasprun,
+                        vasprun2=args.vasprun2,
+                        absolute=args.absolute,
+                        y_range=args.y_range,
+                        legend=args.legend,
+                        symprec=args.symprec,
+                        angle_tolerance=args.angle_tolerance)
+
+    p.show(args.filename, format_type="pdf")
+
+
+def plot_dos(args):
+    dos = get_dos_plot(vasprun_file=args.vasprun,
+                       cbm_vbm=args.cbm_vbm,
+                       pdos_type=args.pdos_type,
+                       specific=args.specific,
+                       orbital=args.orbital,
+                       xlim=args.x_range,
+                       ymaxs=args.ymaxs,
+                       zero_at_efermi=args.absolute,
+                       legend=args.legend,
+                       crop_first_value=args.cfv,
+                       symprec=args.symprec,
+                       angle_tolerance=args.angle_tolerance)
+
+    if args.filename:
+        dos.savefig(args.filename, format="pdf")
+    else:
+        dos.show()
 
 
 def band_gap(args):

@@ -152,6 +152,47 @@ def main():
 
     parser_vasp_set.set_defaults(func=vasp_set)
 
+    # -- vasp_run --------------------------------------------------------------
+    parser_vasp_run = subparsers.add_parser(
+        name="vasp_run",
+        description="Tools for vasp run",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        aliases=['vr'])
+
+    vr_defaults = {"symprec":          SYMMETRY_TOLERANCE,
+                   "angle_tolerance":  ANGLE_TOL,
+                   "vasp_command":     None,
+                   "relax_iter_num":   10,
+                   "kpoints_criteria": 0.03}
+
+    simple_override(vr_defaults, list(vr_defaults.keys()))
+
+    parser_vasp_run.add_argument(
+        "-vc", "--vasp_command", dest="vasp_cmd", nargs="+", type=str,
+        default=None,
+        help="VASP command. If you are using mpirun, set this to something "
+             "like \"mpirun pvasp\".",)
+    parser_vasp_run.add_argument(
+        "-rw", "--remove_wavecar", dest="rm_wavecar", action="store_true",
+        help="Remove WAVECAR file after the calculation is finished.")
+    parser_vasp_run.add_argument(
+        "--max_relax_num", dest="max_relax_num",
+        default=vr_defaults["relax_iter_num"], type=int,
+        help="Maximum number of relaxations.")
+    parser_vasp_run.add_argument(
+        "-criteria", dest="kpoints_criteria",
+        default=vr_defaults["kpoints_criteria"], type=float,
+        help="Convergence criteria of kpoints in eV/(num kpoints).")
+    parser_vasp_run.add_argument(
+        "-kc", "-kpoint_conv", dest="kpoint_conv", action="store_true",
+        help="Set if k-point convergence is checked.")
+    parser_vasp_run.add_argument(
+        "-kd", "-kpoint_density", dest="kpoint_density", type=float,
+        help="Initial k-point density.")
+
+    del vr_defaults
+    parser_vasp_run.set_defaults(func=vasp_run)
+
     # -- plot_band -----------------------------------------------------------
     parser_plot_band = subparsers.add_parser(
         name="plot_band",
@@ -248,47 +289,6 @@ def main():
     del pd_defaults
 
     parser_plot_dos.set_defaults(func=plot_dos)
-
-    # -- vasp_run --------------------------------------------------------------
-    parser_vasp_run = subparsers.add_parser(
-        name="vasp_run",
-        description="Tools for vasp run",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-        aliases=['vr'])
-
-    vr_defaults = {"symprec":          SYMMETRY_TOLERANCE,
-                   "angle_tolerance":  ANGLE_TOL,
-                   "vasp_command":     None,
-                   "relax_iter_num":   10,
-                   "kpoints_criteria": 0.03}
-
-    simple_override(vr_defaults, list(vr_defaults.keys()))
-
-    parser_vasp_run.add_argument(
-        "-vc", "--vasp_command", dest="vasp_cmd", nargs="+", type=str,
-        default=None,
-        help="VASP command. If you are using mpirun, set this to something "
-             "like \"mpirun pvasp\".",)
-    parser_vasp_run.add_argument(
-        "-rw", "--remove_wavecar", dest="rm_wavecar", action="store_true",
-        help="Remove WAVECAR file after the calculation is finished.")
-    parser_vasp_run.add_argument(
-        "--max_relax_num", dest="max_relax_num",
-        default=vr_defaults["relax_iter_num"], type=int,
-        help="Maximum number of relaxations.")
-    parser_vasp_run.add_argument(
-        "-criteria", dest="kpoints_criteria",
-        default=vr_defaults["kpoints_criteria"], type=float,
-        help="Convergence criteria of kpoints in eV/(num kpoints).")
-    parser_vasp_set.add_argument(
-        "-kc", "-kpoint_conv", dest="kpoint_conv", action="store_true",
-        help="Set if k-point convergence is checked.")
-    parser_vasp_set.add_argument(
-        "-kd", "-kpoint_density", dest="kpoint_density", type=float,
-        help="Initial k-point density.")
-
-    del vr_defaults
-    parser_vasp_run.set_defaults(func=vasp_run)
 
     # -- band_gap --------------------------------------------------------------
     parser_band_gap = subparsers.add_parser(
