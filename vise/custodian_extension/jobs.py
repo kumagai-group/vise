@@ -56,7 +56,7 @@ def rm_wavecar(remove_current: bool,
 class StructureOptResult(MSONable):
     def __init__(self,
                  uuid: int,
-                 energy_atom: float,
+                 energy_per_atom: float,
                  num_kpt: list,
                  final_structure: Structure,
                  final_sg: int,
@@ -69,7 +69,7 @@ class StructureOptResult(MSONable):
         Args:
             uuid (int):
                 Int of UUID of the present calculation.
-            energy_atom (float):
+            energy_per_atom (float):
                 Energy per atom in eV.
             num_kpt (list):
                 Numbers of k-points along three directions. E.g. [4, 6, 8]
@@ -88,7 +88,7 @@ class StructureOptResult(MSONable):
         """
 
         self.uuid = uuid
-        self.energy_atom = energy_atom
+        self.energy_per_atom = energy_per_atom
         self.num_kpt = list(num_kpt)
         self.kpt_density = kpt_density
         self.final_structure = final_structure
@@ -151,7 +151,7 @@ class StructureOptResult(MSONable):
         final_sg = symmetry_dataset["number"]
 
         v = Vasprun(d_path / vasprun)
-        energy_atom = v.final_energy / len(final_structure)
+        energy_per_atom = v.final_energy / len(final_structure)
 
         if prev_structure_opt:
             initial_structure = prev_structure_opt.final_structure
@@ -167,7 +167,7 @@ class StructureOptResult(MSONable):
             prev_structure_opt_uuid = None
 
         return cls(uuid=int(uuid4()),
-                   energy_atom=energy_atom,
+                   energy_per_atom=energy_per_atom,
                    num_kpt=num_kpt,
                    kpt_density=kpt_density,
                    final_structure=final_structure,
@@ -200,7 +200,7 @@ class StructureOptResult(MSONable):
         outs = [f"k-points: {self.num_kpt}",
                 f"k-point density {self.kpt_density}",
                 f"space group: {self.initial_sg} -> {self.final_sg}",
-                f"energy per atom (eV): {self.energy_atom}",
+                f"energy per atom (eV): {self.energy_per_atom}",
                 f"uuid: {self.uuid}",
                 f"prev_uuid: {self.prev_structure_opt_uuid}"]
         return "\n".join(outs)
@@ -288,9 +288,15 @@ class KptConvResult(UserList):
 
         # The target index is the num_kpt_check-th last.
         target_idx = -(self.num_kpt_check + 1)
+
+        # Number of space groups is incremented from calc results by 1
+        # so need to check target_idx - 1.
+        if len(set(self.space_groups[(target_idx - 1):])) > 1:
+            return False
+
         for i in range(self.num_kpt_check):
-            target_energy = self[target_idx].energy_atom
-            compared_energy = self[target_idx + i].energy_atom
+            target_energy = self[target_idx].energy_per_atom
+            compared_energy = self[target_idx + i].energy_per_atom
             energy_diff = target_energy - compared_energy
             if abs(energy_diff) > self.convergence_criterion:
                 logger.log("Energy is not converged, yet")
@@ -314,7 +320,7 @@ class KptConvResult(UserList):
         outs = [f"{'kpt':>10} {'energy/atom':>12}"]
         for result in self:
             outs.append(f"{'x'.join(map(str, result.num_kpt)):>10} "
-                        f"{result.energy_atom}:>12:4")
+                        f"{result.energy_per_atom}:>12:4")
 
         outs.append("")
 
@@ -374,12 +380,15 @@ class ViseVaspJob(VaspJob):
     @classmethod
     def structure_optimization_run(cls,
                                    vasp_cmd: list,
+                                   prev_structure_opt: StructureOptResult = None,
                                    gamma_vasp_cmd: Optional[list] = None,
                                    max_relax_num: int = 10,
                                    removes_wavecar: bool = False,
                                    std_out: str = "vasp.out",
                                    runshell: str = "runshell.sh",
-                                   move_unimportant_files: bool = True):
+                                   move_unimportant_files: bool = True,
+                                   symprec=SYMMETRY_TOLERANCE,
+                                   angle_tolerance=ANGLE_TOL) -> None:
         """Vasp job for structure optimization
 
         Args:
@@ -426,7 +435,11 @@ class ViseVaspJob(VaspJob):
         if move_unimportant_files:
             os.mkdir("files")
 
-        result = StructureOptResult.from_dir(".")
+        result = StructureOptResult.from_dir(dir_name=".",
+                                             symprec=symprec,
+                                             angle_tolerance=angle_tolerance,
+                                             prev_structure_opt=prev_structure_opt)
+
         result.to_json_file("structure_opt.json")
 
         for f in glob("*"):
@@ -488,21 +501,24 @@ class ViseVaspJob(VaspJob):
 
         while not results.conv_str_opt_result and len(results) < max_kpt_num:
 
+            prev_str_opt = results[-1] if results else None
+
             vis_kwargs.update({"task": Task.structure_opt,
                                "xc": xc,
                                "user_incar_settings": user_incar_settings,
                                "symprec": symprec,
                                "angle_tolerance": angle_tolerance})
 
-            if is_sg_changed in (None, True):
-                structure = Structure.from_file("POSCAR")
+            if is_sg_changed is None or is_sg_changed is True:
+                name = prev_str_opt.dirname + "/CONTCAR.finish" \
+                    if is_sg_changed else "POSCAR"
+                structure = Structure.from_file(name)
                 kpt_density = initial_kpt_density
                 vis = ViseInputSet.make_input(
                     structure=structure,
                     kpt_density=kpt_density,
                     **vis_kwargs)
             else:
-                prev_str_opt = results[-1]
                 prev_kpt = prev_str_opt.num_kpt
                 kpt_density = prev_str_opt.kpt_density
 
@@ -530,17 +546,21 @@ class ViseVaspJob(VaspJob):
                     vasp_cmd=vasp_cmd,
                     gamma_vasp_cmd=gamma_vasp_cmd,
                     max_relax_num=max_relax_num,
-                    std_out=std_out):
+                    std_out=std_out,
+                    symprec=symprec,
+                    angle_tolerance=angle_tolerance,
+                    prev_structure_opt=prev_str_opt):
                 yield run
 
             str_opt = StructureOptResult.load_json("structure_opt.json")
             results.append(str_opt)
-            logger.info("dirname", str_opt.dirname)
+            print("dirname", str_opt.dirname)
             os.mkdir(str_opt.dirname)
             for filename in glob("*"):
                 if filename == "files" or os.path.isfile(filename):
                     shutil.move(filename, str_opt.dirname)
 
+            print("is_sg_changed", str_opt.is_sg_changed)
             is_sg_changed = str_opt.is_sg_changed
 
         rm_wavecar(remove_current=removes_wavecar, remove_subdirectories=True)

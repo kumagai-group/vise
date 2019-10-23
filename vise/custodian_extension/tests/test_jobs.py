@@ -52,7 +52,7 @@ class StructureOptResultTest(ViseTest):
         initial_structure = Structure.from_file(poscar)
         final_structure = Structure.from_file(contcar)
         self.result = StructureOptResult(uuid=1234,
-                                         energy_atom=-5.9558474,
+                                         energy_per_atom=-5.9558474,
                                          num_kpt=[7, 7, 7],
                                          final_structure=final_structure,
                                          final_sg=225,
