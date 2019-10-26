@@ -8,7 +8,7 @@ from copy import deepcopy
 from itertools import groupby
 import operator
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
 import numpy as np
 from monty.io import zopen
@@ -195,8 +195,8 @@ class ViseInputSet(VaspInputSet):
     @classmethod
     def make_input(cls,
                    structure: Structure,
-                   task: Task = Task.structure_opt,
-                   xc: Xc = Xc.pbe,
+                   task: Union[str, Task] = Task.structure_opt,
+                   xc: Union[str, Xc] = Xc.pbe,
                    prev_set: "ViseInputSet" = None,
                    abs_files_to_transfer: Optional[dict] = None,
                    user_incar_settings: Optional[dict] = None,
@@ -259,6 +259,11 @@ class ViseInputSet(VaspInputSet):
         """
         abs_files_to_transfer = abs_files_to_transfer or {}
         user_incar_settings = user_incar_settings or {}
+
+        if isinstance(task, str):
+            task = Task.from_string(task)
+        if isinstance(xc, str):
+            xc = Task.from_string(xc)
 
         # First, set default.
         opts = deepcopy(cls.ALL_OPTIONS)
