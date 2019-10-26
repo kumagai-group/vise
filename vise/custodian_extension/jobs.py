@@ -456,7 +456,6 @@ class ViseVaspJob(VaspJob):
                      xc: Xc = Xc.pbe,
                      user_incar_settings: Optional[dict] = None,
                      initial_kpt_density: Optional[float] = KPT_INIT_DENSITY,
-                     vis_kwargs: Optional[dict] = None,
                      gamma_vasp_cmd: Optional[list] = None,
                      max_relax_num: int = 10,
                      max_kpt_num: int = 10,
@@ -464,7 +463,8 @@ class ViseVaspJob(VaspJob):
                      removes_wavecar: bool = False,
                      std_out: str = "vasp.out",
                      symprec=SYMMETRY_TOLERANCE,
-                     angle_tolerance=ANGLE_TOL) -> None:
+                     angle_tolerance=ANGLE_TOL,
+                     **kwargs) -> None:
         """"Vasp job for checking k-point convergence
 
         Args:
@@ -478,7 +478,6 @@ class ViseVaspJob(VaspJob):
             xc:
             user_incar_settings:
             initial_kpt_density:
-            vis_kwargs:
                 See docstrings of ViseInputSet.
             -------
             convergence_criterion:
@@ -491,11 +490,12 @@ class ViseVaspJob(VaspJob):
                 This is also checked if the lattice constants are converged.
             angle_tolerance (float):
                 Angle precision in degrees used for symmetry analysis.
-
+            kwargs:
+                Used for ViseInputSet keyword args.
         Return:
             None
         """
-        vis_kwargs = vis_kwargs or {}
+        vis_kwargs = kwargs or {}
         results = KptConvResult.from_dirs(convergence_criterion)
         is_sg_changed = results[-1].is_sg_changed if results else None
 
