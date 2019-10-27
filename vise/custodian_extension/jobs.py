@@ -3,9 +3,9 @@
 import json
 import os
 import shutil
-from collections import UserList
 from glob import glob
 from pathlib import Path
+import re
 from typing import Optional, List
 from uuid import uuid4
 import numpy as np
@@ -206,18 +206,19 @@ class StructureOptResult(MSONable):
         return "\n".join(outs)
 
 
-class KptConvResult(UserList):
+class KptConvResult(MSONable):
 
     def __init__(self,
-                 structure_opt_results: List[StructureOptResult],
+                 str_opts: List[StructureOptResult],
                  convergence_energy_criterion: float,
-                 num_kpt_check: int = 2,
-                 symprec: float = SYMMETRY_TOLERANCE):
+                 num_kpt_check: int,
+                 symprec: float,
+                 angle_tolerance: float):
         """Container object with k-point convergence results."
 
         structure_opt_results (list):
-            List of StructureOptResult. The inner objects are sorted to be
-            linked to be consistent with prev_structure_opt_uuid.
+            List of StructureOptResult. The inner objects need to be linked
+            to be consistent with prev_structure_opt_uuid.
         convergence_criterion:
             Convergence energy criterion as a function of number of k points in
             eV / atom.
@@ -231,18 +232,21 @@ class KptConvResult(UserList):
             Distance precision in Angstrom used for symmetry analysis.
             This is also checked if the lattice constants are converged.
         """
-        self.convergence_criterion = convergence_energy_criterion
+        self.str_opts = str_opts
+        self.convergence_energy_criterion = convergence_energy_criterion
         self.num_kpt_check = num_kpt_check
         self.symprec = symprec
-        super().__init__(self.sort_results(structure_opt_results))
+        self.angle_tolerance = angle_tolerance
 
     @classmethod
     def from_dirs(cls,
                   convergence_criterion: float,
+                  num_kpt_check: int,
+                  symprec: float,
+                  angle_tolerance: float,
                   dirs: Optional[list] = None,
-                  str_opt_filename: str = "structure_opt.json",
-                  num_kpt_check: int = 2,
-                  symprec: float = SYMMETRY_TOLERANCE) -> "KptConvResult":
+                  str_opt_filename: str = "structure_opt.json"
+                  ) -> "KptConvResult":
         """Constructor from directories
 
         convergence_criterion:
@@ -261,7 +265,9 @@ class KptConvResult(UserList):
         dirs = dirs or glob("*kpt*/")
         str_opts = [StructureOptResult.load_json(Path(d, str_opt_filename))
                     for d in dirs]
-        return cls(str_opts, convergence_criterion, num_kpt_check, symprec)
+
+        return cls(cls.sort_results(str_opts), convergence_criterion,
+                   num_kpt_check, symprec, angle_tolerance)
 
     @staticmethod
     def sort_results(results: list) -> list:
@@ -275,15 +281,16 @@ class KptConvResult(UserList):
 
     @property
     def space_groups(self):
-        return [self[0].initial_sg] + [i.final_sg for i in self]
+        return [self.str_opts[0].initial_sg] + \
+               [i.final_sg for i in self.str_opts]
 
     @property
-    def conv_str_opt_result(self):
+    def converged_result(self):
         """Return converged StructureOptResult.
 
         If not converged, return False.
         """
-        if len(self) <= self.num_kpt_check:
+        if len(self.str_opts) <= self.num_kpt_check:
             return False
 
         # The target index is the num_kpt_check-th last.
@@ -295,22 +302,21 @@ class KptConvResult(UserList):
             return False
 
         for i in range(self.num_kpt_check):
-            target_energy = self[target_idx].energy_per_atom
-            compared_energy = self[target_idx + i].energy_per_atom
-            energy_diff = target_energy - compared_energy
-            if abs(energy_diff) > self.convergence_criterion:
+            target = self.str_opts[target_idx]
+            comparator = self.str_opts[target_idx + i]
+            energy_diff = target.energy_per_atom - comparator.energy_per_atom
+            if abs(energy_diff) > self.convergence_energy_criterion:
                 logger.log("Energy is not converged, yet")
                 return False
 
             # Check convergence of lattice.
-            target_lat = self[target_idx].final_structure.lattice.matrix
-            compared_lat = self[target_idx + i].final_structure.lattice.matrix
-            if not np.allclose(target_lat, compared_lat,  rtol=0,
-                               atol=self.symprec):
+            if not np.allclose(a=target.final_structure.lattice.matrix,
+                               b=comparator.final_structure.lattice.matrix,
+                               rtol=0, atol=self.symprec):
                 logger.log("Structure is not converged, yet")
                 return False
 
-        return self[target_idx]
+        return self.str_opts[target_idx]
 
     @property
     def is_sg_changed(self):
@@ -318,12 +324,19 @@ class KptConvResult(UserList):
 
     def __str__(self):
         outs = [f"{'kpt':>10} {'energy/atom':>12}"]
-        for result in self:
+        for result in self.str_opts:
             outs.append(f"{'x'.join(map(str, result.num_kpt)):>10} "
                         f"{result.energy_per_atom}:>12:4")
 
         outs.append("")
 
+    def to_json_file(self, filename: str = "kpt_conv.json") -> None:
+        with open(filename, 'w') as fw:
+            json.dump(self.as_dict(), fw, indent=2, cls=MontyEncoder)
+
+    @classmethod
+    def load_json(cls, filename="kpt_conv.json"):
+        return loadfn(filename)
 
     # TODO: show/hold warning in case the energy is increased when the symmetry
     #  is increased.
@@ -378,17 +391,18 @@ class ViseVaspJob(VaspJob):
             os.remove("continue.json")
 
     @classmethod
-    def structure_optimization_run(cls,
-                                   vasp_cmd: list,
-                                   prev_structure_opt: StructureOptResult = None,
-                                   gamma_vasp_cmd: Optional[list] = None,
-                                   max_relax_num: int = 10,
-                                   removes_wavecar: bool = False,
-                                   std_out: str = "vasp.out",
-                                   runshell: str = "runshell.sh",
-                                   move_unimportant_files: bool = True,
-                                   symprec=SYMMETRY_TOLERANCE,
-                                   angle_tolerance=ANGLE_TOL) -> None:
+    def structure_optimization_run(
+            cls,
+            vasp_cmd: list,
+            prev_structure_opt: StructureOptResult = None,
+            gamma_vasp_cmd: Optional[list] = None,
+            max_relax_num: int = 10,
+            removes_wavecar: bool = False,
+            std_out: str = "vasp.out",
+            move_unimportant_files: bool = True,
+            symprec: float = SYMMETRY_TOLERANCE,
+            angle_tolerance: float = ANGLE_TOL
+            ) -> None:
         """Vasp job for structure optimization
 
         Args:
@@ -404,6 +418,11 @@ class ViseVaspJob(VaspJob):
                 Name of the file showing the standard output.
             move_unimportant_files (bool):
                 Whether to move relatively unimportant results to calc_results.
+
+            prev_structure_opt:
+            symprec:
+            angle_tolerance:
+                See docstrings of StructureOptResult.
 
         Yield:
             ViseVaspJob class object.
@@ -424,7 +443,7 @@ class ViseVaspJob(VaspJob):
             raise VaspNotConvergedError("Structure optimization not converged")
 
         left_files = \
-            VASP_INPUT_FILES | {"vise.json", "structure_opt.json", runshell}
+            VASP_INPUT_FILES | {"vise.json", "structure_opt.json"}
         for f in VASP_SAVED_FILES | {std_out}:
             finish_name = f"{f}.finish"
             shutil.move(f"{f}.{job_number}", finish_name)
@@ -435,10 +454,11 @@ class ViseVaspJob(VaspJob):
         if move_unimportant_files:
             os.mkdir("files")
 
-        result = StructureOptResult.from_dir(dir_name=".",
-                                             symprec=symprec,
-                                             angle_tolerance=angle_tolerance,
-                                             prev_structure_opt=prev_structure_opt)
+        result = \
+            StructureOptResult.from_dir(dir_name=".",
+                                        symprec=symprec,
+                                        angle_tolerance=angle_tolerance,
+                                        prev_structure_opt=prev_structure_opt)
 
         result.to_json_file("structure_opt.json")
 
@@ -447,12 +467,15 @@ class ViseVaspJob(VaspJob):
                 continue  # continue if f is directory.
             elif os.stat(f).st_size == 0:
                 os.remove(f)  # remove empty files
-            elif move_unimportant_files and f not in left_files:
+            elif move_unimportant_files \
+                    and f not in left_files \
+                    and not re.match(r".+\.sh$", f):
                 shutil.move(f, "files")
 
     @classmethod
     def kpt_converge(cls,
                      vasp_cmd: list,
+                     structure: Structure = None,
                      xc: Xc = Xc.pbe,
                      user_incar_settings: Optional[dict] = None,
                      initial_kpt_density: Optional[float] = KPT_INIT_DENSITY,
@@ -460,14 +483,17 @@ class ViseVaspJob(VaspJob):
                      max_relax_num: int = 10,
                      max_kpt_num: int = 10,
                      convergence_criterion: float = 0.003,
+                     num_kpt_check: int = 2,
                      removes_wavecar: bool = False,
                      std_out: str = "vasp.out",
-                     symprec=SYMMETRY_TOLERANCE,
-                     angle_tolerance=ANGLE_TOL,
-                     **kwargs) -> None:
+                     symprec: float = SYMMETRY_TOLERANCE,
+                     angle_tolerance: float = ANGLE_TOL,
+                     **vis_kwargs) -> None:
         """"Vasp job for checking k-point convergence
 
         Args:
+            structure (Structure):
+                Input structure. If not set, parse POSCAR file.
             vasp_cmd:
             gamma_vasp_cmd:
             max_relax_num:
@@ -480,6 +506,7 @@ class ViseVaspJob(VaspJob):
             initial_kpt_density:
                 See docstrings of ViseInputSet.
             -------
+            num_kpt_check:
             convergence_criterion:
                 See docstrings of KptConvResult.
             -------
@@ -490,35 +517,32 @@ class ViseVaspJob(VaspJob):
                 This is also checked if the lattice constants are converged.
             angle_tolerance (float):
                 Angle precision in degrees used for symmetry analysis.
-            kwargs:
+            vis_kwargs:
                 Used for ViseInputSet keyword args.
         Return:
             None
         """
-        vis_kwargs = kwargs or {}
-        results = KptConvResult.from_dirs(convergence_criterion)
-        is_sg_changed = results[-1].is_sg_changed if results else None
+        vis_kwargs = dict(vis_kwargs) or {}
+        structure = structure or Structure.from_file("POSCAR")
+        kpt_conv = KptConvResult.from_dirs(convergence_criterion, num_kpt_check,
+                                           symprec, angle_tolerance)
+        if kpt_conv.str_opts:
+            is_sg_changed = kpt_conv.str_opts[-1].is_sg_changed
+        else:
+            is_sg_changed = None
 
-        while not results.conv_str_opt_result and len(results) < max_kpt_num:
+        vis_kwargs.update({"task": Task.structure_opt,
+                           "xc": xc,
+                           "user_incar_settings": user_incar_settings,
+                           "symprec": symprec,
+                           "angle_tolerance": angle_tolerance})
 
-            prev_str_opt = results[-1] if results else None
+        while not kpt_conv.converged_result \
+                and len(kpt_conv.str_opts) < max_kpt_num:
 
-            vis_kwargs.update({"task": Task.structure_opt,
-                               "xc": xc,
-                               "user_incar_settings": user_incar_settings,
-                               "symprec": symprec,
-                               "angle_tolerance": angle_tolerance})
+            prev_str_opt = kpt_conv.str_opts[-1] if kpt_conv.str_opts else None
 
-            if is_sg_changed is None or is_sg_changed is True:
-                name = prev_str_opt.dirname + "/CONTCAR.finish" \
-                    if is_sg_changed else "POSCAR"
-                structure = Structure.from_file(name)
-                kpt_density = initial_kpt_density
-                vis = ViseInputSet.make_input(
-                    structure=structure,
-                    kpt_density=kpt_density,
-                    **vis_kwargs)
-            else:
+            if is_sg_changed is False:
                 prev_kpt = prev_str_opt.num_kpt
                 kpt_density = prev_str_opt.kpt_density
 
@@ -535,10 +559,22 @@ class ViseVaspJob(VaspJob):
                         contcar_filename="CONTCAR.finish",
                         kpt_density=kpt_density,
                         **vis_kwargs)
+                    # ex kpoints.kpts = [[5, 5, 4]], so we need [0].
                     kpt = vis.kpoints.kpts[0]
                     if (not kpt == prev_kpt
                             and all([i >= j for i, j in zip(kpt, prev_kpt)])):
                         break
+            else:
+                if is_sg_changed is True:
+                    name = "/".join([prev_str_opt.dirname, "CONTCAR.finish"])
+                    structure = Structure.from_file(name)
+                # When the symmetry is changed, kpt convergence is tested from
+                # the scratch.
+                kpt_density = initial_kpt_density
+                vis = ViseInputSet.make_input(
+                    structure=structure,
+                    kpt_density=kpt_density,
+                    **vis_kwargs)
 
             vis.write_input(".")
             # Need to put forward the generator in structure_optimization_run
@@ -553,26 +589,24 @@ class ViseVaspJob(VaspJob):
                 yield run
 
             str_opt = StructureOptResult.load_json("structure_opt.json")
-            results.append(str_opt)
-            print("dirname", str_opt.dirname)
+            kpt_conv.str_opts.append(str_opt)
             os.mkdir(str_opt.dirname)
-            for filename in glob("*"):
-                if filename == "files" or os.path.isfile(filename):
-                    shutil.move(filename, str_opt.dirname)
+            for f in glob("*"):
+                if (f == "files" or os.path.isfile(f)) \
+                        and not re.match(r".+\.sh$", f):
+                    shutil.move(f, str_opt.dirname)
 
-            print("is_sg_changed", str_opt.is_sg_changed)
             is_sg_changed = str_opt.is_sg_changed
 
         rm_wavecar(remove_current=removes_wavecar, remove_subdirectories=True)
 
-        if results.conv_str_opt_result:
-            conv_dirname = Path(results.conv_str_opt_result.dirname)
-            for filename in VASP_INPUT_FILES | VASP_FINISHED_FILES:
-                os.symlink(str(conv_dirname / filename), filename)
-#            print(results)
-#            logger.log(results)
+        if kpt_conv.converged_result:
+            conv_dirname = Path(kpt_conv.converged_result.dirname)
+            for f in VASP_INPUT_FILES | VASP_FINISHED_FILES:
+                os.symlink(str(conv_dirname / f), f)
+            kpt_conv.to_json_file("kpt_conv.json")
         else:
             raise KptNotConvergedError(
-                "Energy was not converged w.r.t. the number of k-points ")
+                "Energy was not converged as function of k-points numbers.")
 
 
