@@ -188,12 +188,12 @@ class StructureOptResult(MSONable):
                 f"pre-sg{self.initial_sg}", f"pos-sg{self.final_sg}"]
         return '_'.join(name)
 
-    def to_json_file(self, filename: str) -> None:
+    def to_json_file(self, filename: str = "structure_opt.json") -> None:
         with open(filename, 'w') as fw:
             json.dump(self.as_dict(), fw, indent=2, cls=MontyEncoder)
 
     @classmethod
-    def load_json(cls, filename):
+    def load_json(cls, filename: str = "structure_opt.json"):
         return loadfn(filename)
 
     def __str__(self):
@@ -405,6 +405,8 @@ class ViseVaspJob(VaspJob):
             ) -> None:
         """Vasp job for structure optimization
 
+        Note1: The shell script name need to be finished with ".sh".
+
         Args:
             vasp_cmd (list):
                 Vasp command.
@@ -442,8 +444,7 @@ class ViseVaspJob(VaspJob):
         else:
             raise VaspNotConvergedError("Structure optimization not converged")
 
-        left_files = \
-            VASP_INPUT_FILES | {"vise.json", "structure_opt.json"}
+        left_files = VASP_INPUT_FILES | {"vise.json", "structure_opt.json"}
         for f in VASP_SAVED_FILES | {std_out}:
             finish_name = f"{f}.finish"
             shutil.move(f"{f}.{job_number}", finish_name)
@@ -522,7 +523,6 @@ class ViseVaspJob(VaspJob):
         Return:
             None
         """
-        vis_kwargs = dict(vis_kwargs) or {}
         structure = structure or Structure.from_file("POSCAR")
         kpt_conv = KptConvResult.from_dirs(convergence_criterion, num_kpt_check,
                                            symprec, angle_tolerance)
