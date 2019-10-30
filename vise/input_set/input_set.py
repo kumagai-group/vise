@@ -263,7 +263,7 @@ class ViseInputSet(VaspInputSet):
         if isinstance(task, str):
             task = Task.from_string(task)
         if isinstance(xc, str):
-            xc = Task.from_string(xc)
+            xc = Xc.from_string(xc)
 
         # First, set default.
         opts = deepcopy(cls.ALL_OPTIONS)
