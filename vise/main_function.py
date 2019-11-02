@@ -132,7 +132,7 @@ def vasp_run(args):
     #                                              removes_wavecar=args.rm_wavecar)
     #    job =
     c = Custodian(handlers=handlers,
-                  jobs=ViseVaspJob.structure_optimization_run(vasp_cmd=vasp_cmd),
+                  jobs=ViseVaspJob.kpt_converge(vasp_cmd=vasp_cmd),
                   polling_time_step=5,
                   monitor_freq=1,
                   max_errors=10,

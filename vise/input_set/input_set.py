@@ -439,7 +439,6 @@ class ViseInputSet(VaspInputSet):
 
         parent_module = self.__class__.__module__.split('.')[0]
         module_version = import_module(parent_module).__version__
-
         # Xc and Task objects must be converted to string for to_json_file as
         # Enum is not compatible with MSONable.
         d = {"@module":             self.__class__.__module__,
@@ -490,7 +489,7 @@ class ViseInputSet(VaspInputSet):
 
     @classmethod
     def from_prev_calc(cls,
-                       dirname,
+                       dirname: str,
                        task: Optional[Task] = None,
                        xc: Optional[Xc] = None,
                        json_filename: str = "vise.json",

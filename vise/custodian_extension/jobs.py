@@ -311,14 +311,14 @@ class KptConvResult(MSONable):
             comparator = self.str_opts[target_idx + i]
             energy_diff = target.energy_per_atom - comparator.energy_per_atom
             if abs(energy_diff) > self.convergence_energy_criterion:
-                logger.log("Energy is not converged, yet")
+                logger.info("Energy is not converged, yet")
                 return False
 
             # Check convergence of lattice matrix.
             if not np.allclose(a=target.final_structure.lattice.matrix,
                                b=comparator.final_structure.lattice.matrix,
                                rtol=0, atol=self.symprec):
-                logger.log("Structure is not converged, yet")
+                logger.info("Structure is not converged, yet")
                 return False
 
         return self.str_opts[target_idx]
@@ -532,6 +532,8 @@ class ViseVaspJob(VaspJob):
         kpt_conv = KptConvResult.from_dirs(convergence_criterion, num_kpt_check,
                                            symprec, angle_tolerance)
         if kpt_conv.str_opts:
+            logger.info(f"{len(kpt_conv.str_opts)} structure optimization is"
+                        f"parsed.")
             is_sg_changed = kpt_conv.str_opts[-1].is_sg_changed
         else:
             is_sg_changed = None
@@ -571,6 +573,9 @@ class ViseVaspJob(VaspJob):
                         break
             else:
                 if is_sg_changed is True:
+                    logger.warning("Space group is changed during the kpoint "
+                                   "convergence, So the kpoint check is "
+                                   "reiterated.")
                     name = "/".join([prev_str_opt.dirname, "CONTCAR.finish"])
                     structure = Structure.from_file(name)
                 # When the symmetry is changed, kpt convergence is tested from
