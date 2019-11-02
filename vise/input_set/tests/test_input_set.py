@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from vise.input_set.vise_input_set import ViseInputSet
+from vise.input_set.input_set import ViseInputSet
 from vise.input_set.xc import Xc
 from vise.util.testing import ViseTest
 
@@ -17,6 +17,7 @@ class InputSetTest(ViseTest):
         self.input_set.write_input(output_dir=".")
 
     def test_dict(self):
+        print(self.input_set)
         expected = self.input_set.as_dict()
         actual = ViseInputSet.from_dict(expected).as_dict()
         self.assertEqual(expected, actual)

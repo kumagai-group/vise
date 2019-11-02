@@ -9,6 +9,7 @@ from itertools import groupby
 import operator
 from pathlib import Path
 from typing import Optional, Union
+from importlib import import_module
 
 import numpy as np
 from monty.io import zopen
@@ -435,10 +436,15 @@ class ViseInputSet(VaspInputSet):
             self.to_json_file(json_filename)
 
     def as_dict(self, **kwargs):
+
+        parent_module = self.__class__.__module__.split('.')[0]
+        module_version = import_module(parent_module).__version__
+
         # Xc and Task objects must be converted to string for to_json_file as
         # Enum is not compatible with MSONable.
         d = {"@module":             self.__class__.__module__,
              "@class":              self.__class__.__name__,
+             "@version":            module_version,
              "structure":           self.structure,
              "xc":                  str(self.xc),
              "task":                str(self.task),
@@ -468,7 +474,7 @@ class ViseInputSet(VaspInputSet):
         return cls(structure=structure,
                    xc=Xc.from_string(d["xc"]),
                    task=Task.from_string(d["task"]),
-                   kpoints=Kpoints.from_dict(d["kpoints"]),
+                   kpoints=d["kpoints"],
                    potcar=Potcar.from_dict(d["potcar"]),
                    incar_settings=d["incar_settings"],
                    files_to_transfer=d["files_to_transfer"],
