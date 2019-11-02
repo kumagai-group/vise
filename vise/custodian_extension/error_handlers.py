@@ -317,9 +317,7 @@ class DielectricMaxIterationErrorHandler(ErrorHandler):
 
 
 class MemorySwapHandler(ErrorHandler):
-    """
-    Detects if the memory is overflowed.
-    """
+    """Detects if the memory is overflowed. """
 
     is_monitor = True
 
@@ -339,19 +337,19 @@ class MemorySwapHandler(ErrorHandler):
             return True
 
     def correct(self):
-        # Unfixable error. Just return None for actions.
+        # Uncorrectable error. Just return None for actions.
         return {"errors": ["Too_much_memory_usage"], "actions": None}
 
 
 class TooLongTimeCalcErrorHandler(ErrorHandler):
-    """ Detects if the memory is overflowed. """
+    """Detects if calculation runtime is longer than the given timeout."""
 
     is_monitor = True
 
     def __init__(self, timeout=129600):
         """
 
-        60 * 60 * 36 = 129600
+        60 * 60 * 36 = 129600 (36 hours)
 
         Args:
             limited_time (int):
@@ -360,21 +358,21 @@ class TooLongTimeCalcErrorHandler(ErrorHandler):
 
     def check(self):
         now_time = int(subprocess.check_output(['date', '+%s']))
-        incar_time = int(subprocess.check_output(['date', '+%s', '-r', 'INCAR']))
+        incar_time = \
+            int(subprocess.check_output(['date', '+%s', '-r', 'INCAR']))
         incar_age = now_time - incar_time
         if incar_age > self.timeout:
             return True
 
     def correct(self):
-        # Unfixable error. Just return None for actions.
+        # Uncorrectable error. Just return None for actions.
         return {"errors": ["Too_long_calc"], "actions": None}
 
 
 class DivergingEnergyErrorHandler(ErrorHandler):
 
     def __init__(self, output_filename="OSZICAR"):
-        """
-        Initializes the handler with the output file to check.
+        """Initializes the handler with the output file to check.
 
         Args:
             output_filename (str): This is the OSZICAR file. Change
@@ -395,12 +393,12 @@ class DivergingEnergyErrorHandler(ErrorHandler):
             return True
 
     def correct(self):
-        # Unfixable error. Just return None for actions.
+        # Uncorrectable error. Just return None for actions.
         return {"errors": ["Energy_diverging"], "actions": None}
 
 
 class ReturnErrorHandler(ErrorHandler):
-
+    """Return Error for test."""
     is_monitor = True
 
     def __init__(self):
@@ -410,7 +408,7 @@ class ReturnErrorHandler(ErrorHandler):
         return True
 
     def correct(self):
-        # Unfixable error. Just return None for actions.
+        # Uncorrectable error. Just return None for actions.
         return {"errors": ["Always return Error with this."], "actions": None}
 
 

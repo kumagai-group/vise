@@ -29,12 +29,15 @@ def band_gap_properties(vasprun: Vasprun,
     if band_gap["energy"] == 0.0:
         return None
 
+    vbm_band = {str(k): v for k, v in vbm['band_index'].items()}
+    cbm_band = {str(k): v for k, v in cbm['band_index'].items()}
+
     vbm_info = {'energy': vbm['energy'],
-                'band_index': dict(vbm['band_index']),
+                'band_index': vbm_band,
                 'kpoints':
                     [vasprun.actual_kpoints[x] for x in vbm["kpoint_index"]]}
     cbm_info = {'energy': cbm['energy'],
-                'band_index': dict(cbm['band_index']),
+                'band_index': cbm_band,
                 'kpoints':
                     [vasprun.actual_kpoints[x] for x in cbm["kpoint_index"]]}
 

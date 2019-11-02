@@ -111,32 +111,32 @@ class KptConvResultTest(ViseTest):
         contcar = p / "CONTCAR"
         initial_structure = Structure.from_file(poscar)
         final_structure = Structure.from_file(contcar)
-        sor1 = StructureOptResult(uuid=60100624528902743369273616597818673779,
-                                  energy_per_atom=-5.9558474,
+        sor1 = StructureOptResult(uuid=307128884155949620271696925608470838559,
+                                  energy_per_atom=-5.95584738,
                                   num_kpt=[7, 7, 7],
                                   final_structure=final_structure,
                                   final_sg=225,
                                   kpt_density=2.5,
                                   initial_structure=initial_structure,
                                   initial_sg=225)
-        sor2 = StructureOptResult(uuid=97337091404756212407260371561032442781,
-                                  energy_per_atom=-5.955879895,
+        sor2 = StructureOptResult(uuid=64782881856798798965584516606915682920,
+                                  energy_per_atom=-5.95587987,
                                   num_kpt=[8, 8, 8],
                                   final_structure=final_structure,
                                   final_sg=225,
                                   kpt_density=3.0,
                                   initial_structure=initial_structure,
                                   initial_sg=225,
-                                  prev_structure_opt_uuid=60100624528902743369273616597818673779)
-        sor3 = StructureOptResult(uuid=34316653945151013128859614474515815310,
-                                  energy_per_atom=-5.955888605,
+                                  prev_structure_opt_uuid=307128884155949620271696925608470838559)
+        sor3 = StructureOptResult(uuid=213375410158051128414604616357653492786,
+                                  energy_per_atom=-5.95588858,
                                   num_kpt=[10, 10, 10],
                                   final_structure=final_structure,
                                   final_sg=225,
-                                  kpt_density=3.6,
+                                  kpt_density=3.5999999999999996,
                                   initial_structure=initial_structure,
                                   initial_sg=225,
-                                  prev_structure_opt_uuid=97337091404756212407260371561032442781)
+                                  prev_structure_opt_uuid=64782881856798798965584516606915682920)
 
         self.kpt_conv = KptConvResult(str_opts=[sor1, sor2, sor3],
                                       convergence_energy_criterion=0.01,
@@ -146,10 +146,20 @@ class KptConvResultTest(ViseTest):
 
     def test_json(self):
         """ round trip test of to_json and from_json """
-        print(self.kpt_conv.as_dict())
+        tmp_file = tempfile.NamedTemporaryFile()
+        self.kpt_conv.to_json_file(tmp_file.name)
+        prior_info_from_json = StructureOptResult.load_json(tmp_file.name)
+        self.assertEqual(
+            prior_info_from_json.as_dict(), self.kpt_conv.as_dict())
 
-        # tmp_file = tempfile.NamedTemporaryFile()
-        # self.result.to_json_file(tmp_file.name)
-        # prior_info_from_json = StructureOptResult.load_json(tmp_file.name)
-        # self.assertEqual(prior_info_from_json.as_dict(), self.result.as_dict())
+    def test_from_dirs(self):
+        kpt_conv = KptConvResult.from_dirs(
+            convergence_criterion=0.01,
+            num_kpt_check=2,
+            symprec=0.01,
+            angle_tolerance=5,
+            dirs=["MgO/kpt8x8x8_pre-sg225_pos-sg225",
+                  "MgO/kpt7x7x7_pre-sg225_pos-sg225",
+                  "MgO/kpt10x10x10_pre-sg225_pos-sg225"])
 
+        self.assertEqual(kpt_conv.as_dict(), self.kpt_conv.as_dict())

@@ -31,6 +31,7 @@ logger = get_logger(__name__)
 
 
 __maintainer__ = "Yu Kumagai"
+__version__ = "0.0.1"
 
 
 VASP_INPUT_FILES = {"INCAR", "POSCAR", "POTCAR", "KPOINTS"}
@@ -273,6 +274,10 @@ class KptConvResult(MSONable):
     def sort_results(results: list) -> list:
         """Sort StructureOptResult list using prev_structure_opt_uuid """
         sorted_results = [r for r in results if not r.prev_structure_opt_uuid]
+        if len(sorted_results) > 1:
+            raise ValueError(f"The number of structure optimization "
+                             f"{len(sorted_results)} is more than 1.")
+
         for i in range(len(results)):
             sorted_results += \
                 [r for r in results
@@ -281,8 +286,8 @@ class KptConvResult(MSONable):
 
     @property
     def space_groups(self):
-        return [self.str_opts[0].initial_sg] + \
-               [i.final_sg for i in self.str_opts]
+        return \
+            [self.str_opts[0].initial_sg] + [i.final_sg for i in self.str_opts]
 
     @property
     def converged_result(self):
@@ -309,7 +314,7 @@ class KptConvResult(MSONable):
                 logger.log("Energy is not converged, yet")
                 return False
 
-            # Check convergence of lattice.
+            # Check convergence of lattice matrix.
             if not np.allclose(a=target.final_structure.lattice.matrix,
                                b=comparator.final_structure.lattice.matrix,
                                rtol=0, atol=self.symprec):
@@ -571,6 +576,10 @@ class ViseVaspJob(VaspJob):
                 # When the symmetry is changed, kpt convergence is tested from
                 # the scratch.
                 kpt_density = initial_kpt_density
+
+                print("vise, vis_kwargs")
+                print(vis_kwargs)
+
                 vis = ViseInputSet.make_input(
                     structure=structure,
                     kpt_density=kpt_density,
@@ -602,7 +611,7 @@ class ViseVaspJob(VaspJob):
 
         if kpt_conv.converged_result:
             conv_dirname = Path(kpt_conv.converged_result.dirname)
-            for f in VASP_INPUT_FILES | VASP_FINISHED_FILES:
+            for f in VASP_INPUT_FILES | VASP_FINISHED_FILES - {"INCAR"}:
                 os.symlink(str(conv_dirname / f), f)
             kpt_conv.to_json_file("kpt_conv.json")
         else:
