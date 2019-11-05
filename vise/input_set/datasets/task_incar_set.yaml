@@ -91,7 +91,6 @@ PREC:
   dielectric_finite_field: N
   dielectric_function: N
 
-
 # optional
 NSW:
   structure_opt: 50

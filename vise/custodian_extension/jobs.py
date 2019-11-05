@@ -386,9 +386,10 @@ class ViseVaspJob(VaspJob):
     def postprocess(self):
         """
         """
-        for f in VASP_SAVED_FILES | {self.output_file}:
-            if os.path.exists(f):
-                shutil.copy(f, "{}{}".format(f, self.suffix))
+        if self.suffix != "":
+            for f in VASP_SAVED_FILES | {self.output_file}:
+                if os.path.exists(f):
+                    shutil.copy(f, "{}{}".format(f, self.suffix))
 
         # Remove continuation so if a subsequent job is run in
         # the same directory, will not restart this job.
@@ -578,7 +579,7 @@ class ViseVaspJob(VaspJob):
                                    "reiterated.")
                     name = "/".join([prev_str_opt.dirname, "CONTCAR.finish"])
                     structure = Structure.from_file(name)
-                # When the symmetry is changed, kpt convergence is tested from
+                # When symmetry is changed, kpt convergence is tested from
                 # the scratch.
                 kpt_density = initial_kpt_density
 
@@ -592,6 +593,7 @@ class ViseVaspJob(VaspJob):
 
             vis.write_input(".")
             # Need to put forward the generator in structure_optimization_run
+            # When symmetry is changed, custodian corrections are not inherited.
             for run in cls.structure_optimization_run(
                     vasp_cmd=vasp_cmd,
                     gamma_vasp_cmd=gamma_vasp_cmd,

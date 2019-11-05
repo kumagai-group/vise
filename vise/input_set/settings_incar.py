@@ -20,7 +20,7 @@ SET_DIR = Path(__file__).parent / "datasets"
 TASK_REQUIRED_FLAGS = {"LREAL", "ISPIN", "ISIF", "EDIFF", "IBRION", "ISMEAR",
                        "PREC"}
 TASK_OPTIONAL_FLAGS = {"NSW", "EDIFFG", "POTIM", "ADDGRID", "KPAR", "ENCUT",
-                       "NBANDS"}
+                       "NBANDS", "LEPSILON", "LCALCEPS"}
 TASK_FLAGS = TASK_REQUIRED_FLAGS | TASK_OPTIONAL_FLAGS
 
 XC_REQUIRED_FLAGS = {"ALGO", "LWAVE"}
@@ -78,12 +78,13 @@ class TaskIncarSettings:
         else:
             is_band_gap = None
 
-        required = deepcopy(TASK_REQUIRED_FLAGS)
+#        required = deepcopy(TASK_REQUIRED_FLAGS)
         settings = \
             load_default_incar_settings(yaml_filename="task_incar_set.yaml",
-                                        required_flags=required,
+                                        required_flags=TASK_REQUIRED_FLAGS,
                                         optional_flags=TASK_OPTIONAL_FLAGS,
                                         key_name=str(task))
+
 
         settings["LREAL"] = "A" if task == Task.defect else False
 
@@ -107,6 +108,11 @@ class TaskIncarSettings:
 
         if task in SPECTRA_TASK:
             settings["NBANDS"] = nbands(composition, potcar)
+
+        if task == Task.dielectric_dfpt:
+            settings["LEPSILON"] = True
+        elif task == Task.dielectric_finite_field:
+            settings["LCALCEPS"] = True
 
         return cls(settings=settings)
 
