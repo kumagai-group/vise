@@ -102,6 +102,9 @@ def vasp_run(args):
     else:
         vasp_cmd = args.vasp_cmd
 
+    flags = list(chain.from_iterable(incar_flags.values()))
+    user_incar_settings = list2dict(args.user_incar_setting, flags)
+    print(user_incar_settings)
     # handlers
     handlers = []
     # handlers = [ObaVaspErrorHandler(), MeshSymmetryErrorHandler(),
@@ -132,7 +135,9 @@ def vasp_run(args):
     #                                              removes_wavecar=args.rm_wavecar)
     #    job =
     c = Custodian(handlers=handlers,
-                  jobs=ViseVaspJob.kpt_converge(vasp_cmd=vasp_cmd),
+                  jobs=ViseVaspJob.kpt_converge(
+                      vasp_cmd=vasp_cmd,
+                      user_incar_settings=user_incar_settings),
                   polling_time_step=5,
                   monitor_freq=1,
                   max_errors=10,

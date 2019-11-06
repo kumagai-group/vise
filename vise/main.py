@@ -162,6 +162,7 @@ def main():
     vr_defaults = {"symprec":          SYMMETRY_TOLERANCE,
                    "angle_tolerance":  ANGLE_TOL,
                    "vasp_command":     None,
+                   "user_incar_setting":  None,
                    "relax_iter_num":   10,
                    "kpoints_criteria": 0.03}
 
@@ -179,6 +180,12 @@ def main():
         "--max_relax_num", dest="max_relax_num",
         default=vr_defaults["relax_iter_num"], type=int,
         help="Maximum number of relaxations.")
+    parser_vasp_run.add_argument(
+        "-uis", "--user_incar_setting", dest="user_incar_setting", type=str,
+        nargs="+",
+        default=vr_defaults["user_incar_setting"],
+        help="user_incar_setting in make_input classmethod of ViseInputSet in "
+             "vise. See document in vise for details.")
     parser_vasp_run.add_argument(
         "-criteria", dest="kpoints_criteria",
         default=vr_defaults["kpoints_criteria"], type=float,
