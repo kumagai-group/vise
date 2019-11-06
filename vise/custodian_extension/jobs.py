@@ -450,7 +450,7 @@ class ViseVaspJob(VaspJob):
         else:
             raise VaspNotConvergedError("Structure optimization not converged")
 
-        left_files = VASP_INPUT_FILES | {"vise.json", "structure_opt.json"}
+        left_files = VASP_INPUT_FILES | {"WAVECAR", "vise.json", "structure_opt.json"}
         for f in VASP_SAVED_FILES | {std_out}:
             finish_name = f"{f}.finish"
             shutil.move(f"{f}.{job_number}", finish_name)
@@ -609,7 +609,7 @@ class ViseVaspJob(VaspJob):
             os.mkdir(str_opt.dirname)
             for f in glob("*"):
                 if (f == "files" or os.path.isfile(f)) \
-                        and not re.match(r".+\.sh$", f):
+                        and not re.match(r".+\.sh$", f) and not f == "WAVECAR":
                     shutil.move(f, str_opt.dirname)
 
             is_sg_changed = str_opt.is_sg_changed
