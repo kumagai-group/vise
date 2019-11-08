@@ -31,7 +31,17 @@ class ViseVaspErrorHandler(orig_handlers.VaspErrorHandler):
     error_msgs["plane_wave_coeff"] = \
         ["ERROR: while reading WAVECAR, plane wave coefficients changed"]
 
+    def check(self):
+        error_length = super().check()
+        # In vise "BRMIX" is not handled as an error.
+        if "brmix" in self.errors:
+            self.errors.remove("brmix")
+            return error_length - 1
+        else:
+            return error_length
+
     def correct(self):
+
         backup(orig_handlers.VASP_BACKUP_FILES | {self.output_filename})
         actions = []
         vi = VaspInput.from_directory(".")
