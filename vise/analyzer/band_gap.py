@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from typing import Tuple, Optional
-
+import math
 from pymatgen.io.vasp.outputs import Vasprun
 
 
@@ -13,11 +13,15 @@ def band_gap_properties(vasprun: Vasprun,
         digit (int):
     """
 
-    for s in vasprun.eigenvalues:
-        occupation = [round(sum([i[1] for i in k]), digit)
-                      for k in vasprun.eigenvalues[s]]
+    weight = vasprun.actual_kpoints_weights
+    for v in vasprun.eigenvalues.values():
+        data_along_k = v[:, 0]
 
-        if len(set(occupation)) != 1:
+        # array([-12.8753,   1.    ]) Average of (energy, occupation)
+        average = sum([data_along_k[1] * w for v, w in zip(v, weight)])
+        frac_occu = round(average[1], digit) - average[1]
+
+        if math.isclose(frac_occu, 0, rel_tol=0.01):
             band_gap = {'energy': 0.0, 'direct': False, 'transition': None}
             return band_gap, None, None
 
