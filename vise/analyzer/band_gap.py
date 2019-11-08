@@ -12,18 +12,17 @@ def band_gap_properties(vasprun: Vasprun,
         vasprun (Vasprun):
         digit (int):
     """
-
     weight = vasprun.actual_kpoints_weights
     for v in vasprun.eigenvalues.values():
-        data_along_k = v[:, 0]
-
-        # array([-12.8753,   1.    ]) Average of (energy, occupation)
-        average = sum([data_along_k[1] * w for v, w in zip(v, weight)])
-        frac_occu = round(average[1], digit) - average[1]
-
-        if math.isclose(frac_occu, 0, rel_tol=0.01):
-            band_gap = {'energy': 0.0, 'direct': False, 'transition': None}
-            return band_gap, None, None
+        for i in range(len(v[0])):
+            data_along_k = v[:, i]
+            # array([-12.8753,   1.    ]) Average of (energy, occupation)
+            average = sum([data_along_k[1] * w for v, w in zip(v, weight)])
+            frac_occu = round(average[1], digit) - average[1]
+            print(frac_occu)
+            if not math.isclose(frac_occu, 0, rel_tol=0.01):
+                band_gap = {'energy': 0.0, 'direct': False, 'transition': None}
+                return band_gap, None, None
 
     band_structure = vasprun.get_band_structure()
     vbm = band_structure.get_vbm()
