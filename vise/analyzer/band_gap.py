@@ -6,7 +6,7 @@ from pymatgen.io.vasp.outputs import Vasprun
 
 
 def band_gap_properties(vasprun: Vasprun,
-                        digit: int = 1) -> Optional[Tuple[str, dict, dict]]:
+                        digit: int = 1) -> Optional[Tuple]:
     """
     Args:
         vasprun (Vasprun):
@@ -18,7 +18,8 @@ def band_gap_properties(vasprun: Vasprun,
                       for k in vasprun.eigenvalues[s]]
 
         if len(set(occupation)) != 1:
-            return None
+            band_gap = {'energy': 0.0, 'direct': False, 'transition': None}
+            return band_gap, None, None
 
     band_structure = vasprun.get_band_structure()
     vbm = band_structure.get_vbm()
@@ -27,7 +28,7 @@ def band_gap_properties(vasprun: Vasprun,
     band_gap = band_structure.get_band_gap()
 
     if band_gap["energy"] == 0.0:
-        return None
+        return band_gap, None, None
 
     vbm_band = {str(k): v for k, v in vbm['band_index'].items()}
     cbm_band = {str(k): v for k, v in cbm['band_index'].items()}
