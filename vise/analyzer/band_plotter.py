@@ -332,7 +332,7 @@ class VaspBandStructureSymmLine(BandStructureSymmLine):
             logger.warning("SCF is not attained!!!!!")
 
         eigenvalues = vasprun.eigenvalues
-        lattice_rec = vasprun.lattice_rec
+        lattice_rec = vasprun.final_structure.lattice.reciprocal_lattice
         efermi = vasprun.efermi
 
         first_index_wo_weight = 0

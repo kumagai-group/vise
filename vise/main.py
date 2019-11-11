@@ -213,11 +213,11 @@ def main():
     simple_override(pb_defaults, list(pb_defaults.keys()))
 
     parser_plot_band.add_argument(
-        "-v", dest="vasprun", nargs="+", type=str)
+        "-v", dest="vasprun", default="vasprun.xml", type=str)
     parser_plot_band.add_argument(
-        "-v2", dest="vasprun2", nargs="+", type=str)
+        "-v2", dest="vasprun2", type=str)
     parser_plot_band.add_argument(
-        "-k", dest="kpoints", nargs="+", type=str)
+        "-k", dest="kpoints", default="KPOINTS", type=str)
     parser_plot_band.add_argument(
         "-y", dest="y_range", nargs="+", type=float)
     parser_plot_band.add_argument(
