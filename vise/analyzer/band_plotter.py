@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import numpy as np
+from typing import List, Union
 
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.electronic_structure.bandstructure \
@@ -22,53 +23,61 @@ logger = get_logger(__name__)
 class PrettyBSPlotter:
 
     def __init__(self,
-                 kpoints: list,
-                 vasprun: list,
-                 vasprun2: list = None,
+                 band: BandStructureSymmLine,
+                 band2: BandStructureSymmLine = None,
                  absolute: bool = False,
                  y_range: list = None,
                  legend: bool = False,
                  symprec: float = SYMMETRY_TOLERANCE,
                  angle_tolerance: float = ANGLE_TOL):
 
-        if isinstance(kpoints, list):
-            bands = []
-            for k, v in zip(kpoints, vasprun):
-                bands.append(VaspBandStructureSymmLine(k, v))
-        else:
-            bands = [VaspBandStructureSymmLine(kpoints, vasprun)]
-
-        band = get_reconstructed_band_structure(bands)
         bs_plotter = ModBSPlotter(band)
         composition = str(band.structure.composition)
         sga = SpacegroupAnalyzer(structure=band.structure,
                                  symprec=symprec,
                                  angle_tolerance=angle_tolerance)
-        self.sg = " SG: " + sga.get_space_group_symbol() + " (" + \
-                  str(sga.get_space_group_number()) + ")"
-        self.title = composition + self.sg
 
-        if not vasprun2:
-            self.p = bs_plotter.get_plot(ylim=y_range, legend=legend,
-                                         zero_to_efermi=absolute,
-                                         title=self.title)
+        sg_symbol = sga.get_space_group_symbol()
+        sg_num = sga.get_space_group_number()
+
+        kwargs = {"ylim": y_range,
+                  "legend": legend,
+                  "zero_to_efermi": absolute,
+                  "title": f"{composition} SG: {sg_symbol} ({sg_num})"}
+
+        if not band2:
+            self.plotter = bs_plotter.get_plot(**kwargs)
         else:
-            bands2 = []
-            for k, v in zip(kpoints, vasprun2):
-                bands2.append(VaspBandStructureSymmLine(k, v))
-
-            band2 = get_reconstructed_band_structure(bands2)
             bs_plotter2 = ModBSPlotter(band2)
-            self.p = bs_plotter2.plot_compare(bs_plotter,
-                                              ylim=y_range,
-                                              legend=legend,
-                                              zero_to_efermi=absolute)
+            self.plotter = bs_plotter2.plot_compare(bs_plotter, **kwargs)
+
+    @classmethod
+    def from_vasp_files(cls,
+                        kpoints: Union[List[Kpoints], Kpoints],
+                        vasprun: Union[List[Vasprun], Vasprun],
+                        vasprun2: Union[List[Vasprun], Vasprun] = None,
+                        **kwargs) -> "PrettyBSPlotter":
+
+        band = cls.make_sym_line(kpoints, vasprun)
+        band2 = cls.make_sym_line(kpoints, vasprun2) if vasprun2 else None
+
+        return cls(band=band, band2=band2, **kwargs)
+
+    @staticmethod
+    def make_sym_line(kpoints: Union[List[Kpoints], Kpoints],
+                      vasprun: Union[List[Vasprun], Vasprun]):
+        if isinstance(kpoints, list):
+            band = [VaspBandStructureSymmLine(k, v)
+                    for k, v in zip(kpoints, vasprun)]
+            return get_reconstructed_band_structure(band)
+        else:
+            return VaspBandStructureSymmLine(kpoints, vasprun)
 
     def show(self, filename: str = None, format_type: str = "pdf") -> None:
         if filename:
-            self.p.savefig(filename, format=format_type)
+            self.plotter.savefig(filename, format=format_type)
         else:
-            self.p.show()
+            self.plotter.show()
 
 
 class ModBSPlotter(BSPlotter):
@@ -323,8 +332,7 @@ class VaspBandStructureSymmLine(BandStructureSymmLine):
 
         # BSVasprun cannot be used when the electronic convergence is checked.
         if is_projection:
-            vasprun = Vasprun(filename=vasprun_name,
-                                parse_projected_eigen=True)
+            vasprun = Vasprun(filename=vasprun_name, parse_projected_eigen=True)
         else:
             vasprun = Vasprun(filename=vasprun_name)
 

@@ -147,14 +147,14 @@ def vasp_run(args):
 
 def plot_band(args):
 
-    p = PrettyBSPlotter(kpoints=args.kpoints,
-                        vasprun=args.vasprun,
-                        vasprun2=args.vasprun2,
-                        absolute=args.absolute,
-                        y_range=args.y_range,
-                        legend=args.legend,
-                        symprec=args.symprec,
-                        angle_tolerance=args.angle_tolerance)
+    p = PrettyBSPlotter.from_vasp_files(kpoints=args.kpoints,
+                                        vasprun=args.vasprun,
+                                        vasprun2=args.vasprun2,
+                                        absolute=args.absolute,
+                                        y_range=args.y_range,
+                                        legend=args.legend,
+                                        symprec=args.symprec,
+                                        angle_tolerance=args.angle_tolerance)
 
     p.show(args.filename, format_type="pdf")
 
