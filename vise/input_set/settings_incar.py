@@ -94,7 +94,8 @@ class TaskIncarSettings:
         if task == Task.defect or is_magnetization:
             settings["ISPIN"] = 2
             if hasattr(structure, "site_properties"):
-                settings["MAGMOM"] = structure.site_properties["magmom"]
+                if "magmom" in structure.site_properties:
+                    settings["MAGMOM"] = structure.site_properties["magmom"]
 
         if npar_kpar:
             settings["KPAR"] = 2
