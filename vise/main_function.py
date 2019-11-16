@@ -137,7 +137,8 @@ def vasp_run(args):
     c = Custodian(handlers=handlers,
                   jobs=ViseVaspJob.kpt_converge(
                       vasp_cmd=vasp_cmd,
-                      user_incar_settings=user_incar_settings),
+                      user_incar_settings=user_incar_settings,
+                      left_files=args.left_files),
                   polling_time_step=5,
                   monitor_freq=1,
                   max_errors=10,

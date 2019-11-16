@@ -406,6 +406,7 @@ class ViseVaspJob(VaspJob):
             removes_wavecar: bool = False,
             std_out: str = "vasp.out",
             move_unimportant_files: bool = True,
+            left_files: Optional[list] = None,
             symprec: float = SYMMETRY_TOLERANCE,
             angle_tolerance: float = ANGLE_TOL
             ) -> None:
@@ -426,7 +427,8 @@ class ViseVaspJob(VaspJob):
                 Name of the file showing the standard output.
             move_unimportant_files (bool):
                 Whether to move relatively unimportant results to calc_results.
-
+            left_files (list):
+                List of left files at the calculation directory.
             prev_structure_opt:
             symprec:
             angle_tolerance:
@@ -450,7 +452,10 @@ class ViseVaspJob(VaspJob):
         else:
             raise VaspNotConvergedError("Structure optimization not converged")
 
-        left_files = VASP_INPUT_FILES | {"WAVECAR", "vise.json", "structure_opt.json"}
+        left_files = set(left_files) if left_files else set()
+        left_files.update(VASP_INPUT_FILES |
+                          {"WAVECAR", "vise.json", "structure_opt.json"})
+
         for f in VASP_SAVED_FILES | {std_out}:
             finish_name = f"{f}.finish"
             shutil.move(f"{f}.{job_number}", finish_name)
@@ -492,6 +497,7 @@ class ViseVaspJob(VaspJob):
                      convergence_criterion: float = 0.003,
                      num_kpt_check: int = 2,
                      removes_wavecar: bool = False,
+                     left_files: Optional[list] = None,
                      std_out: str = "vasp.out",
                      symprec: float = SYMMETRY_TOLERANCE,
                      angle_tolerance: float = ANGLE_TOL,
@@ -519,6 +525,8 @@ class ViseVaspJob(VaspJob):
             -------
             max_kpt_num (str):
                 Max k-point iteration number
+            left_files (list):
+                List of left files at the calculation directory.
             symprec (float):
                 Distance precision in Angstrom used for symmetry analysis.
                 This is also checked if the lattice constants are converged.
@@ -599,6 +607,7 @@ class ViseVaspJob(VaspJob):
                     gamma_vasp_cmd=gamma_vasp_cmd,
                     max_relax_num=max_relax_num,
                     std_out=std_out,
+                    left_files=left_files,
                     symprec=symprec,
                     angle_tolerance=angle_tolerance,
                     prev_structure_opt=prev_str_opt):
@@ -608,8 +617,10 @@ class ViseVaspJob(VaspJob):
             kpt_conv.str_opts.append(str_opt)
             os.mkdir(str_opt.dirname)
             for f in glob("*"):
-                if (f == "files" or os.path.isfile(f)) \
-                        and not re.match(r".+\.sh$", f) and not f == "WAVECAR":
+                if ((f == "files" or os.path.isfile(f))
+                        and not re.match(r".+\.sh$", f)
+                        and not f == "WAVECAR"
+                        and f not in left_files):
                     shutil.move(f, str_opt.dirname)
 
             is_sg_changed = str_opt.is_sg_changed

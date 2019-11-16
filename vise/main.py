@@ -161,6 +161,7 @@ def main():
 
     vr_defaults = {"symprec":          SYMMETRY_TOLERANCE,
                    "angle_tolerance":  ANGLE_TOL,
+                   "left_files": None,
                    "vasp_command":     None,
                    "user_incar_setting":  None,
                    "relax_iter_num":   10,
@@ -190,6 +191,10 @@ def main():
         "-criteria", dest="kpoints_criteria",
         default=vr_defaults["kpoints_criteria"], type=float,
         help="Convergence criteria of kpoints in eV/(num kpoints).")
+    parser_vasp_run.add_argument(
+        "-files", dest="left_files", type=str, nargs="+",
+        default=vr_defaults["left_files"],
+        help="Filenames that are left at the calculation directory.")
     parser_vasp_run.add_argument(
         "-kc", "-kpoint_conv", dest="kpoint_conv", action="store_true",
         help="Set if k-point convergence is checked.")
