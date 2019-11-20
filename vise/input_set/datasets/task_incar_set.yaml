@@ -38,6 +38,7 @@ ISIF:
   dielectric_finite_field: 0
   dielectric_function: 0
 
+# During the dielectric_dftp calculations, EDIFF is tightened automatically.
 EDIFF:
   structure_opt: 1.e-7
   structure_opt_rough: 1.e-4
