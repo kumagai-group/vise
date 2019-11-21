@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import operator
+from itertools import groupby
 from typing import Tuple
 from pymatgen.core.periodic_table import Element
 
@@ -204,3 +206,9 @@ def seekpath_to_hpkot_structure(res: dict) -> Structure:
 
     return Structure(lattice, species, positions)
 
+
+def get_symbol_list(structure: Structure):
+    species = [str(s) for s in structure.species]
+    # unique_justseen https://docs.python.org/ja/3/library/itertools.html
+    # ["H", "H", "O", "O", "H"] -> ['H', 'O', 'H']
+    return list(map(next, map(operator.itemgetter(1), groupby(species, None))))

@@ -5,8 +5,6 @@ import os
 import re
 import shutil
 from copy import deepcopy
-from itertools import groupby
-import operator
 from pathlib import Path
 from typing import Optional, Union
 from importlib import import_module
@@ -32,6 +30,7 @@ from vise.input_set.settings_structure_kpoints import TaskStructureKpoints
 from vise.input_set.settings_potcar import XcTaskPotcar
 from vise.input_set.xc import Xc
 from vise.util.logger import get_logger
+from vise.util.structure_handler import get_symbol_list
 
 logger = get_logger(__name__)
 
@@ -602,8 +601,3 @@ class ViseInputSet(VaspInputSet):
                               **kwargs)
 
 
-def get_symbol_list(structure: Structure):
-    species = [str(s) for s in structure.species]
-    # unique_justseen https://docs.python.org/ja/3/library/itertools.html
-    # ["H", "H", "O", "O", "H"] -> ['H', 'O', 'H']
-    return list(map(next, map(operator.itemgetter(1), groupby(species, None))))

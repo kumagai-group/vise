@@ -8,9 +8,7 @@ from pymatgen.io.vasp import Kpoints
 from vise.input_set.make_kpoints import MakeKpoints
 from vise.input_set.task import Task, SPECTRA_TASK
 from vise.util.logger import get_logger
-from vise.util.structure_handler import find_spglib_primitive
-from vise.input_set.input_set import get_symbol_list
-
+from vise.util.structure_handler import find_spglib_primitive, get_symbol_list
 
 logger = get_logger(__name__)
 SET_DIR = Path(__file__).parent / "datasets"
