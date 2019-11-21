@@ -318,11 +318,9 @@ class ViseInputSet(VaspInputSet):
                 if pattern.match(f):
                     abs_files_to_transfer.pop(f, None)
 
-        species = [str(s) for s in task_str_kpt.structure.species]
         # unique_justseen https://docs.python.org/ja/3/library/itertools.html
         # ["H", "H", "O", "O", "H"] -> ['H', 'O', 'H']
-        symbol_list = \
-            list(map(next, map(operator.itemgetter(1), groupby(species, None))))
+        symbol_list = get_symbol_list(task_str_kpt.structure)
 
         xc_task_potcar = XcTaskPotcar.from_options(
             xc=xc,
@@ -346,7 +344,7 @@ class ViseInputSet(VaspInputSet):
 
         xc_settings = XcIncarSettings.from_options(
             xc=xc,
-            symbol_set=task_str_kpt.structure.symbol_set,
+            symbol_list=symbol_list,
             factor=task_str_kpt.factor,
             aexx=opts["aexx"],
             hubbard_u=opts["hubbard_u"],
@@ -602,3 +600,10 @@ class ViseInputSet(VaspInputSet):
                               abs_files_to_transfer=files_to_transfer,
                               user_incar_settings=user_incar_settings,
                               **kwargs)
+
+
+def get_symbol_list(structure: Structure):
+    species = [str(s) for s in structure.species]
+    # unique_justseen https://docs.python.org/ja/3/library/itertools.html
+    # ["H", "H", "O", "O", "H"] -> ['H', 'O', 'H']
+    return list(map(next, map(operator.itemgetter(1), groupby(species, None))))

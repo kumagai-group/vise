@@ -9,6 +9,8 @@ from vise.input_set.make_kpoints import MakeKpoints
 from vise.input_set.task import Task, SPECTRA_TASK
 from vise.util.logger import get_logger
 from vise.util.structure_handler import find_spglib_primitive
+from vise.input_set.input_set import get_symbol_list
+
 
 logger = get_logger(__name__)
 SET_DIR = Path(__file__).parent / "datasets"
@@ -56,13 +58,15 @@ class TaskStructureKpoints:
         """
         if sort_structure:
             structure = original_structure.get_sorted_structure()
-            if structure.symbol_set != original_structure.symbol_set:
+            symbol_list = get_symbol_list(structure)
+            orig_symbol_list = get_symbol_list(original_structure)
+            if symbol_list != orig_symbol_list:
                 logger.warning(
                     "CAUTION: The sequence of the species is changed."
                     f"Symbol set in the original structure " 
-                    f"{original_structure.symbol_set} "
+                    f"{symbol_list} "
                     f"Symbol set in the generated structure "
-                    f"{structure.symbol_set}")
+                    f"{orig_symbol_list}")
         else:
             structure = original_structure.copy()
 

@@ -127,7 +127,7 @@ class XcIncarSettings:
     @classmethod
     def from_options(cls,
                      xc: Xc,
-                     symbol_set: tuple,
+                     symbol_list: list,
                      factor: int,
                      aexx: Optional[float] = 0.25,
                      hubbard_u: Optional[bool] = None,
@@ -160,16 +160,16 @@ class XcIncarSettings:
             u_set = loadfn(SET_DIR / "u_parameter_set.yaml")
             ldauu_set = u_set["LDAUU"][ldaul_set_name]
             ldauu_set.update(ldauu)
-            ldauu = [ldauu_set.get(el, 0) for el in symbol_set]
+            ldauu = [ldauu_set.get(el, 0) for el in symbol_list]
 
             if sum(ldauu) > 0:
                 settings["LDAUU"] = ldauu
                 settings.update({"LDAU": True, "LDAUTYPE": 2, "LDAUPRINT": 1})
                 ldaul_set = u_set["LDAUL"][ldaul_set_name]
                 ldaul_set.update(ldaul)
-                settings["LDAUL"] = [ldaul_set.get(el, -1) for el in symbol_set]
+                settings["LDAUL"] = [ldaul_set.get(el, -1) for el in symbol_list]
                 settings["LMAXMIX"] = \
-                    6 if any([Element(el).Z > 56 for el in symbol_set]) else 4
+                    6 if any([Element(el).Z > 56 for el in symbol_list]) else 4
 
         if xc in HYBRID_FUNCTIONAL:
             settings["AEXX"] = aexx
