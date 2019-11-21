@@ -138,7 +138,8 @@ def vasp_run(args):
                   jobs=ViseVaspJob.kpt_converge(
                       vasp_cmd=vasp_cmd,
                       user_incar_settings=user_incar_settings,
-                      left_files=args.left_files),
+                      left_files=args.left_files,
+                      removed_files=["PCDAT", "vasprun.xml"]),
                   polling_time_step=5,
                   monitor_freq=1,
                   max_errors=10,

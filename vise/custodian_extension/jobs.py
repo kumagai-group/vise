@@ -35,7 +35,7 @@ __version__ = "0.0.1"
 
 
 VASP_INPUT_FILES = {"INCAR", "POSCAR", "POTCAR", "KPOINTS"}
-VASP_SAVED_FILES = {"INCAR", "vasprun.xml", "CONTCAR", "OUTCAR"}
+VASP_SAVED_FILES = {"INCAR", "vasprun.xml", "CONTCAR", "OUTCAR", "PROCAR"}
 VASP_FINISHED_FILES = {i + ".finish" for i in VASP_SAVED_FILES}
 
 
@@ -407,6 +407,7 @@ class ViseVaspJob(VaspJob):
             std_out: str = "vasp.out",
             move_unimportant_files: bool = True,
             left_files: Optional[list] = None,
+            removed_files: Optional[list] = None,
             symprec: float = SYMMETRY_TOLERANCE,
             angle_tolerance: float = ANGLE_TOL
             ) -> None:
@@ -429,6 +430,8 @@ class ViseVaspJob(VaspJob):
                 Whether to move relatively unimportant results to calc_results.
             left_files (list):
                 List of left files at the calculation directory.
+            removed_files (list):
+                List of removed files from files directory.
             prev_structure_opt:
             symprec:
             angle_tolerance:
@@ -461,6 +464,7 @@ class ViseVaspJob(VaspJob):
             shutil.move(f"{f}.{job_number}", finish_name)
             left_files.add(finish_name)
 
+        removed_files = removed_files or []
         rm_wavecar(removes_wavecar)
 
         if move_unimportant_files:
@@ -482,7 +486,10 @@ class ViseVaspJob(VaspJob):
             elif move_unimportant_files \
                     and f not in left_files \
                     and not re.match(r".+\.sh$", f):
-                shutil.move(f, "files")
+                if any([re.search(p, f) for p in removed_files]):
+                    os.remove(f)  # remove empty files
+                else:
+                    shutil.move(f, "files")
 
     @classmethod
     def kpt_converge(cls,
@@ -498,6 +505,7 @@ class ViseVaspJob(VaspJob):
                      num_kpt_check: int = 2,
                      removes_wavecar: bool = False,
                      left_files: Optional[list] = None,
+                     removed_files: Optional[list] = None,
                      std_out: str = "vasp.out",
                      symprec: float = SYMMETRY_TOLERANCE,
                      angle_tolerance: float = ANGLE_TOL,
@@ -540,6 +548,7 @@ class ViseVaspJob(VaspJob):
         structure = structure or Structure.from_file("POSCAR")
         kpt_conv = KptConvResult.from_dirs(convergence_criterion, num_kpt_check,
                                            symprec, angle_tolerance)
+        left_files = left_files or []
         if kpt_conv.str_opts:
             logger.info(f"{len(kpt_conv.str_opts)} structure optimization is"
                         f"parsed.")
@@ -608,6 +617,7 @@ class ViseVaspJob(VaspJob):
                     max_relax_num=max_relax_num,
                     std_out=std_out,
                     left_files=left_files,
+                    removed_files=removed_files,
                     symprec=symprec,
                     angle_tolerance=angle_tolerance,
                     prev_structure_opt=prev_str_opt):
