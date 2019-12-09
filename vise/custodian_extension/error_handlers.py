@@ -393,7 +393,7 @@ class DivergingEnergyErrorHandler(ErrorHandler):
         # OSZICAR file can be empty, thus we need try-except here.
         try:
             max_energy = max([es["E"] for es in esteps[-1]])
-        except IndexError:
+        except (IndexError, KeyError):
             return False
 
         if max_energy > 10 ** 6:
