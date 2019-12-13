@@ -20,7 +20,7 @@ from pymatgen.io.vasp.sets import (
 from vise.analyzer.band_gap import band_gap_properties
 from vise.config import (
     KPT_DENSITY, ENCUT_FACTOR_STR_OPT, ANGLE_TOL, SYMMETRY_TOLERANCE,
-    BAND_REF_DIST, DEFAULT_NUM_CORES)
+    BAND_REF_DIST, DEFAULT_NUM_NODES)
 from vise.input_set.task import Task
 from vise.input_set.incar import ViseIncar
 from vise.input_set.settings_incar import (
@@ -123,9 +123,8 @@ class ViseInputSet(VaspInputSet):
             Whether to have magnetization. If exists, set
             ISPIN = 2 and time_reversal = False, the latter of which is
             necessary for band structure calculations.
-        num_cores_per_node (int):
-            Numbers of cores per node and nodes used to determine KPAR and NPAR
-            INCAR setting.
+        num_nodes (int):
+            Numbers of nodes used to determine KPAR and NPAR INCAR setting.
         structure_opt_encut_factor (float):
             ENCUT multiplied factor for structure optimization, where encut
             needs to be increased to reduce the Pulay Stress errors.
@@ -156,7 +155,7 @@ class ViseInputSet(VaspInputSet):
                        "encut": None}
 
     COMMON_OPTIONS = {"is_magnetization": False,
-                      "num_cores": DEFAULT_NUM_CORES,
+                      "num_nodes": DEFAULT_NUM_NODES,
                       "structure_opt_encut_factor": ENCUT_FACTOR_STR_OPT}
 
     ALL_OPTIONS = {**GENERAL_OPTIONS, **TASK_OPTIONS, **XC_OPTIONS,
@@ -330,14 +329,13 @@ class ViseInputSet(VaspInputSet):
         task_settings = TaskIncarSettings.from_options(
             task=task,
             structure=task_str_kpt.structure,
-            composition=task_str_kpt.structure.composition,
             potcar=xc_task_potcar.potcar,
             num_kpoints=task_str_kpt.num_kpts,
             max_enmax=xc_task_potcar.max_enmax,
             is_magnetization=opts["is_magnetization"],
             vbm_cbm=opts["vbm_cbm"],
             npar_kpar=opts["npar_kpar"],
-            num_cores=opts["num_cores"],
+            num_nodes=opts["num_nodes"],
             encut=opts["encut"],
             structure_opt_encut_factor=opts["structure_opt_encut_factor"])
 

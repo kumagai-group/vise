@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
-from copy import deepcopy
 from pathlib import Path
 from typing import Optional
 
 from monty.serialization import loadfn
+
 from pymatgen import Structure, Composition, Element
 from pymatgen.io.vasp import Potcar
+
 from vise.config import BAND_GAP_CRITERION
 from vise.input_set.task import LATTICE_RELAX_TASK, SPECTRA_TASK, Task
 from vise.input_set.settings_util import (
-    load_default_incar_settings, check_keys, nelect, nbands)
+    load_default_incar_settings, check_keys, nelect, nbands, calc_npar_kpar)
 from vise.input_set.xc import Xc, LDA_OR_GGA, HYBRID_FUNCTIONAL
 from vise.util.logger import get_logger
 
@@ -19,8 +20,9 @@ SET_DIR = Path(__file__).parent / "datasets"
 
 TASK_REQUIRED_FLAGS = {"LREAL", "ISPIN", "ISIF", "EDIFF", "IBRION", "ISMEAR",
                        "PREC"}
-TASK_OPTIONAL_FLAGS = {"NSW", "EDIFFG", "POTIM", "ADDGRID", "KPAR", "ENCUT",
-                       "NBANDS", "LEPSILON", "LCALCEPS"}
+TASK_OPTIONAL_FLAGS = {"NSW", "EDIFFG", "POTIM", "ADDGRID", "KPAR", "NPAR",
+                       "ENCUT", "NBANDS", "LEPSILON", "LCALCEPS", "LOPTICS",
+                       "CSHIFT"}
 TASK_FLAGS = TASK_REQUIRED_FLAGS | TASK_OPTIONAL_FLAGS
 
 XC_REQUIRED_FLAGS = {"ALGO", "LWAVE"}
@@ -55,14 +57,13 @@ class TaskIncarSettings:
     def from_options(cls,
                      task: Task,
                      structure: Structure,
-                     composition: Optional[Composition],
                      potcar: Potcar,
                      num_kpoints: int,
                      max_enmax: float,
                      is_magnetization: bool,
-                     vbm_cbm: list,
+                     vbm_cbm: Optional[list],
                      npar_kpar: bool,
-                     num_cores: list,
+                     num_nodes: Optional[int],
                      encut: Optional[float],
                      structure_opt_encut_factor: float) -> "TaskIncarSettings":
         """ Construct incar settings related to task with some options.
@@ -78,17 +79,16 @@ class TaskIncarSettings:
         else:
             is_band_gap = None
 
-#        required = deepcopy(TASK_REQUIRED_FLAGS)
         settings = \
             load_default_incar_settings(yaml_filename="task_incar_set.yaml",
                                         required_flags=TASK_REQUIRED_FLAGS,
                                         optional_flags=TASK_OPTIONAL_FLAGS,
                                         key_name=str(task))
 
-
         settings["LREAL"] = "A" if task == Task.defect else False
 
-        if is_band_gap is False or num_kpoints < 4:
+        # -5 is acceptable for num_kpt >= 4 and is_band_gap = True
+        if is_band_gap is not True or num_kpoints < 4:
             settings["ISMEAR"] = 0
 
         if task == Task.defect or is_magnetization:
@@ -98,7 +98,10 @@ class TaskIncarSettings:
                     settings["MAGMOM"] = structure.site_properties["magmom"]
 
         if npar_kpar:
-            settings["KPAR"] = 2
+            kpar, npar = calc_npar_kpar(num_kpoints, num_nodes)
+            settings["KPAR"] = kpar
+            # now switch off NPAR
+#            settings["NPAR"] = npar
 
         if not encut:
             if task in LATTICE_RELAX_TASK:
@@ -108,12 +111,17 @@ class TaskIncarSettings:
         settings["ENCUT"] = encut
 
         if task in SPECTRA_TASK:
-            settings["NBANDS"] = nbands(composition, potcar)
+            settings["NBANDS"] = nbands(structure.composition, potcar)
 
         if task == Task.dielectric_dfpt:
             settings["LEPSILON"] = True
         elif task == Task.dielectric_finite_field:
             settings["LCALCEPS"] = True
+            settings["IBRION"] = 6
+            settings["POTIM"] = 0.015
+        elif task == Task.dielectric_function:
+            settings["LOPTICS"] = True
+            settings["CSHIFT"] = 0.01
 
         return cls(settings=settings)
 
@@ -146,6 +154,7 @@ class XcIncarSettings:
                                         optional_flags=XC_OPTIONAL_FLAGS,
                                         key_name=str(xc))
 
+        # By default Hubbard U is set for LDA or GGA.
         hubbard_u = xc in LDA_OR_GGA if hubbard_u is None else hubbard_u
         ldaul_set_name = ldaul_set_name or "lda_gga_normal"
         ldauu = ldauu or {}
@@ -167,7 +176,8 @@ class XcIncarSettings:
                 settings.update({"LDAU": True, "LDAUTYPE": 2, "LDAUPRINT": 1})
                 ldaul_set = u_set["LDAUL"][ldaul_set_name]
                 ldaul_set.update(ldaul)
-                settings["LDAUL"] = [ldaul_set.get(el, -1) for el in symbol_list]
+                settings["LDAUL"] = \
+                    [ldaul_set.get(el, -1) for el in symbol_list]
                 settings["LMAXMIX"] = \
                     6 if any([Element(el).Z > 56 for el in symbol_list]) else 4
 
