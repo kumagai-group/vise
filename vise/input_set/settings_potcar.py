@@ -27,6 +27,7 @@ class XcTaskPotcar:
         """
 
         potcar_functional = "LDA" if xc == Xc.lda else "PBE_54"
+        # Currently GW calc is not supported.
         potcar_set_name = potcar_set_name or "normal"
 
         potcar_list = load_potcar_yaml(potcar_set_name, override_potcar_set)
