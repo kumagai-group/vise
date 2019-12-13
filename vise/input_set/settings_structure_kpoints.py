@@ -48,7 +48,7 @@ class TaskStructureKpoints:
         """ Construct Structure and Kpoints from task and some options.
 
         Note: When task and kpt_mode are not consistent e.g., task=Task.band,
-              kpt_mode="manual" , task is prioritized.
+              kpt_mode="manual", task is prioritized.
 
         Args: See ViseInputSet docstrings
 

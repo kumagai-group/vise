@@ -5,7 +5,7 @@ from pymatgen.io.vasp import Potcar
 
 from vise.input_set.settings_incar import TaskIncarSettings
 from vise.input_set.task import Task
-
+from vise.input_set.xc import Xc
 from vise.util.testing import ViseTest
 
 __author__ = "Yu Kumagai"
@@ -232,7 +232,6 @@ class TaskIncarSettingsTest(ViseTest):
                     'NBANDS': 12,
                     'ENCUT': 800.0}
         self.assertEqual(expected, setting.settings)
-
 
     def test_args(self):
         kwargs = deepcopy(self.default_kwargs)

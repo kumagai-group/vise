@@ -5,7 +5,6 @@ from pymatgen.io.vasp import Potcar
 
 from vise.input_set.settings_potcar import XcTaskPotcar
 from vise.input_set.xc import Xc
-from vise.input_set.task import Task
 
 from vise.util.testing import ViseTest
 

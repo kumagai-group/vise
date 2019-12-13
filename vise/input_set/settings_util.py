@@ -2,6 +2,7 @@
 from math import ceil
 from pathlib import Path
 from typing import Optional
+from typing import Tuple
 
 from monty.serialization import loadfn
 from pymatgen import Composition
@@ -49,9 +50,11 @@ def load_default_incar_settings(yaml_filename: str,
         yaml_filename (str):
             Yaml filename with xxx_incar_set.yaml.
         required_flags (set):
-            Required INCAR flags.
+            INCAR flags that must exist in the dict as a value of key_name key
+            in yaml file.
         optional_flags (set):
-            Optional INCAR flags.
+            INCAR flags that that could exist in the dict as a value of key_name
+            key in yaml file.
         key_name (str):
             Key name such as "structure_opt" or "hse".
 
@@ -129,11 +132,16 @@ def nbands(composition: Composition, potcar: Potcar) -> int:
     return ceil(num_bands)
 
 
-def calc_npar_kpar(num_kpoints, num_cores_per_node, num_nodes):
-    """
-    :param num_kpoints:
-    :param num_cores_per_node:
-    :param num_nodes:
+def calc_npar_kpar(num_kpoints: int, num_nodes: int) -> Tuple[int, int]:
+    """Recommend suitable NPAR and KPAR params in INCAR from num of kpts.
+
+    The test is performed using 36 core node.
+
+    Args:
+        num_kpoints (int): Number of irreducible k-points.
+        num_nodes (int): Number of nodes.
+
+
     """
 
     kpar_set = {
@@ -192,4 +200,4 @@ def calc_npar_kpar(num_kpoints, num_cores_per_node, num_nodes):
     else:
         npar = 1
 
-    return kpar, npar, num_kpoints
+    return kpar, npar

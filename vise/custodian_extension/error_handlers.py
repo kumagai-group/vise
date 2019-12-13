@@ -323,7 +323,7 @@ class DielectricMaxIterationErrorHandler(ErrorHandler):
         return {"errors": ["No_DFPT_convergence"], "actions": None}
 
 
-class MemorySwapHandler(ErrorHandler):
+class MemoryOverflowHandler(ErrorHandler):
     """Detects if the memory is overflowed. """
 
     is_monitor = True
@@ -393,6 +393,7 @@ class DivergingEnergyErrorHandler(ErrorHandler):
         # OSZICAR file can be empty, thus we need try-except here.
         try:
             max_energy = max([es["E"] for es in esteps[-1]])
+        #
         except (IndexError, KeyError):
             return False
 

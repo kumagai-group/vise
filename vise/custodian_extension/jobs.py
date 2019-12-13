@@ -519,8 +519,9 @@ class ViseVaspJob(VaspJob):
             gamma_vasp_cmd:
             max_relax_num:
             removes_wavecar:
+            removed_files:
             std_out:
-                See docstrings of geom_opt_run.
+                See docstrings of structure_optimization_run.
             -------
             xc:
             user_incar_settings:
@@ -599,9 +600,6 @@ class ViseVaspJob(VaspJob):
                 # When symmetry is changed, kpt convergence is tested from
                 # the scratch.
                 kpt_density = initial_kpt_density
-
-                print("vise, vis_kwargs")
-                print(vis_kwargs)
 
                 vis = ViseInputSet.make_input(
                     structure=structure,
