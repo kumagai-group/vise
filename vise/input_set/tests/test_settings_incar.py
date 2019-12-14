@@ -3,7 +3,7 @@ from copy import deepcopy
 
 from pymatgen.io.vasp import Potcar
 
-from vise.input_set.settings_incar import TaskIncarSettings
+from vise.input_set.settings_incar import TaskIncarSettings, XcIncarSettings
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc
 from vise.util.testing import ViseTest
@@ -253,3 +253,43 @@ class TaskIncarSettingsTest(ViseTest):
                     'ENCUT': 400.0}
         self.assertEqual(expected, setting.settings)
 
+
+class XcIncarSettingsTest(ViseTest):
+    def setUp(self) -> None:
+        self.default_kwargs = {"xc": Xc.pbe,
+                               "symbol_list": ["Mg", "O"],
+                               "factor": 1}
+
+    def test(self):
+        setting = XcIncarSettings.from_options(**self.default_kwargs)
+        expected = {'LWAVE': False, 'ALGO': 'N'}
+        self.assertEqual(expected, setting.settings)
+
+    def test_hubbard_u(self):
+        kwargs = deepcopy(self.default_kwargs)
+        kwargs["symbol_list"] = ["Zn", "O"]
+        setting = XcIncarSettings.from_options(**kwargs)
+        expected = {'ALGO': 'N',
+                    'LWAVE': False,
+                    'LDAUU': [5, 0],
+                    'LDAU': True,
+                    'LDAUTYPE': 2,
+                    'LDAUPRINT': 1,
+                    'LDAUL': [2, -1],
+                    'LMAXMIX': 4}
+        self.assertEqual(expected, setting.settings)
+
+    def test_hybrid(self):
+        kwargs = deepcopy(self.default_kwargs)
+        kwargs["xc"] = Xc.hse
+        kwargs["factor"] = 2
+        setting = XcIncarSettings.from_options(**kwargs)
+        expected = {'ALGO': 'D',
+                    'LWAVE': True,
+                    'NKRED': 2,
+                    'HFSCREEN': 0.208,
+                    'TIME': 0.4,
+                    'LHFCALC': True,
+                    'PRECFOCK': 'Fast',
+                    'AEXX': 0.25}
+        self.assertEqual(expected, setting.settings)

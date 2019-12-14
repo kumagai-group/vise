@@ -141,7 +141,8 @@ class XcIncarSettings:
                      hubbard_u: Optional[bool] = None,
                      ldauu: Optional[dict] = None,
                      ldaul: Optional[dict] = None,
-                     ldaul_set_name: Optional[str] = None) -> "XcIncarSettings":
+                     ldaul_set_name: Optional[str] = "default"
+                     ) -> "XcIncarSettings":
         """ Construct incar settings related to xc with some options.
 
         Args: See ViseInputSet docstrings
@@ -156,7 +157,6 @@ class XcIncarSettings:
 
         # By default Hubbard U is set for LDA or GGA.
         hubbard_u = xc in LDA_OR_GGA if hubbard_u is None else hubbard_u
-        ldaul_set_name = ldaul_set_name or "lda_gga_normal"
         ldauu = ldauu or {}
         ldaul = ldaul or {}
 

@@ -1,5 +1,5 @@
 LDAUU:
-  lda_gga_normal:
+  default:
     Ti: 3
     V: 3
     Cr: 3
@@ -51,7 +51,7 @@ LDAUU:
     Cf: 5
 
 LDAUL:
-  lda_gga_normal:
+  default:
     Ti: 2
     V: 2
     Cr: 2
