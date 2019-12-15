@@ -72,7 +72,8 @@ class MakeKpoints:
 
     """Make Kpoint based on default settings depending on the task.
 
-        # The structures of mC and oA are different between spglib and seekpath.
+        # The structures of aP (SG:1, 2), mC (5, 8, 9, 12, 15) and
+        # oA (38, 39, 40, 41) are different between spglib and seekpath.
         # see Y. Hinuma et al. Comput. Mater. Sci. 128 (2017) 140–184
         # -- spglib mC
         #  6.048759 -3.479491 0.000000
