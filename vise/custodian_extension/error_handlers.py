@@ -420,3 +420,38 @@ class ReturnErrorHandler(ErrorHandler):
         return {"errors": ["Always return Error with this."], "actions": None}
 
 
+HANDLER_GROUP = {
+    "rough":      [orig_handlers.MeshSymmetryErrorHandler(),
+                   orig_handlers.PotimErrorHandler(),
+                   orig_handlers.PositiveEnergyErrorHandler(),
+                   orig_handlers.FrozenJobErrorHandler(),
+                   orig_handlers.StdErrHandler(),
+                   ViseVaspErrorHandler(),
+                   ViseUnconvergedErrorHandler(),
+                   MemoryOverflowHandler(),
+                   ],
+    "default":    [orig_handlers.MeshSymmetryErrorHandler(),
+                   orig_handlers.NonConvergingErrorHandler(),
+                   orig_handlers.PotimErrorHandler(),
+                   orig_handlers.PositiveEnergyErrorHandler(),
+                   orig_handlers.FrozenJobErrorHandler(),
+                   orig_handlers.StdErrHandler(),
+                   ViseVaspErrorHandler(),
+                   ViseUnconvergedErrorHandler(),
+                   MemoryOverflowHandler(),
+                   DivergingEnergyErrorHandler(),
+                   TooLongTimeCalcErrorHandler(timeout=518400),
+                   ],
+    "dielectric": [orig_handlers.MeshSymmetryErrorHandler(),
+                   orig_handlers.NonConvergingErrorHandler(nionic_steps=1),
+                   orig_handlers.PositiveEnergyErrorHandler(),
+                   orig_handlers.FrozenJobErrorHandler(),
+                   orig_handlers.StdErrHandler(),
+                   orig_handlers.LrfCommutatorHandler(),
+                   ViseUnconvergedErrorHandler(),
+                   MemoryOverflowHandler(),
+                   DivergingEnergyErrorHandler(),
+                   TooLongTimeCalcErrorHandler(timeout=518400),
+                   ],
+    "no_handler": []
+}
