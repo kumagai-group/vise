@@ -38,9 +38,6 @@ __author__ = "Yu Kumagai"
 __maintainer__ = "Yu Kumagai"
 
 
-__version__ = "0.0.1dev"
-
-
 class ViseInputSet(VaspInputSet):
     """Vise version of VaspInputSet
 

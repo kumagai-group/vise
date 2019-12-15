@@ -30,10 +30,6 @@ from vise.util.logger import get_logger
 logger = get_logger(__name__)
 
 
-__maintainer__ = "Yu Kumagai"
-__version__ = "0.0.1"
-
-
 VASP_INPUT_FILES = {"INCAR", "POSCAR", "POTCAR", "KPOINTS"}
 VASP_SAVED_FILES = {"INCAR", "vasprun.xml", "CONTCAR", "OUTCAR", "PROCAR"}
 VASP_FINISHED_FILES = {i + ".finish" for i in VASP_SAVED_FILES}
