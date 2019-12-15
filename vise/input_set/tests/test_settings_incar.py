@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 from copy import deepcopy
 
+from pymatgen import Composition
 from pymatgen.io.vasp import Potcar
 
-from vise.input_set.settings_incar import TaskIncarSettings, XcIncarSettings
+from vise.input_set.settings_incar import (
+    TaskIncarSettings, XcIncarSettings, CommonIncarSettings)
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc
 from vise.util.testing import ViseTest
@@ -292,4 +294,22 @@ class XcIncarSettingsTest(ViseTest):
                     'LHFCALC': True,
                     'PRECFOCK': 'Fast',
                     'AEXX': 0.25}
+        self.assertEqual(expected, setting.settings)
+
+
+class CommonIncarSettingsTest(ViseTest):
+    def setUp(self) -> None:
+        self.default_kwargs = {"potcar": Potcar(["Mg", "O"]),
+                               "composition": Composition({"Mg": 1, "O": 2}),
+                               "charge": 1}
+
+    def test(self):
+        setting = CommonIncarSettings.from_options(**self.default_kwargs)
+        print(setting.settings)
+        expected = {'NELM': 100,
+                    'LASPH': True,
+                    'LORBIT': 12,
+                    'LCHARG': False,
+                    'SIGMA': 0.1,
+                    'NELECT': 13}
         self.assertEqual(expected, setting.settings)

@@ -1,82 +1,123 @@
 # -*- coding: utf-8 -*-
 
-from pymatgen.io.vasp import Kpoints
+import numpy as np
 
-from vise.input_set.make_kpoints import MakeKpoints
+from pymatgen.io.vasp import Kpoints
+from pymatgen.core.structure import Structure
+from pymatgen.core.lattice import Lattice
+
+from vise.input_set.make_kpoints import (
+    KpointsMode, MakeKpoints, irreducible_kpoints, num_irreducible_kpoints)
 from vise.util.testing import ViseTest
 
 __author__ = "Yu Kumagai"
 __maintainer__ = "Yu Kumagai"
 
 
+class KpointsModeTest(ViseTest):
+    def test(self):
+        band = KpointsMode.from_string("band")
+        self.assertEqual(KpointsMode.band, band)
+
+    def test2(self):
+        with self.assertRaises(AttributeError):
+            KpointsMode.from_string("fail_string")
+
+
 class MakeKpointsTest(ViseTest):
 
     def setUp(self) -> None:
         self.sg1 = self.get_structure_by_sg(1)  # test for hinuma reduced cell
-        self.sg23 = self.get_structure_by_sg(23)  # I222, body-centered ortho
-        self.sg38 = self.get_structure_by_sg(38)  # Amm2, base-centered ortho
+#        self.sg23 = self.get_structure_by_sg(23)  # I222, body-centered ortho
+#        self.sg38 = self.get_structure_by_sg(38)  # Amm2, base-centered ortho
 
-    def test_manual_set(self):
-        k = MakeKpoints(mode="primitive_uniform", structure=self.sg23)
-#        k = MakeKpoints(mode="manual_set", structure=self.sg23)
+    def test_band_sg1(self):
+        k = MakeKpoints(mode="band",
+                        only_even=True,
+                        structure=self.sg1)
         k.make_kpoints()
-#        expected = [3, 3, 2]
-#        actual = k.kpt_mesh
-#        self.assertEqual(expected, actual)
-        print(k.kpt_mesh)
-        print(k.corresponding_structure)
-        print(k.kpt_shift)
-        print(k.kpoints)
+        expected_kpt_mesh = [2, 4, 4]
+        expected_lattice = Lattice([[1.702429, 1.411278, - 11.284670],
+                                    [1.502067, -6.074800, 0.000000],
+                                    [-6.169335, 0.000000, 0.000000]])
+        expected_shift = [0.5, 0.5, 0.5]
+        self.assertEqual(expected_kpt_mesh, k.kpt_mesh)
+        self.assertEqual(expected_lattice, k.corresponding_structure.lattice)
+        self.assertEqual(expected_shift, k.kpt_shift)
+        self.assertEqual(161, k.num_kpts)
+
+    def test_primitive_uniform_sg1(self):
+        k = MakeKpoints(mode="primitive_uniform",
+                        structure=self.sg1)
+        k.make_kpoints()
+        expected_kpt_mesh = [3, 3, 2]
+        expected_lattice = Lattice([[6.169335, 0.000000, 0.000000],
+                                    [-1.502067, 6.074800, 0.000000],
+                                    [-1.702429, -1.411278, 11.284670]])
+
+        expected_shift = [0.0, 0.0, 0.5]
+        self.assertEqual(expected_kpt_mesh, k.kpt_mesh)
+        self.assertEqual(expected_lattice, k.corresponding_structure.lattice)
+        self.assertEqual(expected_shift, k.kpt_shift)
+        self.assertEqual(9, k.num_kpts)
+
+    def test_manual_set_sg1(self):
+        k = MakeKpoints(mode="manual_set",
+                        structure=self.sg1)
+        k.make_kpoints()
+        expected_kpt_mesh = [3, 3, 2]
+        expected_lattice = Lattice([[6.16933470, 0.00090247, -0.00277192],
+                                    [-1.5029601, 6.07456979, -0.01071425],
+                                    [-1.6971538, -1.3903666, 11.28805959]])
+
+        expected_shift = [0.0, 0.0, 0.0]
+        self.assertEqual(expected_kpt_mesh, k.kpt_mesh)
+        self.assertEqual(expected_lattice, k.corresponding_structure.lattice)
+        self.assertEqual(expected_shift, k.kpt_shift)
+        self.assertEqual(10, k.num_kpts)
 
 
-#        kpoints = Kpoints.from_string("kpt\n 0\n M\n 4 4 4")
-#        k, primitive, sg = make_band_kpoints(kpoints=kpoints, structure=structure)
-#        print(k)
+class IrreducibleKpointsTest(ViseTest):
+    def setUp(self):
+        lattice = [[10, 0, 0], [-5, 8.660254, 0], [0, 0, 5]]
+        self.hexagonal = Structure(lattice=lattice,
+                                   species=["H"],
+                                   coords=[[0, 0, 0]])
+        self.kpoints_g = Kpoints.gamma_automatic(kpts=(2, 2, 2))
 
-#    def test_make_band_kpoints_ymo3_fail(self):
-#        with self.assertRaises(NotAppropriatePrimitiveError):
-#            make_band_kpoints(ibzkpt="IBZKPT", poscar="BPOSCAR-MgO")
+        lattice2 = [[1, 0, 0], [0, 2, 0], [0, 0, 3]]
+        self.ortho = Structure(lattice=lattice2,
+                               species=["H"],
+                               coords=[[0, 0, 0]])
+        self.kpoints_mp = Kpoints.monkhorst_automatic(kpts=(2, 2, 2))
 
-#    def test_make_band_kpoints_ymo3_succeed(self):
-#        make_band_kpoints(ibzkpt="IBZKPT", poscar="PPOSCAR-YMnO3-hpkot")
-#       self.assertTrue(filecmp.cmp("KPOINTS-make_band-YMnO3", "KPOINTS"))
+        self.kpoints_reciprocal = \
+            Kpoints(style=Kpoints.supported_modes.Reciprocal,
+                    num_kpts=2,
+                    kpts=((0, 0, 0), (0.5, 0.5, 0.5)),
+                    kpts_weights=[1, 1])
 
+    def test_gamma(self):
+        actual = irreducible_kpoints(structure=self.hexagonal,
+                                     kpoints=self.kpoints_g)
+        expected = [(np.array([0.0,  0.0,  0.0]), 1),
+                    (np.array([0.5,  0.0,  0.0]), 3),
+                    (np.array([0.0,  0.0,  0.5]), 1),
+                    (np.array([0.5,  0.0,  0.5]), 3)]
+        for i in range(4):
+            self.assertEqual(expected[i][0].tolist(), actual[i][0].tolist())
+            self.assertEqual(expected[i][1], actual[i][1])
 
-# class MakeKpointsTest(ViseTest):
+    def test_mp(self):
+        actual = irreducible_kpoints(structure=self.ortho,
+                                     kpoints=self.kpoints_mp)
+        expected = [(np.array([0.25,  0.25,  0.25]), 8)]
+        self.assertEqual(expected[0][0].tolist(), actual[0][0].tolist())
+        self.assertEqual(expected[0][1], actual[0][1])
 
-    # def test_structure_opt1(self):
-    #     make_kpoints(task="structure_opt", poscar="PPOSCAR-MgO")
-    #     self.assertTrue(filecmp.cmp("KPOINTS-so_expected_MgO", "KPOINTS"))
-
-    # def test_structure_opt2(self):
-    #     make_kpoints(task="structure_opt", poscar="PPOSCAR-YMnO3")
-    #     self.assertTrue(filecmp.cmp("KPOINTS-so_expected_YMnO3", "KPOINTS"))
-
-    # def test_band(self):
-    #     make_kpoints(task="band", poscar="PPOSCAR-YMnO3-hpkot")
-    #     self.assertTrue(filecmp.cmp("KPOINTS-make_band-YMnO3", "KPOINTS"))
-
-    # def test_dos(self):
-    #     make_kpoints(task="dos", poscar="PPOSCAR-YMnO3")
-    #     self.assertTrue(filecmp.cmp("KPOINTS-dos_expected_YMnO3", "KPOINTS"))
-
-    # def test_dos2(self):
-    #     make_kpoints(task="dos", poscar="PPOSCAR-ZnSnP2")
-    #     self.assertTrue(filecmp.cmp("KPOINTS-dos_expected_ZnSnP2", "KPOINTS"))
-
-    # def test_dielectric(self):
-    #     make_kpoints(task="dielectric", poscar="PPOSCAR-YMnO3-hpkot")
-    #     self.assertTrue(filecmp.cmp("KPOINTS-dielectric-YMnO3", "KPOINTS"))
-
-    # def test_dielectric_function(self):
-    #     make_kpoints(task="dielectric_function", poscar="PPOSCAR-YMnO3-hpkot")
-    #     self.assertTrue(filecmp.cmp("KPOINTS-dielectric_function-YMnO3",
-    #                                 "KPOINTS"))
-
-    # def test_competing_phase_metal(self):
-    #     make_kpoints(task="competing_phase", poscar="PPOSCAR-Ru", is_metal=True)
-    #     self.assertTrue(filecmp.cmp("KPOINTS-cp_expected_Ru", "KPOINTS"))
-
-    # def test_molecule(self):
-    #     make_kpoints(task="competing_phase_molecule", poscar="POSCAR-F2")
-    #     self.assertTrue(filecmp.cmp("KPOINTS-mol_expected_F2", "KPOINTS"))
+    def test_num_kpts(self):
+        self.assertEqual(2, num_irreducible_kpoints(self.kpoints_reciprocal))
+        self.assertEqual(4, num_irreducible_kpoints(structure=self.hexagonal,
+                                                    kpoints=self.kpoints_g))
+        self.assertEqual(1, num_irreducible_kpoints(structure=self.ortho,
+                                                    kpoints=self.kpoints_mp))
