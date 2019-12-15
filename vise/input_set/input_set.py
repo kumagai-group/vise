@@ -149,7 +149,7 @@ class ViseInputSet(VaspInputSet):
                   "hubbard_u": None,
                   "ldauu": None,
                   "ldaul": None,
-                  "ldaul_set_name": None}
+                  "ldaul_set_name": "default"}
 
     XC_TASK_OPTIONS = {"npar_kpar": True,
                        "encut": None}
