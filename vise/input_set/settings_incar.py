@@ -219,7 +219,7 @@ class CommonIncarSettings:
     def from_options(cls,
                      potcar: Potcar,
                      composition: Composition,
-                     charge: int) -> "CommonIncarSettings":
+                     charge: Optional[int] = None) -> "CommonIncarSettings":
         """ Construct incar settings related to task and xc with options.
 
         Args: See ViseInputSet docstrings
