@@ -266,6 +266,7 @@ class ViseInputSet(VaspInputSet):
 
         # First, set default.
         opts = deepcopy(cls.ALL_OPTIONS)
+
         # Second, override with previous condition
         if prev_set:
             key_set = set(cls.COMMON_OPTIONS.keys())
@@ -449,6 +450,12 @@ class ViseInputSet(VaspInputSet):
              "kwargs":              self.kwargs}
 
         return d
+
+    def __eq__(self, other):
+        try:
+            return self.as_dict() == other.as_dict()
+        except AttributeError:
+            return False
 
     def __repr__(self):
         out = [f"task: {self.task}",
