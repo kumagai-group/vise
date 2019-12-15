@@ -22,7 +22,8 @@ from vise.input_set.xc import Xc
 from vise.util.error_classes import NoVaspCommandError
 from vise.util.logger import get_logger
 from vise.util.main_tools import potcar_str2dict, list2dict
-
+from vise.custodian_extension.error_handlers import (
+    HANDLER_GROUP, TooLongTimeCalcErrorHandler)
 
 __author__ = "Yu Kumagai"
 __maintainer__ = "Yu Kumagai"
@@ -96,7 +97,7 @@ def vasp_set(args):
 
 def vasp_run(args):
     if len(args.vasp_cmd) == 0:
-        raise NoVaspCommandError
+        raise NoVaspCommandError("Vasp command must be specified.")
     elif len(args.vasp_cmd) == 1:
         vasp_cmd = args.vasp_cmd[0].split()
     else:
@@ -104,46 +105,37 @@ def vasp_run(args):
 
     flags = list(chain.from_iterable(incar_flags.values()))
     user_incar_settings = list2dict(args.user_incar_setting, flags)
-    print(user_incar_settings)
-    # handlers
-    handlers = []
-    # handlers = [ObaVaspErrorHandler(), MeshSymmetryErrorHandler(),
-    #             ObaUnconvergedErrorHandler(), NonConvergingErrorHandler(),
-    #             PotimErrorHandler()]
-    #    kpoints_criteria = args.kpoints_criteria
+    handlers = HANDLER_GROUP["default"]
+    if args.timeout:
+        handlers.pop(-1)
+        handlers.append(TooLongTimeCalcErrorHandler(args.timeout))
 
-    # if args.converge_kpt:
-    #     c = Custodian(handlers,
-    #                   ViseVaspJob.kpt_converge(
-    #                       cmd, max_relax_number, kpoints_criteria,
-    #                   removes_wavecar=removes_wavecar),
-    #                   polling_time_step=5, monitor_freq=1,
-    #                   max_errors=10, gzipped_output=False)
-    # else:
-    # st = Poscar.from_file("POSCAR").structure
-    # oba_vis = ObaSet.make_input(st)
-    # # oba_vis = \
-    # #     ObaSet.from_prev_calc(".",
-    # #                           parse_calc_results=False,
-    # #                           standardize_structure=True,
-    # #                           parse_potcar=True,
-    # #                           parse_incar=True,
-    # #                           parse_kpoints=True)
-    # oba_vis.write_input(".")
-    # job = ViseVaspJob.structure_optimization_run(vasp_cmd=args.vasp_cmd,
-    #                                              max_relax_num=args.max_relax_num,
-    #                                              removes_wavecar=args.rm_wavecar)
-    #    job =
-    c = Custodian(handlers=handlers,
-                  jobs=ViseVaspJob.kpt_converge(
-                      vasp_cmd=vasp_cmd,
-                      user_incar_settings=user_incar_settings,
-                      left_files=args.left_files,
-                      removed_files=["PCDAT", "vasprun.xml"]),
-                  polling_time_step=5,
-                  monitor_freq=1,
-                  max_errors=10,
-                  gzipped_output=False)
+    optimization_args = {"vasp_cmd": vasp_cmd,
+                         "removes_wavecar": args.rm_wavecar,
+                         "max_relax_num": args.max_relax_num,
+                         "left_files": args.left_files,
+                         "removed_files": ["PCDAT", "vasprun.xml"]}
+
+    custodian_args = {"handlers": handlers,
+                      "polling_time_step": 5,
+                      "monitor_freq": 1,
+                      "max_errors": 10,
+                      "gzipped_output": False}
+
+    if args.kpoint_conv:
+        xc = args.xc or Xc.pbesol
+
+        custodian_args["jobs"] = ViseVaspJob.kpt_converge(
+            xc=xc,
+            convergence_criterion=args.kpoints_criteria,
+#            initial_kpt_density=args.kpoint_density,
+            user_incar_settings=user_incar_settings,
+            **optimization_args)
+    else:
+        custodian_args["jobs"] = ViseVaspJob.structure_optimization_run(
+            **optimization_args)
+
+    c = Custodian(**custodian_args)
     c.run()
 
 

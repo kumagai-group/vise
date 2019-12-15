@@ -175,6 +175,12 @@ def main():
         help="VASP command. If you are using mpirun, set this to something "
              "like \"mpirun pvasp\".",)
     parser_vasp_run.add_argument(
+        "-handler_name", dest="handler_name", type=str, default="default",
+        help="Custodian error handler name listed in error_handlers.")
+    parser_vasp_run.add_argument(
+        "-timeout", dest="timeout", type=int, default=None,
+        help="Timeout used in TooLongTimeCalcErrorHandler.")
+    parser_vasp_run.add_argument(
         "-rw", "--remove_wavecar", dest="rm_wavecar", action="store_true",
         help="Remove WAVECAR file after the calculation is finished.")
     parser_vasp_run.add_argument(
@@ -190,7 +196,7 @@ def main():
     parser_vasp_run.add_argument(
         "-criteria", dest="kpoints_criteria",
         default=vr_defaults["kpoints_criteria"], type=float,
-        help="Convergence criteria of kpoints in eV/(num kpoints).")
+        help="Convergence criteria of kpoints in eV / atom.")
     parser_vasp_run.add_argument(
         "-files", dest="left_files", type=str, nargs="+",
         default=vr_defaults["left_files"],
@@ -199,8 +205,12 @@ def main():
         "-kc", "-kpoint_conv", dest="kpoint_conv", action="store_true",
         help="Set if k-point convergence is checked.")
     parser_vasp_run.add_argument(
-        "-kd", "-kpoint_density", dest="kpoint_density", type=float,
-        help="Initial k-point density.")
+        "-x", "--xc", dest="xc", default=None, type=str,
+        help="Exchange-correlation (XC) interaction treatment.")
+
+#    parser_vasp_run.add_argument(
+#        "-kd", "-kpoint_density", dest="kpoint_density", type=float,
+#        default=None, help="Initial k-point density.")
 
     del vr_defaults
     parser_vasp_run.set_defaults(func=vasp_run)
