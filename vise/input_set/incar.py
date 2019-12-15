@@ -100,6 +100,7 @@ class ViseIncar(Incar):
                     if comment is False:
                         lines.append(f"# {key} \n")
                         comment = True
+
                     if v == "MAGMOM" and isinstance(self[v], list):
                         value = []
 
@@ -135,8 +136,11 @@ class ViseIncar(Incar):
                     blank_line = True
                     check_incar_keys.pop(v)
             if blank_line:
+                # if not disable_numparse, LOPTICS = True becomes 1.
                 lines.append(str(tabulate([[l[0], "=", l[1]] for l in ll],
-                                          tablefmt="plain")) + "\n")
+                                          tablefmt="plain",
+                                          disable_numparse=True)) + "\n")
+                print(lines[-1])
                 lines.append("\n")  # blank space
 
         for mson_key in ["@module", "@class"]:

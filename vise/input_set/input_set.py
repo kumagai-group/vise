@@ -382,6 +382,7 @@ class ViseInputSet(VaspInputSet):
 
     @property
     def incar(self):
+        print(self.incar_settings)
         incar = ViseIncar.from_dict(self.incar_settings)
         return incar
 

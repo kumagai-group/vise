@@ -38,6 +38,8 @@ VASP_FINISHED_FILES = {i + ".finish" for i in VASP_SAVED_FILES}
 def rm_wavecar(remove_current: bool,
                remove_subdirectories: Optional[bool] = False) -> None:
     """Remove WAVECARs at the current directory and subdirectories."""
+    print(f"rm_wavecar {remove_current} {remove_subdirectories}")
+
     if remove_current:
         try:
             os.remove("WAVECAR")
@@ -629,7 +631,7 @@ class ViseVaspJob(VaspJob):
 
             is_sg_changed = str_opt.is_sg_changed
 
-        rm_wavecar(remove_current=removes_wavecar, remove_subdirectories=True)
+#        rm_wavecar(remove_current=removes_wavecar, remove_subdirectories=True)
 
         if kpt_conv.converged_result:
             conv_dirname = Path(kpt_conv.converged_result.dirname)
