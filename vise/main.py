@@ -165,7 +165,7 @@ def main():
                    "vasp_command":     None,
                    "user_incar_setting":  None,
                    "relax_iter_num":   10,
-                   "kpoints_criteria": 0.03}
+                   "kpoints_criteria": 0.003}
 
     simple_override(vr_defaults, list(vr_defaults.keys()))
 
