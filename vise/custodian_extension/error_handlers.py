@@ -420,6 +420,10 @@ class ReturnErrorHandler(ErrorHandler):
         return {"errors": ["Always return Error with this."], "actions": None}
 
 
+# Note1: Custodian handler groups are modified to avoid IBRION=1, which does not
+#        show efermi (& eigenvalues?) in vasprun.xml.
+#        Therefore, IBRION=1 could be switched on only for rough calculations.
+# Note2: Don't forget "()" to generate the ErrorHandler class object.
 HANDLER_GROUP = {
     "rough":      [orig_handlers.MeshSymmetryErrorHandler(),
                    orig_handlers.PotimErrorHandler(),
