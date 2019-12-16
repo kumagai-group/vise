@@ -140,7 +140,6 @@ class ViseIncar(Incar):
                 lines.append(str(tabulate([[l[0], "=", l[1]] for l in ll],
                                           tablefmt="plain",
                                           disable_numparse=True)) + "\n")
-                print(lines[-1])
                 lines.append("\n")  # blank space
 
         for mson_key in ["@module", "@class"]:

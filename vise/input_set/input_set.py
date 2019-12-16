@@ -19,8 +19,8 @@ from pymatgen.io.vasp.sets import (
     get_vasprun_outcar, get_structure_from_prev_run)
 from vise.analyzer.band_gap import band_gap_properties
 from vise.config import (
-    KPT_DENSITY, ENCUT_FACTOR_STR_OPT, ANGLE_TOL, SYMMETRY_TOLERANCE,
-    BAND_REF_DIST, DEFAULT_NUM_NODES)
+    DOS_STEP_SIZE, KPT_DENSITY, ENCUT_FACTOR_STR_OPT, ANGLE_TOL,
+    SYMMETRY_TOLERANCE, BAND_REF_DIST, DEFAULT_NUM_NODES)
 from vise.input_set.task import Task
 from vise.input_set.incar import ViseIncar
 from vise.input_set.settings_incar import (
@@ -137,6 +137,7 @@ class ViseInputSet(VaspInputSet):
                     "factor": None,
                     "symprec": SYMMETRY_TOLERANCE,
                     "angle_tolerance": ANGLE_TOL,
+                    "dos_step_size": DOS_STEP_SIZE,
                     "charge": 0}
 
     XC_OPTIONS = {"potcar_set_name": "normal",
@@ -335,7 +336,8 @@ class ViseInputSet(VaspInputSet):
             npar_kpar=opts["npar_kpar"],
             num_nodes=opts["num_nodes"],
             encut=opts["encut"],
-            structure_opt_encut_factor=opts["structure_opt_encut_factor"])
+            structure_opt_encut_factor=opts["structure_opt_encut_factor"],
+            dos_step_size=opts["dos_step_size"])
 
         xc_settings = XcIncarSettings.from_options(
             xc=xc,

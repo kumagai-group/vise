@@ -28,7 +28,7 @@ class TaskIncarSettingsTest(ViseTest):
                                "num_nodes": 1,
                                "encut": None,
                                "structure_opt_encut_factor": 1.3,
-                               }
+                               "dos_step_size": 0.01}
 
     def test_structure_opt(self):
         setting = TaskIncarSettings.from_options(**self.default_kwargs)
@@ -160,7 +160,10 @@ class TaskIncarSettingsTest(ViseTest):
                     'EDIFF': 1e-05,
                     'KPAR': 4,
                     'NBANDS': 12,
-                    'ENCUT': 400.0}
+                    'ENCUT': 400.0,
+                    'EMIN': -12.01,
+                    'EMAX': 23,
+                    'NEDOS': 3502}
         self.assertEqual(expected, setting.settings)
 
     def test_dielectric_dfpt(self):
@@ -211,7 +214,10 @@ class TaskIncarSettingsTest(ViseTest):
                     'NBANDS': 12,
                     'CSHIFT': 0.01,
                     'LOPTICS': True,
-                    'ENCUT': 400.0}
+                    'ENCUT': 400.0,
+                    'EMIN': -12.01,
+                    'EMAX': 23,
+                    'NEDOS': 3502}
         self.assertEqual(expected, setting.settings)
 
     def test_args(self):
@@ -232,10 +238,13 @@ class TaskIncarSettingsTest(ViseTest):
                     'EDIFF': 1e-05,
                     'KPAR': 1,
                     'NBANDS': 12,
-                    'ENCUT': 800.0}
+                    'ENCUT': 800.0,
+                    'EMIN': -20.01,
+                    'EMAX': 20,
+                    'NEDOS': 4002}
         self.assertEqual(expected, setting.settings)
 
-    def test_args(self):
+    def test_args_2(self):
         kwargs = deepcopy(self.default_kwargs)
         kwargs["task"] = Task.dos
         kwargs["num_kpoints"] = 18
@@ -252,7 +261,10 @@ class TaskIncarSettingsTest(ViseTest):
                     'EDIFF': 1e-05,
                     'KPAR': 6,
                     'NBANDS': 12,
-                    'ENCUT': 400.0}
+                    'ENCUT': 400.0,
+                    'EMIN': -12.01,
+                    'EMAX': 23,
+                    'NEDOS': 3502}
         self.assertEqual(expected, setting.settings)
 
 

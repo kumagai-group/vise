@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from math import ceil
 from pathlib import Path
 from typing import Optional
 
@@ -8,7 +9,8 @@ from pymatgen import Structure, Composition, Element
 from pymatgen.io.vasp import Potcar
 
 from vise.config import BAND_GAP_CRITERION
-from vise.input_set.task import LATTICE_RELAX_TASK, SPECTRA_TASK, Task
+from vise.input_set.task import (
+    LATTICE_RELAX_TASK, PLOT_TASK, SPECTRA_TASK, Task)
 from vise.input_set.settings_util import (
     load_default_incar_settings, check_keys, nelect, nbands, calc_npar_kpar)
 from vise.input_set.xc import Xc, LDA_OR_GGA, HYBRID_FUNCTIONAL
@@ -22,7 +24,7 @@ TASK_REQUIRED_FLAGS = {"LREAL", "ISPIN", "ISIF", "EDIFF", "IBRION", "ISMEAR",
                        "PREC"}
 TASK_OPTIONAL_FLAGS = {"NSW", "EDIFFG", "POTIM", "ADDGRID", "KPAR", "NPAR",
                        "ENCUT", "NBANDS", "LEPSILON", "LCALCEPS", "LOPTICS",
-                       "CSHIFT"}
+                       "CSHIFT", "EMIN", "EMAX", "NEDOS"}
 TASK_FLAGS = TASK_REQUIRED_FLAGS | TASK_OPTIONAL_FLAGS
 
 XC_REQUIRED_FLAGS = {"ALGO", "LWAVE"}
@@ -65,7 +67,8 @@ class TaskIncarSettings:
                      npar_kpar: bool,
                      num_nodes: Optional[int],
                      encut: Optional[float],
-                     structure_opt_encut_factor: float) -> "TaskIncarSettings":
+                     structure_opt_encut_factor: float,
+                     dos_step_size: float) -> "TaskIncarSettings":
         """ Construct incar settings related to task with some options.
 
         Args: See ViseInputSet docstrings
@@ -110,8 +113,18 @@ class TaskIncarSettings:
                 encut = max_enmax
         settings["ENCUT"] = encut
 
-        if task in SPECTRA_TASK:
+        if task in PLOT_TASK:
             settings["NBANDS"] = nbands(structure.composition, potcar)
+
+        if task in SPECTRA_TASK:
+            if vbm_cbm:
+                emin = ceil(vbm_cbm[0]) - 15 - dos_step_size
+                emax = ceil(vbm_cbm[1]) + 15
+            else:
+                emin = -20 - dos_step_size
+                emax = 20
+            nedos = int(round((emax - emin) / dos_step_size, 0)) + 1
+            settings.update({"EMIN": emin, "EMAX": emax, "NEDOS": nedos})
 
         if task == Task.dielectric_dfpt:
             settings["LEPSILON"] = True

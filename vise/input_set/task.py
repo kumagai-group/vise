@@ -35,4 +35,6 @@ class Task(Enum):
 
 LATTICE_RELAX_TASK = (Task.structure_opt, Task.structure_opt_rough,
                       Task.structure_opt_tight)
-SPECTRA_TASK = (Task.band, Task.dos, Task.dielectric_function)
+PLOT_TASK = (Task.band, Task.dos, Task.dielectric_function)
+SPECTRA_TASK = (Task.dos, Task.dielectric_function)
+

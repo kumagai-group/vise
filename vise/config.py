@@ -7,6 +7,8 @@ __maintainer__ = "Yu Kumagai"
 SYMMETRY_TOLERANCE = 0.01
 ANGLE_TOL = 5
 
+DOS_STEP_SIZE = 0.01
+
 KPT_DENSITY = 2.5
 
 KPT_INIT_DENSITY = 2.5  # Initial k-point density used for k-point convergence
