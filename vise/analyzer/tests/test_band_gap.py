@@ -6,13 +6,11 @@ from vise.util.testing import ViseTest
 
 
 class BandGapPropertiesTest(ViseTest):
-    def setUp(self) -> None:
-        pass
-
     def test_mgo(self):
         vasprun = Vasprun("MgO_band_vasprun.xml")
         outcar = Outcar("MgO_band_OUTCAR")
-        expected = (4.6597,
+        expected = ({'energy': 4.6597,
+                     'direct': True},
                     {'energy': 3.0663,
                      'spin': None,
                      'band_index': 3,
@@ -26,7 +24,8 @@ class BandGapPropertiesTest(ViseTest):
     def test_bata6o16(self):
         vasprun = Vasprun("BaTa6O16_band_vasprun.xml")
         outcar = Outcar("BaTa6O16_band_OUTCAR")
-        expected = (2.6454000000000004,
+        expected = ({'energy': 2.6454000000000004,
+                     'direct': False},
                     {'energy': 1.8945000000000001,
                      'spin': None,
                      'band_index': 67,
@@ -40,7 +39,8 @@ class BandGapPropertiesTest(ViseTest):
     def test_mno(self):
         vasprun = Vasprun("MnO_uniform_vasprun.xml")
         outcar = Outcar("MnO_uniform_OUTCAR")
-        expected = (0.47020000000000017,
+        expected = ({'energy': 0.47020000000000017,
+                     'direct': False},
                     {'energy': 4.6665999999999999,
                      'spin': 1,
                      'band_index': 8,

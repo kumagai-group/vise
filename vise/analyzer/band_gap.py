@@ -25,14 +25,13 @@ def band_gap_properties(vasprun: Union[Vasprun, str],
     """
     if isinstance(vasprun, str):
         vasprun = Vasprun(vasprun)
+    if isinstance(outcar, str):
+        outcar = Outcar(outcar)
 
     eigenvalues = vasprun.eigenvalues
     kpts = vasprun.actual_kpoints
     metal = {'energy': 0.0, 'direct': False, 'transition': None}, None, None
     mag = outcar.total_mag
-
-    if isinstance(outcar, str):
-        outcar = Outcar(outcar)
 
     if mag is None:
         if abs(outcar.nelect - round(outcar.nelect / 2) * 2) > frac_threshold:
@@ -89,7 +88,12 @@ def band_gap_properties(vasprun: Union[Vasprun, str],
     if vbm_info["energy"] > cbm_info["energy"]:
         return metal
 
-    band_gap = cbm_info["energy"] - vbm_info["energy"]
+    is_direct = (vbm_info["spin"] == cbm_info["spin"]
+                 and vbm_info["kpoints"] == cbm_info["kpoints"])
+
+    band_gap = {"energy": cbm_info["energy"] - vbm_info["energy"],
+                "direct": is_direct}
+
     return band_gap, vbm_info, cbm_info
 
 
