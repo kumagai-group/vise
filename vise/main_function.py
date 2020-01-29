@@ -23,7 +23,8 @@ from vise.util.error_classes import NoVaspCommandError
 from vise.util.logger import get_logger
 from vise.util.main_tools import potcar_str2dict, list2dict
 from vise.custodian_extension.error_handlers import (
-    HANDLER_GROUP, TooLongTimeCalcErrorHandler)
+    TooLongTimeCalcErrorHandler)
+from vise.custodian_extension.handler_groups import HANDLER_GROUP
 
 __author__ = "Yu Kumagai"
 __maintainer__ = "Yu Kumagai"

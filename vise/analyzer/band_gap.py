@@ -97,7 +97,21 @@ def band_gap_properties(vasprun: Union[Vasprun, str],
     return band_gap, vbm_info, cbm_info
 
 
-def edge_info(eigenvalues, hob_index, spin=Spin.up):
+def edge_info(eigenvalues: dict,
+              hob_index: int,
+              spin=Spin.up
+              ) -> Tuple[float, int, float, int]:
+    """Evaluate the band gap properties from vasprun.xml
+
+    Args:
+        eigenvalues (dict):
+        hob_index (int): Highest-occupied band (HOB) index starting from0.
+        spin: Pymatgen Spin object.
+
+    Return:
+        Tuple of HOB eigenvalue, its k index, lowest-unoccupied band (LUB)
+        eigenvalue, and its k index.
+    """
 
     hob_eig = np.amax(eigenvalues[spin][:, hob_index, 0])
     hob_k_index = int(np.where(

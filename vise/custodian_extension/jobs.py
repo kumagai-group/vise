@@ -493,6 +493,7 @@ class ViseVaspJob(VaspJob):
     def kpt_converge(cls,
                      vasp_cmd: list,
                      structure: Structure = None,
+                     task: Task = Task.structure_opt,
                      xc: Xc = Xc.pbe,
                      user_incar_settings: Optional[dict] = None,
                      initial_kpt_density: Optional[float] = KPT_INIT_DENSITY,
@@ -521,6 +522,7 @@ class ViseVaspJob(VaspJob):
             std_out:
                 See docstrings of structure_optimization_run.
             -------
+            task:
             xc:
             user_incar_settings:
             initial_kpt_density:
@@ -555,7 +557,7 @@ class ViseVaspJob(VaspJob):
         else:
             is_sg_changed = None
 
-        vis_kwargs.update({"task": Task.structure_opt,
+        vis_kwargs.update({"task": task,
                            "xc": xc,
                            "user_incar_settings": user_incar_settings,
                            "symprec": symprec,

@@ -28,7 +28,7 @@ class MakeKpointsTest(ViseTest):
 
     def setUp(self) -> None:
         self.sg1 = self.get_structure_by_sg(1)  # test for hinuma reduced cell
-#        self.sg23 = self.get_structure_by_sg(23)  # I222, body-centered ortho
+        self.sg23 = self.get_structure_by_sg(23)  # I222, body-centered ortho
 #        self.sg38 = self.get_structure_by_sg(38)  # Amm2, base-centered ortho
 
     def test_band_sg1(self):
@@ -45,6 +45,22 @@ class MakeKpointsTest(ViseTest):
         self.assertEqual(expected_lattice, k.corresponding_structure.lattice)
         self.assertEqual(expected_shift, k.kpt_shift)
         self.assertEqual(161, k.num_kpts)
+
+    def test_band_sg23(self):
+        k = MakeKpoints(mode="band",
+                        only_even=True,
+                        structure=self.sg23)
+        k.make_kpoints()
+        expected_kpt_mesh = [4, 4, 4]
+        expected_lattice = Lattice([
+            [-3.5435465044428671, 3.7004010644681178, 4.1207036549338687],
+            [3.5435465044428671, -3.7004010644681178, 4.1207036549338687],
+            [3.5435465044428671, 3.7004010644681178, -4.1207036549338687]])
+        expected_shift = [0.5, 0.5, 0.5]
+        self.assertEqual(expected_kpt_mesh, k.kpt_mesh)
+        self.assertEqual(expected_lattice, k.corresponding_structure.lattice)
+        self.assertEqual(expected_shift, k.kpt_shift)
+        self.assertEqual(224, k.num_kpts)
 
     def test_primitive_uniform_sg1(self):
         k = MakeKpoints(mode="primitive_uniform",

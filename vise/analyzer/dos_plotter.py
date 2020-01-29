@@ -219,6 +219,8 @@ def get_dos_plot(vasprun_file: str,
             Whether to show space group number in the title.
         symprec (float):
             Symprec for determining the equivalent sites.
+        angle_tolerance (float):
+            Angle tolerance for symmetry analysis in degree.
     """
 
     v = Vasprun(vasprun_file, ionic_step_skip=True, parse_eigen=False)
@@ -368,8 +370,7 @@ def get_dos_plot(vasprun_file: str,
 
 def divide_densities(density: dict,
                      denominator: float):
-    """
-    Method to sum two densities.
+    """Method to didide charge density.
 
     Args:
         density: First density.
@@ -387,8 +388,7 @@ def max_density(density: dict,
                 energies: list,
                 xlim: list,
                 crop_first_value: bool = True) -> float:
-    """
-    Method to sum two densities.
+    """Evaluate max of the density of states in the given energy range.
 
     Args:
         density (dict):
@@ -398,13 +398,13 @@ def max_density(density: dict,
             by default.
             {Spin.up: [...], Spin.down: [...] }
         energies (list):
-            Energy mesh
+            Energy mesh values.
         xlim (list):
-            Limit of x-range.
-            [x-min, x-max]
+             x-range with [x-min, x-max]
         crop_first_value (bool):
             Whether to crop the first value or not.
-    Return:
+
+    Return (float):
         Max value in the density within the given x-range.
     """
     values = []

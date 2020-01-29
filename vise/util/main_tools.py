@@ -101,7 +101,7 @@ def get_user_settings(yaml_filename: str, setting_keys: list) -> dict:
     Note2: When the key includes "/", the absolute path is added as a prefix.
            E.g., unitcell/unitcell.json -> /something/../unitcell/unitcell.json
     Note3: The value of "potcar_set: Mg_pv O_h" is "Mg_pv O_h" string, which
-           is suited used for main default value.
+           is suited when used for main default value.
 
     Args:
         yaml_filename (str): User setting yaml filename.
@@ -120,7 +120,7 @@ def get_user_settings(yaml_filename: str, setting_keys: list) -> dict:
         f = config_path / yaml_filename
         if f.exists():
             with open(f, "r") as f:
-                user_settings = yaml.load(f)
+                user_settings = yaml.load(f, Loader=yaml.FullLoader)
             break
 
         else:

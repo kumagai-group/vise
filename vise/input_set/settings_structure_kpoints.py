@@ -6,7 +6,7 @@ import numpy as np
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp import Kpoints
 from vise.input_set.make_kpoints import MakeKpoints
-from vise.input_set.task import Task, PLOT_TASK
+from vise.input_set.task import Task, SPECTRA_TASK
 from vise.util.logger import get_logger
 from vise.util.structure_handler import find_spglib_primitive, get_symbol_list
 
@@ -111,7 +111,7 @@ class TaskStructureKpoints:
         # Gamma-center mesh is a must for GW calculations due to vasp
         # implementation and tetrahedron method, while is a strong recommend for
         # dos and dielectric function to sample the band edges.
-        if task in PLOT_TASK and kpt_shift != [0, 0, 0]:
+        if task in SPECTRA_TASK and kpt_shift != [0, 0, 0]:
             logger.warning("Gamma centering is forced for k-point sampling.")
             kpt_shift = [0, 0, 0]
 

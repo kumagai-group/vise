@@ -384,7 +384,6 @@ class ViseInputSet(VaspInputSet):
 
     @property
     def incar(self):
-        print(self.incar_settings)
         incar = ViseIncar.from_dict(self.incar_settings)
         return incar
 
@@ -410,20 +409,23 @@ class ViseInputSet(VaspInputSet):
                             make_dir_if_not_present=make_dir_if_not_present,
                             include_cif=include_cif)
 
+        filenames = [f.name for f in os.scandir() if f.is_file()]
+
         out_dir = Path(output_dir).absolute()
         for key, value in self.files_to_transfer.items():
             try:
                 # full path is usually safer for symbolic link.
                 filepath = Path(key).absolute()
                 name = filepath.name
-                with zopen(filepath, "rb") as fin, \
-                        zopen((out_dir / name), "wb") as fout:
-                    if value == "c":
-                        shutil.copyfileobj(fin, fout)
-                    elif value == "m":
-                        shutil.move(fin, fout)
-                    elif value == "l":
-                        os.symlink(fin, fout)
+                if value == "c" or value == "m":
+                    with zopen(filepath, "rb") as fin, \
+                            zopen((out_dir / name), "wb") as fout:
+                        if value == "c":
+                            shutil.copyfileobj(fin, fout)
+                        elif value == "m":
+                            shutil.move(fin, fout)
+                elif value == "l":
+                     os.symlink(filepath, out_dir / name)
 
             except FileNotFoundError:
                 logger.warning(f"{key} does not exist.")

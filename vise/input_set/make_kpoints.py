@@ -148,7 +148,6 @@ class MakeKpoints:
         self.is_magnetization = is_magnetization
 
         self.comment = None
-        self.kpt_shift = []
         self.kpt_mesh = None
         self.kpoints = None
         self.num_kpts = None
@@ -169,7 +168,8 @@ class MakeKpoints:
     def make_kpoints(self):
         self._set_structure()
         self._set_kmesh()
-        self._set_centering()
+        if self.kpt_shift is None:
+            self._set_centering()
 
         self.kpoints = Kpoints(comment=self.comment,
                                kpts=(self.kpt_mesh,),
@@ -265,6 +265,7 @@ class MakeKpoints:
                             f"factor: {self.factor}. "
 
     def _set_centering(self):
+        self.kpt_shift = []
         if self.mode is KpointsMode.manual_set:
             angle = self.corresponding_structure.lattice.angles
 
