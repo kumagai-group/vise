@@ -105,7 +105,7 @@ EDIFFG:
   structure_opt_rough: -0.2
   structure_opt_tight: -0.001
   cluster_opt: -0.005
-  defect: -0.05
+  defect: -0.03
 
 POTIM:
   structure_opt_rough: 0.1
