@@ -3,8 +3,7 @@
 
 from pymatgen.electronic_structure.core import Spin
 
-from vise.analyzer.dos_plotter import ViseDosPlotter, get_dos_plot, \
-    divide_densities, max_density
+from vise.analyzer.dos_plotter import get_dos_plot, max_density
 from vise.util.testing import ViseTest
 
 __author__ = "Yu Kumagai"

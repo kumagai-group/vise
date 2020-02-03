@@ -12,6 +12,7 @@ from pymatgen.electronic_structure.plotter import BSPlotter
 from pymatgen.io.vasp import Kpoints, Vasprun
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.plotting import pretty_plot
+from pymatgen.util.string import latexify_spacegroup, latexify
 
 from vise.config import SYMMETRY_TOLERANCE, ANGLE_TOL
 from vise.util.logger import get_logger
@@ -35,12 +36,13 @@ class PrettyBSPlotter:
                  angle_tolerance: float = ANGLE_TOL):
 
         bs_plotter = ModBSPlotter(band)
-        comp = band.structure.composition.get_reduced_formula_and_factor()[0]
+        comp = latexify(
+            band.structure.composition.get_reduced_formula_and_factor()[0])
         sga = SpacegroupAnalyzer(structure=band.structure,
                                  symprec=symprec,
                                  angle_tolerance=angle_tolerance)
 
-        sg_symbol = sga.get_space_group_symbol()
+        sg_symbol = latexify_spacegroup(sga.get_space_group_symbol())
         sg_num = sga.get_space_group_number()
 
         kwargs = {"ylim": y_range,
