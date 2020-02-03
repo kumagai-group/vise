@@ -17,23 +17,24 @@ logger = get_logger(__name__)
 __version__ = '0.0.1dev'
 __date__ = 'will be inserted'
 
+# The following keys are set by vise.yaml
+setting_keys = ["vasp_command",
+                "symprec",
+                "angle_tolerance",
+                "xc",
+                "kpt_density",
+                "user_incar_setting",
+                "ldauu",
+                "ldaul",
+                "potcar_set",
+                "relax_iter_num",
+                "kpoints_criteria"]
+
+user_settings = get_user_settings(yaml_filename="vise.yaml",
+                                  setting_keys=setting_keys)
+
 
 def main():
-    # The following keys are set by vise.yaml
-    setting_keys = ["vasp_command",
-                    "symprec",
-                    "angle_tolerance",
-                    "xc",
-                    "kpt_density",
-                    "user_incar_setting",
-                    "ldauu",
-                    "ldaul",
-                    "potcar_set",
-                    "relax_iter_num",
-                    "kpoints_criteria"]
-
-    user_settings = get_user_settings(yaml_filename="vise.yaml",
-                                      setting_keys=setting_keys)
 
     def simple_override(d: dict, keys: Union[list, str]) -> None:
         """Override dict if keys exist in vise.yaml.
