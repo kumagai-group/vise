@@ -15,4 +15,3 @@ class IncarFlagsTest(ViseTest):
         self.assertEqual(expected, actual)
 
 
-

@@ -103,12 +103,7 @@ def check_keys(d: dict, required: set, optional: set) -> bool:
 
 
 def nelect(composition: Composition, potcar: Potcar, charge: int = 0) -> int:
-    """Gets the default number of electrons for a given structure.
-
-
-     """
-    # if structure is not sorted this can cause problems, so must take
-    # care to remove redundant symbols when counting electrons
+    """Gets the default number of electrons for a given composition. """
     num_nelect = 0
     for pt in potcar:
         num_nelect += composition.element_composition[pt.element] * pt.ZVAL

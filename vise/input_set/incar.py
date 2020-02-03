@@ -23,16 +23,15 @@ incar_flags = loadfn(MODULE_DIR / "datasets" / "incar_flags.yaml")
 
 
 class ViseIncar(Incar):
-    """
-    Incar class modified for pretty writing of INCAR file.
+    """Incar class modified for pretty writing of INCAR file.
+
     Since from_file and from_string methods in Incar class use Incar class
     constructor, we need to override them.
     """
 
     @classmethod
     def from_file(cls, filename: str) -> "ViseIncar":
-        """
-        Reads an Incar object from a file.
+        """Reads an Incar object from a file.
 
         Args:
             filename (str): Filename for file
@@ -53,7 +52,7 @@ class ViseIncar(Incar):
 
     @classmethod
     def from_string(cls, string: str):
-        """ Reads an Incar object from a string.
+        """Reads an Incar object from a string.
 
         This method is different from that of Incar superclass at it does not
         support ";" semantic which split the incar flags.
@@ -79,7 +78,7 @@ class ViseIncar(Incar):
         return cls(params)
 
     def __add__(self, other: Incar) -> "ViseIncar":
-        """ Add all the values of another INCAR object to this object. """
+        """Add all the values of another INCAR object to this object. """
         params = {k: v for k, v in self.items()}
         for k, v in other.items():
             if k in self and v != self[k]:

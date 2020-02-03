@@ -126,7 +126,7 @@ class TaskIncarSettingsTest(ViseTest):
                     'LREAL': "A",
                     'EDIFF': 1e-05,
                     'NSW': 50,
-                    'EDIFFG': -0.05,
+                    'EDIFFG': -0.03,
                     'KPAR': 4,
                     'ENCUT': 400.0}
         self.assertEqual(expected, setting.settings)

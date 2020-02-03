@@ -69,7 +69,6 @@ class KpointsMode(Enum):
 
 
 class MakeKpoints:
-
     """Make Kpoint based on default settings depending on the task.
 
         # The structures of aP (SG:1, 2), mC (5, 8, 9, 12, 15) and
@@ -133,7 +132,7 @@ class MakeKpoints:
                 Angle tolerance used for symmetry analyzer.
             is_magnetization (bool):
                 Whether the magnetization is considered or not.
-                This modifies the band structure path for cases w/o inversion.
+                This modifies the band structure path of systems w/o inversion.
         """
         self.mode = KpointsMode.from_string(mode)
         self.initial_structure = structure
