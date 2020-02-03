@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from collections import OrderedDict, defaultdict
-from typing import Dict
+from typing import Dict, List
 
 import numpy as np
 
@@ -11,6 +11,7 @@ from pymatgen.electronic_structure.dos import add_densities
 from pymatgen.electronic_structure.plotter import DosPlotter
 from pymatgen.io.vasp import Vasprun
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.util.string import latexify_spacegroup, latexify
 
 from vise.config import SYMMETRY_TOLERANCE, ANGLE_TOL
 from vise.util.logger import get_logger
@@ -23,10 +24,16 @@ logger = get_logger(__name__)
 
 class ViseDosPlotter(DosPlotter):
 
-    def get_plot(self, xlim=None, ylims=None, cbm_vbm=None, legend=True,
-                 crop_first_value=False, title=None):
-        """
-        Get a matplotlib plot showing the DOS.
+    def get_plot(self,
+                 xlim: List[float] = None,
+                 ylims: List[List[float]] = None,
+                 cbm_vbm: List[float] = None,
+                 legend: bool = True,
+                 crop_first_value: bool = False,
+                 title: str = None):
+        """Get a matplotlib pyplot for the density of states.
+
+        Override get_plot of DosPlotter.
 
         Args:
             xlim (list):
@@ -43,6 +50,9 @@ class ViseDosPlotter(DosPlotter):
                 Whether to crop the fist DOS.
             title (str):
                 Title of the figure
+
+        Returns:
+            Matplotlib pyplot
         """
 
         ncolors = max(3, len(self._doses))
@@ -106,12 +116,14 @@ class ViseDosPlotter(DosPlotter):
             for j, key in enumerate(grouped_keys[gk]):
                 x = []
                 y = []
+
                 for spin in [Spin.up, Spin.down]:
                     if spin in all_densities[n]:
                         densities = list(int(spin) * all_densities[n][spin])
                         energies = list(all_energies[n])
                         x.extend(energies)
                         y.extend(densities)
+
                 all_pts.extend(list(zip(x, y)))
                 axs[i].plot(x, y, color=colors[j % ncolors], label=str(key),
                             linewidth=2)
@@ -139,8 +151,6 @@ class ViseDosPlotter(DosPlotter):
                     legobj.set_linewidth(1.2)
                 ltext = leg.get_texts()
                 plt.setp(ltext, fontsize=7)
-            else:
-                axs[i].set_title(key, fontsize=7)
 
             axs[i].axhline(0, color="black", linewidth=0.5)
 
@@ -165,10 +175,13 @@ class ViseDosPlotter(DosPlotter):
         #         axs[i].set_ylim((min(relevanty), max(relevanty)))e
 
         axs[-1].set_xlabel('Energy (eV)')
-        plt.tight_layout()
+        axs[0].set_ylabel("Total DOS (1/eV)")
+        for i in range(1, len(axs)):
+            axs[i].set_ylabel("DOS (1/eV)")
 
+        plt.tight_layout()
         plt.subplots_adjust(left=None, bottom=None, right=None, top=None,
-                            wspace=0.2, hspace=0.2)
+                            wspace=0, hspace=0)
 
         if title:
             axs[0].title.set_text(title)
@@ -180,7 +193,7 @@ def get_dos_plot(vasprun_file: str,
                  cbm_vbm: list = None,
                  pdos_type: str = "element",
                  specific: list = None,
-                 orbital: list = True,
+                 orbital: bool = True,
                  xlim: list = None,
                  ymaxs: list = None,
                  zero_at_efermi: bool = True,
@@ -195,7 +208,8 @@ def get_dos_plot(vasprun_file: str,
         vasprun_file (str):
             vasprun.xml-type file name
         cbm_vbm (list):
-            List of [cbm, vbm]
+            List of [cbm, vbm]. This is used when band edge is determined from
+            the band structure calculation.
         pdos_type (str): Plot type of PDOS.
             "element": PDOS grouped by element type
             "site": PDOS grouped by equivalent sites
@@ -204,7 +218,7 @@ def get_dos_plot(vasprun_file: str,
             PDOS at particular sites are shown. If elements are shown,
             PDOS of particular elements are shown.
             ["1", "2"] --> At site 1 and 2 compatible with pdos_type = "none"
-            ["Mg", "O"] --> Summed at Mg and O sites coompatible with
+            ["Mg", "O"] --> Summed at Mg and O sites compatible with
                             pdos_type = "element"
         orbital (bool):
             Whether to show orbital decomposed PDOS.
@@ -246,20 +260,21 @@ def get_dos_plot(vasprun_file: str,
 
     if specific and specific[0].isdigit():
         if pdos_type is not "none":
-            logger.warning("pdos_type is changed from {} to none"
-                           .format(pdos_type))
+            logger.warning(f"pdos_type is changed from {pdos_type} to none")
         pdos_type = "none"
+
     elif specific and specific[0].isalpha():
         if pdos_type is not "none":
-            logger.warning("pdos_type is changed from {} to element"
-                           .format(pdos_type))
+            logger.warning(f"pdos_type is changed from {pdos_type} to element")
         pdos_type = "element"
 
     sga = None
     grouped_indices = defaultdict(list)
+
     if pdos_type == "element":
         for indices, s in enumerate(structure):
             grouped_indices[str(s.specie)].append(indices)
+
     elif pdos_type == "site":
         # equivalent_sites: Equivalent site indices from SpacegroupAnalyzer.
         sga = SpacegroupAnalyzer(structure=structure,
@@ -270,28 +285,29 @@ def get_dos_plot(vasprun_file: str,
         equiv_index_lists = symmetrized_structure.equivalent_indices
 
         for l in equiv_index_lists:
-            name = str(structure[l[0]].specie) + " " \
-                   + sga.get_symmetry_dataset()["wyckoffs"][l[0]]
+            specie = structure[l[0]].specie
+            wyckoff = sga.get_symmetry_dataset()["wyckoffs"][l[0]]
+            name = f"{specie} {wyckoff}"
             grouped_indices[name] = l
 
     elif pdos_type == "none":
         for indices, s in enumerate(structure):
-            grouped_indices[str(s.specie) + " site:" + str(indices)].append(indices)
+            name = f"{s.specie} site: {indices}"
+            grouped_indices[name].append(indices)
     else:
         raise KeyError("The given pdos_type is not supported.")
 
-    # TODO: Add specific handling
-    # if specific:
-    #     tmp = defaultdict(list)
-    #     for key, value in grouped_indices.items():
-    #         if pdos_type == "element" and key in specific:
-    #             tmp[key] = value
-    #         else:
-    #             # type(index) is str
-    #             index = ''.join(c for c in key if c.isdigit())
-    #             if index in specific:
-    #                 tmp[key] = value
-    #     grouped_indices = tmp
+    if specific:
+        tmp = defaultdict(list)
+        for key, value in grouped_indices.items():
+            if pdos_type == "element" and key in specific:
+                tmp[key] = value
+            else:
+                # type(index) is str
+                index = ''.join(c for c in key if c.isdigit())
+                if index in specific:
+                    tmp[key] = value
+        grouped_indices = tmp
 
     # efermi is set to VBM if exists.
     efermi = cbm_vbm[1] if cbm_vbm else complete_dos.efermi
@@ -305,21 +321,19 @@ def get_dos_plot(vasprun_file: str,
                 for orb, pdos in complete_dos.get_site_spd_dos(site).items():
                     # " " is used for grouping the plots.
                     if pdos_type == "none":
-                        name = key + " " + str(orb)
+                        name = f"{key} {orb}"
                     else:
-                        name = \
-                            key + " #" + str(len(value)) + " " + str(orb)
+                        name = f"{key} #{len(value)} {orb}"
                     density = divide_densities(pdos.densities, len(value))
                     if name in dos:
                         density = add_densities(dos[name].densities, density)
-                        dos[name] = Dos(efermi, energies, density)
-                    else:
-                        dos[name] = Dos(efermi, energies, density)
+                    dos[name] = Dos(efermi, energies, density)
             else:
-                name = key + "(" + str(len(key)) + ")"
+                name = f"{key}({len(key)})" if isinstance(key, list) else key
                 pdos = complete_dos.get_site_dos(site)
                 if name in dos:
-                    dos[name] = add_densities(dos[name], pdos)
+                    density = add_densities(dos[name].densities, pdos.densities)
+                    dos[name] = Dos(efermi, energies, density)
                 else:
                     dos[name] = pdos
 
@@ -327,42 +341,49 @@ def get_dos_plot(vasprun_file: str,
     plotter = ViseDosPlotter(zero_at_efermi=zero_at_efermi)
     plotter.add_dos_dict(dos)
 
-    if xlim is None:
-        xlim = [-10, 10]
+    xlim = xlim or [-10, 10]
 
     if ymaxs:
-        ylims = [[-y, y] for y in ymaxs] \
-            if v.incar.get("ISPIN", 1) == 2 else [[0, y] for y in ymaxs]
+        if v.incar.get("ISPIN", 1) == 2:
+            ylims = [[-y, y] for y in ymaxs]
+        else:
+            ylims = [[0, y] for y in ymaxs]
     else:
         energies = complete_dos.energies - efermi
-        tdos_max = max_density(complete_dos.densities, energies, xlim,
-                               crop_first_value)
-        tdos_max *= 1.1
-        ylims = [[-tdos_max, tdos_max]] if v.incar.get("ISPIN", 1) == 2 \
-            else [[0, tdos_max]]
+        tdos_max = 1.1 * max_density(density=complete_dos.densities,
+                                     energies=energies,
+                                     xlim=xlim,
+                                     crop_first_value=crop_first_value)
+        if v.incar.get("ISPIN", 1) == 2:
+            ylims = [-tdos_max, tdos_max]
+        else:
+            ylims = [[0, tdos_max]]
 
         pdos_max = 0.0
         for k, d in dos.items():
             if k == "Total":
                 continue
-            pdos_max = \
-                max(max_density(d.densities, energies, xlim), pdos_max)
-
+            pdos_max = max(max_density(d.densities, energies, xlim), pdos_max)
         pdos_max *= 1.1
-        ylims.append([-pdos_max, pdos_max] if v.incar.get("ISPIN", 1) == 2
-                     else [0, pdos_max])
 
-        print("y-range", ylims)
+        if v.incar.get("ISPIN", 1) == 2:
+            ylims.append([-pdos_max, pdos_max])
+        else:
+            ylims.append([0, pdos_max])
 
+        logger.info(f"Dos plot, y-range {ylims}")
+
+    comp = latexify(structure.composition.get_reduced_formula_and_factor()[0])
     if show_spg:
         if sga is None:
             sga = SpacegroupAnalyzer(structure, symprec=symprec)
         sg_num_str = str(sga.get_space_group_number())
-        sg = f" {sga.get_space_group_symbol()} ({sg_num_str})"
-        print(f"Space group number: {sg}")
-        title = f"{structure.composition} SG: {sg}"
+        sg_symbol = latexify_spacegroup(sga.get_space_group_symbol())
+        sg = f" {sg_symbol} ({sg_num_str})"
+        logger.info(f"Space group: {sg}")
+        title = f"{comp}, SG: {sg}"
     else:
-        title = str(structure.composition)
+        title = comp
 
     return plotter.get_plot(xlim=xlim,
                             ylims=ylims,
@@ -374,18 +395,18 @@ def get_dos_plot(vasprun_file: str,
 
 def divide_densities(density: dict,
                      denominator: float) -> Dict[Spin, np.ndarray]:
-    """Method to divide charge density.
+    """Method to divide density.
 
     Args:
-        density: First density.
-        denominator: Second density.
-
+        density:
+            Density of states as a function of Spin.
+        denominator:
+            Denominator.
     Returns:
-        {spin: np.array(density)}.
+        Density of states with the format of {spin: np.array(density)}.
     """
 
-    return {spin: np.array(value) / denominator
-            for spin, value in density.items()}
+    return {spin: np.array(val) / denominator for spin, val in density.items()}
 
 
 def max_density(density: dict,
