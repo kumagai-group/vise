@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import re
 from pathlib import Path
 from typing import Optional
@@ -14,19 +16,22 @@ def potcar_str2dict(potcar_list: Optional[str]) -> dict:
     If potcar_list is None, {} is returned.
 
     Args:
-         potcar_list (str/None)
+         potcar_list (str/None):
 
-    Return:
+    Returns:
          Dictionary of potcar types.
     """
     if potcar_list is None:
         return {}
     elif isinstance(potcar_list, str):
-        potcar_list = potcar_list.split()\
+        potcar_list = [potcar_list]
 
     d = {}
     for p in potcar_list:
         element = p.split("_")[0]
+        if element in d:
+            raise ValueError("Multiple POTCAR files for an element are not "
+                             "supported yet.")
         d[element] = p
     return d
 
@@ -49,7 +54,7 @@ def list2dict(flattened_list: Optional[list], key_candidates: list) -> dict:
     Return:
         Sanitized dict
     """
-    flattened_list = flattened_list if flattened_list else []
+    flattened_list = flattened_list or []
 
     d = {}
     key = None
@@ -92,7 +97,8 @@ def list2dict(flattened_list: Optional[list], key_candidates: list) -> dict:
     return d
 
 
-def get_user_settings(yaml_filename: str, setting_keys: list) -> dict:
+def get_user_settings(yaml_filename: str,
+                      setting_keys: list) -> dict:
     """Get the user specifying settings written in yaml_filename
 
     Note1: The yaml_filename is explored in the parent folders up to home
@@ -104,9 +110,13 @@ def get_user_settings(yaml_filename: str, setting_keys: list) -> dict:
            is suited when used for main default value.
 
     Args:
-        yaml_filename (str): User setting yaml filename.
+        yaml_filename (str):
+            User setting yaml filename.
+        setting_keys (list):
+            Only setting_keys are valid as input keys, otherwise raise
+            ValueError.
 
-    Return:
+    Returns:
         Dictionary of configs.
     """
 

@@ -28,7 +28,7 @@ def main():
                     "user_incar_setting",
                     "ldauu",
                     "ldaul",
-                    "override_potcar_set",
+                    "potcar_set",
                     "relax_iter_num",
                     "kpoints_criteria"]
 
@@ -70,16 +70,16 @@ def main():
         aliases=['vs'])
 
     # all the defaults must be declared here.
-    vs_defaults = {"symprec":             SYMMETRY_TOLERANCE,
-                   "angle_tolerance":     ANGLE_TOL,
-                   "xc":                  "pbesol",
-                   "task":                "structure_opt",
-                   "kpt_density":         KPT_DENSITY,
-                   "vise_opts":           None,
-                   "user_incar_setting":  None,
-                   "override_potcar_set": None,
-                   "ldauu":               None,
-                   "ldaul":               None}
+    vs_defaults = {"symprec":            SYMMETRY_TOLERANCE,
+                   "angle_tolerance":    ANGLE_TOL,
+                   "xc":                 "pbesol",
+                   "task":               "structure_opt",
+                   "kpt_density":        KPT_DENSITY,
+                   "vise_opts":          None,
+                   "user_incar_setting": None,
+                   "potcar_set":         None,
+                   "ldauu":              None,
+                   "ldaul":              None}
 
     simple_override(vs_defaults, list(vs_defaults.keys()))
 
@@ -92,7 +92,7 @@ def main():
         help="POSCAR-type file name.")
     parser_vasp_set.add_argument(
         "--potcar", dest="potcar_set",
-        default=vs_defaults["override_potcar_set"],
+        default=vs_defaults["potcar_set"],
         type=str, nargs="+",
         help="User specifying POTCAR set. E.g., Mg_pv O_h")
     parser_vasp_set.add_argument(
@@ -159,13 +159,13 @@ def main():
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         aliases=['vr'])
 
-    vr_defaults = {"symprec":          SYMMETRY_TOLERANCE,
-                   "angle_tolerance":  ANGLE_TOL,
-                   "left_files": None,
-                   "vasp_command":     None,
+    vr_defaults = {"symprec":             SYMMETRY_TOLERANCE,
+                   "angle_tolerance":     ANGLE_TOL,
+                   "left_files":          None,
+                   "vasp_command":        None,
                    "user_incar_setting":  None,
-                   "relax_iter_num":   10,
-                   "kpoints_criteria": 0.003}
+                   "relax_iter_num":      10,
+                   "kpoints_criteria":    0.003}
 
     simple_override(vr_defaults, list(vr_defaults.keys()))
 
@@ -234,7 +234,8 @@ def main():
     parser_plot_band.add_argument(
         "-k", dest="kpoints", default="KPOINTS", type=str)
     parser_plot_band.add_argument(
-        "-y", dest="y_range", nargs="+", type=float)
+        "-y", dest="y_range", nargs="+", type=float,
+        help="Energy range, requiring two values.")
     parser_plot_band.add_argument(
         "-f", dest="filename", type=str, default=None, help="pdf file name.")
     parser_plot_band.add_argument(
@@ -268,7 +269,7 @@ def main():
     simple_override(pd_defaults, list(pd_defaults.keys()))
 
     parser_plot_dos.add_argument(
-        "-v", dest="vasprun", type=str)
+        "-v", dest="vasprun", type=str, default="vasprun.xml")
     parser_plot_dos.add_argument(
         "-cv", dest="cbm_vbm", type=float, nargs="+",
         help="Set CBM and VBM.")
@@ -286,18 +287,19 @@ def main():
     parser_plot_dos.add_argument(
         "-y", dest="ymaxs", nargs="+", type=float, default=None,
         help="Set max values of y ranges. Support two ways."
-             "1st: total_max, each_atom" 
+             "1st: total_max, all_the_atoms" 
              "2nd: total_max, 1st_atom, 2nd_atom, ...")
     parser_plot_dos.add_argument(
-        "-f", dest="filename", type=str, help="pdf file name.")
+        "-f", dest="filename", type=str, default="dos.pdf",
+        help="pdf file name.")
     parser_plot_dos.add_argument(
-        "-a", dest="absolute", action="store_false",
+        "-a", dest="absolute", action="store_true",
         help="Show in the absolute energy scale.")
     parser_plot_dos.add_argument(
         "-l", dest="legend", action="store_false",
         help="Not show the legend.")
     parser_plot_dos.add_argument(
-        "-cfv", dest="cfv", action="store_false",
+        "-c", dest="c", action="store_false",
         help="Not crop the first value.")
     parser_plot_dos.add_argument(
         "--symprec", dest="symprec", type=float,
@@ -329,6 +331,8 @@ def main():
 
     parser_band_gap.add_argument(
         "-v", dest="vasprun", type=str, default="vasprun.xml", metavar="FILE")
+    parser_band_gap.add_argument(
+        "-o", dest="outcar", type=str, default="OUTCAR", metavar="FILE")
     parser_band_gap.set_defaults(func=band_gap)
 
     args = parser.parse_args()

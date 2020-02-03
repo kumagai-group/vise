@@ -181,7 +181,7 @@ class ViseDosPlotter(DosPlotter):
 
         plt.tight_layout()
         plt.subplots_adjust(left=None, bottom=None, right=None, top=None,
-                            wspace=0, hspace=0)
+                            wspace=0, hspace=0.1)
 
         if title:
             axs[0].title.set_text(title)

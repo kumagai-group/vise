@@ -425,7 +425,7 @@ class ViseInputSet(VaspInputSet):
                         elif value == "m":
                             shutil.move(fin, fout)
                 elif value == "l":
-                     os.symlink(filepath, out_dir / name)
+                    os.symlink(filepath, out_dir / name)
 
             except FileNotFoundError:
                 logger.warning(f"{key} does not exist.")

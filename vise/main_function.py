@@ -5,9 +5,11 @@ from itertools import chain
 import os
 
 from custodian.custodian import Custodian
+
 from pymatgen import Structure
 from pymatgen.core.periodic_table import Element
-from pymatgen.io.vasp.outputs import BSVasprun
+from pymatgen.io.vasp.outputs import BSVasprun, Outcar
+
 from vise.analyzer.band_gap import band_gap_properties
 from vise.analyzer.band_plotter import PrettyBSPlotter
 from vise.analyzer.dos_plotter import get_dos_plot
@@ -160,22 +162,20 @@ def plot_dos(args):
                        orbital=args.orbital,
                        xlim=args.x_range,
                        ymaxs=args.ymaxs,
-                       zero_at_efermi=args.absolute,
+                       zero_at_efermi=not args.absolute,
                        legend=args.legend,
-                       crop_first_value=args.cfv,
+                       crop_first_value=args.c,
                        symprec=args.symprec,
                        angle_tolerance=args.angle_tolerance)
 
-    if args.filename:
-        dos.savefig(args.filename, format="pdf")
-    else:
-        dos.show()
+    dos.savefig(args.filename, format="pdf")
 
 
 def band_gap(args):
     v = BSVasprun(args.vasprun)
+    o = Outcar(args.outcar)
     try:
-        band_gap_value, vbm_info, cbm_info = band_gap_properties(v)
+        band_gap_value, vbm_info, cbm_info = band_gap_properties(v, o)
         print(f"CBM info {cbm_info}")
         print(f"VBM info {vbm_info}")
         print(f"band gap info {band_gap_value}")
