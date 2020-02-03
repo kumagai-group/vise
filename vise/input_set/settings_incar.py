@@ -4,15 +4,13 @@ from pathlib import Path
 from typing import Optional
 
 from monty.serialization import loadfn
-
 from pymatgen import Structure, Composition, Element
 from pymatgen.io.vasp import Potcar
-
 from vise.config import BAND_GAP_CRITERION
-from vise.input_set.task import (
-    LATTICE_RELAX_TASK, PLOT_TASK, SPECTRA_TASK, Task)
 from vise.input_set.settings_util import (
     load_default_incar_settings, check_keys, nelect, nbands, calc_npar_kpar)
+from vise.input_set.task import (
+    LATTICE_RELAX_TASK, PLOT_TASK, SPECTRA_TASK, Task)
 from vise.input_set.xc import Xc, LDA_OR_GGA, HYBRID_FUNCTIONAL
 from vise.util.logger import get_logger
 

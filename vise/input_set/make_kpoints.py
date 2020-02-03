@@ -1,21 +1,21 @@
 # -*- coding: utf-8 -*-
-from math import ceil, modf, pow
-from typing import Tuple, List, Optional
 
 from enum import Enum, unique
+from math import ceil, modf, pow
+from typing import List
 
 import numpy as np
 from pymatgen import Structure
 from pymatgen.core.periodic_table import Element
 from pymatgen.io.vasp.inputs import Kpoints
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from vise.config import BAND_REF_DIST, KPT_DENSITY
 from vise.config import SYMMETRY_TOLERANCE, ANGLE_TOL
 from vise.input_set.datasets.kpt_centering import kpt_centering
 from vise.util.logger import get_logger
 from vise.util.structure_handler import (
     structure_to_seekpath, find_spglib_primitive, get_symmetry_dataset)
 
-from vise.config import BAND_REF_DIST, KPT_DENSITY
 logger = get_logger(__name__)
 
 __author__ = "Yu Kumagai"

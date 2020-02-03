@@ -10,7 +10,7 @@ from pydefect.util.tools import is_str_int, is_str_digit
 def potcar_str2dict(potcar_list: Optional[str]) -> dict:
     """Sanitize the string type potcar setting to dict.
 
-    An exmaple is "Mg_pv O_h" -> {"Mg": "Mg_pv", "O": "O_h"}
+    An example is "Mg_pv O_h" -> {"Mg": "Mg_pv", "O": "O_h"}
     If potcar_list is None, {} is returned.
 
     Args:

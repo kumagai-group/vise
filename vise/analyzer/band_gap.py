@@ -3,7 +3,6 @@
 import numpy as np
 
 from typing import Tuple, Optional, Union
-import math
 from pymatgen.io.vasp.outputs import Vasprun, Outcar
 from pymatgen.electronic_structure.core import Spin
 
@@ -101,12 +100,16 @@ def edge_info(eigenvalues: dict,
               hob_index: int,
               spin=Spin.up
               ) -> Tuple[float, int, float, int]:
-    """Evaluate the band gap properties from vasprun.xml
+    """Evaluate the band gap properties from eigenvalues.
 
     Args:
         eigenvalues (dict):
-        hob_index (int): Highest-occupied band (HOB) index starting from0.
-        spin: Pymatgen Spin object.
+            eigenvalue, occupation =
+                Eigenvalues[spin][k-point index][band index][0:2]
+        hob_index (int):
+            Highest-occupied band (HOB) index starting from0.
+        spin:
+            Pymatgen Spin object.
 
     Return:
         Tuple of HOB eigenvalue, its k index, lowest-unoccupied band (LUB)

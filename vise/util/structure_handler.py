@@ -2,12 +2,12 @@
 import operator
 from itertools import groupby
 from typing import Tuple
-from pymatgen.core.periodic_table import Element
 
 import seekpath
 import spglib
 from atomate.utils.utils import get_logger
 from pymatgen import Structure
+from pymatgen.core.periodic_table import Element
 from vise.config import ANGLE_TOL, SYMMETRY_TOLERANCE, BAND_REF_DIST
 
 __author__ = "Yu Kumagai"

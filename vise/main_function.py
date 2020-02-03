@@ -1,18 +1,19 @@
 # -*- coding: utf-8 -*-
 
-import os
 from copy import deepcopy
 from itertools import chain
+import os
 
 from custodian.custodian import Custodian
-
 from pymatgen import Structure
 from pymatgen.core.periodic_table import Element
 from pymatgen.io.vasp.outputs import BSVasprun
-
 from vise.analyzer.band_gap import band_gap_properties
 from vise.analyzer.band_plotter import PrettyBSPlotter
 from vise.analyzer.dos_plotter import get_dos_plot
+from vise.custodian_extension.error_handlers import (
+    TooLongTimeCalcErrorHandler)
+from vise.custodian_extension.handler_groups import HANDLER_GROUP
 from vise.custodian_extension.jobs import ViseVaspJob
 from vise.input_set.incar import incar_flags
 from vise.input_set.input_set import ViseInputSet
@@ -22,9 +23,6 @@ from vise.input_set.xc import Xc
 from vise.util.error_classes import NoVaspCommandError
 from vise.util.logger import get_logger
 from vise.util.main_tools import potcar_str2dict, list2dict
-from vise.custodian_extension.error_handlers import (
-    TooLongTimeCalcErrorHandler)
-from vise.custodian_extension.handler_groups import HANDLER_GROUP
 
 __author__ = "Yu Kumagai"
 __maintainer__ = "Yu Kumagai"

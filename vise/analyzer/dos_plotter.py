@@ -1,16 +1,19 @@
 # -*- coding: utf-8 -*-
 
 from collections import OrderedDict, defaultdict
+from typing import Dict
 
 import numpy as np
-from atomate.utils.utils import get_logger
+
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.dos import Dos
 from pymatgen.electronic_structure.dos import add_densities
 from pymatgen.electronic_structure.plotter import DosPlotter
 from pymatgen.io.vasp import Vasprun
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
 from vise.config import SYMMETRY_TOLERANCE, ANGLE_TOL
+from vise.util.logger import get_logger
 
 __author__ = "Yu Kumagai"
 __maintainer__ = "Yu Kumagai"
@@ -206,7 +209,8 @@ def get_dos_plot(vasprun_file: str,
         orbital (bool):
             Whether to show orbital decomposed PDOS.
         xlim (list):
-            Specifies the x-axis limits. Set to None for automatic determination.
+            Specifies x-axis limits.
+            Set to None for automatic determination.
         ymaxs (list):
             Specifies the maxima of absolute y-axis limits.
         zero_at_efermi (bool):
@@ -369,8 +373,8 @@ def get_dos_plot(vasprun_file: str,
 
 
 def divide_densities(density: dict,
-                     denominator: float):
-    """Method to didide charge density.
+                     denominator: float) -> Dict[Spin, np.ndarray]:
+    """Method to divide charge density.
 
     Args:
         density: First density.

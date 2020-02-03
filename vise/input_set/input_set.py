@@ -5,9 +5,9 @@ import os
 import re
 import shutil
 from copy import deepcopy
+from importlib import import_module
 from pathlib import Path
 from typing import Optional, Union
-from importlib import import_module
 
 import numpy as np
 from monty.io import zopen
@@ -21,13 +21,13 @@ from vise.analyzer.band_gap import band_gap_properties
 from vise.config import (
     DOS_STEP_SIZE, KPT_DENSITY, ENCUT_FACTOR_STR_OPT, ANGLE_TOL,
     SYMMETRY_TOLERANCE, BAND_REF_DIST, DEFAULT_NUM_NODES)
-from vise.input_set.task import Task
 from vise.input_set.incar import ViseIncar
 from vise.input_set.settings_incar import (
     TaskIncarSettings, XcIncarSettings, XcTaskIncarSettings,
     CommonIncarSettings)
-from vise.input_set.settings_structure_kpoints import TaskStructureKpoints
 from vise.input_set.settings_potcar import XcTaskPotcar
+from vise.input_set.settings_structure_kpoints import TaskStructureKpoints
+from vise.input_set.task import Task
 from vise.input_set.xc import Xc
 from vise.util.logger import get_logger
 from vise.util.structure_handler import get_symbol_list

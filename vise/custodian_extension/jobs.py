@@ -2,23 +2,23 @@
 
 import json
 import os
+import re
 import shutil
 from glob import glob
 from pathlib import Path
-import re
 from typing import Optional, List
 from uuid import uuid4
-import numpy as np
 
+import numpy as np
 from custodian.vasp.jobs import VaspJob
 from monty.json import MSONable
 from monty.json import MontyEncoder
 from monty.serialization import loadfn
 from pymatgen.core.structure import Structure
-from pymatgen.io.vasp import Poscar, Kpoints, Vasprun
+from pymatgen.io.vasp import Kpoints, Vasprun
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from vise.config import SYMMETRY_TOLERANCE, ANGLE_TOL, KPT_INIT_DENSITY, \
-    KPT_FACTOR
+from vise.config import (
+    SYMMETRY_TOLERANCE, ANGLE_TOL, KPT_INIT_DENSITY, KPT_FACTOR)
 from vise.input_set.input_set import ViseInputSet
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc
