@@ -140,9 +140,9 @@ def vasp_run(args):
 
 def plot_band(args):
 
-    p = PrettyBSPlotter.from_vasp_files(kpoints=args.kpoints,
-                                        vasprun=args.vasprun,
-                                        vasprun2=args.vasprun2,
+    p = PrettyBSPlotter.from_vasp_files(kpoints_filenames=args.kpoints,
+                                        vasprun_filenames=args.vasprun,
+                                        vasprun2_filenames=args.vasprun2,
                                         absolute=args.absolute,
                                         y_range=args.y_range,
                                         legend=args.legend,

@@ -33,7 +33,7 @@ setup(
     ],
     python_requires='>=3.6',
     install_requires=['numpy','pymatgen','matplotlib','seekpath','spglib',
-                      'custodian'],
+                      'custodian', 'scipy'],
     cmdclass = cmdclass,
     ext_modules=ext_modules,
     include_package_data=True,

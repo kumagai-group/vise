@@ -238,7 +238,7 @@ def main():
     parser_plot_band.add_argument(
         "-f", dest="filename", type=str, default=None, help="pdf file name.")
     parser_plot_band.add_argument(
-        "-a", dest="absolute", action="store_false",
+        "-a", dest="absolute", action="store_true",
         help="Show in the absolute energy scale.")
     parser_plot_band.add_argument(
         "-l", dest="legend", action="store_false",
