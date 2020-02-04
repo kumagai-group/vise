@@ -118,8 +118,13 @@ def vasp_run(args):
 
     flags = list(chain.from_iterable(incar_flags.values()))
     user_incar_settings = list2dict(args.user_incar_setting, flags)
-    handlers = HANDLER_GROUP["default"]
-    if args.timeout:
+    if args.additional_user_incar_setting:
+        key_candidates = list(chain.from_iterable(incar_flags.values()))
+        d = list2dict(args.additional_user_incar_setting, key_candidates)
+        user_incar_settings.update(d)
+
+    handlers = HANDLER_GROUP[args.handler_name]
+    if args.handler_name in ["default", "dielectric"]:
         handlers.pop(-1)
         handlers.append(TooLongTimeCalcErrorHandler(args.timeout))
 
