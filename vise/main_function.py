@@ -112,7 +112,10 @@ def vasp_run(args):
     if isinstance(args.vasp_cmd, str):
         vasp_cmd = args.vasp_cmd.split()
     elif isinstance(args.vasp_cmd, list):
-        vasp_cmd = args.vasp_cmd
+        if len(args.vasp_cmd) == 1:
+            vasp_cmd = args.vasp_cmd[0].split()
+        else:
+            vasp_cmd = args.vasp_cmd
     else:
         raise NoVaspCommandError("Vasp command must be specified properly.")
 
@@ -143,12 +146,10 @@ def vasp_run(args):
                       "gzipped_output": False}
 
     if args.kpoint_conv:
-        xc = args.xc or Xc.pbesol
-
         custodian_args["jobs"] = ViseVaspJob.kpt_converge(
-            xc=xc,
+            xc=args.xc,
             convergence_criterion=args.convergence_criterion,
-#            initial_kpt_density=args.kpoint_density,
+            initial_kpt_density=args.initial_kpt_density,
             user_incar_settings=user_incar_settings,
             **optimization_args)
     else:

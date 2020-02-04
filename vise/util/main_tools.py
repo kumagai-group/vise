@@ -162,6 +162,8 @@ def get_user_settings(yaml_filename: str,
         else:
             config_path = config_path.parent
 
+    user_settings = user_settings or {}
+
     # Add full path
     for k, v in user_settings.items():
         if k not in setting_keys:

@@ -71,7 +71,7 @@ def main():
 
     subparsers = parser.add_subparsers()
 
-    # -- prec parent parser  ---------------------------------------------------
+    # -- parent parser: prec
     prec = {"symprec": SYMMETRY_TOLERANCE,
             "angle_tolerance": ANGLE_TOL}
     simple_override(prec, ["symprec", "angle_tolerance"])
@@ -87,7 +87,7 @@ def main():
         default=prec["angle_tolerance"],
         help="Set angle precision used for symmetry analysis.")
 
-    # -- vasp set parent parser  -----------------------------------------------
+    # -- parent parser:  vasp set
     vasp_defaults = get_default_args(ViseInputSet.make_input)
     vasp_defaults.update(ViseInputSet.TASK_OPTIONS)
     vasp_defaults.update(ViseInputSet.XC_OPTIONS)
@@ -214,6 +214,7 @@ def main():
         aliases=['vr'])
 
     vr_defaults = get_default_args(ViseVaspJob.kpt_converge)
+    vr_defaults["vasp_cmd"] = None
 
     simple_override(vr_defaults, ["vasp_cmd",
                                   "initial_kpt_density"
@@ -226,7 +227,7 @@ def main():
         help="VASP command. If you are using mpirun, set this to something "
              "like \"mpirun pvasp\".",)
     parser_vasp_run.add_argument(
-        "-ikd", "-initial_kpoint_density", dest="initial_kpt_density",
+        "-ikd", "-initial_kpt_density", dest="initial_kpt_density",
         type=float,
         default=vr_defaults["initial_kpt_density"],
         help="Initial k-point density.")
