@@ -4,12 +4,13 @@
 import argparse
 from typing import Union
 
-from pymatgen.ext.matproj import MPRester
-
-from vise.config import SYMMETRY_TOLERANCE, ANGLE_TOL, KPT_DENSITY
-from vise.main_function import vasp_set, plot_band, plot_dos, vasp_run, band_gap
+from vise.config import SYMMETRY_TOLERANCE, ANGLE_TOL
+from vise.custodian_extension.jobs import ViseVaspJob
+from vise.main_function import (
+    get_poscar_from_mp, vasp_set, plot_band, plot_dos, vasp_run, band_gap)
 from vise.util.logger import get_logger
-from vise.util.main_tools import dict2list, get_user_settings
+from vise.util.main_tools import dict2list, get_user_settings, get_default_args
+from vise.input_set.input_set import ViseInputSet
 
 __author__ = "Yu Kumagai"
 __maintainer__ = "Yu Kumagai"
@@ -20,17 +21,19 @@ __version__ = '0.0.1dev'
 __date__ = 'will be inserted'
 
 # The following keys are set by vise.yaml
-setting_keys = ["vasp_command",
+setting_keys = ["vasp_cmd",
                 "symprec",
                 "angle_tolerance",
                 "xc",
                 "kpt_density",
+                "vise_opts",
                 "user_incar_setting",
                 "ldauu",
                 "ldaul",
                 "potcar_set",
+                "potcar_set_name",
                 "relax_iter_num",
-                "kpoints_criteria"]
+                "convergence_criterion"]
 
 user_settings = get_user_settings(yaml_filename="vise.yaml",
                                   setting_keys=setting_keys)
@@ -79,10 +82,7 @@ def main():
         "-p", "--poscar", dest="poscar", default="POSCAR", type=str,
         help="POSCAR-type file name for the unitcell.", metavar="FILE")
 
-    opts = parser.parse_args()
-
-    s = MPRester().get_structure_by_material_id("mp-" + str(opts.number))
-    s.to(filename=opts.poscar)
+    parser_get_poscar.set_defaults(func=get_poscar_from_mp)
 
     # -- vasp_set ---------------------------------------------------------
     parser_vasp_set = subparsers.add_parser(
@@ -92,20 +92,25 @@ def main():
         aliases=['vs'])
 
     # all the defaults must be declared here.
-    vs_defaults = {"symprec":            SYMMETRY_TOLERANCE,
-                   "angle_tolerance":    ANGLE_TOL,
-                   "xc":                 "pbesol",
-                   "task":               "structure_opt",
-                   "kpt_density":        KPT_DENSITY,
-                   "vise_opts":          None,
-                   "user_incar_setting": None,
-                   "potcar_set":         None,
-                   "ldauu":              None,
-                   "ldaul":              None}
+    vs_defaults = get_default_args(ViseInputSet.make_input)
+    vs_defaults.update(ViseInputSet.TASK_OPTIONS)
+    vs_defaults.update(ViseInputSet.XC_OPTIONS)
+    vs_defaults["potcar_set"] = None
+    vs_defaults["vise_opts"] = None
+    vs_defaults["user_incar_setting"] = None
 
-    simple_override(vs_defaults, list(vs_defaults.keys()))
+    simple_override(vs_defaults, ["symprec",
+                                  "angle_tolerance",
+                                  "xc",
+                                  "task",
+                                  "kpt_density",
+                                  "vise_opts",
+                                  "user_incar_setting",
+                                  "potcar_set",
+                                  "potcar_set_name",
+                                  "ldauu",
+                                  "ldaul"])
 
-    # write use potcar setting
     parser_vasp_set.add_argument(
         "--pj", dest="print_json", type=str,
         help="Print the ViseInputSet info from the given json file.")
@@ -113,15 +118,20 @@ def main():
         "-p", "--poscar", dest="poscar", default="POSCAR", type=str,
         help="POSCAR-type file name.")
     parser_vasp_set.add_argument(
-        "--potcar", dest="potcar_set",
-        default=vs_defaults["potcar_set"],
+        "--potcar", dest="potcar_set", default=vs_defaults["potcar_set"],
         type=str, nargs="+",
         help="User specifying POTCAR set. E.g., Mg_pv O_h")
     parser_vasp_set.add_argument(
-        "-x", "--xc", dest="xc", default=vs_defaults["xc"], type=str,
+        "--potcar_set_name", dest="potcar_set_name",
+        default=vs_defaults["potcar_set_name"],
+        type=str, nargs="+",
+        help="User specifying POTCAR set name, i.e., normal ,gw, or "
+             "mp_relax_set.")
+    parser_vasp_set.add_argument(
+        "-x", "--xc", dest="xc", default=str(vs_defaults["xc"]), type=str,
         help="Exchange-correlation (XC) interaction treatment.")
     parser_vasp_set.add_argument(
-        "-t", "--task", dest="task", default=vs_defaults["task"], type=str,
+        "-t", "--task", dest="task", default=str(vs_defaults["task"]), type=str,
         help="The task name. See document of vise.")
     parser_vasp_set.add_argument(
         "-k", "--kpt_density", dest="kpt_density",
@@ -142,7 +152,6 @@ def main():
         default=vs_defaults["vise_opts"],
         help="Keyword arguments for options in make_input classmethod of "
              "ViseInputSet in vise. See document in vise for details.")
-    # TODO: the vise.yaml is completely overridden. Should we partly override?
     parser_vasp_set.add_argument(
         "-uis", "--user_incar_setting", dest="user_incar_setting", type=str,
         nargs="+",
@@ -150,13 +159,19 @@ def main():
         help="user_incar_setting in make_input classmethod of ViseInputSet in "
              "vise. See document in vise for details.")
     parser_vasp_set.add_argument(
+        "-auis", "--additional_user_incar_setting",
+        dest="additional_user_incar_setting", type=str,
+        nargs="+", default=None,
+        help="Use this if one does not want to override user_incar_setting "
+             "written in the yaml file")
+    parser_vasp_set.add_argument(
         "--dirs", dest="dirs", nargs="+", type=str, default=None,
         help="Make vasp set for the directories in the same condition.")
     parser_vasp_set.add_argument(
         "-pi", "-prior_info", dest="prior_info", action="store_true",
         help="Set if prior_info.json is read.")
     parser_vasp_set.add_argument(
-        "-ldauu", dest="ldauu", type=dict, default=vs_defaults["ldauu"],
+        "-ldauu", dest="ldauu", type=str, default=vs_defaults["ldauu"],
         nargs="+", help="Dict of LDAUU values")
     parser_vasp_set.add_argument(
         "-ldaul", dest="ldaul", type=str, default=vs_defaults["ldaul"],
@@ -181,21 +196,39 @@ def main():
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         aliases=['vr'])
 
-    vr_defaults = {"symprec":             SYMMETRY_TOLERANCE,
-                   "angle_tolerance":     ANGLE_TOL,
-                   "left_files":          None,
-                   "vasp_command":        None,
-                   "user_incar_setting":  None,
-                   "relax_iter_num":      10,
-                   "kpoints_criteria":    0.003}
+    vr_defaults = get_default_args(ViseVaspJob.kpt_converge)
+    vr_defaults.update(ViseInputSet.XC_OPTIONS)
+    vr_defaults["potcar_set"] = None
+    vr_defaults["user_incar_setting"] = None
 
-    simple_override(vr_defaults, list(vr_defaults.keys()))
+    simple_override(vr_defaults, ["vasp_cmd",
+                                  "symprec",
+                                  "angle_tolerance",
+                                  "user_incar_setting",
+                                  "ldauu",
+                                  "ldaul",
+                                  "potcar_set",
+                                  "potcar_set_name",
+                                  "relax_iter_num",
+                                  "convergence_criterion"])
 
     parser_vasp_run.add_argument(
-        "-vc", "--vasp_command", dest="vasp_cmd", nargs="+", type=str,
-        default=None,
+        "-v", "--vasp_cmd", dest="vasp_cmd", nargs="+", type=str,
+        default=vr_defaults["vasp_cmd"],
         help="VASP command. If you are using mpirun, set this to something "
              "like \"mpirun pvasp\".",)
+    parser_vasp_run.add_argument(
+        "--potcar", dest="potcar_set", default=vr_defaults["potcar_set"],
+        type=str, nargs="+",
+        help="User specifying POTCAR set. E.g., Mg_pv O_h")
+    parser_vasp_run.add_argument(
+        "--potcar_set_name", dest="potcar_set_name",
+        default=vr_defaults["potcar_set_name"],
+        type=str, nargs="+",
+        help="User specifying POTCAR set. E.g., Mg_pv O_h")
+    parser_vasp_run.add_argument(
+        "-kd", "-kpoint_density", dest="kpoint_density", type=float,
+        default=1.2, help="Initial k-point density.")
     parser_vasp_run.add_argument(
         "-handler_name", dest="handler_name", type=str, default="default",
         help="Custodian error handler name listed in error_handlers.")
@@ -207,7 +240,7 @@ def main():
         help="Remove WAVECAR file after the calculation is finished.")
     parser_vasp_run.add_argument(
         "--max_relax_num", dest="max_relax_num",
-        default=vr_defaults["relax_iter_num"], type=int,
+        default=vr_defaults["max_relax_num"], type=int,
         help="Maximum number of relaxations.")
     parser_vasp_run.add_argument(
         "-uis", "--user_incar_setting", dest="user_incar_setting", type=str,
@@ -216,9 +249,9 @@ def main():
         help="user_incar_setting in make_input classmethod of ViseInputSet in "
              "vise. See document in vise for details.")
     parser_vasp_run.add_argument(
-        "-criteria", dest="kpoints_criteria",
-        default=vr_defaults["kpoints_criteria"], type=float,
-        help="Convergence criteria of kpoints in eV / atom.")
+        "-criteria", dest="convergence_criterion",
+        default=vr_defaults["convergence_criterion"], type=float,
+        help="Convergence criterion of kpoints in eV / atom.")
     parser_vasp_run.add_argument(
         "-files", dest="left_files", type=str, nargs="+",
         default=vr_defaults["left_files"],
@@ -229,10 +262,14 @@ def main():
     parser_vasp_run.add_argument(
         "-x", "--xc", dest="xc", default=None, type=str,
         help="Exchange-correlation (XC) interaction treatment.")
-
-#    parser_vasp_run.add_argument(
-#        "-kd", "-kpoint_density", dest="kpoint_density", type=float,
-#        default=None, help="Initial k-point density.")
+    parser_vasp_run.add_argument(
+        "--symprec", dest="symprec", type=float,
+        default=vr_defaults["symprec"],
+        help="Set length precision used for symmetry analysis [A].")
+    parser_vasp_run.add_argument(
+        "--angle_tolerance", dest="angle_tolerance", type=float,
+        default=vr_defaults["angle_tolerance"],
+        help="Set angle precision used for symmetry analysis.")
 
     del vr_defaults
     parser_vasp_run.set_defaults(func=vasp_run)

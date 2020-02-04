@@ -6,8 +6,9 @@ import os
 
 from custodian.custodian import Custodian
 
-from pymatgen import Structure
+from pymatgen.core.structure import Structure
 from pymatgen.core.periodic_table import Element
+from pymatgen.ext.matproj import MPRester
 from pymatgen.io.vasp.outputs import BSVasprun, Outcar
 
 from vise.analyzer.band_gap import band_gap_properties
@@ -32,6 +33,11 @@ __maintainer__ = "Yu Kumagai"
 logger = get_logger(__name__)
 
 
+def get_poscar_from_mp(args):
+    s = MPRester().get_structure_by_material_id(f"mp-{args.number}")
+    s.to(filename=args.poscar)
+
+
 def vasp_set(args):
     if args.print_json:
         vis = ViseInputSet.load_json(args.print_json)
@@ -45,16 +51,21 @@ def vasp_set(args):
     task = Task.from_string(args.task)
     xc = Xc.from_string(args.xc)
 
-    base_kwargs = {"kpt_density": args.kpt_density,
-                   "standardize_structure": args.standardize,
-                   "ldauu": ldauu,
-                   "ldaul": ldaul}
+    vise_base_kwargs = {"kpt_density": args.kpt_density,
+                        "standardize_structure": args.standardize,
+                        "potcar_set_name": args.potcar_set_name,
+                        "ldauu": ldauu,
+                        "ldaul": ldaul}
 
-    flags = list(ViseInputSet.ALL_OPTIONS.keys())
-    base_kwargs.update(list2dict(args.vise_opts, flags))
+    key_candidates = list(ViseInputSet.ALL_OPTIONS.keys())
+    vise_base_kwargs.update(list2dict(args.vise_opts, key_candidates))
 
-    flags = list(chain.from_iterable(incar_flags.values()))
-    base_user_incar_settings = list2dict(args.user_incar_setting, flags)
+    key_candidates = list(chain.from_iterable(incar_flags.values()))
+    base_user_incar_settings = list2dict(args.user_incar_setting,
+                                         key_candidates)
+    if args.additional_user_incar_setting:
+        d = list2dict(args.additional_user_incar_setting, key_candidates)
+        base_user_incar_settings.update(d)
 
     original_dir = os.getcwd()
     dirs = args.dirs or ["."]
@@ -63,7 +74,7 @@ def vasp_set(args):
         os.chdir(os.path.join(original_dir, d))
         logger.info(f"Constructing vasp set in {d}")
         user_incar_settings = deepcopy(base_user_incar_settings)
-        kwargs = deepcopy(base_kwargs)
+        kwargs = deepcopy(vise_base_kwargs)
 
         if args.prior_info:
             if os.path.exists("prior_info.json"):
@@ -97,12 +108,13 @@ def vasp_set(args):
 
 
 def vasp_run(args):
-    if len(args.vasp_cmd) == 0:
-        raise NoVaspCommandError("Vasp command must be specified.")
-    elif len(args.vasp_cmd) == 1:
-        vasp_cmd = args.vasp_cmd[0].split()
-    else:
+
+    if isinstance(args.vasp_cmd, str):
+        vasp_cmd = args.vasp_cmd.split()
+    elif isinstance(args.vasp_cmd, list):
         vasp_cmd = args.vasp_cmd
+    else:
+        raise NoVaspCommandError("Vasp command must be specified properly.")
 
     flags = list(chain.from_iterable(incar_flags.values()))
     user_incar_settings = list2dict(args.user_incar_setting, flags)
@@ -115,7 +127,9 @@ def vasp_run(args):
                          "removes_wavecar": args.rm_wavecar,
                          "max_relax_num": args.max_relax_num,
                          "left_files": args.left_files,
-                         "removed_files": ["PCDAT", "vasprun.xml"]}
+                         "removed_files": ["PCDAT", "vasprun.xml"],
+                         "symprec": args.symprec,
+                         "angle_tolerance": args.angle_tolerance}
 
     custodian_args = {"handlers": handlers,
                       "polling_time_step": 5,
@@ -128,7 +142,7 @@ def vasp_run(args):
 
         custodian_args["jobs"] = ViseVaspJob.kpt_converge(
             xc=xc,
-            convergence_criterion=args.kpoints_criteria,
+            convergence_criterion=args.convergence_criterion,
 #            initial_kpt_density=args.kpoint_density,
             user_incar_settings=user_incar_settings,
             **optimization_args)

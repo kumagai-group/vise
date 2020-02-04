@@ -109,8 +109,8 @@ class StructureOptResult(MSONable):
                  ) -> "StructureOptResult":
         """Constructor from directory and previous StructureOptResult if exists
 
-        Note: Generate in initial_structure and initial_sg from previous
-              StructureOptResult if exists.
+        Generate initial_structure and initial_sg from previous
+        StructureOptResult if exists.
 
         Args:
             dir_name (str):

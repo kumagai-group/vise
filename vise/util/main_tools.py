@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
 import re
+from inspect import signature, _empty
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Callable
 
 import yaml
-
 from pydefect.util.tools import is_str_int, is_str_digit
 
 
@@ -97,6 +97,32 @@ def list2dict(flattened_list: Optional[list], key_candidates: list) -> dict:
     return d
 
 
+def dict2list(d: dict) -> list:
+    """Sanitize the string type potcar setting to dict.
+
+    The string is also separated by space. An example is
+    dict2list({"a": 1, "b": "2 3 4", "c": True}) =
+                                 ["a", "1", "b", "2", "3", "4", "c", "True"]
+
+    Args:
+         d (dict)
+
+    Returns:
+         List of flattened dict
+    """
+
+    d = d if d else {}
+    flattened_list = []
+    for k, v in d.items():
+        flattened_list.append(k)
+        if isinstance(v, str):
+            flattened_list.extend(v.split())
+        else:
+            flattened_list.append(str(v))
+
+    return flattened_list
+
+
 def get_user_settings(yaml_filename: str,
                       setting_keys: list) -> dict:
     """Get the user specifying settings written in yaml_filename
@@ -147,27 +173,22 @@ def get_user_settings(yaml_filename: str,
     return user_settings
 
 
-def dict2list(d: dict) -> list:
-    """Sanitize the string type potcar setting to dict.
+def get_default_args(function: Callable) -> dict:
+    """Get the default values of the arguments in the method/function.
 
-    The string is also separated by space. An example is
-    dict2list({"a": 1, "b": "2 3 4", "c": True}) =
-                                 ["a", "1", "b", "2", "3", "4", "c", "True"]
+    inspect._empty means no default.
 
     Args:
-         d (dict)
+        function (Callable):
+            Method or function. when class is inserted, cls.__init__ is called.
 
-    Return:
-         list of flattened dict
+    Returns:
+        default dict
     """
+    defaults = {}
+    signature_obj = signature(function)
+    for name, param in signature_obj.parameters.items():
+        if param.default != _empty:
+            defaults[name] = param.default
 
-    d = d if d else {}
-    flattened_list = []
-    for k, v in d.items():
-        flattened_list.append(k)
-        if isinstance(v, str):
-            flattened_list.extend(v.split())
-        else:
-            flattened_list.append(str(v))
-
-    return flattened_list
+    return defaults
