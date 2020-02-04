@@ -171,6 +171,8 @@ class XcIncarSettings:
                                         optional_flags=XC_OPTIONAL_FLAGS,
                                         key_name=str(xc))
 
+        if ldauu:
+            hubbard_u = True
         # By default Hubbard U is set for LDA or GGA.
         hubbard_u = xc in LDA_OR_GGA if hubbard_u is None else hubbard_u
         ldauu = ldauu or {}
