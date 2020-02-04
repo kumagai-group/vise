@@ -6,6 +6,7 @@ import re
 import shutil
 from glob import glob
 from pathlib import Path
+import tempfile
 from typing import Optional, List
 from uuid import uuid4
 
@@ -38,7 +39,8 @@ VASP_FINISHED_FILES = {i + ".finish" for i in VASP_SAVED_FILES}
 def rm_wavecar(remove_current: bool,
                remove_subdirectories: Optional[bool] = False) -> None:
     """Remove WAVECARs at the current directory and subdirectories."""
-    print(f"rm_wavecar {remove_current} {remove_subdirectories}")
+    logger.info(f"Remove WAVECAR in current directory: {remove_current}")
+    logger.info(f" Remove WAVECAR in sub directories: {remove_subdirectories}")
 
     if remove_current:
         try:
@@ -387,7 +389,11 @@ class ViseVaspJob(VaspJob):
         if self.suffix != "":
             for f in VASP_SAVED_FILES | {self.output_file}:
                 if os.path.exists(f):
-                    shutil.copy(f, "{}{}".format(f, self.suffix))
+                    print(f)
+                    if f in ["PROCAR", "OUTCAR", "vasprun.xml"]:
+                        shutil.move(f, "{}{}".format(f, self.suffix))
+                    else:
+                        shutil.copy(f, "{}{}".format(f, self.suffix))
 
         # Remove continuation so if a subsequent job is run in
         # the same directory, will not restart this job.
@@ -448,7 +454,7 @@ class ViseVaspJob(VaspJob):
             shutil.copy(".".join(["CONTCAR", str(job_number)]), "POSCAR")
             backup_initial_input_files = False
 
-            if len(Vasprun("vasprun.xml").ionic_steps) == 1:
+            if len(Vasprun(f"vasprun.xml.{job_number}").ionic_steps) == 1:
                 break
         else:
             raise VaspNotConvergedError("Structure optimization not converged")
@@ -466,7 +472,23 @@ class ViseVaspJob(VaspJob):
         rm_wavecar(removes_wavecar)
 
         if move_unimportant_files:
-            os.mkdir("files")
+            dir_name = "files"
+            if os.path.exists(dir_name):
+                logger.warning(f"{dir_name} is being removed.")
+                # `tempfile.mktemp` Returns an absolute pathname of a file that
+                # did not exist at the time the call is made. We pass
+                # dir=os.path.dirname(dir_name) here to ensure we will move
+                # to the same filesystem. Otherwise, shutil.copy2 will be used
+                # internally and the problem remains.
+                tmp = tempfile.mktemp(dir=os.path.dirname(dir_name))
+                # Rename the dir.
+                shutil.move(dir_name, tmp)
+                # And delete it.
+                shutil.rmtree(tmp)
+
+            # At this point, even if tmp is still being deleted,
+            # there is no name collision.
+            os.makedirs(dir_name)
 
         result = \
             StructureOptResult.from_dir(dir_name=".",
@@ -475,6 +497,11 @@ class ViseVaspJob(VaspJob):
                                         prev_structure_opt=prev_structure_opt)
 
         result.to_json_file("structure_opt.json")
+
+        import subprocess
+        subprocess.call(["ls", "-l"])
+
+        print(left_files)
 
         for f in glob("*"):
             if not os.path.isfile(f):
@@ -633,7 +660,7 @@ class ViseVaspJob(VaspJob):
 
             is_sg_changed = str_opt.is_sg_changed
 
-#        rm_wavecar(remove_current=removes_wavecar, remove_subdirectories=True)
+        rm_wavecar(remove_current=removes_wavecar, remove_subdirectories=True)
 
         if kpt_conv.converged_result:
             conv_dirname = Path(kpt_conv.converged_result.dirname)

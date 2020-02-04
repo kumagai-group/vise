@@ -51,7 +51,8 @@ def list2dict(flattened_list: Optional[list], key_candidates: list) -> dict:
     Args:
         flattened_list (list): Input list
         key_candidates (list): List of key candidates, e.g., INCAR flags.
-    Return:
+
+    Returns:
         Sanitized dict
     """
     flattened_list = flattened_list or []
@@ -185,7 +186,7 @@ def get_default_args(function: Callable) -> dict:
             Method or function. when class is inserted, cls.__init__ is called.
 
     Returns:
-        default dict
+        Dict of default values.
     """
     defaults = {}
     signature_obj = signature(function)

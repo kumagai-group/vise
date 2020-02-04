@@ -238,7 +238,7 @@ def main():
         "-timeout", dest="timeout", type=int, default=518400,
         help="Timeout used in TooLongTimeCalcErrorHandler.")
     parser_vasp_run.add_argument(
-        "-rw", "--remove_wavecar", dest="rm_wavecar", action="store_true",
+        "--remove_wavecar", dest="rm_wavecar", action="store_true",
         help="Remove WAVECAR file after the calculation is finished.")
     parser_vasp_run.add_argument(
         "--max_relax_num", dest="max_relax_num",
