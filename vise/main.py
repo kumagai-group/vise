@@ -4,6 +4,8 @@
 import argparse
 from typing import Union
 
+from pymatgen.ext.matproj import MPRester
+
 from vise.config import SYMMETRY_TOLERANCE, ANGLE_TOL, KPT_DENSITY
 from vise.main_function import vasp_set, plot_band, plot_dos, vasp_run, band_gap
 from vise.util.logger import get_logger
@@ -62,6 +64,25 @@ def main():
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     subparsers = parser.add_subparsers()
+
+    # -- get_poscar_from_mp ----------------------------------------------------
+    parser_get_poscar = subparsers.add_parser(
+        name="get_poscar",
+        description="Tools for constructing vasp input set with vise",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        aliases=['gp'])
+
+    parser_get_poscar.add_argument(
+        "-n", "--number", dest="number", type=int,
+        help="MP entry number w/o mp-")
+    parser_get_poscar.add_argument(
+        "-p", "--poscar", dest="poscar", default="POSCAR", type=str,
+        help="POSCAR-type file name for the unitcell.", metavar="FILE")
+
+    opts = parser.parse_args()
+
+    s = MPRester().get_structure_by_material_id("mp-" + str(opts.number))
+    s.to(filename=opts.poscar)
 
     # -- vasp_set ---------------------------------------------------------
     parser_vasp_set = subparsers.add_parser(

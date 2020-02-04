@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
+
 from math import ceil
 from pathlib import Path
 from typing import Optional
 
 from monty.serialization import loadfn
+
 from pymatgen import Structure, Composition, Element
 from pymatgen.io.vasp import Potcar
+
 from vise.config import BAND_GAP_CRITERION
 from vise.input_set.settings_util import (
     load_default_incar_settings, check_keys, nelect, nbands, calc_npar_kpar)
@@ -67,11 +70,12 @@ class TaskIncarSettings:
                      encut: Optional[float],
                      structure_opt_encut_factor: float,
                      dos_step_size: float) -> "TaskIncarSettings":
-        """ Construct incar settings related to task with some options.
+        """Construct incar settings related to task with some options.
 
-        Args: See ViseInputSet docstrings
+        Args: See ViseInputSet docstrings.
 
-        Return: TaskIncarSettings class object
+        Returns:
+            TaskIncarSettings instance object.
         """
         band_gap = vbm_cbm[1] - vbm_cbm[0] if vbm_cbm else None
         if band_gap:
@@ -154,11 +158,12 @@ class XcIncarSettings:
                      ldaul: Optional[dict] = None,
                      ldaul_set_name: Optional[str] = "default"
                      ) -> "XcIncarSettings":
-        """ Construct incar settings related to xc with some options.
+        """Construct incar settings related to xc with some options.
 
         Args: See ViseInputSet docstrings
 
-        Return: XcIncarSettings class object
+        Returns:
+            XcIncarSettings instance object.
         """
         settings = \
             load_default_incar_settings(yaml_filename="xc_incar_set.yaml",
@@ -208,14 +213,15 @@ class XcTaskIncarSettings:
 
     @classmethod
     def from_options(cls) -> "XcTaskIncarSettings":
-        """ Construct incar settings related to task and xc with options.
+        """Construct incar settings related to task and xc with options.
 
         Note: When the GW related task and xc are implemented, this class will
               be used.
 
         Args: See ViseInputSet docstrings
 
-        Return: XcTaskIncarSettings class object
+        Returns:
+            XcTaskIncarSettings instance object.
         """
         settings = {}
         return cls(settings)
@@ -231,11 +237,12 @@ class CommonIncarSettings:
                      potcar: Potcar,
                      composition: Composition,
                      charge: Optional[int] = None) -> "CommonIncarSettings":
-        """ Construct incar settings related to task and xc with options.
+        """Construct incar settings related to task and xc with options.
 
         Args: See ViseInputSet docstrings
 
-        Return: CommonIncarSettings class object
+        Returns:
+            CommonIncarSettings instance object.
         """
         settings = {"NELM": 100,
                     "LASPH": True,

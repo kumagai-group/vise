@@ -24,7 +24,7 @@ def load_potcar_yaml(set_name: Optional[str] = "normal",
         override_potcar_set (dict):
             User specifying POTCAR set
 
-    Return:
+    Returns:
           Dictionary of potcar_set, like {"Zr": "Zr_pv", ...}
     """
     potcar_set = loadfn(SET_DIR / "potcar_set.yaml")
@@ -58,7 +58,7 @@ def load_default_incar_settings(yaml_filename: str,
         key_name (str):
             Key name such as "structure_opt" or "hse".
 
-    Return:
+    Returns:
           settings (dict):
     """
     incar_set = loadfn(SET_DIR / yaml_filename)
@@ -86,7 +86,7 @@ def check_keys(d: dict, required: set, optional: set) -> bool:
         optional (set):
             Optional key set.
 
-    Return:
+    Returns:
         Simply raise KeyError if the condition is not satisfied.
         If succeed, True is returned.
     """
@@ -112,13 +112,16 @@ def nelect(composition: Composition, potcar: Potcar, charge: int = 0) -> int:
 
 
 def nbands(composition: Composition, potcar: Potcar) -> int:
-    """
-    Calculate the total number of bands required for the unoccupied related
-    properties such as optical absorption, band structure, and DOS.
+    """Calculate total number of bands for unoccupied related properties
+
+    Useful for optical absorption, band structure, and DOS.
 
     Args:
-        composition:
-        potcar (Potcar):
+        composition (Composition): Input composition
+        potcar (Potcar): Input Potcar object
+
+    Returns:
+        Int of number of bands
     """
     num_bands = \
         sum([composition[c] * (p.nelectrons / 2 + unoccupied_bands[str(c)])
@@ -136,7 +139,8 @@ def calc_npar_kpar(num_kpoints: int, num_nodes: int) -> Tuple[int, int]:
         num_kpoints (int): Number of irreducible k-points.
         num_nodes (int): Number of nodes.
 
-
+    Returns:
+        Tuple of recommended NPAR and KPAR.
     """
 
     kpar_set = {

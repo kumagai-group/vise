@@ -46,14 +46,15 @@ class TaskStructureKpoints:
                      factor: Optional[int],
                      symprec: float,
                      angle_tolerance: float):
-        """ Construct Structure and Kpoints from task and some options.
+        """Construct Structure and Kpoints from task and some options.
 
-        Note: When task and kpt_mode are not consistent e.g., task=Task.band,
-              kpt_mode="manual", task is prioritized.
+        When task and kpt_mode are not consistent e.g., task=Task.band,
+        kpt_mode="manual", task is prioritized.
 
         Args: See ViseInputSet docstrings
 
-        Return: TaskStructureKpoints class object
+        Returns:
+            TaskStructureKpoints instance object
         """
         if sort_structure:
             structure = original_structure.get_sorted_structure()

@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
+
 from pymatgen.io.vasp import Potcar
+
 from vise.input_set.settings_util import load_potcar_yaml
 from vise.input_set.xc import Xc
 
@@ -19,11 +21,12 @@ class XcTaskPotcar:
                      symbol_list: list,
                      potcar_set_name: str = None,
                      override_potcar_set: dict = None):
-        """ Construct Potcar from xc and some options.
+        """Construct Potcar from xc and some options.
 
         Args: See ViseInputSet docstrings
 
-        Return: XcTaskPotcar class object
+        Returns:
+            XcTaskPotcar instance object
         """
 
         potcar_functional = "LDA" if xc == Xc.lda else "PBE_54"

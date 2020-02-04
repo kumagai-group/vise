@@ -8,9 +8,11 @@ from pathlib import Path
 
 from monty.io import zopen
 from monty.serialization import loadfn
+
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.io.vasp import Incar
 from pymatgen.util.io_utils import clean_lines
+
 from tabulate import tabulate
 
 __author__ = "Yu Kumagai"
