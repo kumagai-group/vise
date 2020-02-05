@@ -16,7 +16,7 @@ from vise.analyzer.band_plotter import PrettyBSPlotter
 from vise.analyzer.dos_plotter import get_dos_plot
 from vise.custodian_extension.error_handlers import (
     TooLongTimeCalcErrorHandler)
-from vise.custodian_extension.handler_groups import HANDLER_GROUP
+from vise.custodian_extension.handler_groups import handler_group
 from vise.custodian_extension.jobs import ViseVaspJob
 from vise.input_set.incar import incar_flags
 from vise.input_set.input_set import ViseInputSet
@@ -126,10 +126,7 @@ def vasp_run(args):
         d = list2dict(args.additional_user_incar_setting, key_candidates)
         user_incar_settings.update(d)
 
-    handlers = HANDLER_GROUP[args.handler_name]
-    if args.handler_name in ["default", "dielectric"]:
-        handlers.pop(-1)
-        handlers.append(TooLongTimeCalcErrorHandler(args.timeout))
+    handlers = handler_group(args.handler_name, timeout=args.timeout)
 
     optimization_args = {"vasp_cmd": vasp_cmd,
                          "removes_wavecar": args.rm_wavecar,

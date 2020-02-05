@@ -31,7 +31,7 @@ def load_potcar_yaml(set_name: Optional[str] = "normal",
     try:
         potcar = potcar_set[set_name]
     except KeyError:
-        logger.warning(f"The accepted potcar set name is {potcar_set.keys()}")
+        logger.critical(f"The accepted potcar set name is {potcar_set.keys()}")
         raise
 
     if override_potcar_set:
