@@ -34,8 +34,6 @@ setting_keys = ["vasp_cmd",
                 "potcar_set",
                 "potcar_set_name",
                 "relax_iter_num",
-                "convergence_criterion",
-                "left_files",
                 "removed_files"]
 
 user_settings = get_user_settings(yaml_filename="vise.yaml",
