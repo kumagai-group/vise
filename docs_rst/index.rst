@@ -11,7 +11,7 @@ Welcome to vise's documentation!
    introduction
    installation
    change_log
-   usage_analyzer
+   tutorial
 
     
 
