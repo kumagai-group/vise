@@ -211,7 +211,7 @@ class KptConvResult(MSONable):
 
     def __init__(self,
                  str_opts: List[StructureOptResult],
-                 convergence_energy_criterion: float,
+                 convergence_criterion: float,
                  num_kpt_check: int,
                  symprec: float,
                  angle_tolerance: float):
@@ -234,7 +234,7 @@ class KptConvResult(MSONable):
             This is also checked if the lattice constants are converged.
         """
         self.str_opts = str_opts
-        self.convergence_energy_criterion = convergence_energy_criterion
+        self.convergence_criterion = convergence_criterion
         self.num_kpt_check = num_kpt_check
         self.symprec = symprec
         self.angle_tolerance = angle_tolerance
@@ -310,7 +310,7 @@ class KptConvResult(MSONable):
             target = self.str_opts[target_idx]
             comparator = self.str_opts[target_idx + i]
             energy_diff = target.energy_per_atom - comparator.energy_per_atom
-            if abs(energy_diff) > self.convergence_energy_criterion:
+            if abs(energy_diff) > self.convergence_criterion:
                 logger.info("Energy is not converged, yet")
                 return False
 
@@ -328,12 +328,25 @@ class KptConvResult(MSONable):
         return len(set(self.space_groups)) > 1
 
     def __str__(self):
-        outs = [f"{'kpt':>10} {'energy/atom':>12}"]
+        # TODO: Add lattice info
+        outs = \
+            [f"Initial space group: {self.str_opts[0].initial_sg}",
+                f"Convergence criterion (eV/atom): {self.convergence_criterion}",
+             f"Symprec (A): {self.symprec}",
+             f"Angle tolerance (deg): {self.angle_tolerance}", "",
+             f"{'sg':>4} {'kpt':>10} {'energy/atom':>12}"
+             f" {'relative energy/atom':>21}"]
+
+        ref_energy = self.str_opts[-1].energy_per_atom
         for result in self.str_opts:
-            outs.append(f"{'x'.join(map(str, result.num_kpt)):>10} "
-                        f"{result.energy_per_atom}:>12:4")
+            relative_energy = result.energy_per_atom - ref_energy
+            outs.append(f"{result.final_sg:>4} " 
+                        f"{'x'.join(map(str, result.num_kpt)):>10} "
+                        f"{result.energy_per_atom:12.5f}"
+                        f"{relative_energy:21.5f}")
 
         outs.append("")
+        return "\n".join(outs)
 
     def to_json_file(self, filename: str = "kpt_conv.json") -> None:
         with open(filename, 'w') as fw:
@@ -389,7 +402,6 @@ class ViseVaspJob(VaspJob):
         if self.suffix != "":
             for f in VASP_SAVED_FILES | {self.output_file}:
                 if os.path.exists(f):
-                    print(f)
                     if f in ["PROCAR", "OUTCAR", "vasprun.xml"]:
                         shutil.move(f, "{}{}".format(f, self.suffix))
                     else:
@@ -498,10 +510,8 @@ class ViseVaspJob(VaspJob):
 
         result.to_json_file("structure_opt.json")
 
-        import subprocess
-        subprocess.call(["ls", "-l"])
-
-        print(left_files)
+#        import subprocess
+#        subprocess.call(["ls", "-l"])
 
         for f in glob("*"):
             if not os.path.isfile(f):

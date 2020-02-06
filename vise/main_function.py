@@ -14,10 +14,9 @@ from pymatgen.io.vasp.outputs import BSVasprun, Outcar
 from vise.analyzer.band_gap import band_gap_properties
 from vise.analyzer.band_plotter import PrettyBSPlotter
 from vise.analyzer.dos_plotter import get_dos_plot
-from vise.custodian_extension.error_handlers import (
-    TooLongTimeCalcErrorHandler)
 from vise.custodian_extension.handler_groups import handler_group
-from vise.custodian_extension.jobs import ViseVaspJob
+from vise.custodian_extension.jobs import (
+    ViseVaspJob, KptConvResult, StructureOptResult)
 from vise.input_set.incar import incar_flags
 from vise.input_set.input_set import ViseInputSet
 from vise.input_set.prior_info import PriorInfo
@@ -26,6 +25,7 @@ from vise.input_set.xc import Xc
 from vise.util.error_classes import NoVaspCommandError
 from vise.util.logger import get_logger
 from vise.util.main_tools import potcar_str2dict, list2dict
+
 
 __author__ = "Yu Kumagai"
 __maintainer__ = "Yu Kumagai"
@@ -109,6 +109,18 @@ def vasp_set(args):
 
 def vasp_run(args):
 
+    if args.print:
+        if args.kpoint_conv:
+            filename = args.json_file or "kpt_conv.json"
+            kpt_conv = KptConvResult.load_json(filename)
+            print(kpt_conv)
+        else:
+            filename = args.json_file or "structure_opt.json"
+            str_opt = StructureOptResult.load_json(filename)
+            print(str_opt)
+        return
+
+    # TODO: implement a way to use different type of vasp (vasp_ncl, e.g.)
     if isinstance(args.vasp_cmd, str):
         vasp_cmd = args.vasp_cmd.split()
     elif isinstance(args.vasp_cmd, list):
@@ -158,7 +170,6 @@ def vasp_run(args):
 
 
 def plot_band(args):
-
     p = PrettyBSPlotter.from_vasp_files(kpoints_filenames=args.kpoints,
                                         vasprun_filenames=args.vasprun,
                                         vasprun2_filenames=args.vasprun2,

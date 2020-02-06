@@ -139,7 +139,7 @@ class KptConvResultTest(ViseTest):
                                   prev_structure_opt_uuid=64782881856798798965584516606915682920)
 
         self.kpt_conv = KptConvResult(str_opts=[sor1, sor2, sor3],
-                                      convergence_energy_criterion=0.01,
+                                      convergence_criterion=0.01,
                                       num_kpt_check=2,
                                       symprec=0.01,
                                       angle_tolerance=5)
@@ -163,3 +163,6 @@ class KptConvResultTest(ViseTest):
                   "MgO/kpt10x10x10_pre-sg225_pos-sg225"])
 
         self.assertEqual(kpt_conv.as_dict(), self.kpt_conv.as_dict())
+
+    def test_print(self):
+        print(self.kpt_conv)

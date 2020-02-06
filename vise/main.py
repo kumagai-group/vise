@@ -220,6 +220,13 @@ def main():
                                   "convergence_criterion"])
 
     parser_vasp_run.add_argument(
+        "--print", dest="print", action="store_true",
+        help="Print the structure_opt.json or kpt_conv.json (if -kc is set) "
+             "info.")
+    parser_vasp_run.add_argument(
+        "--json_file", dest="json_file", default=None, type=str,
+        help="Json file name.")
+    parser_vasp_run.add_argument(
         "-v", "--vasp_cmd", dest="vasp_cmd", nargs="+", type=str,
         default=vr_defaults["vasp_cmd"],
         help="VASP command. If you are using mpirun, set this to something "
