@@ -19,7 +19,7 @@ def handler_group(name: str = "default",
                   timeout: int = 518400) -> list:
 
     handlers = {
-        "rough":      [orig_handlers.MeshSymmetryErrorHandler(),
+        "minimum":    [orig_handlers.MeshSymmetryErrorHandler(),
                        orig_handlers.PotimErrorHandler(),
                        orig_handlers.PositiveEnergyErrorHandler(),
                        orig_handlers.FrozenJobErrorHandler(),

@@ -47,7 +47,8 @@ ALL_FLAGS = set(sum(loadfn(SET_DIR / "incar_flags.yaml").values(), []))
 OTHER_FLAGS = ALL_FLAGS - (TASK_FLAGS | XC_FLAGS | XC_TASK_FLAGS | COMMON_FLAGS)
 
 
-# TODO: rewrite check_keys with decorator?
+# TODO: Implement spin-orbit calc.
+
 class TaskIncarSettings:
 
     def __init__(self,

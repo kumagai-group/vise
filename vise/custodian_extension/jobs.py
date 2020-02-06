@@ -21,7 +21,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from vise.config import (
     SYMMETRY_TOLERANCE, ANGLE_TOL, KPT_INIT_DENSITY, KPT_FACTOR)
 from vise.input_set.input_set import ViseInputSet
-from vise.input_set.task import Task
+from vise.input_set.task import Task, LATTICE_RELAX_TASK
 from vise.input_set.xc import Xc
 from vise.util.error_classes import VaspNotConvergedError, KptNotConvergedError
 from vise.util.logger import get_logger
@@ -40,7 +40,7 @@ def rm_wavecar(remove_current: bool,
                remove_subdirectories: Optional[bool] = False) -> None:
     """Remove WAVECARs at the current directory and subdirectories."""
     logger.info(f"Remove WAVECAR in current directory: {remove_current}")
-    logger.info(f" Remove WAVECAR in sub directories: {remove_subdirectories}")
+    logger.info(f"Remove WAVECAR in   sub directories: {remove_subdirectories}")
 
     if remove_current:
         try:
@@ -510,9 +510,6 @@ class ViseVaspJob(VaspJob):
 
         result.to_json_file("structure_opt.json")
 
-#        import subprocess
-#        subprocess.call(["ls", "-l"])
-
         for f in glob("*"):
             if not os.path.isfile(f):
                 continue  # continue if f is directory.
@@ -583,6 +580,9 @@ class ViseVaspJob(VaspJob):
         Return:
             None
         """
+        if task not in LATTICE_RELAX_TASK:
+            raise ValueError(f"Task: {task} is not in lattice relax set.")
+
         structure = structure or Structure.from_file("POSCAR")
         kpt_conv = KptConvResult.from_dirs(convergence_criterion, num_kpt_check,
                                            symprec, angle_tolerance)
