@@ -1,0 +1,8 @@
+frequencies:
+  - wave_number: 1357.8
+    degeneration: 1
+  - wave_number: 756.8
+    degeneration: 1
+  - wave_number: 1665.5
+    degeneration: 1
+reference: Malcom W. Chase Jr. NIST-JANAF Thermodynamical Tables Fourth Edition, J. Phys. Chem. Ref. Data, Monograph 9 (https://srd.nist.gov/JPCRD/jpcrdM9.pdf)

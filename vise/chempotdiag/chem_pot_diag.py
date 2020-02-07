@@ -1,0 +1,825 @@
+#  Copyright (c) Oba-group 
+#  Distributed under the terms of the MIT License.
+from __future__ import print_function
+import argparse
+from collections import OrderedDict
+import copy
+import os
+import string
+from typing import Optional, List, Dict, Tuple, Union, Any
+
+import ruamel.yaml
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+import numpy as np
+from scipy.spatial import HalfspaceIntersection
+from pymatgen.core.periodic_table import Element
+from pymatgen.core.composition import Composition, CompositionError
+
+from chempotdiag.compound \
+    import Compound, DummyCompoundForDiagram, CompoundsList, ElemOrderType
+from chempotdiag.vertex \
+    import Vertex, VertexOnBoundary, VerticesList
+
+molecule_directory = os.path.dirname(__file__) + "/molecules"
+
+
+# TODO: Need to write test
+
+
+class ChemPotDiag:
+    """
+        Object for chemical potentials diagram.
+    """
+
+    def __init__(self,
+                 element_free_energy: np.ndarray,
+                 stable_compounds: CompoundsList,
+                 unstable_compounds: CompoundsList,
+                 vertices: VerticesList,
+                 compounds_to_vertex_list: List[List[int]],
+                 vertex_to_compounds_list: List[List[int]],
+                 temperature: float = 0,
+                 pressure: Optional[Dict[str, float]] = None):
+        """
+
+        Args:
+            element_free_energy (np.ndarray):
+            stable_compounds (CompoundsList):
+            unstable_compounds (CompoundsList):
+            vertices (VerticesList):
+            compounds_to_vertex_list (List[List[int]]):
+            vertex_to_compounds_list (List[List[int]]):
+        """
+        self._element_free_energy = element_free_energy
+        self._stable_compounds = stable_compounds
+        self._unstable_compounds = unstable_compounds
+        self._vertices = vertices
+        self._compounds_to_vertex_list = compounds_to_vertex_list
+        self._vertex_to_compounds_list = vertex_to_compounds_list
+        self._temperature = temperature
+        self._pressure = pressure
+
+    @classmethod
+    def from_calculation(cls,
+                         input_compounds_array: CompoundsList,
+                         temperature: Optional[float] = None,
+                         pressure: Optional[Dict[str, float]] = None
+                         ) -> "ChemPotDiag":
+        """
+        Create a object of ChemPot.
+        Args:
+            input_compounds_array (CompoundsList): Considered compounds array
+            temperature (float):
+            pressure (Dict[str, float]):
+        """
+        
+        compounds_array = copy.deepcopy(input_compounds_array)
+
+        # Alphabetically sort elements' names
+        elements = sorted(input_compounds_array.elements)
+
+        # Standardize energies
+        compounds_array, element_energy =\
+            compounds_array.energy_standardized_array(temperature, pressure)
+
+        dim = len(compounds_array.elements)
+
+        #  unary system
+        if dim == 1:
+            min_energy = min(compounds_array, key=lambda x: x.energy).energy
+            stable_compounds \
+                = CompoundsList([comp for comp in compounds_array
+                                 if comp.energy == min_energy])
+            unstable_compounds \
+                = CompoundsList([comp for comp in compounds_array
+                                 if comp.energy != min_energy])
+            vertices = VerticesList([])
+            for comp in compounds_array:
+                d = {list(compounds_array.elements)[0]: comp.energy}
+                # for e, en in
+                #      zip(compounds_array.elements, comp.energy)}
+                vertex = Vertex(None, d)
+                vertices.append(vertex)
+            compounds_to_vertex_list = [[i] for i in range(len(compounds_array))]
+            vertex_to_compounds_list = [[i] for i in range(len(compounds_array))]
+            return cls(element_energy, stable_compounds, unstable_compounds,
+                       vertices,
+                       compounds_to_vertex_list, vertex_to_compounds_list)
+
+        # set boundary range
+        boundary_rate = 1.1  # can be arbitrary number > 1.0
+        intersections = np.zeros((len(compounds_array), dim))
+        free_energies = compounds_array.free_energies(temperature, pressure)
+        for i, comp_dat in enumerate(compounds_array):
+            # e = comp_dat.energy
+            # e = comp_dat.free_energy(temperature=temperature,
+            #                          pressure=pressure)
+            comp_dat: Compound
+            c = comp_dat.comp_as_vector(elements)
+            for j in range(dim):
+                if c[j] != 0:
+                    intersections[i][j] = free_energies[i] / c[j]
+                else:  # This case does not related to search_vertices_range.
+                    intersections[i][j] = float("inf")
+        search_vertices_range = np.min(intersections) * boundary_rate
+        elements = compounds_array.elements
+        for e in compounds_array.elements:
+            energy = search_vertices_range
+            boundary \
+                = DummyCompoundForDiagram.construct_boundary(e,
+                                                             -energy)
+            compounds_array.append(boundary)
+            free_energies.append(-energy)
+
+        # Calculate HalfspaceIntersection
+        eps = 1e-2
+        interior_point \
+            = np.array([search_vertices_range + eps] * dim)
+        halfspaces = []
+        for i, comp_dat in enumerate(compounds_array):
+            h = np.append(comp_dat.comp_as_vector(elements), -free_energies[i])
+            halfspaces.append(h)
+        halfspaces = np.array(halfspaces)
+        hi = HalfspaceIntersection(halfspaces, interior_point)
+        # facets_by_halfspace
+        n = len(hi.halfspaces)
+        facets_by_halfspace = []
+        for i in range(n):
+            indices = []
+            for j, _ in enumerate(hi.dual_facets):
+                if i in hi.dual_facets[j]:
+                    indices.append(j)
+            facets_by_halfspace.append(indices)
+
+        # classify all compounds into dummy, stable, and unstable.
+        stable_compounds = CompoundsList([])
+        unstable_compounds = CompoundsList([])
+        stable_original_index_list = []
+        unstable_original_index_list = []
+        which_vertex_on_boundary = set()
+        for i, compound in enumerate(compounds_array):
+            if isinstance(compound, DummyCompoundForDiagram):
+                which_vertex_on_boundary |= set(facets_by_halfspace[i])
+            elif facets_by_halfspace[i]:
+                stable_compounds.append(compounds_array[i])
+                stable_original_index_list.append(i)
+            else:
+                unstable_compounds.append(compounds_array[i])
+                unstable_original_index_list.append(i)
+        # stable_compounds.set_elements(compounds_array.elements)
+        # unstable_compounds.set_elements(compounds_array.elements)
+
+        # make vertices_array
+        draw_criterion = min([item for item in hi.intersections.flatten()
+                              if abs(item - search_vertices_range) > 1e-6])
+        draw_vertices = copy.deepcopy(hi.intersections)
+        draw_range = draw_criterion * 1.1
+        # sometimes boundary range too small like -100
+        # due to an unstable substance, then the value is changed to
+        # draw_range
+        vertices = VerticesList([])
+        for i in range(len(draw_vertices)):
+            if i in which_vertex_on_boundary:
+
+                is_element_boundary \
+                    = [abs(v - search_vertices_range) < 1e-6
+                       for v in draw_vertices[i]]
+                for j, flag in enumerate(is_element_boundary):
+                    if flag:
+                        draw_vertices[i][j] = draw_range
+                    vertex = VertexOnBoundary(
+                        None,
+                        {e: en for e, en in zip(elements, draw_vertices[i])},
+                        draw_range,
+                        draw_criterion
+                    )
+            else:
+                vertex = Vertex(None, {e: en for e, en in zip(elements, draw_vertices[i])})
+            vertices.append(vertex)
+        # make compounds_to_vertex_list, vertex_to_compounds_list
+        compounds_to_vertex_list = [l for l in facets_by_halfspace if l]
+        vertex_to_compounds_list = []
+        for i, l in enumerate(hi.dual_facets):
+            stable_index_list \
+                = [stable_original_index_list.index(j)
+                   for j in l if j in stable_original_index_list]
+            vertex_to_compounds_list.append(stable_index_list)
+        return cls(element_energy, stable_compounds, unstable_compounds,
+                   vertices,
+                   compounds_to_vertex_list, vertex_to_compounds_list,
+                   temperature=temperature, pressure=pressure)
+
+    @classmethod
+    def from_file(cls, filename: str,
+                  temperature: Optional[float] = None,
+                  pressure: Optional[dict] = None) -> "ChemPotDiag":
+        """
+        Args:
+            filename (str):
+            temperature (float): (K)
+            pressure (dict): e.g. {"O2": 1e+3} (Pa)
+
+        Returns:
+        """
+        compounds_array = CompoundsList.from_file(filename)
+        return cls.from_calculation(compounds_array, temperature, pressure)
+
+    @classmethod
+    def from_vasp_calculations_files(cls,
+                                     poscar_paths: List[str],
+                                     output_paths: List[str],
+                                     fmt: str = "outcar",
+                                     temperature: Optional[float] = None,
+                                     pressure: Optional[Dict[str, float]] = None,
+                                     energy_shift_dict: Union[Dict[str,
+                                                                   float],
+                                                              None] = None)\
+            -> "ChemPotDiag":
+        """
+        Args:
+            poscar_paths (list of str):
+            output_paths (list of str):
+            fmt (str): "outcar" or "vasprun".
+            temperature (float): (K)
+            pressure (dict): (Pa)
+            energy_shift_dict (dict): unit: (eV), e.g. {N2_molecule/OUTCAR: 1}
+        Returns:
+            (ChemPotDiag) ChemPotDiag object from vasp files.
+        """
+        energy_shift_dict = energy_shift_dict if energy_shift_dict else {}
+        compounds_list = \
+            CompoundsList.from_vasp_calculations_files(poscar_paths,
+                                                       output_paths,
+                                                       fmt=fmt,
+                                                       energy_shift_dict=
+                                                       energy_shift_dict)
+        return cls.from_calculation(compounds_list, 
+                                    temperature=temperature, 
+                                    pressure=pressure)
+
+    @classmethod
+    def from_vasp_and_materials_project(cls,
+                                        vasp_target_poscar: str,
+                                        vasp_target_output: str,
+                                        vasp_element_poscar: List[str],
+                                        vasp_element_output: List[str],
+                                        fmt: str = "outcar",
+                                        temperature: Optional[float] = None,
+                                        pressure: Union[str,
+                                                        float,
+                                                        None] = None,
+                                        energy_shift_dict: Union[Dict[str,
+                                                                      float],
+                                                                 None] = None
+                                        ) -> "ChemPotDiag":
+        """
+
+        Args:
+            vasp_target_poscar (str): path
+            vasp_target_output (str): path
+            vasp_element_poscar (list): path
+            vasp_element_output (list): path
+            fmt (str):
+            temperature (float):
+            pressure (dict):
+            energy_shift_dict (dict):
+
+        Returns:
+            (CompoundsList) CompoundsList object from materials project.
+
+        """
+        compounds_list = \
+            CompoundsList.from_vasp_and_materials_project(vasp_target_poscar,
+                                                          vasp_target_output,
+                                                          vasp_element_poscar,
+                                                          vasp_element_output,
+                                                          fmt=fmt,
+                                                          temperature=temperature,
+                                                          pressure=pressure,
+                                                          energy_shift_dict=energy_shift_dict)
+        return cls.from_calculation(compounds_list)
+
+    @property
+    def temperature(self) -> float:
+        """
+            (float) temperature (K)
+        """
+        return self._temperature
+
+    @property
+    def pressure(self) -> Dict[str, float]:
+        """
+            (dict) pressure (GPa) like {"O": 2, "N": 10}
+        """
+        return self._pressure
+
+    @property
+    def dim(self) -> int:
+        """
+            (int) Number of considered atoms.
+        """
+        return self.stable_compounds.dim
+
+    @property
+    def elements(self) -> List[Element]:
+        """
+            (list of str) Considered elements.
+            Order of list is used as order of coordinates.
+        """
+        return self.stable_compounds.elements
+
+    @property
+    def element_energy(self) -> Dict[Element, float]:
+        """
+            ({Element: float}) Element energy.
+        """
+        return self._element_free_energy
+
+    @property
+    def stable_compounds(self) -> CompoundsList:
+        """
+            (CompoundsList) CompoundList
+        """
+        return copy.deepcopy(self._stable_compounds)
+
+    @property
+    def unstable_compounds(self) -> CompoundsList:
+        """
+            (CompoundsList) CompoundList
+        """
+        return copy.deepcopy(self._unstable_compounds)
+
+    @property
+    def all_compounds(self) -> CompoundsList:
+        """
+            (CompoundsList) CompoundList
+        """
+        return CompoundsList(self.stable_compounds + self.unstable_compounds)
+
+    @property
+    def vertices(self) -> VerticesList:
+        """
+            (VerticesList) Vertices, including vertices on drawing boundary
+        """
+        return self._vertices
+
+    @property
+    def equilibrium_points(self) -> VerticesList:
+        """
+            (VerticesList) Vertices, excluding vertices on drawing boundary
+                           and only physically meaningful points are included.
+        """
+        return VerticesList([v for v in self._vertices
+                             if not isinstance(v, VertexOnBoundary)])
+
+    def get_neighbor_vertices(self,
+                              compound: Union[int,
+                                              str,
+                                              Compound],
+                              elements: Optional[ElemOrderType] = None
+                              ) -> VerticesList:
+        """
+        Search equilibrium_points on remarked compound.
+        Args:
+            compound (int/str/Compound):
+                Index of compound or compound name or Compound object.
+            elements (None/[Element or str]):
+                Order of elements.
+        Returns (VerticesList): Vertices on input compound.
+        """
+        if isinstance(compound, int):
+            index = compound
+        elif isinstance(compound, str):
+            matched = self.stable_compounds.get_indices_and_compounds(compound)
+            if matched is None:
+                raise ValueError(f"No such compounds in diagram {compound}")
+            if len(matched) >= 2:
+                raise ValueError(
+                    f"More than one compounds matched the name {compound}.")
+            if matched:
+                index = matched[0][0]
+        elif isinstance(compound, Compound):
+            index = self.stable_compounds.index(compound)
+        else:
+            raise TypeError("Input compound must be int or str or Compound.")
+        if index is None:
+            raise ValueError(
+                f"{compound} did not found in stable_compounds.")
+        to_return = \
+            VerticesList([self._vertices[i]
+                          for i in self._compounds_to_vertex_list[index]])
+        if self.dim == 3:
+            to_return = to_return.sorted_to_loop_in_3d(elements)
+        return to_return
+
+    def get_neighbor_compounds(self,
+                               vertex: Union[int, str, Vertex]
+                               ) -> CompoundsList:
+        """
+        Search equilibrium_points on remarked vertex.
+        Args:
+            vertex (int/str/Vertex):
+                Input compound (index or label or vertex).
+        Returns (CompoundsList): Compounds on the vertex.
+        """
+        if isinstance(vertex, int):
+            index = vertex
+        elif isinstance(vertex, str):
+            matched = self._vertices.get_indices_and_vertices(vertex)
+            if len(matched) >= 2:
+                raise ValueError(f"More than one equilibrium_points "
+                                 f"matched the name {vertex}.")
+            if matched:
+                index = matched[0][0]
+        elif isinstance(vertex, Vertex):
+            index = self._vertices.index(vertex)
+        else:
+            raise TypeError("Input vertex must be int or str or Vertex.")
+
+        if index is None:
+            raise ValueError(
+                f"{vertex} did not found in equilibrium_points.")
+        return CompoundsList([self.stable_compounds[i]
+                              for i in self._vertex_to_compounds_list[index]])
+
+    def get_neighbor_vertices_as_dict(self,
+                                      remarked_compound: Union[int,
+                                                               str,
+                                                               Compound],
+                                      elements,
+                                      **kwargs) -> Dict[str, Any]:
+        d = {"compound": remarked_compound}
+        # standard_energy = {str(el): float(en) for el, en
+        #                    in zip(self.elements, self.element_energy)}
+        standard_energy = self.element_energy
+        d["standard_energy"] = {k: v for k, v in standard_energy.items()}
+        vertices_list =\
+            VerticesList(self.get_neighbor_vertices(remarked_compound))
+        if self.dim == 3:
+            vertices_list.sorted_to_loop_in_3d(elements)
+        vertices_list.set_alphabetical_label()
+        for i, v in enumerate(vertices_list):
+            if not isinstance(v, VertexOnBoundary):
+                if v.label is not None:
+                    d[v.label] = v.coords
+                else:
+                    d[f"vertex {i}"] = v.coords
+
+        for k, v in kwargs.items():
+            d[k] = v
+        return d
+
+    def dump_vertices_yaml(self,
+                           file_path: str,
+                           remarked_compound: str,
+                           elements: ElemOrderType,
+                           **kwargs):
+        """
+        For plot_defect_energy, dumps coordination of vertex, compound,
+        and standard_energy.
+        Labels of vertices must be one capital alphabet.
+
+        Args:
+            file_path(str):
+            remarked_compound(str):
+            elements([Element or str]): Order of elements
+            **kwargs(dict): other property, like {"supercell_comment" : "foo,var"}
+
+        Returns:
+
+        """
+        d = self.get_neighbor_vertices_as_dict(remarked_compound,
+                                               elements,
+                                               **kwargs)
+
+        def elem_key_to_str(dict_):
+            if isinstance(dict_, dict):
+                d_temp = {}
+                for k, v in dict_.items():
+                    k_ = str(k) if isinstance(k, Element) else k
+                    if isinstance(v, np.ndarray):
+                        v_ = list(float(val) for val in v)
+                    elif isinstance(v, np.float):
+                        v_ = float(v)
+                    elif isinstance(v, dict):
+                        v_ = elem_key_to_str(v)
+                    else:
+                        v_ = v
+                    d_temp[k_] = v_
+                return d_temp
+            else:
+                return dict_
+
+        d = elem_key_to_str(d)
+        d["temperature"] = self._temperature
+        d["pressure"] = self._pressure
+        f = f"{file_path}/vertices.yaml" \
+            if os.path.isdir(file_path) else file_path
+        with open(f, 'w') as fw:
+            ruamel.yaml.dump(d, fw)
+
+    @staticmethod
+    def load_vertices_yaml(file_name: str) -> Tuple[VerticesList,
+                                                    Dict[Element, float]]:
+        """
+        Read yaml file for plot_defect_energy and return VerticesList and
+        standard_energy.
+        Labels of vertices must be one capital alphabet.
+        Args:
+            file_name(str):
+
+        Returns:
+            tuple of (VerticesList, standard_energy)
+        """
+        with open(file_name, 'r') as fr:
+            yaml_data = ruamel.yaml.safe_load(fr)
+        vl = VerticesList()
+        name_list = list(string.ascii_uppercase)
+        for name in name_list:
+            if name in yaml_data.keys():
+                if not isinstance(yaml_data[name], dict):
+                    raise TypeError(f"Failed to read yaml_data[{name}]"
+                                    f"as dict.")
+                vertex_dict = OrderedDict(yaml_data[name])
+                vertex = Vertex(name, vertex_dict)
+                vl.append(vertex)
+        return vl, {Element(e): v for e, v in yaml_data["standard_energy"].items()}
+
+    def draw_diagram(self,
+                     title: str = None,
+                     save_file_name: Optional[str] = None,
+                     remarked_compound: Optional[str] = None,
+                     with_label: bool = True,
+                     draw_range: Optional[float] = None,
+                     elements: Optional[ElemOrderType] = None):
+        """
+        Draw chemical potential diagram.
+
+        Args:
+            title (str): Title of diagram.
+            save_file_name (None/str): If you will save diagram as image file,
+                                       specify name of the file by this arg.
+            remarked_compound (None/str): Vertices on the specified compound
+                                          will be labeled.
+            with_label (bool): Whether if you will display names of compounds.
+            draw_range (None/float): Range to draw diagram.
+                                     If none, range will be
+                                     determined automatically.
+            elements (None/[Element or str]): Order of elements.
+        """
+        elements = elements if elements \
+            else sorted([str(e) for e in self.elements])
+        if self.dim >= 4:
+            # TODO: fix some parameter and plot in 3D or 2D?
+            raise NotImplementedError("4D or more data can not be drawn.")
+
+        if self.dim != 1:
+            if not draw_range:
+                draw_range = self._vertices.boundary_range_limit * 1.1
+            self._vertices.set_boundary_range(draw_range)
+
+        #  1D, 2D, and 3D dimension. More than 4D has not yet implemented.
+        if self.dim == 1:
+            ax = plt.figure().add_subplot(111)
+            x = np.zeros(len(self.stable_compounds)
+                         + len(self._unstable_compounds))
+            y = [cd.energy
+                 for cd in self.stable_compounds + self._unstable_compounds]
+            ax.scatter(x, y)
+            ax.set_ylabel(f"Chemical potential of {elements[0]}")
+            ax.set_xlim(-1, 1)
+            y_max = np.max(y)
+            ax.set_ylim(-y_max * 0.1, y_max * 1.2)
+            for cd in self.all_compounds:
+                x_shift = -0.2
+                ax.text(x_shift,
+                        cd.energy,
+                        cd.name,
+                        size='smaller')
+            if title:
+                ax.set_title(title)
+            else:
+                ax.set_title(f"Chemical potential diagram of "
+                             f"{elements[0]}")
+
+        elif self.dim == 2:
+            ax = plt.figure().add_subplot(111)
+            num_line = len(self.stable_compounds)
+            for i, compound in enumerate(self.stable_compounds):
+                vertices \
+                    = VerticesList([self._vertices[j]
+                                    for j in self._compounds_to_vertex_list[i]])
+                vertices_coords = [v.coords_vector(elements) for v in vertices]
+                x = [v[0] for v in vertices_coords]
+                y = [v[1] for v in vertices_coords]
+                color = "black"
+                plt.plot(x, y, color=color)
+                mean = np.mean(vertices_coords, axis=0)
+                x_shift = 0
+                y_shift = 0
+                if with_label:
+                    ax.text(mean[0] + x_shift,
+                            mean[1] + y_shift,
+                            compound.name,
+                            size='smaller',
+                            zorder=num_line + i)
+                    if compound.name is None:
+                        compound_name = \
+                            compound.composition.reduced_formula
+                    else:
+                        compound_name = compound.name
+
+                    remarked_compound_name = None
+                    if remarked_compound:
+                        remarked_compound_name = \
+                            Composition(remarked_compound).reduced_formula
+
+                    if compound_name == remarked_compound_name:
+                        vertices.set_alphabetical_label()
+                        for j, v in enumerate(vertices):
+                            if v.label:
+                                ax.text(v.coords_vector(elements)[0] + x_shift,
+                                        v.coords_vector(elements)[1] + y_shift,
+                                        v.label,
+                                        size="smaller",
+                                        zorder=2 * num_line + j,
+                                        color="red",
+                                        weight="bold")
+            if title:
+                ax.set_title(title)
+            else:
+                ax.set_title(f"Chemical potential diagram of "
+                             f"{elements[0]} and "
+                             f"{elements[1]}")
+            ax.set_xlabel(f"Chemical potential of {elements[0]}")
+            ax.set_ylabel(f"Chemical potential of {elements[1]}")
+            ax.set_xlim(draw_range, 0)
+            ax.set_ylim(draw_range, 0)
+
+        elif self.dim == 3:
+            ax = plt.figure().add_subplot(111, projection='3d')
+            num_plane = len(self._stable_compounds)
+            for i, compound in enumerate(self._stable_compounds):
+                sorted_vertices = self.get_neighbor_vertices(i, elements)
+                sorted_vertices_coords = \
+                    [v.coords_vector(elements) for v in sorted_vertices]
+                face = Poly3DCollection([sorted_vertices_coords])
+                color = [(c + 3) / 4 for c in compound.comp_as_vector(elements)]
+                face.set_color(color)
+                face.set_edgecolor("black")
+                ax.add_collection3d(face)
+                mean = np.mean(sorted_vertices_coords, axis=0)
+                if with_label:
+                    ax.text(mean[0], mean[1], mean[2],
+                            compound.name,
+                            size='smaller',
+                            zorder=num_plane+i,
+                            ha='center',
+                            va='center')
+                    try:
+                        compound_name = \
+                            Composition(compound.name).reduced_formula
+                    except CompositionError:
+                        compound_name = compound.name
+
+                    remarked_compound_name = None
+                    if remarked_compound:
+                        remarked_compound_name = \
+                            Composition(remarked_compound).reduced_formula
+
+                    if compound_name == remarked_compound_name:
+                        sorted_vertices.set_alphabetical_label()
+                        # vertices_coords.set_alphabetical_label()
+                        for j, v in enumerate(sorted_vertices):
+                            if v.label:
+                                ax.text(v.coords_vector(elements)[0],
+                                        v.coords_vector(elements)[1],
+                                        v.coords_vector(elements)[2],
+                                        v.label,
+                                        size="smaller",
+                                        zorder=2 * num_plane + j,
+                                        weight="bold",
+                                        color="red")
+            if title:
+                ax.set_title(title)
+            else:
+                ax.set_title('Chemical potential diagram of '
+                             + str(elements[0]) + ", "
+                             + str(elements[1]) + ", and "
+                             + str(elements[2]))
+            ax.set_xlabel(f'Chemical potential of {elements[0]} (eV)')
+            ax.set_ylabel(f'Chemical potential of {elements[1]} (eV)')
+            ax.set_zlabel(f'Chemical potential of {elements[2]} (eV)')
+            ax.set_xlim3d(draw_range, 0)
+            ax.set_ylim3d(0, draw_range)
+            ax.set_zlim3d(draw_range, 0)
+
+        ax.grid(color='b',
+                alpha=0.2,
+                linestyle='dashed',
+                linewidth=0.5)
+        plt.tight_layout()  # try
+        if save_file_name:
+            plt.savefig(save_file_name)
+        else:
+            plt.show()
+
+
+def main():
+    parser = argparse.ArgumentParser()
+
+    # input
+    parser.add_argument("-e", "--energy", dest="energy_file", type=str,
+                        default=None,
+                        help="Name of text file of energies of compounds")
+    parser.add_argument("-v", "--vasp_dirs",
+                        dest="vasp_dirs", type=str, nargs='+',
+                        default=None,
+                        help="Drawing diagram from specified directories"
+                             "of vasp calculations")
+    parser.add_argument("-p", "--poscar_name",
+                        dest="poscar_name", type=str,
+                        default="POSCAR",
+                        help="Name of POSCAR, like CONTCAR, POSCAR-finish,...")
+    parser.add_argument("-o", "--outcar_name",
+                        dest="outcar_name", type=str,
+                        default="OUTCAR",
+                        help="Name of OUTCAR, like OUTCAR-finish")
+
+    # drawing diagram
+    parser.add_argument("-w", "--without_label",
+                        help="Draw diagram without label.",
+                        action="store_true")
+    parser.add_argument("-c", "--remarked_compound",
+                        dest="remarked_compound", type=str,
+                        default=None,
+                        help="Name of compound you are remarking."
+                             "Outputted equilibrium_points are limited to "
+                             "neighboring that compounds, "
+                             "and those equilibrium_points are "
+                             "labeled in chem_pot_diagram.")
+    parser.add_argument("-d", "--draw_range",
+                        dest="draw_range", type=float,
+                        default=None,
+                        help="Drawing range of diagram."
+                             "If range is shallower than the deepest vertex,"
+                             "ValueError will occur")
+
+    # output
+    parser.add_argument("-s", "--save_file",
+                        dest="save_file", type=str,
+                        default=None,
+                        help="File name to save the drawn diagram.")
+    parser.add_argument("-y", "--yaml",
+                        action="store_const", const=True, default=False,
+                        help="Dumps yaml of remarked_compound")
+
+    options = parser.parse_args()
+    if options.energy_file and options.vasp_dirs:
+        raise ValueError("You can not specify energy_file and vasp_dirs "
+                         "simultaneously.")
+    if options.energy_file:
+        cp = ChemPotDiag.from_file(options.energy_file)
+    if options.vasp_dirs:
+        poscar_paths = [d + options.poscar_name for d in options.vasp_dirs]
+        outcar_paths = [d + options.outcar_name for d in options.vasp_dirs]
+        cp = ChemPotDiag.from_vasp_calculations_files(poscar_paths, outcar_paths)
+    print(f"Energies of elements ({cp.elements}) : {cp.element_energy}")
+    #  Read options of drawing diagram from parser
+    if options.remarked_compound:
+        try:
+            for vertex in cp.get_neighbor_vertices(options.remarked_compound):
+                print(vertex)
+        except ValueError:
+            print(f"{options.remarked_compound} "
+                  f"is unstable. No vertex is labeled.")
+
+    kwargs_for_diagram = {}
+    if options.remarked_compound:
+        kwargs_for_diagram["remarked_compound"] = options.remarked_compound
+    if options.save_file:
+        kwargs_for_diagram["save_file_name"] = options.save_file
+    if options.without_label:
+        kwargs_for_diagram["with_label"] = False
+    if options.draw_range:
+        kwargs_for_diagram["draw_range"] = options.draw_range
+
+    if cp.dim >= 4:
+        print("Currently diagram is not available for quaternary or more.")
+    else:
+        try:
+            cp.draw_diagram(**kwargs_for_diagram)
+        except ValueError:
+            kwargs_for_diagram.pop("remarked_compound")
+            cp.draw_diagram(**kwargs_for_diagram)
+
+    if options.yaml:
+        if options.remarked_compound is None:
+            raise ValueError("remarked_compound is needed to dump yaml")
+        cp.dump_yaml(".", options.remarked_compound)
+
+
+if __name__ == "__main__":
+    main()
+

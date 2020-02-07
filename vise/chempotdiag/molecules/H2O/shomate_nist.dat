@@ -1,0 +1,12 @@
+Enthalpy_zero   -9.904 (Malcom W. Chase Jr. NIST-JANAF Thermodynamical Tables Fourth Edition, J. Phys. Chem. Ref. Data, Monograph 9 (https://srd.nist.gov/JPCRD/jpcrdM9.pdf))
+Temperature (K)	500. - 1700.	1700. - 6000.
+A	30.09200	41.96426
+B	6.832514	8.622053
+C	6.793435	-1.499780
+D	-2.534480	0.098119
+E	0.082139	-11.15764
+F	-250.8810	-272.1797
+G	223.3967	219.7809
+H	-241.8264	-241.8264
+Reference	Chase, 1998	Chase, 1998
+Comment	Data last reviewed in March, 1979	Data last reviewed in March, 1979
