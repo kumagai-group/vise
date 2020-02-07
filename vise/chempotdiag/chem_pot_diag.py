@@ -1,6 +1,5 @@
 #  Copyright (c) Oba-group 
 #  Distributed under the terms of the MIT License.
-from __future__ import print_function
 import argparse
 from collections import OrderedDict
 import copy
@@ -16,10 +15,10 @@ from scipy.spatial import HalfspaceIntersection
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.composition import Composition, CompositionError
 
-from chempotdiag.compound \
-    import Compound, DummyCompoundForDiagram, CompoundsList, ElemOrderType
-from chempotdiag.vertex \
-    import Vertex, VertexOnBoundary, VerticesList
+from vise.chempotdiag.compound import (
+    Compound, DummyCompoundForDiagram, CompoundsList, ElemOrderType)
+from vise.chempotdiag.vertex import (
+    Vertex, VertexOnBoundary, VerticesList)
 
 molecule_directory = os.path.dirname(__file__) + "/molecules"
 
@@ -28,9 +27,7 @@ molecule_directory = os.path.dirname(__file__) + "/molecules"
 
 
 class ChemPotDiag:
-    """
-        Object for chemical potentials diagram.
-    """
+    """ Object for chemical potentials diagram. """
 
     def __init__(self,
                  element_free_energy: np.ndarray,
@@ -195,7 +192,8 @@ class ChemPotDiag:
                         draw_criterion
                     )
             else:
-                vertex = Vertex(None, {e: en for e, en in zip(elements, draw_vertices[i])})
+                vertex = Vertex(
+                    None, {e: en for e, en in zip(elements, draw_vertices[i])})
             vertices.append(vertex)
         # make compounds_to_vertex_list, vertex_to_compounds_list
         compounds_to_vertex_list = [l for l in facets_by_halfspace if l]
@@ -259,20 +257,17 @@ class ChemPotDiag:
                                     pressure=pressure)
 
     @classmethod
-    def from_vasp_and_materials_project(cls,
-                                        vasp_target_poscar: str,
-                                        vasp_target_output: str,
-                                        vasp_element_poscar: List[str],
-                                        vasp_element_output: List[str],
-                                        fmt: str = "outcar",
-                                        temperature: Optional[float] = None,
-                                        pressure: Union[str,
-                                                        float,
-                                                        None] = None,
-                                        energy_shift_dict: Union[Dict[str,
-                                                                      float],
-                                                                 None] = None
-                                        ) -> "ChemPotDiag":
+    def from_vasp_and_materials_project(
+            cls,
+            vasp_target_poscar: str,
+            vasp_target_output: str,
+            vasp_element_poscar: List[str],
+            vasp_element_output: List[str],
+            fmt: str = "outcar",
+            temperature: Optional[float] = None,
+            pressure: Union[str, float, None] = None,
+            energy_shift_dict: Union[Dict[str, float], None] = None
+            ) -> "ChemPotDiag":
         """
 
         Args:
@@ -289,16 +284,14 @@ class ChemPotDiag:
             (CompoundsList) CompoundsList object from materials project.
 
         """
-        compounds_list = \
-            CompoundsList.from_vasp_and_materials_project(vasp_target_poscar,
-                                                          vasp_target_output,
-                                                          vasp_element_poscar,
-                                                          vasp_element_output,
-                                                          fmt=fmt,
-                                                          temperature=temperature,
-                                                          pressure=pressure,
-                                                          energy_shift_dict=energy_shift_dict)
-        return cls.from_calculation(compounds_list)
+        compounds_list = CompoundsList.\
+            from_vasp_and_materials_project(vasp_target_poscar,
+                                            vasp_target_output,
+                                            vasp_element_poscar,
+                                            vasp_element_output,
+                                            fmt=fmt,
+                                            energy_shift_dict=energy_shift_dict)
+        return cls.from_calculation(compounds_list, temperature, pressure)
 
     @property
     def temperature(self) -> float:
@@ -474,7 +467,7 @@ class ChemPotDiag:
                            file_path: str,
                            remarked_compound: str,
                            elements: ElemOrderType,
-                           **kwargs):
+                           **kwargs) -> None:
         """
         For plot_defect_energy, dumps coordination of vertex, compound,
         and standard_energy.
@@ -484,10 +477,11 @@ class ChemPotDiag:
             file_path(str):
             remarked_compound(str):
             elements([Element or str]): Order of elements
-            **kwargs(dict): other property, like {"supercell_comment" : "foo,var"}
+            **kwargs(dict):
+                other property, like {"supercell_comment" : "foo,var"}
 
         Returns:
-
+            None
         """
         d = self.get_neighbor_vertices_as_dict(remarked_compound,
                                                elements,
@@ -520,8 +514,8 @@ class ChemPotDiag:
             ruamel.yaml.dump(d, fw)
 
     @staticmethod
-    def load_vertices_yaml(file_name: str) -> Tuple[VerticesList,
-                                                    Dict[Element, float]]:
+    def load_vertices_yaml(file_name: str
+                           ) -> Tuple[VerticesList, Dict[Element, float]]:
         """
         Read yaml file for plot_defect_energy and return VerticesList and
         standard_energy.
@@ -539,12 +533,12 @@ class ChemPotDiag:
         for name in name_list:
             if name in yaml_data.keys():
                 if not isinstance(yaml_data[name], dict):
-                    raise TypeError(f"Failed to read yaml_data[{name}]"
-                                    f"as dict.")
+                    raise TypeError(f"Failed to read yaml_data[{name}] as dict")
                 vertex_dict = OrderedDict(yaml_data[name])
                 vertex = Vertex(name, vertex_dict)
                 vl.append(vertex)
-        return vl, {Element(e): v for e, v in yaml_data["standard_energy"].items()}
+        return \
+            vl, {Element(e): v for e, v in yaml_data["standard_energy"].items()}
 
     def draw_diagram(self,
                      title: str = None,
@@ -725,101 +719,4 @@ class ChemPotDiag:
         else:
             plt.show()
 
-
-def main():
-    parser = argparse.ArgumentParser()
-
-    # input
-    parser.add_argument("-e", "--energy", dest="energy_file", type=str,
-                        default=None,
-                        help="Name of text file of energies of compounds")
-    parser.add_argument("-v", "--vasp_dirs",
-                        dest="vasp_dirs", type=str, nargs='+',
-                        default=None,
-                        help="Drawing diagram from specified directories"
-                             "of vasp calculations")
-    parser.add_argument("-p", "--poscar_name",
-                        dest="poscar_name", type=str,
-                        default="POSCAR",
-                        help="Name of POSCAR, like CONTCAR, POSCAR-finish,...")
-    parser.add_argument("-o", "--outcar_name",
-                        dest="outcar_name", type=str,
-                        default="OUTCAR",
-                        help="Name of OUTCAR, like OUTCAR-finish")
-
-    # drawing diagram
-    parser.add_argument("-w", "--without_label",
-                        help="Draw diagram without label.",
-                        action="store_true")
-    parser.add_argument("-c", "--remarked_compound",
-                        dest="remarked_compound", type=str,
-                        default=None,
-                        help="Name of compound you are remarking."
-                             "Outputted equilibrium_points are limited to "
-                             "neighboring that compounds, "
-                             "and those equilibrium_points are "
-                             "labeled in chem_pot_diagram.")
-    parser.add_argument("-d", "--draw_range",
-                        dest="draw_range", type=float,
-                        default=None,
-                        help="Drawing range of diagram."
-                             "If range is shallower than the deepest vertex,"
-                             "ValueError will occur")
-
-    # output
-    parser.add_argument("-s", "--save_file",
-                        dest="save_file", type=str,
-                        default=None,
-                        help="File name to save the drawn diagram.")
-    parser.add_argument("-y", "--yaml",
-                        action="store_const", const=True, default=False,
-                        help="Dumps yaml of remarked_compound")
-
-    options = parser.parse_args()
-    if options.energy_file and options.vasp_dirs:
-        raise ValueError("You can not specify energy_file and vasp_dirs "
-                         "simultaneously.")
-    if options.energy_file:
-        cp = ChemPotDiag.from_file(options.energy_file)
-    if options.vasp_dirs:
-        poscar_paths = [d + options.poscar_name for d in options.vasp_dirs]
-        outcar_paths = [d + options.outcar_name for d in options.vasp_dirs]
-        cp = ChemPotDiag.from_vasp_calculations_files(poscar_paths, outcar_paths)
-    print(f"Energies of elements ({cp.elements}) : {cp.element_energy}")
-    #  Read options of drawing diagram from parser
-    if options.remarked_compound:
-        try:
-            for vertex in cp.get_neighbor_vertices(options.remarked_compound):
-                print(vertex)
-        except ValueError:
-            print(f"{options.remarked_compound} "
-                  f"is unstable. No vertex is labeled.")
-
-    kwargs_for_diagram = {}
-    if options.remarked_compound:
-        kwargs_for_diagram["remarked_compound"] = options.remarked_compound
-    if options.save_file:
-        kwargs_for_diagram["save_file_name"] = options.save_file
-    if options.without_label:
-        kwargs_for_diagram["with_label"] = False
-    if options.draw_range:
-        kwargs_for_diagram["draw_range"] = options.draw_range
-
-    if cp.dim >= 4:
-        print("Currently diagram is not available for quaternary or more.")
-    else:
-        try:
-            cp.draw_diagram(**kwargs_for_diagram)
-        except ValueError:
-            kwargs_for_diagram.pop("remarked_compound")
-            cp.draw_diagram(**kwargs_for_diagram)
-
-    if options.yaml:
-        if options.remarked_compound is None:
-            raise ValueError("remarked_compound is needed to dump yaml")
-        cp.dump_yaml(".", options.remarked_compound)
-
-
-if __name__ == "__main__":
-    main()
 

@@ -16,7 +16,8 @@ from ruamel import yaml
 from pymatgen.core.structure import Structure
 from pymatgen.core.composition import Composition
 from pymatgen.io.vasp.inputs import Poscar
-from chempotdiag.config import ROOM_TEMPERATURE, REFERENCE_PRESSURE
+
+from vise.config import ROOM_TEMPERATURE, REFERENCE_PRESSURE
 
 """
 Data is from NIST Chemistry WebBook, SRD 69

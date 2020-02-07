@@ -7,7 +7,8 @@ from typing import Union
 from vise.config import SYMMETRY_TOLERANCE, ANGLE_TOL, KPT_DENSITY
 from vise.custodian_extension.jobs import ViseVaspJob
 from vise.main_function import (
-    get_poscar_from_mp, vasp_set, plot_band, plot_dos, vasp_run, band_gap)
+    get_poscar_from_mp, vasp_set, chempotdiag, plot_band, plot_dos, vasp_run,
+    band_gap)
 from vise.util.logger import get_logger
 from vise.util.main_tools import dict2list, get_user_settings, get_default_args
 from vise.input_set.input_set import ViseInputSet
@@ -263,6 +264,123 @@ def main():
 
     del vr_defaults
     parser_vasp_run.set_defaults(func=vasp_run)
+
+    # -- chempotdiag -----------------------------------------------------------
+    parser_cpd = subparsers.add_parser(
+        name="chempotdiag",
+        description="Tools for chemical potentials",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        aliases=['cpd'])
+    # get poscar from materials project
+    parser_cpd.add_argument(
+        "-m", "--mat_proj_poscar", help="", action="store_true")
+    parser_cpd.add_argument(
+        "-el", "--elements", dest="elements", type=str, nargs='+', default=None,
+        help="")
+    parser_cpd.add_argument(
+        "-dp", "--dir_path", dest="dir_path", type=str, default=None, help="")
+    parser_cpd.add_argument(
+        "-ch", "--criterion_hull", dest="criterion_hull", type=float,
+        default=None,
+        help="Collect materials only if energy above hull is less than "
+             "criterion_hull. Unit is meV/atom.")
+    parser_cpd.add_argument(
+        "-k", "--mp_api_key", help="", action="store_true")
+    parser_cpd.add_argument(
+        "-gp", "--gets_poly", help="", action="store_true")
+    parser_cpd.add_argument(
+        "-no_mol", "--not_molecules", help="", action="store_true")
+
+    # input
+    # from file
+    parser_cpd.add_argument("-e", "--energy", dest="energy_file",
+                        type=str, default=None,
+                        help="Name of text file of "
+                             "energies of compounds")
+
+    # from VASP
+    parser_cpd.add_argument("-v", "--vasp_dirs",
+                        dest="vasp_dirs", type=str, nargs='+',
+                        default=None,
+                        help="Drawing diagram from specified "
+                             "directories of vasp calculations")
+    # from VASP and MP
+    parser_cpd.add_argument("-fmp_target", "--from_mp_target",
+                        help="VASP result of target material,"
+                             "when get competing phases from mp")
+
+    parser_cpd.add_argument("-fmp_elem", "--from_mp_element", nargs="*",
+                        help="VASP result of elements,"
+                             "when get competing phases from mp")
+
+    # VASP_option
+    parser_cpd.add_argument("-p", "--poscar_name",
+                        dest="poscar_name", type=str,
+                        default="POSCAR",
+                        help="Name of POSCAR, like CONTCAR, "
+                             "POSCAR-finish,...")
+    parser_cpd.add_argument("-o", "--outcar_name",
+                        dest="outcar_name", type=str,
+                        default="OUTCAR",
+                        help="Name of OUTCAR, like OUTCAR-finish")
+
+    parser_cpd.add_argument("-es", "--energy_shift", type=str,
+                        dest="energy_shift",
+                        nargs='+', default=None,
+                        help="Energy shift, "
+                             "e.g. -es N2/molecule 1 "
+                             "-> make more unstable N2/molecule "
+                             "by 1 eV")
+
+    # thermodynamic status (P and T) input
+    parser_cpd.add_argument("-pp", "--partial_pressures",
+                        dest="partial_pressures", type=str,
+                        nargs='+', default=None,
+                        help="partial pressure of system. "
+                             "e.g. -pp O2 1e+5 N2 20000 "
+                             "-> O2: 1e+5(Pa), N2: 20000(Pa)")
+
+    parser_cpd.add_argument("-t", "--temperature",
+                        dest="temperature", type=float,
+                        default=0,
+                        help="temperature of system (unit: K)"
+                             "e.g. -t 3000 -> 3000(K)")
+
+    # drawing diagram
+    parser_cpd.add_argument("-w", "--without_label",
+                        help="Draw diagram without label.",
+                        action="store_true")
+
+    parser_cpd.add_argument("-c", "--remarked_compound",
+                        dest="remarked_compound", type=str,
+                        default=None,
+                        help="Name of compound you are remarking."
+                             "Outputted equilibrium_points are "
+                             "limited to neighboring that "
+                             "compounds, and those equilibrium "
+                             "points are labeled in "
+                             "chem_pot_diagram.")
+
+    parser_cpd.add_argument("-d", "--draw_range",
+                        dest="draw_range", type=float,
+                        default=None,
+                        help="Drawing range of diagram."
+                             "If range is shallower than the "
+                             "deepest vertex, "
+                             "ValueError will occur")
+
+    # output
+    parser_cpd.add_argument("-s", "--save_file",
+                        dest="save_file", type=str,
+                        default=None,
+                        help="File name to save the drawn diagram.")
+
+    parser_cpd.add_argument("-y", "--yaml",
+                        action="store_const", const=True,
+                        default=False,
+                        help="Dumps yaml of remarked_compound")
+
+    parser_cpd.set_defaults(func=chempotdiag)
 
     # -- plot_band -----------------------------------------------------------
     parser_plot_band = subparsers.add_parser(

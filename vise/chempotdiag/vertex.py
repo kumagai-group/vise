@@ -8,13 +8,11 @@ import numpy as np
 
 from pymatgen.core.periodic_table import Element
 
-from chempotdiag.compound import Compound, CompoundsList, ElemOrderType
+from vise.chempotdiag.compound import Compound, CompoundsList, ElemOrderType
 
 
 class Vertex:
-    """
-        Object for vertex in chemical potential diagram.
-    """
+    """ Object for vertex in chemical potential diagram. """
 
     def __init__(self,
                  label: Optional[str],
@@ -356,16 +354,18 @@ class VerticesList(list):
         return limit
 
     # TODO: document, unittest
-    def almost_equal(self, other: "VerticesList", tol: float = 1e-5):
+    def almost_equal(self, other: "VerticesList", tol: float = 1e-5) -> bool:
         """
         Check if this object and other object almost equal.
         If only order of elements like ([Ca, O] and [O, Ca]),
         judges they are same.
+
         Args:
             other (list of Compound or CompoundsList) : Compared object.
             tol (float) : Numerical tolerance. (Of energy, composition)
-        Returns (bool) : If this object and other object almost equal.
 
+        Returns (bool) :
+            If this object and other object almost equal.
         """
         if len(self) != len(other):
             return False

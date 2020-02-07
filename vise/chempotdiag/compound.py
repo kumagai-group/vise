@@ -14,24 +14,16 @@ from pymatgen.core.periodic_table import Element
 from pymatgen.ext.matproj import MPRester
 from pymatgen.entries.computed_entries import ComputedEntry
 
-from chempotdiag.gas import Gas
-from chempotdiag.config import MOLECULE_SUFFIX, REFERENCE_PRESSURE
+from vise.chempotdiag.gas import Gas
+from vise.config import MOLECULE_SUFFIX, REFERENCE_PRESSURE
 
 # TODO: Once __eq__ is implemented, __hash__ have to be implemented?
-
-
-class NotYetCalculatedError(Exception):
-    pass
 
 
 ElemOrderType = Sequence[Union[str, Element]]
 
 
 class Compound:
-    """
-        Object for compound
-    """
-
     def __init__(self, name: Optional[str],
                  composition: Composition,
                  energy: float, gas: Optional[Gas] = None):
@@ -52,17 +44,16 @@ class Compound:
         self._gas = gas
 
     @classmethod
-    def from_vasp_calculation_files(cls, poscar_path: str, output_path: str,
-                                    fmt: str = "outcar",
+    def from_vasp_calculation_files(cls,
+                                    poscar: str,
+                                    vasprun: str,
                                     is_molecule_gas: bool = True,
                                     name: Optional[str] = None,
                                     energy_shift: float = 0):
         """
         Args:
-            poscar_path (str):
-            output_path (str):
-            fmt (str): Format of output file.
-                       Now "outcar" or "vasprun" modes are implemented.
+            poscar (str):
+            vasprun (str):
             is_molecule_gas (bool): Read molecule data as gas.
                                     If path of directory contains "molecule",
                                     gas data are added.
@@ -73,14 +64,12 @@ class Compound:
         Returns:
             (Compound) Compound object from vasp files.
         """
-        composition = Poscar.from_file(poscar_path).structure.composition
-        # HACK: energy type is energy(sigma->0),
-        # then we cannot use pymatgen in natural way.
+        composition = Poscar.from_file(poscar).structure.composition
+
         gas = None
-        if is_molecule_gas and "molecule" in poscar_path:
+        if is_molecule_gas and "molecule" in poscar:
             # formula = pmg_composition.reduced_formula # bug when P2 and P4
-            gas_formula = \
-                poscar_path.replace(f"/{poscar_path.split('/')[-1]}", "")
+            gas_formula = poscar.replace(f"/{poscar.split('/')[-1]}", "")
             gas_formula = gas_formula.split("/")[-1]
             gas_formula = gas_formula.replace(MOLECULE_SUFFIX, "")
             # search gas
@@ -89,24 +78,12 @@ class Compound:
                     gas = g
                     break
             if gas is None:
-                raise ValueError(f"{poscar_path} molecule was not "
-                                 f"found in database")
-        if fmt == "outcar":
-            with open(output_path) as fr:
-                energy = "not_found"
-                for line in reversed(fr.readlines()):
-                    if line.find("energy(sigma->0)") > 1:
-                        energy = float(line.split()[-1]) + energy_shift
-                        break
-                if energy == "not_found":
-                    raise ValueError(f"not found energy(sigma->0) "
-                                     f"in {output_path}")
-        elif fmt == "vasprun":
-            v = Vasprun(output_path)
-            energy = v.ionic_steps[-1]["electronic_steps"][-1]["e_0_energy"] +\
-                energy_shift
-        else:
-            raise ValueError(f"Invalid format {fmt}.")
+                raise ValueError(f"{poscar} molecule was not found in database")
+
+        v = Vasprun(vasprun)
+        energy = v.ionic_steps[-1]["electronic_steps"][-1]["e_0_energy"]
+        energy += energy_shift
+
         if name is None:
             name = composition.reduced_formula
         return cls(name, composition, energy, gas=gas)
@@ -116,7 +93,9 @@ class Compound:
         """
         Args:
             mp_id (str): material_id of materials project database
+
         Returns:
+            Compound object.
         """
         mpr = MPRester()
         mp_dat: ComputedEntry = mpr.get_entry_by_material_id(mp_id)
@@ -126,44 +105,32 @@ class Compound:
 
     @property
     def name(self):
-        """
-            (str) Name of compound.
-        """
+        """(str) Name of compound. """
         return self._name
 
     @property
     def composition(self) -> Composition:
-        """
-            (numpy.array) Composition of compound.
-        """
+        """(numpy.array) Composition of compound. """
         return self._elem_comp
 
     @property
     def elements(self) -> List[Element]:
-        """
-            (list of Element) Ordered list of elements of the composition vector.
-        """
+        """(list of Element) List of elements of the composition vector. """
         return self.composition.elements
 
     @property
     def dim(self) -> int:
-        """
-            (int) Number of considered atoms.
-        """
+        """(int) Number of considered atoms. """
         return len(self.elements)
 
     @property
     def energy(self) -> float:
-        """
-            (float) Energy of compound.
-        """
+        """(float) Energy of compound. """
         return self._energy
 
     @property
     def gas(self) -> Optional[Gas]:
-        """
-            (Gas) If compound is gas, return related gas data, otherwise None.
-        """
+        """(Gas) If compound is gas, return related gas data, otherwise None."""
         return self._gas
 
     def comp_as_vector(self, elements: ElemOrderType) -> np.ndarray:
@@ -171,47 +138,42 @@ class Compound:
 
     @gas.setter
     def gas(self, gas: Gas):
-        """
-
-        Args:
-            gas (Gas):
-
-        """
+        """ """
         if not isinstance(gas, Gas):
             raise TypeError(f"gas must be Gas class, but actually {type(gas)}")
         self._gas = gas
 
-    def gas_energy_shift(self, temperature: float, pressure: float):
-        """
+    def gas_energy_shift(self, temperature: float, pressure: float) -> float:
+        """Energy shift caused by zero point vibration and entropy.
 
         Args:
             temperature(float): (K)
             pressure(float): (Pa)
 
-        Returns: (eV/atom)
-
+        Returns (float):
+            Value of gas energy shift in eV/atom.
         """
         if self._gas is None:
-            return 0
+            return 0.0
         else:
             return self._gas.energy_shift(temperature, pressure)
 
     def free_energy(self,
                     temperature: Optional[float] = None,
                     pressure: Optional[float] = None):
-        """
+        """Free energy
 
         Args:
             temperature(float or None): (K)
             pressure(float or None): (Pa)
 
-        Returns: (eV/atom)
-
+        Returns (float):
+            Value of free energy shift in eV/atom.
         """
         gas_energy_shift = self.gas_energy_shift(temperature, pressure)
         return self.energy + gas_energy_shift
 
-    def standardize_energy(self, standard_energy: float):
+    def standardized_energy(self, standard_energy: float):
         self._energy = self._energy - standard_energy
 
     def __repr__(self):
@@ -221,12 +183,14 @@ class Compound:
                 f"Gas: {self.gas}")
 
     def __eq__(self, other: "Compound"):
-        """
-        This method is for sorting.
+        """ This method is for sorting.
+
         Standard of comparison has not important meaning.
+
         Args:
             other (Compound): Compared compound.
-        Returns (bool): If self == other.
+        Returns (bool):
+            If self == other.
         """
         if not isinstance(other, Compound):
             raise TypeError("Compound class can not be"
@@ -238,6 +202,7 @@ class Compound:
         elif any([c1 != c2 for c1, c2
                   in zip(self.composition, other.composition)]):
             return False
+
         return True
 
     def almost_equal(self, other: "Compound", tol: float = 1e-5) -> bool:
@@ -282,77 +247,33 @@ class Compound:
 
 
 class DummyCompoundForDiagram(Compound):
-    """
-        Object for dummy compound for drawing boundary of diagram.
-        It is intended that this class will be used
-        for scipy.spatial.halfspaces.
-        It will mean halfspace expressed by (x > boundary_energy),
-        but halfspace has to be notated by (Ax + b < 0),
-        then composition is -1.
+    """ Object for dummy compound for drawing boundary of diagram.
+
+    This class is inteded to be used for scipy.spatial.halfspaces.
+    It will mean halfspace expressed by (x > boundary_energy),
+    but halfspace has to be notated by (Ax + b < 0), then composition is -1.
     """
 
     # HACK: This __init__ is needed to allow composition -1,
     # without standardization.
     def __init__(self, name: str, composition: Composition, energy: float):
-        """
-        Constructor of dummy boundary.
-        Args:
-            name (str):
-            composition (Composition):
-            energy (float):
-        """
-        self._name = name
-        self._elem_comp = composition
-        self._energy = energy
-        self._gas = None
+        """ Constructor of dummy boundary. """
+        super().__init__(name, composition, energy)
 
     @classmethod
     def construct_boundary(cls,
                            element: Union[Element, str],
                            energy: float) -> "Compound":
-        name = str(element) + " boundary"
+        name = f"{element} boundary"
         composition = Composition({Element(element): -1}, allow_negative=True)
         return cls(name, composition, energy)
 
     @classmethod
-    def from_vasp_calculation_files(cls, poscar_path: str, output_path: str,
-                                    fmt: str = "outcar",
-                                    is_molecule_gas: bool = True,
-                                    name: Optional[str] = None,
-                                    energy_shift: float = 0):
-            raise TypeError("Dummy compound can not be constructed from "
-                            "DFT calculation.")
+    def from_vasp_calculation_files(cls, **kwargs):
+        raise TypeError("DummyCompound can't be made from DFT calculation.")
 
 
 class CompoundsList(list):
-
-    def _check_obj(self,
-                   other: object,
-                   is_list_method: bool = False
-                   ) -> Union[Compound, "CompoundsList"]:
-        """
-
-        Check obj's type and align elements.
-
-        Args:
-            other (object):
-            is_list_method (bool): if method uses list e.g. extend, __add__
-
-        Returns:
-
-        """
-        # check type
-        if is_list_method:
-            if not isinstance(other, self.__class__):
-                raise ValueError(
-                    f"args must be CompoundsList, not {type(other)}")
-        else:
-            if not isinstance(other, Compound):
-                raise ValueError(
-                    f"args must be Compound, not {type(other)}")
-        # align elements
-        copy_other = copy.deepcopy(other)
-        return copy_other
 
     def __init__(self, *args, **kw):
         """
@@ -382,6 +303,34 @@ class CompoundsList(list):
         for c in self:
             if not isinstance(c, Compound):
                 raise TypeError("c must not contain objects except Compound.")
+
+    def _check_obj(self,
+                   other: object,
+                   is_list_method: bool = False
+                   ) -> Union[Compound, "CompoundsList"]:
+        """ Check obj's type and align elements.
+
+        Args:
+            other (object):
+                Another "CompoundsList" object.
+            is_list_method (bool):
+                if method uses list e.g. extend, __add__
+
+        Returns:
+
+        """
+        # check type
+        if is_list_method:
+            if not isinstance(other, self.__class__):
+                raise ValueError(
+                    f"args must be CompoundsList, not {type(other)}")
+        else:
+            if not isinstance(other, Compound):
+                raise ValueError(
+                    f"args must be Compound, not {type(other)}")
+        # align elements
+        copy_other = copy.deepcopy(other)
+        return copy_other
 
     def __str__(self):
         return super(CompoundsList, self).__str__()
@@ -445,7 +394,6 @@ class CompoundsList(list):
         copied_obj = copy.deepcopy(self)
         comp_list: List[Composition] = [c.composition for c in copied_obj]
         # energy_list = np.array([c.energy for c in self]) # temporary
-        from chempotdiag.config import REFERENCE_PRESSURE
         if pressure is None:
             pressure = defaultdict(lambda: REFERENCE_PRESSURE, {})
         energy_list = np.array(copied_obj.free_energies(temperature, pressure))
@@ -469,21 +417,23 @@ class CompoundsList(list):
         for c in copied_obj:
             # comp: Compound = copied_obj[i]
             for e in c.elements:
-                c.standardize_energy(c.composition[e] * element_energy[e])
+                c.standardized_energy(c.composition[e] * element_energy[e])
         return copied_obj, element_energy
 
     def gas_energy_shifts(self,
                           temperature: Optional[float],
                           pressure: Optional[Dict[str, float]]
                           ) -> List[float]:
-        """
-        Energy_shift of compounds if the compound is gas,
-        otherwise the shifts are zero.
+        """Energy_shift of compounds for the gases
+
+        Except for Gas, zero is inserted.
+
         Args:
             temperature (float or None)
             pressure (Dict[str, float] or None)
 
         Returns (list of float):
+            List of gas energy shifts.
         """
         if len([o is None for o in [temperature, pressure]]) == 1:
             raise ValueError(f"Only one of temperature ({temperature}) "
@@ -513,13 +463,12 @@ class CompoundsList(list):
             pressure (Dict[str, float]):
 
         Returns (list of float):
-
+            List of free energies.
         """
-        pressure = pressure if pressure \
-            else defaultdict(lambda: REFERENCE_PRESSURE, {})
-        return [c.energy + es
-                for c, es in zip(self, self.gas_energy_shifts(temperature,
-                                                              pressure))]
+        if pressure is None:
+            pressure = defaultdict(lambda: REFERENCE_PRESSURE, {})
+        comp_energy = zip(self, self.gas_energy_shifts(temperature, pressure))
+        return [c.energy + es for c, es in comp_energy]
 
     def get_indices_and_compounds(self, compound_name: str):
         """
@@ -655,9 +604,6 @@ class CompoundsList(list):
                                         vasp_element_poscar: List[str],
                                         vasp_element_output: List[str],
                                         fmt: str = "outcar",
-                                        # temperature: Optional[float] = None,
-                                        # pressure: Optional[Dict[str, float]] =
-                                        # None,
                                         energy_shift_dict:
                                         Optional[Dict[str, float]] = None):
         """
@@ -668,8 +614,6 @@ class CompoundsList(list):
             vasp_element_poscar (list): path
             vasp_element_output (list): path
             fmt (str):
-            # temperature (float):
-            # pressure (dict):
             energy_shift_dict (dict):
 
         Returns:

@@ -1,36 +1,35 @@
 #  Copyright (c) Oba-group 
 #  Distributed under the terms of the MIT License.
-import unittest
-
 from pymatgen.core.periodic_table import Element
+from pathlib import Path
 
-from chempotdiag.compound import (
+from vise.chempotdiag.compound import (
     Compound, CompoundsList, DummyCompoundForDiagram)
-from chempotdiag.gas import Gas
-from chempotdiag.config import (
-    ROOM_TEMPERATURE, REFERENCE_PRESSURE, MOLECULE_SUFFIX)
-
-EXAMPLE_DIR = "./"
-
-FILENAME_2D = EXAMPLE_DIR + "energy_2d.txt"
-# For read DFT test. We don't check these files are physically proper.
-DFT_DIRECTORIES = [f"{EXAMPLE_DIR}/dft_data/O2{MOLECULE_SUFFIX}/",
-                   f"{EXAMPLE_DIR}/dft_data/Mg/",
-                   f"{EXAMPLE_DIR}/dft_data/MgO/"]
-# value of energy(sigma->0)
-# eV / atom, not eV, then divided by 2
-O2_OUTCAR_VAL = -10.26404723 / 2
-MGO_OUTCAR_VAL = -12.52227962 / 2
-MG_OUTCAR_VAL = -3.42786289 / 2
-POSCAR_NAME = "POSCAR-finish"
-OUTCAR_NAME = "OUTCAR-finish"
-VASPRUN_NAME = "vasprun-finish.xml"
+from vise.chempotdiag.gas import Gas
+from vise.config import ROOM_TEMPERATURE, REFERENCE_PRESSURE, MOLECULE_SUFFIX
+from vise.util.testing import ViseTest
 
 
-class TestCompound(unittest.TestCase):
+class TestCompound(ViseTest):
+
+    def setUp(self) -> None:
+        self.FILENAME_2D = self.TEST_FILES_DIR + "energy_2d.txt"
+
+        self.chempot_dir = self.TEST_FILES_DIR / "chempotdiag"
+        # For read DFT test. We don't check these files are physically proper.
+        self.o2_dir = self.chempot_dir / "O2"
+        self.mg_dir = self.chempot_dir / "Mg"
+        self.mgo_dir = self.chempot_dir / "MgO"
+
+        # value of energy(sigma->0)
+        # eV / atom, not eV, then divided by 2
+        self.O2_OUTCAR_VAL = -10.26404723 / 2
+        self.MGO_OUTCAR_VAL = -12.52227962 / 2
+        self.MG_OUTCAR_VAL = -3.42786289 / 2
 
     def test_dummy(self):
         d = DummyCompoundForDiagram.construct_boundary(Element("Mg"), -10)
+
         self.assertEqual(str(d.elements[0]), "Mg")
         self.assertAlmostEqual(d.energy, -10, 5)
         self.assertAlmostEqual(d.composition[Element("Mg")], -1, 5)
@@ -152,6 +151,3 @@ class TestCompound(unittest.TestCase):
             # MgO
             self.assertAlmostEqual(actual_free_energies[2], MGO_OUTCAR_VAL, 5)
 
-
-if __name__ == "__main__":
-    unittest.main()
