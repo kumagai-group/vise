@@ -30,7 +30,7 @@ class ChemPotDiag:
     """ Object for chemical potentials diagram. """
 
     def __init__(self,
-                 element_free_energy: np.ndarray,
+                 element_free_energy: dict,
                  stable_compounds: CompoundsList,
                  unstable_compounds: CompoundsList,
                  vertices: VerticesList,
@@ -41,21 +41,21 @@ class ChemPotDiag:
         """
 
         Args:
-            element_free_energy (np.ndarray):
+            element_free_energy (dict):
             stable_compounds (CompoundsList):
             unstable_compounds (CompoundsList):
             vertices (VerticesList):
             compounds_to_vertex_list (List[List[int]]):
             vertex_to_compounds_list (List[List[int]]):
         """
-        self._element_free_energy = element_free_energy
-        self._stable_compounds = stable_compounds
-        self._unstable_compounds = unstable_compounds
-        self._vertices = vertices
-        self._compounds_to_vertex_list = compounds_to_vertex_list
-        self._vertex_to_compounds_list = vertex_to_compounds_list
-        self._temperature = temperature
-        self._pressure = pressure
+        self.element_free_energy = element_free_energy
+        self.stable_compounds = stable_compounds
+        self.unstable_compounds = unstable_compounds
+        self.vertices = vertices
+        self.compounds_to_vertex_list = compounds_to_vertex_list
+        self.vertex_to_compounds_list = vertex_to_compounds_list
+        self.temperature = temperature
+        self.pressure = pressure
 
     @classmethod
     def from_calculation(cls,
@@ -94,10 +94,9 @@ class ChemPotDiag:
             vertices = VerticesList([])
             for comp in compounds_array:
                 d = {list(compounds_array.elements)[0]: comp.energy}
-                # for e, en in
-                #      zip(compounds_array.elements, comp.energy)}
                 vertex = Vertex(None, d)
                 vertices.append(vertex)
+
             compounds_to_vertex_list = [[i] for i in range(len(compounds_array))]
             vertex_to_compounds_list = [[i] for i in range(len(compounds_array))]
             return cls(element_energy, stable_compounds, unstable_compounds,
@@ -105,7 +104,6 @@ class ChemPotDiag:
                        compounds_to_vertex_list, vertex_to_compounds_list)
 
         # set boundary range
-        boundary_rate = 1.1  # can be arbitrary number > 1.0
         intersections = np.zeros((len(compounds_array), dim))
         free_energies = compounds_array.free_energies(temperature, pressure)
         for i, comp_dat in enumerate(compounds_array):
@@ -119,13 +117,13 @@ class ChemPotDiag:
                     intersections[i][j] = free_energies[i] / c[j]
                 else:  # This case does not related to search_vertices_range.
                     intersections[i][j] = float("inf")
+
+        boundary_rate = 1.1  # can be arbitrary number larger than 1.0
         search_vertices_range = np.min(intersections) * boundary_rate
         elements = compounds_array.elements
         for e in compounds_array.elements:
             energy = search_vertices_range
-            boundary \
-                = DummyCompoundForDiagram.construct_boundary(e,
-                                                             -energy)
+            boundary = DummyCompoundForDiagram.construct_boundary(e, -energy)
             compounds_array.append(boundary)
             free_energies.append(-energy)
 
@@ -296,68 +294,19 @@ class ChemPotDiag:
         return cls.from_calculation(compounds_list, temperature, pressure)
 
     @property
-    def temperature(self) -> float:
-        """
-            (float) temperature (K)
-        """
-        return self._temperature
-
-    @property
-    def pressure(self) -> Dict[str, float]:
-        """
-            (dict) pressure (GPa) like {"O": 2, "N": 10}
-        """
-        return self._pressure
-
-    @property
     def dim(self) -> int:
-        """
-            (int) Number of considered atoms.
-        """
+        """ (int) Number of considered atoms. """
         return self.stable_compounds.dim
 
     @property
     def elements(self) -> List[Element]:
-        """
-            (list of str) Considered elements.
-            Order of list is used as order of coordinates.
-        """
+        """Considered elements. Order of list is used as order of coordinates"""
         return self.stable_compounds.elements
 
     @property
-    def element_energy(self) -> Dict[Element, float]:
-        """
-            ({Element: float}) Element energy.
-        """
-        return self._element_free_energy
-
-    @property
-    def stable_compounds(self) -> CompoundsList:
-        """
-            (CompoundsList) CompoundList
-        """
-        return copy.deepcopy(self._stable_compounds)
-
-    @property
-    def unstable_compounds(self) -> CompoundsList:
-        """
-            (CompoundsList) CompoundList
-        """
-        return copy.deepcopy(self._unstable_compounds)
-
-    @property
     def all_compounds(self) -> CompoundsList:
-        """
-            (CompoundsList) CompoundList
-        """
+        """ (CompoundsList) CompoundList """
         return CompoundsList(self.stable_compounds + self.unstable_compounds)
-
-    @property
-    def vertices(self) -> VerticesList:
-        """
-            (VerticesList) Vertices, including vertices on drawing boundary
-        """
-        return self._vertices
 
     @property
     def equilibrium_points(self) -> VerticesList:
@@ -365,7 +314,7 @@ class ChemPotDiag:
             (VerticesList) Vertices, excluding vertices on drawing boundary
                            and only physically meaningful points are included.
         """
-        return VerticesList([v for v in self._vertices
+        return VerticesList([v for v in self.vertices
                              if not isinstance(v, VertexOnBoundary)])
 
     def get_neighbor_vertices(self,
@@ -374,14 +323,16 @@ class ChemPotDiag:
                                               Compound],
                               elements: Optional[ElemOrderType] = None
                               ) -> VerticesList:
-        """
-        Search equilibrium_points on remarked compound.
+        """ Search equilibrium_points on remarked compound.
+
         Args:
             compound (int/str/Compound):
                 Index of compound or compound name or Compound object.
             elements (None/[Element or str]):
                 Order of elements.
-        Returns (VerticesList): Vertices on input compound.
+
+        Returns (VerticesList):
+            Vertices on input compound.
         """
         if isinstance(compound, int):
             index = compound
@@ -402,8 +353,8 @@ class ChemPotDiag:
             raise ValueError(
                 f"{compound} did not found in stable_compounds.")
         to_return = \
-            VerticesList([self._vertices[i]
-                          for i in self._compounds_to_vertex_list[index]])
+            VerticesList([self.vertices[i]
+                          for i in self.compounds_to_vertex_list[index]])
         if self.dim == 3:
             to_return = to_return.sorted_to_loop_in_3d(elements)
         return to_return
@@ -412,6 +363,7 @@ class ChemPotDiag:
                                vertex: Union[int, str, Vertex]
                                ) -> CompoundsList:
         """ Search equilibrium_points on remarked vertex.
+
         Args:
             vertex (int/str/Vertex):
                 Input compound (index or label or vertex).
@@ -421,22 +373,23 @@ class ChemPotDiag:
         if isinstance(vertex, int):
             index = vertex
         elif isinstance(vertex, str):
-            matched = self._vertices.get_indices_and_vertices(vertex)
+            matched = self.vertices.get_indices_and_vertices(vertex)
             if len(matched) >= 2:
                 raise ValueError(f"More than one equilibrium_points "
                                  f"matched the name {vertex}.")
             if matched:
                 index = matched[0][0]
         elif isinstance(vertex, Vertex):
-            index = self._vertices.index(vertex)
+            index = self.vertices.index(vertex)
         else:
             raise TypeError("Input vertex must be int or str or Vertex.")
 
         if index is None:
             raise ValueError(
                 f"{vertex} did not found in equilibrium_points.")
+
         return CompoundsList([self.stable_compounds[i]
-                              for i in self._vertex_to_compounds_list[index]])
+                              for i in self.vertex_to_compounds_list[index]])
 
     def get_neighbor_vertices_as_dict(self,
                                       remarked_compound: Union[int,
@@ -573,16 +526,16 @@ class ChemPotDiag:
 
         if self.dim != 1:
             if not draw_range:
-                draw_range = self._vertices.boundary_range_limit * 1.1
-            self._vertices.set_boundary_range(draw_range)
+                draw_range = self.vertices.boundary_range_limit * 1.1
+            self.vertices.set_boundary_range(draw_range)
 
         #  1D, 2D, and 3D dimension. More than 4D has not yet implemented.
         if self.dim == 1:
             ax = plt.figure().add_subplot(111)
             x = np.zeros(len(self.stable_compounds)
-                         + len(self._unstable_compounds))
+                         + len(self.unstable_compounds))
             y = [cd.energy
-                 for cd in self.stable_compounds + self._unstable_compounds]
+                 for cd in self.stable_compounds + self.unstable_compounds]
             ax.scatter(x, y)
             ax.set_ylabel(f"Chemical potential of {elements[0]}")
             ax.set_xlim(-1, 1)
@@ -604,8 +557,8 @@ class ChemPotDiag:
             num_line = len(self.stable_compounds)
             for i, compound in enumerate(self.stable_compounds):
                 vertices \
-                    = VerticesList([self._vertices[j]
-                                    for j in self._compounds_to_vertex_list[i]])
+                    = VerticesList([self.vertices[j]
+                                    for j in self.compounds_to_vertex_list[i]])
                 vertices_coords = [v.coords_vector(elements) for v in vertices]
                 x = [v[0] for v in vertices_coords]
                 y = [v[1] for v in vertices_coords]
@@ -654,8 +607,8 @@ class ChemPotDiag:
 
         elif self.dim == 3:
             ax = plt.figure().add_subplot(111, projection='3d')
-            num_plane = len(self._stable_compounds)
-            for i, compound in enumerate(self._stable_compounds):
+            num_plane = len(self.stable_compounds)
+            for i, compound in enumerate(self.stable_compounds):
                 sorted_vertices = self.get_neighbor_vertices(i, elements)
                 sorted_vertices_coords = \
                     [v.coords_vector(elements) for v in sorted_vertices]

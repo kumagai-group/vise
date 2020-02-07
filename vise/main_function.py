@@ -14,6 +14,7 @@ from pymatgen.io.vasp.outputs import BSVasprun, Outcar
 from vise.analyzer.band_gap import band_gap_properties
 from vise.analyzer.band_plotter import PrettyBSPlotter
 from vise.analyzer.dos_plotter import get_dos_plot
+from vise.chempotdiag.chem_pot_diag import ChemPotDiag
 from vise.custodian_extension.handler_groups import handler_group
 from vise.custodian_extension.jobs import (
     ViseVaspJob, KptConvResult, StructureOptResult)
@@ -216,8 +217,8 @@ def chempotdiag(args):
 
         if args.energy_file:
             if args.temperature or args.partial_pressures:
-                warnings.warn("Now temperature and pressures can not apply when"
-                              " reading data from energy_file")
+                logger.warning("Now temperature and pressures can not apply "
+                               "when reading data from energy_file")
             cp = ChemPotDiag.from_file(args.energy_file)
 
         elif args.vasp_dirs:
@@ -283,7 +284,6 @@ def chempotdiag(args):
             if args.remarked_compound is None:
                 raise ValueError("remarked_compound is needed to dump yaml")
             cp.dump_vertices_yaml(os.getcwd(), args.remarked_compound, args.elements)
-
 
 
 def plot_band(args):
