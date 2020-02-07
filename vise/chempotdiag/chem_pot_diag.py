@@ -318,9 +318,7 @@ class ChemPotDiag:
                              if not isinstance(v, VertexOnBoundary)])
 
     def get_neighbor_vertices(self,
-                              compound: Union[int,
-                                              str,
-                                              Compound],
+                              compound: Union[int, str, Compound],
                               elements: Optional[ElemOrderType] = None
                               ) -> VerticesList:
         """ Search equilibrium_points on remarked compound.
@@ -334,6 +332,7 @@ class ChemPotDiag:
         Returns (VerticesList):
             Vertices on input compound.
         """
+        index = None
         if isinstance(compound, int):
             index = compound
         elif isinstance(compound, str):
@@ -341,22 +340,23 @@ class ChemPotDiag:
             if matched is None:
                 raise ValueError(f"No such compounds in diagram {compound}")
             if len(matched) >= 2:
-                raise ValueError(
-                    f"More than one compounds matched the name {compound}.")
+                raise ValueError(f"More than one compounds matched {compound}.")
             if matched:
                 index = matched[0][0]
         elif isinstance(compound, Compound):
             index = self.stable_compounds.index(compound)
         else:
             raise TypeError("Input compound must be int or str or Compound.")
+
         if index is None:
-            raise ValueError(
-                f"{compound} did not found in stable_compounds.")
+            raise ValueError(f"{compound} did not found in stable_compounds.")
+
         to_return = \
             VerticesList([self.vertices[i]
                           for i in self.compounds_to_vertex_list[index]])
         if self.dim == 3:
             to_return = to_return.sorted_to_loop_in_3d(elements)
+
         return to_return
 
     def get_neighbor_compounds(self,

@@ -309,7 +309,7 @@ class VerticesList(list):
             self[i].label = name_list[count]
             count += 1
 
-    def get_indices_and_vertices(self, label: Optional["VerticesList"]):
+    def get_indices_and_vertices(self, label: str) -> Optional["VerticesList"]:
         """ Find object of Compound from self by name(str) of compound.
 
         Args:
