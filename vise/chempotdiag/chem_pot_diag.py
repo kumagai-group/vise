@@ -131,12 +131,13 @@ class ChemPotDiag:
 
         # Calculate HalfspaceIntersection
         eps = 1e-2
-        interior_point \
-            = np.array([search_vertices_range + eps] * dim)
+        interior_point = np.array([search_vertices_range + eps] * dim)
+
         halfspaces = []
         for i, comp_dat in enumerate(compounds_array):
             h = np.append(comp_dat.comp_as_vector(elements), -free_energies[i])
             halfspaces.append(h)
+
         halfspaces = np.array(halfspaces)
         hi = HalfspaceIntersection(halfspaces, interior_point)
         # facets_by_halfspace
@@ -172,9 +173,9 @@ class ChemPotDiag:
                               if abs(item - search_vertices_range) > 1e-6])
         draw_vertices = copy.deepcopy(hi.intersections)
         draw_range = draw_criterion * 1.1
+
         # sometimes boundary range too small like -100
-        # due to an unstable substance, then the value is changed to
-        # draw_range
+        # due to an unstable substance, the value is changed to draw_range
         vertices = VerticesList([])
         for i in range(len(draw_vertices)):
             if i in which_vertex_on_boundary:
@@ -195,6 +196,7 @@ class ChemPotDiag:
                 vertex = Vertex(
                     None, {e: en for e, en in zip(elements, draw_vertices[i])})
             vertices.append(vertex)
+
         # make compounds_to_vertex_list, vertex_to_compounds_list
         compounds_to_vertex_list = [l for l in facets_by_halfspace if l]
         vertex_to_compounds_list = []
@@ -203,6 +205,7 @@ class ChemPotDiag:
                 = [stable_original_index_list.index(j)
                    for j in l if j in stable_original_index_list]
             vertex_to_compounds_list.append(stable_index_list)
+
         return cls(element_energy, stable_compounds, unstable_compounds,
                    vertices,
                    compounds_to_vertex_list, vertex_to_compounds_list,
@@ -224,16 +227,15 @@ class ChemPotDiag:
         return cls.from_calculation(compounds_array, temperature, pressure)
 
     @classmethod
-    def from_vasp_calculations_files(cls,
-                                     poscar_paths: List[str],
-                                     output_paths: List[str],
-                                     fmt: str = "outcar",
-                                     temperature: Optional[float] = None,
-                                     pressure: Optional[Dict[str, float]] = None,
-                                     energy_shift_dict: Union[Dict[str,
-                                                                   float],
-                                                              None] = None)\
-            -> "ChemPotDiag":
+    def from_vasp_calculations_files(
+            cls,
+            poscar_paths: List[str],
+            output_paths: List[str],
+            fmt: str = "outcar",
+            temperature: Optional[float] = None,
+            pressure: Optional[Dict[str, float]] = None,
+            energy_shift_dict: Union[Dict[str, float], None] = None
+            ) -> "ChemPotDiag":
         """
         Args:
             poscar_paths (list of str):
@@ -409,12 +411,12 @@ class ChemPotDiag:
     def get_neighbor_compounds(self,
                                vertex: Union[int, str, Vertex]
                                ) -> CompoundsList:
-        """
-        Search equilibrium_points on remarked vertex.
+        """ Search equilibrium_points on remarked vertex.
         Args:
             vertex (int/str/Vertex):
                 Input compound (index or label or vertex).
-        Returns (CompoundsList): Compounds on the vertex.
+        Returns (CompoundsList):
+            Compounds on the vertex.
         """
         if isinstance(vertex, int):
             index = vertex
@@ -468,9 +470,8 @@ class ChemPotDiag:
                            remarked_compound: str,
                            elements: ElemOrderType,
                            **kwargs) -> None:
-        """
-        For plot_defect_energy, dumps coordination of vertex, compound,
-        and standard_energy.
+        """Dumps coordination of vertex, compound, and standard_energy.
+
         Labels of vertices must be one capital alphabet.
 
         Args:
@@ -516,10 +517,10 @@ class ChemPotDiag:
     @staticmethod
     def load_vertices_yaml(file_name: str
                            ) -> Tuple[VerticesList, Dict[Element, float]]:
-        """
-        Read yaml file for plot_defect_energy and return VerticesList and
-        standard_energy.
+        """Read yaml file return VerticesList and standard_energy.
+
         Labels of vertices must be one capital alphabet.
+
         Args:
             file_name(str):
 
@@ -547,23 +548,25 @@ class ChemPotDiag:
                      with_label: bool = True,
                      draw_range: Optional[float] = None,
                      elements: Optional[ElemOrderType] = None):
-        """
-        Draw chemical potential diagram.
+        """ Draw chemical potential diagram.
 
         Args:
-            title (str): Title of diagram.
-            save_file_name (None/str): If you will save diagram as image file,
-                                       specify name of the file by this arg.
-            remarked_compound (None/str): Vertices on the specified compound
-                                          will be labeled.
-            with_label (bool): Whether if you will display names of compounds.
-            draw_range (None/float): Range to draw diagram.
-                                     If none, range will be
-                                     determined automatically.
-            elements (None/[Element or str]): Order of elements.
+            title (str):
+                Title of diagram.
+            save_file_name (None/str):
+                If you will save diagram as image file, specify name of the file
+                by this arg.
+            remarked_compound (None/str):
+                Vertices on the specified compound will be labeled.
+            with_label (bool):
+                Whether if you will display names of compounds.
+            draw_range (None/float):
+                If none, range will be determined automatically.
+            elements (None/[Element or str]):
+                Order of elements.
         """
-        elements = elements if elements \
-            else sorted([str(e) for e in self.elements])
+        elements = elements or sorted([str(e) for e in self.elements])
+
         if self.dim >= 4:
             # TODO: fix some parameter and plot in 3D or 2D?
             raise NotImplementedError("4D or more data can not be drawn.")
@@ -594,8 +597,7 @@ class ChemPotDiag:
             if title:
                 ax.set_title(title)
             else:
-                ax.set_title(f"Chemical potential diagram of "
-                             f"{elements[0]}")
+                ax.set_title(f"Chemical potential diagram of {elements[0]}")
 
         elif self.dim == 2:
             ax = plt.figure().add_subplot(111)
@@ -644,8 +646,7 @@ class ChemPotDiag:
                 ax.set_title(title)
             else:
                 ax.set_title(f"Chemical potential diagram of "
-                             f"{elements[0]} and "
-                             f"{elements[1]}")
+                             f"{elements[0]} and {elements[1]}")
             ax.set_xlabel(f"Chemical potential of {elements[0]}")
             ax.set_ylabel(f"Chemical potential of {elements[1]}")
             ax.set_xlim(draw_range, 0)
@@ -698,10 +699,8 @@ class ChemPotDiag:
             if title:
                 ax.set_title(title)
             else:
-                ax.set_title('Chemical potential diagram of '
-                             + str(elements[0]) + ", "
-                             + str(elements[1]) + ", and "
-                             + str(elements[2]))
+                ax.set_title(f'Chemical potential diagram of {elements[0]}, '
+                             f'{elements[1]}, and {elements[2]}')
             ax.set_xlabel(f'Chemical potential of {elements[0]} (eV)')
             ax.set_ylabel(f'Chemical potential of {elements[1]} (eV)')
             ax.set_zlabel(f'Chemical potential of {elements[2]} (eV)')
@@ -709,11 +708,9 @@ class ChemPotDiag:
             ax.set_ylim3d(0, draw_range)
             ax.set_zlim3d(draw_range, 0)
 
-        ax.grid(color='b',
-                alpha=0.2,
-                linestyle='dashed',
-                linewidth=0.5)
-        plt.tight_layout()  # try
+        ax.grid(color='b', alpha=0.2, linestyle='dashed', linewidth=0.5)
+        plt.tight_layout()
+
         if save_file_name:
             plt.savefig(save_file_name)
         else:

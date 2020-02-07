@@ -18,7 +18,6 @@ class Vertex:
                  label: Optional[str],
                  coords: Dict[Union[str, Element], float]):
         """
-        Create a Vertex object.
         Args:
             label (None/str): Label of vertex. This is used to draw a diagram.
             coords ({Element or str: float}):
@@ -32,16 +31,12 @@ class Vertex:
 
     @property
     def elements(self) -> Set[Element]:
-        """
-            (list of Elements) Elemental elements of the composition vector.
-        """
+        """(list of Elements) Elemental elements of the composition vector. """
         return set(self.coords.keys())
 
     @property
     def coords(self) -> Dict[Element, float]:
-        """
-            ({Element or str: float) Coordinates of vertex.
-        """
+        """({Element or str: float) Coordinates of vertex. """
         return self._coords
 
     def coords_vector(self, elements: ElemOrderType) -> np.ndarray:
@@ -289,28 +284,23 @@ class VerticesList(list):
             # For easy debug
             angle = np.rad2deg(angle)
             return angle
+
         indices = [i for i in range(len(vertices_coords))]
         indices.sort(key=angle_between_v0)
         return VerticesList([self[i] for i in indices])
 
     def clear_label(self):
-        """
-            Clear labels of all equilibrium_points.
-        """
+        """Clear labels of all equilibrium_points. """
         for i, _ in enumerate(self):
             self[i].label = None
 
     @property
     def is_labeled(self) -> bool:
-        """
-            (bool) Is equilibrium_points are labeled.
-        """
+        """(bool) Is equilibrium_points are labeled. """
         return any([v.label for v in self])
 
     def set_alphabetical_label(self):
-        """
-            Label equilibrium_points alphabetically.
-        """
+        """Label equilibrium_points alphabetically. """
         name_list = list(string.ascii_uppercase)
         count = 0
         for i in range(len(self)):
@@ -320,8 +310,8 @@ class VerticesList(list):
             count += 1
 
     def get_indices_and_vertices(self, label: Optional["VerticesList"]):
-        """
-        Find object of Compound from self by name(str) of compound.
+        """ Find object of Compound from self by name(str) of compound.
+
         Args:
             label (str):
         Returns (None/VerticesList):
@@ -334,9 +324,7 @@ class VerticesList(list):
         return VerticesList(matched_list)
 
     def set_boundary_range(self, boundary_range: float):
-        """
-            Change coordinates of equilibrium_points on boundary and range of drawing.
-        """
+        """Change equilibrium_point coordinates on boundary and drawing range"""
         for v in self:
             if isinstance(v, VertexOnBoundary):
                 v.set_boundary_range(boundary_range)
@@ -355,8 +343,8 @@ class VerticesList(list):
 
     # TODO: document, unittest
     def almost_equal(self, other: "VerticesList", tol: float = 1e-5) -> bool:
-        """
-        Check if this object and other object almost equal.
+        """ Check if this object and other object almost equal.
+
         If only order of elements like ([Ca, O] and [O, Ca]),
         judges they are same.
 
