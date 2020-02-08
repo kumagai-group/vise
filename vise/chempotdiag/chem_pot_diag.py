@@ -63,10 +63,11 @@ class ChemPotDiag:
                          temperature: Optional[float] = None,
                          pressure: Optional[Dict[str, float]] = None
                          ) -> "ChemPotDiag":
-        """
-        Create a object of ChemPot.
+        """Create a object of ChemPot.
+
         Args:
-            input_compounds_array (CompoundsList): Considered compounds array
+            input_compounds_array (CompoundsList):
+                List of considered compounds
             temperature (float):
             pressure (Dict[str, float]):
         """
@@ -314,8 +315,8 @@ class ChemPotDiag:
             (VerticesList) Vertices, excluding vertices on drawing boundary
                            and only physically meaningful points are included.
         """
-        return VerticesList([v for v in self.vertices
-                             if not isinstance(v, VertexOnBoundary)])
+        return VerticesList(
+            [v for v in self.vertices if not isinstance(v, VertexOnBoundary)])
 
     def get_neighbor_vertices(self,
                               compound: Union[int, str, Compound],
@@ -351,9 +352,8 @@ class ChemPotDiag:
         if index is None:
             raise ValueError(f"{compound} did not found in stable_compounds.")
 
-        to_return = \
-            VerticesList([self.vertices[i]
-                          for i in self.compounds_to_vertex_list[index]])
+        to_return = VerticesList(
+            [self.vertices[i] for i in self.compounds_to_vertex_list[index]])
         if self.dim == 3:
             to_return = to_return.sorted_to_loop_in_3d(elements)
 
@@ -460,8 +460,8 @@ class ChemPotDiag:
                 return dict_
 
         d = elem_key_to_str(d)
-        d["temperature"] = self._temperature
-        d["pressure"] = self._pressure
+        d["temperature"] = self.temperature
+        d["pressure"] = self.pressure
         f = f"{file_path}/vertices.yaml" \
             if os.path.isdir(file_path) else file_path
         with open(f, 'w') as fw:

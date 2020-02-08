@@ -1,6 +1,5 @@
 #  Copyright (c) Oba-group 
 #  Distributed under the terms of the MIT License.
-from __future__ import print_function
 import copy
 from collections import defaultdict
 import os
@@ -17,18 +16,19 @@ from pymatgen.entries.computed_entries import ComputedEntry
 from vise.chempotdiag.gas import Gas
 from vise.config import MOLECULE_SUFFIX, REFERENCE_PRESSURE
 
-# TODO: Once __eq__ is implemented, __hash__ have to be implemented?
+# TODO: Once __eq__ is implemented, __hash__ has to be implemented?
 
 
 ElemOrderType = Sequence[Union[str, Element]]
 
 
 class Compound:
-    def __init__(self, name: Optional[str],
+    def __init__(self,
+                 name: Optional[str],
                  composition: Composition,
-                 energy: float, gas: Optional[Gas] = None):
-        """
-        Create a Compound object.
+                 energy: float,
+                 gas: Optional[Gas] = None):
+        """ Create a Compound object.
 
         Args:
             name (None/str): Name of compound.
@@ -38,10 +38,10 @@ class Compound:
             gas (Gas): If compound is gas, related gas data (like Gas.O2)
                 will be used when temperature and pressure are considered.
         """
-        self._name = name
-        self._elem_comp = composition.fractional_composition
-        self._energy = energy / composition.num_atoms
-        self._gas = gas
+        self.name = name
+        self.composition = composition.fractional_composition
+        self.energy = energy / composition.num_atoms
+        self.gas = gas
 
     @classmethod
     def from_vasp_calculation_files(cls,
@@ -104,16 +104,6 @@ class Compound:
         return cls(f"{mp_id}-{composition}", composition, energy)
 
     @property
-    def name(self):
-        """(str) Name of compound. """
-        return self._name
-
-    @property
-    def composition(self) -> Composition:
-        """(numpy.array) Composition of compound. """
-        return self._elem_comp
-
-    @property
     def elements(self) -> List[Element]:
         """(list of Element) List of elements of the composition vector. """
         return self.composition.elements
@@ -123,32 +113,17 @@ class Compound:
         """(int) Number of considered atoms. """
         return len(self.elements)
 
-    @property
-    def energy(self) -> float:
-        """(float) Energy of compound. """
-        return self._energy
-
-    @property
-    def gas(self) -> Optional[Gas]:
-        """(Gas) If compound is gas, return related gas data, otherwise None."""
-        return self._gas
-
     def comp_as_vector(self, elements: ElemOrderType) -> np.ndarray:
         return np.array([self.composition[e] for e in elements])
-
-    @gas.setter
-    def gas(self, gas: Gas):
-        """ """
-        if not isinstance(gas, Gas):
-            raise TypeError(f"gas must be Gas class, but actually {type(gas)}")
-        self._gas = gas
 
     def gas_energy_shift(self, temperature: float, pressure: float) -> float:
         """Energy shift caused by zero point vibration and entropy.
 
         Args:
-            temperature(float): (K)
-            pressure(float): (Pa)
+            temperature(float):
+                Temperature in K.
+            pressure(float): u
+                Pressure in Pa.
 
         Returns (float):
             Value of gas energy shift in eV/atom.
@@ -160,7 +135,7 @@ class Compound:
 
     def free_energy(self,
                     temperature: Optional[float] = None,
-                    pressure: Optional[float] = None):
+                    pressure: Optional[float] = None) -> float:
         """Free energy
 
         Args:
@@ -174,51 +149,48 @@ class Compound:
         return self.energy + gas_energy_shift
 
     def standardized_energy(self, standard_energy: float):
-        self._energy = self._energy - standard_energy
+        self.energy = self.energy - standard_energy
 
     def __repr__(self):
-        return (f"Name: {self.name} , "
-                f"Composition: {self.composition} , "
-                f"Energy: {self.energy} , "
-                f"Gas: {self.gas}")
+        return (f"Name: {self.name}, Composition: {self.composition}, "
+                f"Energy: {self.energy}, Gas: {self.gas}")
 
     def __eq__(self, other: "Compound"):
-        """ This method is for sorting.
+        """Used for sorting.
 
         Standard of comparison has not important meaning.
 
         Args:
-            other (Compound): Compared compound.
+            other (Compound): Compared Compound object.
         Returns (bool):
             If self == other.
         """
         if not isinstance(other, Compound):
-            raise TypeError("Compound class can not be"
-                            " compared with other class.")
+            raise TypeError("Compared obj is not Compound object.")
         if self.name != other.name:
             return False
         elif self.energy != other.energy:
             return False
-        elif any([c1 != c2 for c1, c2
-                  in zip(self.composition, other.composition)]):
+        elif any([a != b for a, b in zip(self.composition, other.composition)]):
             return False
 
         return True
 
-    def almost_equal(self, other: "Compound", tol: float = 1e-5) -> bool:
+    def almost_equal(self, other: "Compound", atol: float = 1e-5) -> bool:
         """
         Args:
             other (Compound): Compared compound.
-            tol: Absolute tolerance.
+            atol: Absolute tolerance.
 
         Returns (bool): If self and other almost_equals.
         """
-        return self.composition.almost_equals(other.composition, atol=tol)
+        return self.composition.almost_equals(other.composition, atol=atol)
 
     def __ne__(self, other: "Compound"):
-        """
-        This is method for sorting.
+        """Used for sorting.
+
         Standard of comparison has not important meaning.
+
         Args:
             other (Compound): Compared compound.
         Returns (bool): If self != other.
@@ -226,9 +198,10 @@ class Compound:
         return not self == other
 
     def __lt__(self, other: "Compound"):
-        """
-        This is method for sorting.
+        """Used for sorting.
+
         Standard of comparison has not important meaning.
+
         Args:
             other (Compound): Compared compound.
         Returns (bool): If self < other.
@@ -249,16 +222,16 @@ class Compound:
 class DummyCompoundForDiagram(Compound):
     """ Object for dummy compound for drawing boundary of diagram.
 
-    This class is inteded to be used for scipy.spatial.halfspaces.
+    This class is intended to be used for scipy.spatial.halfspaces.
     It will mean halfspace expressed by (x > boundary_energy),
     but halfspace has to be notated by (Ax + b < 0), then composition is -1.
     """
 
     # HACK: This __init__ is needed to allow composition -1,
     # without standardization.
-    def __init__(self, name: str, composition: Composition, energy: float):
-        """ Constructor of dummy boundary. """
-        super().__init__(name, composition, energy)
+    # def __init__(self, name: str, composition: Composition, energy: float):
+    #     """ Constructor of dummy boundary. """
+    #     super().__init__(name, composition, energy)
 
     @classmethod
     def construct_boundary(cls,
@@ -270,7 +243,7 @@ class DummyCompoundForDiagram(Compound):
 
     @classmethod
     def from_vasp_calculation_files(cls, **kwargs):
-        raise TypeError("DummyCompound can't be made from DFT calculation.")
+        raise NotImplementedError("DummyCompound can't be made from files.")
 
 
 class CompoundsList(list):
@@ -728,7 +701,7 @@ class CompoundsList(list):
             return False
         else:
             for c1, c2 in zip(sorted(self), sorted(other)):
-                if not c1.almost_equal(c2, tol=tol):
+                if not c1.almost_equal(c2, atol=tol):
                     return False
         return True
 

@@ -6,12 +6,14 @@ import string
 
 import numpy as np
 
+from monty.json import MSONable
+
 from pymatgen.core.periodic_table import Element
 
 from vise.chempotdiag.compound import Compound, CompoundsList, ElemOrderType
 
 
-class Vertex:
+class Vertex(MSONable):
     """ Object for vertex in chemical potential diagram. """
 
     def __init__(self,
@@ -24,34 +26,18 @@ class Vertex:
                 Coordinates of vertex in chemical potential diagram.
         """
         # for 1 unary system, coords may be float
-        if not isinstance(coords, Iterable):
-            coords = [coords]
+        # if isinstance(coords, float):
+        #     coords = [coords]
         self.label = label
-        self._coords = {Element(k): v for k, v in coords.items()}
+        self.coords = {Element(k): v for k, v in coords.items()}
 
     @property
     def elements(self) -> Set[Element]:
         """(list of Elements) Elemental elements of the composition vector. """
         return set(self.coords.keys())
 
-    @property
-    def coords(self) -> Dict[Element, float]:
-        """({Element or str: float) Coordinates of vertex. """
-        return self._coords
-
     def coords_vector(self, elements: ElemOrderType) -> np.ndarray:
         return np.array([self.coords[Element(e)] for e in elements])
-
-    def as_dict(self) -> Dict:
-        d = {"label": self.label,
-             "coords": self.coords}
-        return d
-
-    @classmethod
-    def from_dict(cls, d: Dict) -> "Vertex":
-        label = d["label"]
-        coords = d["coords"]
-        return cls(label, coords)
 
     def __repr__(self):
         return (f"Vertex("
@@ -173,26 +159,22 @@ class VertexOnBoundary(Vertex):
                  boundary_range: float,
                  boundary_range_limit: float):
         super().__init__(label, coords)
-        self._boundary_range = boundary_range
-        self._boundary_range_limit = boundary_range_limit
-        self._element_of_boundary_coords =\
+        self.boundary_range_limit = boundary_range_limit
+        self.element_of_boundary_coords =\
             {e: np.abs(c - boundary_range) < 1e-6 for e, c in coords.items()}
+        self.set_boundary_range(boundary_range)
 
     def set_boundary_range(self, boundary_range: float):
-        if boundary_range > self._boundary_range_limit:
+        if boundary_range > self.boundary_range_limit:
             raise ValueError("Boundary range is shallower than deepest vertex.")
-        for element in self._element_of_boundary_coords:
-            if self._element_of_boundary_coords[element]:
+        for element in self.element_of_boundary_coords:
+            if self.element_of_boundary_coords[element]:
                 self.coords[Element(element)] = boundary_range
-
-    @property
-    def boundary_range_limit(self):
-        return self._boundary_range_limit
 
 
 class VerticesList(list):
 
-    _TYPE_ERROR_MESSAGE = "VerticesArray must be contains only vertex."
+    _TYPE_ERROR_MESSAGE = "VerticesArray must contain only vertex."
     _DIF_ELEM_ERROR_MESSAGE = "Vertices must have the same elements."
 
     def __init__(self, *args, **kw):
@@ -310,7 +292,7 @@ class VerticesList(list):
             count += 1
 
     def get_indices_and_vertices(self, label: str) -> Optional["VerticesList"]:
-        """ Find object of Compound from self by name(str) of compound.
+        """Find object of Compound from self by name(str) of compound.
 
         Args:
             label (str):
@@ -343,7 +325,7 @@ class VerticesList(list):
 
     # TODO: document, unittest
     def almost_equal(self, other: "VerticesList", tol: float = 1e-5) -> bool:
-        """ Check if this object and other object almost equal.
+        """Check if this object and other object almost equal.
 
         If only order of elements like ([Ca, O] and [O, Ca]),
         judges they are same.
@@ -359,7 +341,7 @@ class VerticesList(list):
             return False
         else:
             for v1, v2 in zip(sorted(self), sorted(other)):
-                if not v1.almost_equal(v2, tol=tol):
+                if not v1.almost_equal(v2, atol=tol):
                     return False
         return True
 

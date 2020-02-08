@@ -27,8 +27,8 @@ class TestVertex(unittest.TestCase):
 
     def test_vertex_on_boundary(self):
         with self.assertRaises(ValueError):
-            # boundary_range and chempot differ
-            VertexOnBoundary("Label", {"Mg": -1.0}, -2.0, -2.0)
+            # boundary_range is shallower than limit
+            VertexOnBoundary("Label", {"Mg": -3.0}, -2.0, -2.5)
         v = VertexOnBoundary("Label", {"Mg": -2.0}, -2.0, -2.0)
         self.assertAlmostEqual(v.boundary_range_limit, -2.0, 5)
         v.set_boundary_range(-2.1)  # OK
