@@ -7,24 +7,23 @@ import json
 import math
 import os
 import re
-from collections import defaultdict
-from typing import Optional
 
-from scipy import constants
+from scipy.constants import speed_of_light, physical_constants, R, Avogadro
 from ruamel import yaml
+
+from monty.json import MSONable
 
 from pymatgen.core.structure import Structure
 from pymatgen.core.composition import Composition
 from pymatgen.io.vasp.inputs import Poscar
 
-from vise.config import ROOM_TEMPERATURE, REFERENCE_PRESSURE
+from vise.config import REFERENCE_PRESSURE
+from vise.util.error_classes import InvalidFileError
 
-"""
-Data is from NIST Chemistry WebBook, SRD 69
-"""
+""" Data is from NIST Chemistry WebBook, SRD 69 """
 
 
-class FundamentalFrequency:
+class FundamentalFrequency(MSONable):
 
     def __init__(self, wave_number: float, degeneration: int):
         """
@@ -33,47 +32,19 @@ class FundamentalFrequency:
             wave_number (float): frequency (cm^-1)
             degeneration (int): number of degeneration
         """
-        self._wave_number = wave_number
-        self._degeneration = degeneration
+        self.wave_number = wave_number
+        self.degeneration = degeneration
 
     def __str__(self):
         return f"wave_number: {self.wave_number} /cm, " \
                f"degeneration: {self.degeneration}"
 
     @property
-    def wave_number(self) -> float:
-        """
-
-        Returns (float): cm^(-1)
-
-        """
-        return self._wave_number
-
-    @property
-    def degeneration(self) -> int:
-        """
-
-        Returns (int): number of degeneration
-
-        """
-        return self._degeneration
-
-    def as_dict(self) -> Dict[str, Union[float, int]]:
-        return {"wave_number": self._wave_number,
-                "degeneration": self._degeneration}
-
-    @property
     def zero_point_vibrational_energy(self) -> float:
-        """
-
-        Returns (float): (eV)
-
-        """
-        h = constants.physical_constants["Planck constant in eV s"][0]
-        # h/2 * degneration *
-        # wave_number(cm^-1) * 100(cm^-1 -> m^-1) * c(speed_of_light)
-        return 1 / 2 * h * self._degeneration * \
-            self._wave_number * 1e+2 * constants.speed_of_light
+        h = physical_constants["Planck constant in eV s"][0]
+        sol = speed_of_light
+        # h/2 * degeneration * wave_num(cm^-1) * 100(cm^-1->m^-1) * light speed
+        return 0.5 * h * self.degeneration * self.wave_number * 100 * sol
 
 
 class FundamentalFrequencies:
@@ -83,14 +54,13 @@ class FundamentalFrequencies:
                  reference: str):
         """
         Args:
-            frequencies (list of FundamentalFrequency): Fundamental frequencies.
-            reference (str): Citation of the data.
+            frequencies (list of FundamentalFrequency):
+                Fundamental frequencies.
+            reference (str):
+                Citation of the data.
         """
-        self._frequencies = frequencies
-        self._reference = reference
-
-    def __iter__(self):
-        return self._frequencies.__iter__()
+        self.frequencies = frequencies
+        self.reference = reference
 
     @classmethod
     def from_yaml(cls, file_path: str) -> "FundamentalFrequencies":
@@ -119,11 +89,10 @@ class FundamentalFrequencies:
     @property
     def zero_point_vibrational_energy(self) -> float:
         """
-
         Returns (float): E_ZPVE (eV)
 
         """
-        return sum(f.zero_point_vibrational_energy for f in self._frequencies)
+        return sum(f.zero_point_vibrational_energy for f in self.frequencies)
 
 
 class AbstractThermodynamicsFunction(metaclass=ABCMeta):
@@ -144,15 +113,6 @@ class AbstractThermodynamicsFunction(metaclass=ABCMeta):
     @abstractmethod
     def r_ln_p_p0(self, pressure: float) -> float:
         pass
-
-    @property
-    @abstractmethod
-    def enthalpy_zero(self) -> float:
-        """
-
-        Returns: Energy at pressure = self._reference_pressure, T=0K
-
-        """
 
 
 class ShomateParameters:
@@ -178,82 +138,29 @@ class ShomateParameters:
             g (float): parameter G.
             h (float): parameter H.
         """
-        self._temperature_range = temperature_range
-        self._a = a
-        self._b = b
-        self._c = c
-        self._d = d
-        self._e = e
-        self._f = f
-        self._g = g
-        self._h = h
-
-    @property
-    def temperature_range(self) -> Tuple[float, float]:
-        return self._temperature_range
-
-    @property
-    def min_temperature(self) -> float:
-        return self._temperature_range[0]
-
-    @property
-    def max_temperature(self) -> float:
-        return self._temperature_range[1]
-
-    @property
-    def a(self) -> float:
-        return self._a
-
-    @property
-    def b(self) -> float:
-        return self._b
-
-    @property
-    def c(self) -> float:
-        return self._c
-
-    @property
-    def d(self) -> float:
-        return self._d
-
-    @property
-    def e(self) -> float:
-        return self._e
-
-    @property
-    def f(self) -> float:
-        return self._f
-
-    @property
-    def g(self) -> float:
-        return self._g
-
-    @property
-    def h(self) -> float:
-        return self._h
+        self.temperature_range = temperature_range
+        self.a = a
+        self.b = b
+        self.c = c
+        self.d = d
+        self.e = e
+        self.f = f
+        self.g = g
+        self.h = h
 
     def can_apply(self, temp: float) -> bool:
-        if self.min_temperature <= temp <= self.max_temperature:
-            return True
-        else:
-            return False
+        return self.temperature_range[0] <= temp <= self.temperature_range[1]
 
     def __str__(self):
-        return f"Temperature_range: {self.temperature_range}\n"\
-               f"A: {self.a}\n"\
-               f"B: {self.b}\n"\
-               f"C: {self.c}\n"\
-               f"D: {self.d}\n"\
-               f"E: {self.e}\n"\
-               f"F: {self.f}\n"\
-               f"G: {self.g}\n"\
-               f"H: {self.h}\n"
+        outs = [f"Temperature_range: {self.temperature_range}\n",
+                f"A: {self.a}\n", f"B: {self.b}\n", f"C: {self.c}\n",
+                f"D: {self.d}\n", f"E: {self.e}\n", f"F: {self.f}\n",
+                f"G: {self.g}\n", f"H: {self.h}\n"]
+        return "\n".join(outs)
 
 
 class ShomateThermodynamicsFunction(AbstractThermodynamicsFunction):
-    """
-    Shomate thermodynamics Function.
-    """
+    """Shomate thermodynamics Function. """
 
     def __init__(self,
                  func_param_list: List[ShomateParameters],
@@ -269,8 +176,8 @@ class ShomateThermodynamicsFunction(AbstractThermodynamicsFunction):
 
         """
         self._params = func_param_list
-        self._enthalpy_zero = enthalpy_zero
-        self._reference_pressure = reference_pressure
+        self.enthalpy_zero = enthalpy_zero
+        self.reference_pressure = reference_pressure
 
     @classmethod
     def from_nist_table(cls, file_path: str) -> "ShomateThermodynamicsFunction":
@@ -295,7 +202,7 @@ class ShomateThermodynamicsFunction(AbstractThermodynamicsFunction):
             file_path (str):
 
         Returns:
-
+            ShomateThermodynamicsFunction object
         """
         # TODO: unit of file is confusing
         # Is there better expression with regular expression?
@@ -339,8 +246,8 @@ class ShomateThermodynamicsFunction(AbstractThermodynamicsFunction):
                    enthalpy_zero)
 
     def params(self, temperature: float) -> ShomateParameters:
-        """
-        Return parameters of function at temperature like {a:1.1, b:2.2, ...}
+        """Return parameters of function at temperature like {a:1.1, b:2.2, ...}
+
         Args:
             temperature:
         Returns:
@@ -362,12 +269,12 @@ class ShomateThermodynamicsFunction(AbstractThermodynamicsFunction):
     @property
     def max_temperature(self) -> float:
         max_data = max(self._params, key=lambda x: x.max_temperature)
-        return max_data.max_temperature
+        return max_data.temperature_range[1]
 
     @property
     def min_temperature(self) -> float:
         min_data = min(self._params, key=lambda x: x.min_temperature)
-        return min_data.min_temperature
+        return min_data.temperature_range[0]
 
     def heat_capacity(self, temperature: float) -> float:
         """
@@ -380,8 +287,7 @@ class ShomateThermodynamicsFunction(AbstractThermodynamicsFunction):
         """
         params = self.params(temperature)
         t = temperature / 1000
-        a, b, c, d, e = \
-            params.a, params.b, params.c, params.d, params.e
+        a, b, c, d, e = params.a, params.b, params.c, params.d, params.e
         return a + b * t + c * t ** 2 + d * t ** 3 + e / (t ** 2)
 
     def standard_enthalpy(self, temperature: float) -> float:
@@ -393,13 +299,12 @@ class ShomateThermodynamicsFunction(AbstractThermodynamicsFunction):
         Returns (float): J/mol
 
         """
-        params = self.params(temperature) or None
+        params = self.params(temperature)
         t = temperature / 1000
         a, b, c, d, e, f, h = \
-            params.a, params.b, params.c, params.d, params.e, \
-            params.f, params.h
-        enthalpy_kj = a * t + b * t ** 2 / 2 + c * t ** 3 / 3 + \
-            d * t ** 4 / 4 - e / t + f - h
+            params.a, params.b, params.c, params.d, params.e, params.f, params.h
+        enthalpy_kj = (a * t + b * t ** 2 / 2 + c * t ** 3 / 3
+                       + d * t ** 4 / 4 - e / t + f - h)
         return enthalpy_kj / 1000
 
     def standard_entropy(self, temperature: float) -> float:
@@ -414,49 +319,25 @@ class ShomateThermodynamicsFunction(AbstractThermodynamicsFunction):
         params = self.params(temperature)
         t = temperature / 1000
         a, b, c, d, e, g = \
-            params.a, params.b, params.c, params.d, \
-            params.e, params.g
-        return a * math.log(t) + b * t + c * t ** 2 / 2 + d * t ** 3 / 3 - \
-            e / (2 * t ** 2) + g
+            params.a, params.b, params.c, params.d, params.e, params.g
+        return (a * math.log(t) + b * t + c * t ** 2 / 2 + d * t ** 3 / 3
+                - e / (2 * t ** 2) + g)
 
     def r_ln_p_p0(self, pressure: float) -> float:
-        """
-        R ln(p/p0)
+        """ R ln(p/p0)
         Args:
             pressure (float): Pa
 
         Returns (float): Rln(p/p0), (J / (mol K))
 
         """
-        return constants.R * math.log(pressure / self._reference_pressure)
-
-    @property
-    def enthalpy_zero(self) -> float:
-        """
-
-        Returns: Energy at pressure = self._reference_pressure, T=0K (J/mol)
-
-        """
-        return self._enthalpy_zero
-
-
-class InvalidFileError(Exception):
-    pass
+        return R * math.log(pressure / self.reference_pressure)
 
 
 class Gas(Enum):
-    H2 = "H2"
-    N2 = "N2"
-    O2 = "O2"
-    F2 = "F2"
-    P2 = "P2"
-    P4 = "P4"
-    H2O = "H2O"
-    NH3 = "NH3"
-    NO2 = "NO2"
 
     def __init__(self, formula: Union[str, Composition]):
-        self._formula = str(formula)
+        self.formula = str(formula)
 
         dirname = \
             os.path.join(os.path.abspath(os.path.dirname(__file__)),
@@ -467,7 +348,7 @@ class Gas(Enum):
         try:
             path = os.path.join(dirname, "prior_info.json")
             with open(path, "r") as fr:
-                self._properties = json.load(fr)
+                self.properties = json.load(fr)
         except FileNotFoundError:
             raise ValueError(f"Data of {formula} molecule is not found.")
 
@@ -475,36 +356,27 @@ class Gas(Enum):
         try:
             path = os.path.join(dirname, "shomate_nist.dat")
             # TODO: Implement flexibly with abstract class
-            self._thermodynamics_function = \
+            self.thermodynamics_function = \
                 ShomateThermodynamicsFunction.from_nist_table(path)
         except FileNotFoundError:
             raise ValueError(f"shomate_nist.dat of {formula} "
                              f"molecule is not found.")
-        except:
-            raise InvalidFileError(f"shomate_nist.dat of {formula} molecule")
 
         # Read POSCAR
         try:
             path = os.path.join(dirname, "POSCAR")
-            self._structure = Poscar.from_file(path).structure
+            self.structure = Poscar.from_file(path).structure
         except FileNotFoundError:
             raise ValueError(f"POSCAR of {formula} molecule is not found.")
-        except:
-            raise InvalidFileError(f"Failed to read POSCAR of "
-                                   f"{formula} molecule")
 
         # Read Zero point vibrational frequency
         try:
             path = os.path.join(dirname, "fundamental_frequencies.yaml")
-            self._fundamental_frequencies = \
+            self.fundamental_frequencies = \
                 FundamentalFrequencies.from_yaml(path)
         except FileNotFoundError:
             raise ValueError(f"fundamental_frequencies.yaml of "
                              f"{formula} molecule is not found.")
-        except:
-            raise InvalidFileError(f"Failed to read "
-                                   f"fundamental_frequencies.yaml "
-                                   f"of {formula} molecule")
 
     def __str__(self):
         return self.value
@@ -514,42 +386,27 @@ class Gas(Enum):
         return Composition(str(self))
 
     @property
-    def properties(self) -> Dict[str, Any]:
-        """
-        Returns:
-
-        """
-        return self._properties
-
-    @property
-    def structure(self) -> Structure:
-        """
-        Returns (Structure): Molecule's structure.
-        """
-        return self._structure
-
-    @property
     def temperature_range(self) -> Tuple[float, float]:
         """
         Returns (Tuple[float, float]): Temperature range that can be applied.
         """
-        return self._thermodynamics_function.temperature_range
+        return self.thermodynamics_function.temperature_range
 
     @property
     def min_temperature(self) -> float:
         """
         Returns (float): Minimum temperature that can be applied.
         """
-        return self._thermodynamics_function.min_temperature
+        return self.thermodynamics_function.min_temperature
 
     @property
     def max_temperature(self) -> float:
         """
         Returns (float): Maximum temperature that can be applied.
         """
-        return self._thermodynamics_function.max_temperature
+        return self.thermodynamics_function.max_temperature
 
-    def r_ln_p_p0_joule_per_mol(self, pressure: float) -> float:
+    def r_ln_p_p0_j_mol(self, pressure: float) -> float:
         """
         
         Args:
@@ -558,7 +415,7 @@ class Gas(Enum):
         Returns (float): Rln(p/p0), (J / (mol K))
 
         """
-        return self._thermodynamics_function.r_ln_p_p0(pressure)
+        return self.thermodynamics_function.r_ln_p_p0(pressure)
     
     def r_ln_p_p0_ev_per_atom(self, pressure: float) -> float:
         """
@@ -569,28 +426,12 @@ class Gas(Enum):
         Returns (float): Rln(p/p0), (eV / atom)
 
         """
-        joule_to_ev = \
-            constants.physical_constants["joule-electron volt relationship"][0]
-        return joule_to_ev * \
-            self.r_ln_p_p0_joule_per_mol(pressure) / \
-            (self.n_atom * constants.Avogadro)
-
-    @property
-    def formula(self) -> str:
-        return self._formula
+        j2ev = physical_constants["joule-electron volt relationship"][0]
+        return j2ev * self.r_ln_p_p0_j_mol(pressure) / (self.n_atom * Avogadro)
 
     @property
     def n_atom(self) -> int:
-        return Composition(self._formula).num_atoms
-
-    @property
-    def fundamental_frequencies(self) -> FundamentalFrequencies:
-        """
-
-        Returns: Frequencies of vibration at zero point (cm^-1)
-
-        """
-        return self._fundamental_frequencies
+        return Composition(self.formula).num_atoms
 
     @property
     def zero_point_vibrational_energy(self) -> float:
@@ -599,8 +440,8 @@ class Gas(Enum):
         Returns: Energy of vibrational energy at zero point (eV/atom)
 
         """
-        return self._fundamental_frequencies.zero_point_vibrational_energy /\
-            self.n_atom
+        return self.fundamental_frequencies.zero_point_vibrational_energy / \
+               self.n_atom
 
     def heat_capacity(self, temperature) -> float:
         """
@@ -610,7 +451,7 @@ class Gas(Enum):
         Returns (float): Heat capacity C_p (J/mol*K).
 
         """
-        return self._thermodynamics_function.heat_capacity(temperature)
+        return self.thermodynamics_function.heat_capacity(temperature)
 
     def standard_enthalpy(self, temperature: float) -> float:
         """
@@ -622,7 +463,7 @@ class Gas(Enum):
                         from room temperature (T=298.15(K))
 
         """
-        return self._thermodynamics_function.standard_enthalpy(temperature)
+        return self.thermodynamics_function.standard_enthalpy(temperature)
 
     def standard_entropy(self, temperature: float) -> float:
         """
@@ -632,7 +473,7 @@ class Gas(Enum):
         Returns(float): Standard entropy (J/mol*K).
 
         """
-        return self._thermodynamics_function.standard_entropy(temperature)
+        return self.thermodynamics_function.standard_entropy(temperature)
 
     def free_energy_shift(self, temperature: float) -> float:
         """
@@ -641,13 +482,12 @@ class Gas(Enum):
         Returns:
 
         """
-        val_joule =\
-            self.standard_enthalpy(temperature) - \
-            temperature * self.standard_entropy(temperature) - \
-            self._thermodynamics_function.enthalpy_zero
-        joule_to_ev = \
-            constants.physical_constants["joule-electron volt relationship"][0]
-        return val_joule * joule_to_ev / (self.n_atom * constants.Avogadro)
+        h = self.standard_enthalpy(temperature)
+        s = self.standard_entropy(temperature)
+        h_0 = self.thermodynamics_function.enthalpy_zero
+        val_joule = h - temperature * s - h_0
+        joule_to_ev = physical_constants["joule-electron volt relationship"][0]
+        return val_joule * joule_to_ev / (self.n_atom * Avogadro)
 
     def energy_shift(self,
                      temperature: float = 0,  
@@ -667,6 +507,7 @@ class Gas(Enum):
         if abs(temperature) < 1e-12:
             return self.zero_point_vibrational_energy
 
-        return self.zero_point_vibrational_energy + \
-            self.free_energy_shift(temperature) + \
-            temperature * self.r_ln_p_p0_ev_per_atom(pressure)
+        zero_point_vib = self.zero_point_vibrational_energy
+        free_e_shift = self.free_energy_shift(temperature)
+        trans_term = temperature * self.r_ln_p_p0_ev_per_atom(pressure)
+        return zero_point_vib + free_e_shift + trans_term

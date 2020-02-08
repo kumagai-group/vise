@@ -50,7 +50,7 @@ class TestChemPot(unittest.TestCase):
             Compound(None, Composition("MgAl"), -10),
             Compound(None, Composition("Mg2Al3"), 100)
         ])
-        cpd = ChemPotDiag.from_calculation(cl, temperature=None, pressure=None)
+        cpd = ChemPotDiag.from_compound_list(cl, temperature=None, pressure=None)
 
         # includes drawing boundary, -11 = -10 (minimum energy) * 1.1
         actual = cpd.vertices

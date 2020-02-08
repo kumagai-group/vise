@@ -36,7 +36,7 @@ class TestCompound(ViseTest):
         with self.assertRaises(TypeError):
             o = f"{DFT_DIRECTORIES[1]}/{OUTCAR_NAME}"
             p = f"{DFT_DIRECTORIES[1]}/{POSCAR_NAME}"
-            DummyCompoundForDiagram.from_vasp_calculation_files(o, p)
+            DummyCompoundForDiagram.from_vasp_results(o, p)
 
     def test_from_vasp_files(self):
         poscar_paths = [d+POSCAR_NAME for d in DFT_DIRECTORIES]
@@ -81,15 +81,15 @@ class TestCompound(ViseTest):
                            # Specify both T and P
                            (ROOM_TEMPERATURE, 1e+6)]:
             if pres:
-                arr, elem_en = cl.energy_standardized_array(temp, {"O2": pres})
+                arr, elem_en = cl.standard_energy_array(temp, {"O2": pres})
             else:
                 if temp:
                     pres = REFERENCE_PRESSURE
                     arr, elem_en = \
-                        cl.energy_standardized_array(temp,
-                                                     {"O2": REFERENCE_PRESSURE})
+                        cl.standard_energy_array(temp,
+                                                 {"O2": REFERENCE_PRESSURE})
                 else:
-                    arr, elem_en = cl.energy_standardized_array(temp, pres)
+                    arr, elem_en = cl.standard_energy_array(temp, pres)
 
             if temp:
                 self.assertAlmostEqual(elem_en[Element("O")],
@@ -119,7 +119,7 @@ class TestCompound(ViseTest):
         cl = CompoundsList.from_vasp_calculations_files(
             poscar_paths[1:], outcar_paths[1:])
         with self.assertRaises(ValueError):
-            cl.energy_standardized_array(ROOM_TEMPERATURE, None)
+            cl.standard_energy_array(ROOM_TEMPERATURE, None)
 
     def test_gas_shift(self):
         poscar_paths = [d+POSCAR_NAME for d in DFT_DIRECTORIES]

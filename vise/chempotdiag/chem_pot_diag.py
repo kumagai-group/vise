@@ -2,7 +2,7 @@
 #  Distributed under the terms of the MIT License.
 import argparse
 from collections import OrderedDict
-import copy
+from copy import deepcopy
 import os
 import string
 from typing import Optional, List, Dict, Tuple, Union, Any
@@ -58,74 +58,69 @@ class ChemPotDiag:
         self.pressure = pressure
 
     @classmethod
-    def from_calculation(cls,
-                         input_compounds_array: CompoundsList,
-                         temperature: Optional[float] = None,
-                         pressure: Optional[Dict[str, float]] = None
-                         ) -> "ChemPotDiag":
+    def from_compound_list(cls,
+                           compound_list: CompoundsList,
+                           temperature: Optional[float] = None,
+                           pressure: Optional[Dict[str, float]] = None
+                           ) -> "ChemPotDiag":
         """Create a object of ChemPot.
 
         Args:
-            input_compounds_array (CompoundsList):
+            compound_list (CompoundsList):
                 List of considered compounds
             temperature (float):
             pressure (Dict[str, float]):
         """
-        
-        compounds_array = copy.deepcopy(input_compounds_array)
+        compound_list = deepcopy(compound_list)
 
         # Alphabetically sort elements' names
-        elements = sorted(input_compounds_array.elements)
+        elements = sorted(compound_list.elements)
+        dim = len(elements)
 
         # Standardize energies
-        compounds_array, element_energy =\
-            compounds_array.energy_standardized_array(temperature, pressure)
-
-        dim = len(compounds_array.elements)
+        compound_list, element_energy = \
+            compound_list.standard_energy_array(temperature, pressure)
 
         #  unary system
         if dim == 1:
-            min_energy = min(compounds_array, key=lambda x: x.energy).energy
+            min_energy = min(compound_list, key=lambda x: x.energy).energy
             stable_compounds \
-                = CompoundsList([comp for comp in compounds_array
+                = CompoundsList([comp for comp in compound_list
                                  if comp.energy == min_energy])
             unstable_compounds \
-                = CompoundsList([comp for comp in compounds_array
+                = CompoundsList([comp for comp in compound_list
                                  if comp.energy != min_energy])
             vertices = VerticesList([])
-            for comp in compounds_array:
-                d = {list(compounds_array.elements)[0]: comp.energy}
+            for comp in compound_list:
+                d = {list(compound_list.elements)[0]: comp.energy}
                 vertex = Vertex(None, d)
                 vertices.append(vertex)
 
-            compounds_to_vertex_list = [[i] for i in range(len(compounds_array))]
-            vertex_to_compounds_list = [[i] for i in range(len(compounds_array))]
+            compounds_to_vertex_list = [[i] for i in range(len(compound_list))]
+            vertex_to_compounds_list = [[i] for i in range(len(compound_list))]
             return cls(element_energy, stable_compounds, unstable_compounds,
                        vertices,
                        compounds_to_vertex_list, vertex_to_compounds_list)
 
         # set boundary range
-        intersections = np.zeros((len(compounds_array), dim))
-        free_energies = compounds_array.free_energies(temperature, pressure)
-        for i, comp_dat in enumerate(compounds_array):
-            # e = comp_dat.energy
-            # e = comp_dat.free_energy(temperature=temperature,
-            #                          pressure=pressure)
-            comp_dat: Compound
+        intersections = np.zeros((len(compound_list), dim))
+        free_energies = compound_list.free_energies(temperature, pressure)
+        for i, (comp_dat, fe) in enumerate(zip(compound_list, free_energies)):
             c = comp_dat.comp_as_vector(elements)
             for j in range(dim):
-                if c[j] != 0:
-                    intersections[i][j] = free_energies[i] / c[j]
-                else:  # This case does not related to search_vertices_range.
+                if c[j] == 0:  # This does not related to search_vertices_range.
                     intersections[i][j] = float("inf")
+                else:
+                    intersections[i][j] = fe / c[j]
 
         boundary_rate = 1.1  # can be arbitrary number larger than 1.0
         search_vertices_range = np.min(intersections) * boundary_rate
-        elements = compounds_array.elements
-        for e in compounds_array.elements:
+
+#        elements = compound_list.elements
+        for e in compound_list.elements:
             energy = search_vertices_range
             boundary = DummyCompoundForDiagram.construct_boundary(e, -energy)
-            compounds_array.append(boundary)
+            compound_list.append(boundary)
             free_energies.append(-energy)
 
         # Calculate HalfspaceIntersection
@@ -133,9 +128,9 @@ class ChemPotDiag:
         interior_point = np.array([search_vertices_range + eps] * dim)
 
         halfspaces = []
-        for i, comp_dat in enumerate(compounds_array):
-            h = np.append(comp_dat.comp_as_vector(elements), -free_energies[i])
-            halfspaces.append(h)
+        for i, comp_dat in enumerate(compound_list):
+            comp = comp_dat.comp_as_vector(compound_list.elements)
+            halfspaces.append(np.append(comp, -free_energies[i]))
 
         halfspaces = np.array(halfspaces)
         hi = HalfspaceIntersection(halfspaces, interior_point)
@@ -144,8 +139,8 @@ class ChemPotDiag:
         facets_by_halfspace = []
         for i in range(n):
             indices = []
-            for j, _ in enumerate(hi.dual_facets):
-                if i in hi.dual_facets[j]:
+            for j, facet in enumerate(hi.dual_facets):
+                if i in facet:
                     indices.append(j)
             facets_by_halfspace.append(indices)
 
@@ -155,22 +150,20 @@ class ChemPotDiag:
         stable_original_index_list = []
         unstable_original_index_list = []
         which_vertex_on_boundary = set()
-        for i, compound in enumerate(compounds_array):
+        for i, compound in enumerate(compound_list):
             if isinstance(compound, DummyCompoundForDiagram):
                 which_vertex_on_boundary |= set(facets_by_halfspace[i])
             elif facets_by_halfspace[i]:
-                stable_compounds.append(compounds_array[i])
+                stable_compounds.append(compound_list[i])
                 stable_original_index_list.append(i)
             else:
-                unstable_compounds.append(compounds_array[i])
+                unstable_compounds.append(compound_list[i])
                 unstable_original_index_list.append(i)
-        # stable_compounds.set_elements(compounds_array.elements)
-        # unstable_compounds.set_elements(compounds_array.elements)
 
         # make vertices_array
         draw_criterion = min([item for item in hi.intersections.flatten()
                               if abs(item - search_vertices_range) > 1e-6])
-        draw_vertices = copy.deepcopy(hi.intersections)
+        draw_vertices = deepcopy(hi.intersections)
         draw_range = draw_criterion * 1.1
 
         # sometimes boundary range too small like -100
@@ -211,7 +204,8 @@ class ChemPotDiag:
                    temperature=temperature, pressure=pressure)
 
     @classmethod
-    def from_file(cls, filename: str,
+    def from_file(cls,
+                  filename: str,
                   temperature: Optional[float] = None,
                   pressure: Optional[dict] = None) -> "ChemPotDiag":
         """
@@ -223,7 +217,7 @@ class ChemPotDiag:
         Returns:
         """
         compounds_array = CompoundsList.from_file(filename)
-        return cls.from_calculation(compounds_array, temperature, pressure)
+        return cls.from_compound_list(compounds_array, temperature, pressure)
 
     @classmethod
     def from_vasp_calculations_files(
@@ -253,9 +247,9 @@ class ChemPotDiag:
                                                        fmt=fmt,
                                                        energy_shift_dict=
                                                        energy_shift_dict)
-        return cls.from_calculation(compounds_list, 
-                                    temperature=temperature, 
-                                    pressure=pressure)
+        return cls.from_compound_list(compounds_list,
+                                      temperature=temperature,
+                                      pressure=pressure)
 
     @classmethod
     def from_vasp_and_materials_project(
@@ -292,7 +286,7 @@ class ChemPotDiag:
                                             vasp_element_output,
                                             fmt=fmt,
                                             energy_shift_dict=energy_shift_dict)
-        return cls.from_calculation(compounds_list, temperature, pressure)
+        return cls.from_compound_list(compounds_list, temperature, pressure)
 
     @property
     def dim(self) -> int:
