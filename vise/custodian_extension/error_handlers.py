@@ -200,10 +200,14 @@ class ViseVaspErrorHandler(orig_handlers.VaspErrorHandler):
                                 break
                             except (IndexError, ValueError):
                                 pass
+
+        # >>>>>>>>>>>>
+        # Modified since when the nbands is less than 9, it is not incremented
             actions.append({"dict": "INCAR",
                             "action": {
-                                "_set": {"NBANDS": int(1.1 * nbands)}}})
-
+                                "_set": {"NBANDS": int(1.1 * nbands) + 2}}})
+                   #            "_set": {"NBANDS": int(1.1 * nbands)}}})
+        # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         if "pssyevx" in self.errors:
             actions.append({"dict": "INCAR", "action":
                 {"_set": {"ALGO": "Normal"}}})

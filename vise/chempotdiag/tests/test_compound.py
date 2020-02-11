@@ -2,6 +2,7 @@
 #  Distributed under the terms of the MIT License.
 from pymatgen.core.periodic_table import Element
 from pathlib import Path
+import unittest
 
 from vise.chempotdiag.compound import (
     Compound, CompoundsList, DummyCompoundForDiagram)
@@ -10,33 +11,56 @@ from vise.config import ROOM_TEMPERATURE, REFERENCE_PRESSURE, MOLECULE_SUFFIX
 from vise.util.testing import ViseTest
 
 
+MP_TEST = True
+
+
 class TestCompound(ViseTest):
 
     def setUp(self) -> None:
-        self.FILENAME_2D = self.TEST_FILES_DIR + "energy_2d.txt"
 
         self.chempot_dir = self.TEST_FILES_DIR / "chempotdiag"
-        # For read DFT test. We don't check these files are physically proper.
-        self.o2_dir = self.chempot_dir / "O2"
+        self.o2_dir = self.chempot_dir / "O2molecule"
         self.mg_dir = self.chempot_dir / "Mg"
         self.mgo_dir = self.chempot_dir / "MgO"
 
-        # value of energy(sigma->0)
-        # eV / atom, not eV, then divided by 2
-        self.O2_OUTCAR_VAL = -10.26404723 / 2
-        self.MGO_OUTCAR_VAL = -12.52227962 / 2
-        self.MG_OUTCAR_VAL = -3.42786289 / 2
+    def test_from_vasp_files(self):
+        o2 = Compound.from_vasp_files(self.o2_dir, "vasprun.xml.finish")
+        expected_o2_energy = -10.26404723 / 2
+        self.assertAlmostEqual(expected_o2_energy, o2.energy, 5)
+
+    @unittest.skipIf(not MP_TEST, "not test mp_database")
+    def test_from_mp_database(self):
+        mgo = Compound.from_mp_database(mp_id="mp-1265")
+        expected_mgo_energy = -6.335165765
+        self.assertAlmostEqual(expected_mgo_energy, mgo.energy, 5)
+
+    def test_composition_vector(self):
+        mgo = Compound.from_vasp_files(self.mgo_dir, "vasprun.xml.finish")
+        actual = mgo.composition_vector(["Mg", "N"])
+        self.assertAlmostEqual(0.5, actual[0])  # Mg
+        self.assertAlmostEqual(0.0, actual[1])  # N
+
+    def test_composition_vector(self):
+        mg = Compound.from_vasp_files(self.mg_dir, "vasprun.xml.finish")
+        mg.standard_energy = 3.0
+        actual = mg.standardized_energy
+        expected = -3.42786289 / 2 - 3.0
+        self.assertAlmostEqual(expected, actual, 5)
+
+
+class TestDummyCompound(ViseTest):
+    def setUp(self) -> None:
+        self.chempot_dir = self.TEST_FILES_DIR / "chempotdiag"
+        self.mg_dir = self.chempot_dir / "Mg"
 
     def test_dummy(self):
         d = DummyCompoundForDiagram.construct_boundary(Element("Mg"), -10)
 
         self.assertEqual(str(d.elements[0]), "Mg")
-        self.assertAlmostEqual(d.energy, -10, 5)
-        self.assertAlmostEqual(d.composition[Element("Mg")], -1, 5)
-        with self.assertRaises(TypeError):
-            o = f"{DFT_DIRECTORIES[1]}/{OUTCAR_NAME}"
-            p = f"{DFT_DIRECTORIES[1]}/{POSCAR_NAME}"
-            DummyCompoundForDiagram.from_vasp_results(o, p)
+        self.assertEqual(d.energy, -10)
+        self.assertEqual(d.composition[Element("Mg")], -1)
+        with self.assertRaises(NotImplementedError):
+            DummyCompoundForDiagram.from_vasp_files(path=self.mg_dir)
 
     def test_from_vasp_files(self):
         poscar_paths = [d+POSCAR_NAME for d in DFT_DIRECTORIES]
@@ -44,8 +68,8 @@ class TestCompound(ViseTest):
         vasprun_paths = [d+VASPRUN_NAME for d in DFT_DIRECTORIES]
         #  from outcar
         cl: CompoundsList = \
-            CompoundsList.from_vasp_calculations_files(poscar_paths,
-                                                       outcar_paths)
+            CompoundsList.from_vasp_files(poscar_paths,
+                                          outcar_paths)
         o2: Compound
         mg: Compound
         mgo: Compound
@@ -57,9 +81,9 @@ class TestCompound(ViseTest):
         self.assertSetEqual(cl.elements, {Element("Mg"), Element("O")})
 
         #  from vasprun.xml
-        cl_vasprun = CompoundsList.from_vasp_calculations_files(poscar_paths,
-                                                                vasprun_paths,
-                                                                fmt="vasprun")
+        cl_vasprun = CompoundsList.from_vasp_files(poscar_paths,
+                                                   vasprun_paths,
+                                                   fmt="vasprun")
         o2_vasprun: Compound
         mg_vasprun: Compound
         mgo_vasprun: Compound
@@ -70,8 +94,8 @@ class TestCompound(ViseTest):
     def test_standardize_energy(self):
         poscar_paths = [d+POSCAR_NAME for d in DFT_DIRECTORIES]
         outcar_paths = [d+OUTCAR_NAME for d in DFT_DIRECTORIES]
-        cl = CompoundsList.from_vasp_calculations_files(poscar_paths,
-                                                        outcar_paths)
+        cl = CompoundsList.from_vasp_files(poscar_paths,
+                                           outcar_paths)
         o2, mg, mgo = tuple(cl)
         for temp, pres in [
                            # only consider zero point energy
@@ -116,7 +140,7 @@ class TestCompound(ViseTest):
                                            c.free_energy(temp, pres), 5)
 
         # impossible to standardize due to lacking of simple O2.
-        cl = CompoundsList.from_vasp_calculations_files(
+        cl = CompoundsList.from_vasp_files(
             poscar_paths[1:], outcar_paths[1:])
         with self.assertRaises(ValueError):
             cl.standard_energy_array(ROOM_TEMPERATURE, None)
@@ -124,8 +148,8 @@ class TestCompound(ViseTest):
     def test_gas_shift(self):
         poscar_paths = [d+POSCAR_NAME for d in DFT_DIRECTORIES]
         outcar_paths = [d+OUTCAR_NAME for d in DFT_DIRECTORIES]
-        cl = CompoundsList.from_vasp_calculations_files(poscar_paths,
-                                                        outcar_paths)
+        cl = CompoundsList.from_vasp_files(poscar_paths,
+                                           outcar_paths)
         for temp, pres in [
             # only consider zero point energy
             (0, None),

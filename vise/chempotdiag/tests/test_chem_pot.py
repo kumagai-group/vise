@@ -91,7 +91,7 @@ class TestChemPot(unittest.TestCase):
             #  from outcar
             p = pres if pres else REFERENCE_PRESSURE
             cpd = \
-                ChemPotDiag.from_vasp_calculations_files(
+                ChemPotDiag.from_vasp_files(
                     poscar_paths, outcar_paths,
                     temperature=temp, pressure={"O2": p})
             # element energy
@@ -104,15 +104,15 @@ class TestChemPot(unittest.TestCase):
                 self.assertAlmostEqual(elem_en[Element("O")],
                                        O2_OUTCAR_VAL +
                                        Gas.O2.energy_shift(temp, p))
-        _ = ChemPotDiag.from_vasp_calculations_files(poscar_paths,
-                                                     vasprun_paths,
-                                                     fmt="vasprun",
-                                                     temperature=273,
-                                                     pressure={"O2": 1e+6})
+        _ = ChemPotDiag.from_vasp_files(poscar_paths,
+                                        vasprun_paths,
+                                        fmt="vasprun",
+                                        temperature=273,
+                                        pressure={"O2": 1e+6})
         # When calculation of any simple substance is not found,
         # program should be raise error.
         self.assertRaises(ValueError,
-                          lambda: ChemPotDiag.from_vasp_calculations_files(
+                          lambda: ChemPotDiag.from_vasp_files(
                               poscar_paths[1:], outcar_paths[1:]))
 
     #  Test to draw 1d diagram
@@ -132,12 +132,12 @@ class TestChemPot(unittest.TestCase):
         cp = ChemPotDiag.from_file(FILENAME_2D)
         rc = "MgO"
         title_str = "With_vertex_name test, remarked_compound = {0}".format(rc)
-        cp.draw_diagram(title=title_str, remarked_compound=rc)
+        cp.draw_diagram(title=title_str, remarked_comp=rc)
 
         #  Maybe label of previous plot remains if you forget to delete.
         rc = "Mg2O"
         title_str = "With_vertex_name test, remarked_compound = {0}".format(rc)
-        cp.draw_diagram(title=title_str, remarked_compound=rc)
+        cp.draw_diagram(title=title_str, remarked_comp=rc)
 
     @unittest.skipIf(not DISPLAY_DIAGRAM, "not display chempotdiag")
     def test_draw_diagram_2d_without_label(self):
@@ -151,7 +151,7 @@ class TestChemPot(unittest.TestCase):
         draw_range = -20
         title_str = "{0}, draw_range = {1}".format(rc, draw_range)
         cp.draw_diagram(title=title_str,
-                        remarked_compound=rc,
+                        remarked_comp=rc,
                         draw_range=draw_range)
 
     @unittest.skipIf(not DISPLAY_DIAGRAM, "not display chempotdiag")
@@ -162,7 +162,7 @@ class TestChemPot(unittest.TestCase):
         title_str = "{0}, draw_range = {1}".format(rc, draw_range)
         self.assertRaises(ValueError,
                           lambda: cp.draw_diagram(title=title_str,
-                                                  remarked_compound=rc,
+                                                  remarked_comp=rc,
                                                   draw_range=draw_range))
 
     #  Test to draw 3d diagram
@@ -176,13 +176,13 @@ class TestChemPot(unittest.TestCase):
         rc = "Ca"
         title_str = "With_vertex_name test, remarked_compound = {0}".format(rc)
         if DISPLAY_DIAGRAM:
-            cp.draw_diagram(title=title_str, remarked_compound=rc)  # For debug
+            cp.draw_diagram(title=title_str, remarked_comp=rc)  # For debug
         #  Maybe label of previous plot remains if you forget to delete.
         rc = "Ca11Al14O32"
         title_str = "With_vertex_name test, remarked_compound = {0}".format(rc)
         if DISPLAY_DIAGRAM:
             cp.draw_diagram(title=title_str,
-                            remarked_compound=rc,
+                            remarked_comp=rc,
                             elements=["Al", "Ca", "O"])
         got_vl = cp.get_neighbor_vertices(rc)
         self.assertTrue(
@@ -211,7 +211,7 @@ class TestChemPot(unittest.TestCase):
         draw_range = -200
         title_str = f"{rc}, draw_range = {draw_range}"
         cp.draw_diagram(title=title_str,
-                        remarked_compound=rc,
+                        remarked_comp=rc,
                         draw_range=draw_range)
 
     @unittest.skipIf(not DISPLAY_DIAGRAM, "not display chempotdiag")
@@ -222,7 +222,7 @@ class TestChemPot(unittest.TestCase):
         title_str = f"{rc}, draw_range = {draw_range}"
         self.assertRaises(ValueError,
                           lambda: cp.draw_diagram(title=title_str,
-                                                  remarked_compound=rc,
+                                                  remarked_comp=rc,
                                                   draw_range=draw_range))
 
     def test_dim(self):
@@ -242,7 +242,7 @@ class TestChemPot(unittest.TestCase):
                 path = EXAMPLE_DIR + "energy_" + s1 + "-" + s2 + ".txt"
                 cp = ChemPotDiag.from_file(path)
                 rc = cp.stable_compounds[1].name
-                cp.draw_diagram(remarked_compound=rc)
+                cp.draw_diagram(remarked_comp=rc)
 
     @unittest.skipIf(not DISPLAY_DIAGRAM, "not display chempotdiag")
     def test_draw_diagram_2d_with_temperature_pressure(self):
@@ -252,24 +252,24 @@ class TestChemPot(unittest.TestCase):
             for o2_p in [1e-5, 1e+100]:
                 title_str = "T = {0} (K), P_O2 = {1} (Pa)".format(t, o2_p)
                 p = {"O2": o2_p}
-                cp = ChemPotDiag.from_vasp_calculations_files(poscar_paths,
-                                                              outcar_paths,
-                                                              temperature=t,
-                                                              pressure=p)
+                cp = ChemPotDiag.from_vasp_files(poscar_paths,
+                                                 outcar_paths,
+                                                 temperature=t,
+                                                 pressure=p)
                 rc = cp.stable_compounds[1].name
                 cp.draw_diagram(
                     title=title_str,
-                    remarked_compound=rc)
+                    remarked_comp=rc)
 
         title_str = "temperature = 298.15, pressure = None"
-        cp = ChemPotDiag.from_vasp_calculations_files(poscar_paths,
-                                                      outcar_paths,
-                                                      temperature=298.15,
-                                                      pressure=None)
+        cp = ChemPotDiag.from_vasp_files(poscar_paths,
+                                         outcar_paths,
+                                         temperature=298.15,
+                                         pressure=None)
         rc = cp.stable_compounds[1].name
         cp.draw_diagram(
             title=title_str,
-            remarked_compound=rc)
+            remarked_comp=rc)
 
     def test_neighbor_vertices_as_dict(self):
         """
@@ -292,7 +292,7 @@ class TestChemPot(unittest.TestCase):
         d = cp.get_neighbor_vertices_as_dict("Ca11Al14O32",
                                              elements=["Ca", "Al", "O"],
                                              comment="test_neighbor_1")
-        cp.draw_diagram(remarked_compound="Ca11Al14O32", elements=["Ca", "Al", "O"])
+        cp.draw_diagram(remarked_comp="Ca11Al14O32", elements=["Ca", "Al", "O"])
         d_ref = {'compound': 'Ca11Al14O32',
                  'standard_energy': {Element('Ca'): -1.99870011,
                                      Element('Al'): -3.74799675,

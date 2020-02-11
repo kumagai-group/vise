@@ -335,6 +335,15 @@ class ShomateThermodynamicsFunction(AbstractThermodynamicsFunction):
 
 
 class Gas(Enum):
+    H2 = "H2"
+    N2 = "N2"
+    O2 = "O2"
+    F2 = "F2"
+    P2 = "P2"
+    P4 = "P4"
+    H2O = "H2O"
+    NH3 = "NH3"
+    NO2 = "NO2"
 
     def __init__(self, formula: Union[str, Composition]):
         self.formula = str(formula)

@@ -231,8 +231,7 @@ class VerticesList(list):
         Args:
             sort indices of vertex to loop (for drawing diagram)
         """
-        elements = elements if elements \
-            else sorted([str(e) for e in self.elements])
+        elements = elements or sorted([str(e) for e in self.elements])
         if any([len(v.coords) != 3 for v in self]):
             raise ValueError("This function can be applied to 3D vector,"
                              "But input vectors contain non-3D vector.")
