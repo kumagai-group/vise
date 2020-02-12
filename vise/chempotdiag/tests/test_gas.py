@@ -139,7 +139,7 @@ class TestGas(unittest.TestCase):
                     expected = self._o2.zero_point_vibrational_energy
                 else:
                     expected = self._o2.zero_point_vibrational_energy + \
-                               self._o2.free_energy_shift(t) + \
+                               self._o2.vib_rot_term(t) + \
                                t * self._o2.r_ln_p_p0_ev_per_atom(p)
                 actual = self._o2.energy_shift(temperature=t,
                                                pressure=p)

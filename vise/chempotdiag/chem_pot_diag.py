@@ -1,70 +1,67 @@
+# -*- coding: utf-8 -*-
 #  Copyright (c) Oba-group
 #  Distributed under the terms of the MIT License.
-import argparse
-from collections import OrderedDict
-from copy import deepcopy
-import os
+
+import json
 import string
 from typing import Optional, List, Dict, Tuple, Union, Any
 
-import ruamel.yaml
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+from monty.json import MSONable, MontyEncoder
+from monty.serialization import loadfn
+
 import numpy as np
-from scipy.spatial import HalfspaceIntersection
 
 from pymatgen.core.periodic_table import Element
-from pymatgen.core.composition import Composition, CompositionError
-from pymatgen.analysis.phase_diagram import PhaseDiagram
+from pymatgen.core.composition import Composition
+from pymatgen.analysis.phase_diagram import PhaseDiagram, PDEntry
 from pymatgen.util.string import latexify
-from pymatgen.analysis.phase_diagram import PDEntry
-
-from vise.chempotdiag.compound import (
-    Compound, DummyCompoundForDiagram, CompoundsList, ElemOrderType)
-from vise.chempotdiag.vertex import (
-    Vertex, VertexOnBoundary, VerticesList)
 
 
-class ChemPotDiag:
-    """chemical potential diagrams (CPD).
+# TODO: Add CompoundChemPotDiag
 
-   .. attribute: elements (List[Elements]):
 
-        List of pmg Element involved.
-
-   .. attribute: el_refs (Dict[Element, PDEntry]):
-
-        List of PDEntry for each Element.
-
-   .. attribute: dim (int):
-
-        Dimension of chemical potential diagram, i.e., number of elements.
-
-   .. attribute: vertices (List[Dict[Element, float]]):
-
-       Vertices in the CPD surrounded by compounds.
-
-   .. attribute: comp_facets (Dict[Composition, List[int]] ):
-
-        List of vertex indices comprising each Composition.
-
-   .. attribute: target_composition (Composition):
-
-       Target Composition.
-
-   .. attribute: target_comp_chempot:
-
-       Chemical potentials at the vertices of the target Composition.
-
-   .. attribute: target_comp_abs_chempot:
-
-       Absolute chemical potentials at the vertices of the target Composition.
-    """
-
+class ChemPotDiag(MSONable):
+    """chemical potential diagrams (CPD)"""
     def __init__(self,
-                 pd: PhaseDiagram,
-                 target_composition: Composition = None,
-                 ):
+                 elements: List[str],
+                 el_refs: Dict[str, PDEntry],
+                 dim: int,
+                 vertices: List[Dict[str, float]],
+                 comp_facets: Dict[str, List[int]],
+                 target_composition: str,
+                 target_comp_chempot: Dict[str, Dict[str, float]]):
+        """
+        Args:
+            elements (List[str]):
+                List of pmg Element involved.
+            el_refs (Dict[str, PDEntry]):
+                List of PDEntry for each Element.
+            dim (int):
+                Dimension of chemical potential diagram, or number of elements.
+            vertices (List[Dict[str, float]]):
+                Vertices in the CPD surrounded by compounds.
+            comp_facets (Dict[Composition, List[int]] ):
+               List of vertex indices comprising each Composition.
+            target_composition (Composition):
+                Target Composition.
+            target_comp_chempot (Dict[str, Dict[str, float]]):
+                Chemical potentials at the vertices of the target Composition.
+        """
+        self.elements = elements
+        self.el_refs = el_refs
+        self.dim = dim
+        self.vertices = vertices
+        self.comp_facets = comp_facets
+        self.target_composition = target_composition
+        self.target_comp_chempot = target_comp_chempot
+
+    @classmethod
+    def from_phase_diagram(cls,
+                           pd: PhaseDiagram,
+                           target_composition: str = None
+                           ) -> "ChemPotDiag":
         """
 
         Args:
@@ -73,42 +70,53 @@ class ChemPotDiag:
             target_composition (Composition):
                 Target composition.
         """
-        self.elements: List[Element] = sorted(pd.elements)
-        self.el_refs: Dict[Element, PDEntry] = pd.el_refs
-        self.dim: int = len(self.elements)
-
-        self.vertices: List[Dict[Element, float]] = []
+        elements = sorted(pd.elements)
+        vertices = []
         adjoin_comps = []
 
         for f in pd.facets:
             comp_list = [pd.qhull_entries[i].composition for i in f]
             energy_list = \
                 [pd.get_form_energy_per_atom(pd.qhull_entries[i]) for i in f]
-            atomic_frac = [[c.get_atomic_fraction(e) for e in self.elements]
+            atomic_frac = [[c.get_atomic_fraction(e) for e in elements]
                            for c in comp_list]
-            chempot = dict(zip(self.elements,
+            chempot = dict(zip(elements,
                                np.linalg.solve(atomic_frac, energy_list)))
 
-            self.vertices.append(
-                {e: round(chempot[e], 5) for e in self.elements})
+            vertices.append({str(e): round(chempot[e], 5) for e in elements})
             adjoin_comps.append([pd.qhull_entries[i].composition for i in f])
 
-        self.comp_facets: Dict[Composition, List[int]] = {}
+        comp_facets = {}
         for e in pd.qhull_entries:
-            self.comp_facets[e.composition] = \
+            comp_facets[str(e.composition.reduced_composition)] = \
                 [i for i, cs in enumerate(adjoin_comps) if e.composition in cs]
 
-        self.target_composition: Composition = target_composition
-        self.target_comp_chempot: Dict[str, Dict[Element, float]] = {}
-        self.target_comp_abs_chempot: Dict[str, Dict[Element, float]] = {}
+        target_composition = str(Composition(target_composition))
+        target_comp_chempot = {}
+        target_comp_abs_chempot = {}
 
         if target_composition:
             alphabet_list = list(string.ascii_uppercase)
-            for i, f in enumerate(self.comp_facets[target_composition]):
-                self.target_comp_chempot[alphabet_list[i]] = self.vertices[f]
-                self.target_comp_abs_chempot[alphabet_list[i]] = \
-                    {e: self.el_refs[e].energy_per_atom + self.vertices[f][e]
-                     for e in self.elements}
+            for i, f in enumerate(comp_facets[target_composition]):
+                target_comp_chempot[alphabet_list[i]] = vertices[f]
+
+        return cls(elements=[str(e) for e in elements],
+                   el_refs={str(e): v for e, v in pd.el_refs.items()},
+                   dim=len(elements),
+                   vertices=vertices,
+                   comp_facets=comp_facets,
+                   target_composition=target_composition,
+                   target_comp_chempot=target_comp_chempot)
+
+    @property
+    def target_comp_abs_chempot(self) -> Dict[str, Dict[str, float]]:
+        """Same as target_comp_chempot but in absolute scale. """
+        abs_chempot = {}
+        for k, v in self.target_comp_chempot.items():
+            abs_chempot[k] = {e: self.el_refs[e].energy_per_atom + v[e]
+                              for e in self.elements}
+
+        return abs_chempot
 
     def draw_diagram(self,
                      title: str = None,
@@ -138,12 +146,12 @@ class ChemPotDiag:
         elif self.dim == 3:
             ax = self._plot_3d(draw_range, elements)
         else:
-            raise NotImplementedError(f"Drawing {self.dim} is impossible.")
+            raise NotImplementedError(f"Drawing {self.dim}-dim is impossible.")
 
         if title:
             ax.set_title(title)
         else:
-            ele = "-".join([str(e) for e in elements])
+            ele = "-".join([e for e in elements])
             ax.set_title(f"Chemical potential diagram: {ele}")
 
         ax.set_xlabel(f"Chemical potential of {elements[0]}")
@@ -168,24 +176,28 @@ class ChemPotDiag:
 
     def _plot_2d(self, draw_range, elements):
         ax = plt.figure().add_subplot(111)
-
         for i, (comp, vertex_indices) in enumerate(self.comp_facets.items()):
+            comp = Composition(comp)
             coords = np.array([[self.vertices[i][e]
                                 for i in vertex_indices] for e in elements])
             if len(vertex_indices) == 1:
-                if comp.elements[0] == elements[0]:
-                    np.append(coords, [[0.0], [draw_range]], axis=1)
+                if str(comp.elements[0]) == elements[0]:
+                    coords = np.append(coords, [[0.0], [draw_range]], axis=1)
                 else:
-                    np.append(coords, [[draw_range], [0.0]], axis=1)
+                    coords = np.append(coords, [[draw_range], [0.0]], axis=1)
 
             color = "black"
-            if self.target_composition and comp == self.target_composition:
+            if self.target_composition and str(comp) == self.target_composition:
                 color = "blue"
 
-            plt.plot(coords[0], coords[1], zorder=1, color=color)
+            plt.plot(coords[0], coords[1], zorder=1, color=color, linewidth=3)
             label = latexify(comp.get_reduced_formula_and_factor()[0])
             ax.text(np.average(coords[0]), np.average(coords[1]), label,
                     size='smaller', zorder=2, color=color)
+
+        for label, cp in self.target_comp_chempot.items():
+            ax.text(cp[elements[0]], cp[elements[1]], label,
+                    zorder=200, color="blue", weight="bold")
 
         return ax
 
@@ -193,13 +205,15 @@ class ChemPotDiag:
         ax = plt.figure().add_subplot(111, projection='3d')
 
         for i, (comp, vertex_indices) in enumerate(self.comp_facets.items()):
+            comp = Composition(comp)
             coords = np.array([[self.vertices[i][e]
                                 for i in vertex_indices] for e in elements])
 
-            if len(comp.elements) == 1:
+            comp_elements = [str(e) for e in comp.elements]
+            if len(comp_elements) == 1:
                 inds = []
                 for ind, e in enumerate(elements):
-                    if e not in comp.elements:
+                    if e not in comp_elements:
                         inds.append(ind)
 
                 c1 = coords.copy()
@@ -211,9 +225,9 @@ class ChemPotDiag:
                 c3[inds[1], 0] = draw_range
                 coords = np.concatenate((coords, c1, c2, c3), axis=1)
 
-            elif len(comp.elements) == 2:
+            elif len(comp_elements) == 2:
                 for ind, e in enumerate(elements):
-                    if e not in comp.elements:
+                    if e not in comp_elements:
                         continue
                 c = coords.copy()
                 c[ind, :] = draw_range
@@ -230,7 +244,7 @@ class ChemPotDiag:
             center = np.average(coords, axis=1)
             label = latexify(comp.get_reduced_formula_and_factor()[0])
             color = "black"
-            if self.target_composition and comp == self.target_composition:
+            if self.target_composition and str(comp) == self.target_composition:
                 color = "blue"
 
             ax.text(center[0], center[1], center[2], label, size='smaller',
@@ -241,6 +255,14 @@ class ChemPotDiag:
                     zorder=200, color="blue", weight="bold")
 
         return ax
+
+    @classmethod
+    def load_json(cls, filename: str = "cpd.json"):
+        return loadfn(filename)
+
+    def to_json_file(self, filename: str = "cpd.json"):
+        with open(filename, 'w') as fw:
+            json.dump(self.as_dict(), fw, indent=2, cls=MontyEncoder)
 
 
 def sort_coords(coords: np.ndarray):

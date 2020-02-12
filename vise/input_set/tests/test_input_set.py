@@ -17,7 +17,6 @@ class InputSetTest(ViseTest):
         self.input_set.write_input(output_dir=".")
 
     def test_dict(self):
-        print(self.input_set)
         expected = self.input_set.as_dict()
         actual = ViseInputSet.from_dict(expected).as_dict()
         self.assertEqual(expected, actual)
