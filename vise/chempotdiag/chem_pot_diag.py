@@ -17,6 +17,7 @@ from pymatgen.core.periodic_table import Element
 from pymatgen.core.composition import Composition, CompositionError
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.util.string import latexify
+from pymatgen.analysis.phase_diagram import PDEntry
 
 from vise.chempotdiag.compound import (
     Compound, DummyCompoundForDiagram, CompoundsList, ElemOrderType)
@@ -27,114 +28,124 @@ from vise.chempotdiag.vertex import (
 class ChemPotDiag:
     """chemical potential diagrams (CPD).
 
-   .. attribute: vertices:
+   .. attribute: elements (List[Elements]):
 
-       Vertices in CPD surrounded by compounds.
+        List of pmg Element involved.
 
-   .. attribute: remarked_vertices:
+   .. attribute: el_refs (Dict[Element, PDEntry]):
 
-       Vertices in CPD equilibrating with a given composition.
-       When the given composition is unstable, the nearest chemical potential
-       is set.
+        List of PDEntry for each Element.
 
-   .. attribute: compound_instability
+   .. attribute: dim (int):
 
-        Show how the given compound is unstable, set zero if it is stable.
+        Dimension of chemical potential diagram, i.e., number of elements.
 
-   .. attribute: boundary_vertices:
+   .. attribute: vertices (List[Dict[Element, float]]):
 
-       Vertices representing a border in CPD.
+       Vertices in the CPD surrounded by compounds.
 
-   .. attribute: facets:
+   .. attribute: comp_facets (Dict[Composition, List[int]] ):
 
-       Facets representing compounds.
+        List of vertex indices comprising each Composition.
 
+   .. attribute: target_composition (Composition):
 
+       Target Composition.
+
+   .. attribute: target_comp_chempot:
+
+       Chemical potentials at the vertices of the target Composition.
+
+   .. attribute: target_comp_abs_chempot:
+
+       Absolute chemical potentials at the vertices of the target Composition.
     """
 
     def __init__(self,
                  pd: PhaseDiagram,
-                 composition: Composition = None,
-                 equilibrating_phases: List[Composition] = None,
+                 target_composition: Composition = None,
                  ):
         """
 
         Args:
-            phase_diagram:
-            composition:
+            pd (PhaseDiagram):
+                Pmg PhaseDiagram object.
+            target_composition (Composition):
+                Target composition.
         """
-        self.elements = pd.elements
-        self.el_refs = pd.el_refs
-        self.dim = len(self.elements)
+        self.elements: List[Element] = sorted(pd.elements)
+        self.el_refs: Dict[Element, PDEntry] = pd.el_refs
+        self.dim: int = len(self.elements)
 
-        self.vertices = []
+        self.vertices: List[Dict[Element, float]] = []
         adjoin_comps = []
 
-        self.absolute_chempot = {}
         for f in pd.facets:
-            complist = [pd.qhull_entries[i].composition for i in f]
-            energylist = \
+            comp_list = [pd.qhull_entries[i].composition for i in f]
+            energy_list = \
                 [pd.get_form_energy_per_atom(pd.qhull_entries[i]) for i in f]
-            m = [[c.get_atomic_fraction(e) for e in self.elements] for c in
-                 complist]
-            chempot = dict(zip(self.elements, np.linalg.solve(m, energylist)))
+            atomic_frac = [[c.get_atomic_fraction(e) for e in self.elements]
+                           for c in comp_list]
+            chempot = dict(zip(self.elements,
+                               np.linalg.solve(atomic_frac, energy_list)))
 
-            self.vertices.append({e: chempot[e] for e in self.elements})
+            self.vertices.append(
+                {e: round(chempot[e], 5) for e in self.elements})
             adjoin_comps.append([pd.qhull_entries[i].composition for i in f])
 
-        self.comp_facets = {}
+        self.comp_facets: Dict[Composition, List[int]] = {}
         for e in pd.qhull_entries:
             self.comp_facets[e.composition] = \
                 [i for i, cs in enumerate(adjoin_comps) if e.composition in cs]
 
-    def absolute_chem_pot(self, vertex: int):
-        return {e: self.el_refs[e].energy_per_atom + self.vertices[vertex][e]
-                for e in self.elements}
+        self.target_composition: Composition = target_composition
+        self.target_comp_chempot: Dict[str, Dict[Element, float]] = {}
+        self.target_comp_abs_chempot: Dict[str, Dict[Element, float]] = {}
 
-#        self.all_facets = None
-#        self.remarked_vertices = None
-#        self.compound_instability = None
-#        self.facets = None
+        if target_composition:
+            alphabet_list = list(string.ascii_uppercase)
+            for i, f in enumerate(self.comp_facets[target_composition]):
+                self.target_comp_chempot[alphabet_list[i]] = self.vertices[f]
+                self.target_comp_abs_chempot[alphabet_list[i]] = \
+                    {e: self.el_refs[e].energy_per_atom + self.vertices[f][e]
+                     for e in self.elements}
 
     def draw_diagram(self,
                      title: str = None,
-                     save_file_name: Optional[str] = None,
-                     remarked_comp: Optional[str] = None,
+                     filename: Optional[str] = None,
                      draw_range: Optional[float] = None,
                      elements: List[Element] = None):
         """ Draw chemical potential diagram.
 
         Args:
             title (str):
-                Title of diagram.
-            save_file_name (None/str):
-                If you will save diagram as image file, specify name of the file
-                by this arg.
-            remarked_comp (None/str):
-                Vertices on the specified compound will be labeled.
+                Title of the diagram.
+            filename (None/str):
+                Specify this if one will save diagram as image file.
             draw_range (None/float):
-                If none, range will be determined automatically.
+                Lower limit for the diagram.
+                If none, range will be determined from the lowest chemical
+                potential.
             elements (None/[Element or str]):
-                Order of elements.
+                Specify this when changing order of elements in the diagram.
         """
-        elements = elements or sorted(self.elements)
-
+        elements = elements or self.elements
         draw_range = draw_range or min(sum([list(i.values())
                                             for i in self.vertices], [])) * 1.1
 
-        #  1D, 2D, and 3D dimension. More than 4D has not yet implemented.
         if self.dim == 2:
-            ax = self._plot_2d(draw_range, elements, remarked_comp)
-        # elif self.dim == 3:
-        #     ax = self._plot_3d(draw_range, elements, remarked_compound, with_label)
+            ax = self._plot_2d(draw_range, elements)
+        elif self.dim == 3:
+            ax = self._plot_3d(draw_range, elements)
         else:
             raise NotImplementedError(f"Drawing {self.dim} is impossible.")
 
         if title:
             ax.set_title(title)
         else:
-            ele = "-".join([str(e) for e in self.elements])
-            ax.set_title(f"Chemical potential diagram {ele}")
+            ele = "-".join([str(e) for e in elements])
+            ax.set_title(f"Chemical potential diagram: {ele}")
+
         ax.set_xlabel(f"Chemical potential of {elements[0]}")
         ax.set_ylabel(f"Chemical potential of {elements[1]}")
         if self.dim == 2:
@@ -142,7 +153,7 @@ class ChemPotDiag:
             ax.set_ylim(draw_range, 0)
             plt.gca().set_aspect('equal', adjustable='box')
         else:
-            ax.set_zlabel(f"Chemical potential of {elements[0]}")
+            ax.set_zlabel(f"Chemical potential of {elements[2]}")
             ax.set_xlim3d(draw_range, 0)
             ax.set_ylim3d(0, draw_range)
             ax.set_zlim3d(draw_range, 0)
@@ -150,111 +161,105 @@ class ChemPotDiag:
         ax.grid(color='b', alpha=0.2, linestyle='dashed', linewidth=0.5)
         plt.tight_layout()
 
-        if save_file_name:
-            plt.savefig(save_file_name)
+        if filename:
+            plt.savefig(filename)
         else:
             plt.show()
 
-    def _plot_2d(self, draw_range, elements, remarked_compound):
+    def _plot_2d(self, draw_range, elements):
         ax = plt.figure().add_subplot(111)
 
         for i, (comp, vertex_indices) in enumerate(self.comp_facets.items()):
-            x = [self.vertices[i][elements[0]] for i in vertex_indices]
-            y = [self.vertices[i][elements[1]] for i in vertex_indices]
-
+            coords = np.array([[self.vertices[i][e]
+                                for i in vertex_indices] for e in elements])
             if len(vertex_indices) == 1:
                 if comp.elements[0] == elements[0]:
-                    y.append(draw_range)
-                    x.append(0.0)
+                    np.append(coords, [[0.0], [draw_range]], axis=1)
                 else:
-                    y.append(0.0)
-                    x.append(draw_range)
+                    np.append(coords, [[draw_range], [0.0]], axis=1)
 
-            if remarked_compound and comp == remarked_compound:
+            color = "black"
+            if self.target_composition and comp == self.target_composition:
                 color = "blue"
-            else:
-                color = "black"
 
-            plt.plot(x, y, zorder=1, color=color)
+            plt.plot(coords[0], coords[1], zorder=1, color=color)
             label = latexify(comp.get_reduced_formula_and_factor()[0])
-            ax.text(sum(x) / 2, sum(y) / 2, label, size='smaller', zorder=2,
-                    color=color)
+            ax.text(np.average(coords[0]), np.average(coords[1]), label,
+                    size='smaller', zorder=2, color=color)
 
         return ax
 
-    def _plot_3d(self, draw_range, elements, remarked_compound):
+    def _plot_3d(self, draw_range, elements):
         ax = plt.figure().add_subplot(111, projection='3d')
 
         for i, (comp, vertex_indices) in enumerate(self.comp_facets.items()):
-            coords = np.array([[self.vertices[i][elements[x]]
-                                for i in vertex_indices] for x in range(3)])
+            coords = np.array([[self.vertices[i][e]
+                                for i in vertex_indices] for e in elements])
 
             if len(comp.elements) == 1:
-                idx = elements.index(comp.elements[0])
-                coords[idx].append([0.0, 0.0, 0.0])
-                coords[idx-1].append([draw_range, draw_range, 0.0])
-                coords[idx-2].append([draw_range, 0.0, draw_range])
+                inds = []
+                for ind, e in enumerate(elements):
+                    if e not in comp.elements:
+                        inds.append(ind)
+
+                c1 = coords.copy()
+                c2 = coords.copy()
+                c1[inds[0], :] = draw_range
+                c2[inds[1], :] = draw_range
+                c3 = np.array([[0.0], [0.0], [0.0]])
+                c3[inds[0], 0] = draw_range
+                c3[inds[1], 0] = draw_range
+                coords = np.concatenate((coords, c1, c2, c3), axis=1)
 
             elif len(comp.elements) == 2:
-                for i in range(3):
-                    if elements[i] not in comp.elements:
-                        idx = i
+                for ind, e in enumerate(elements):
+                    if e not in comp.elements:
                         continue
                 c = coords.copy()
-                c[idx, :] = draw_range
-                np.append(coords, c, axis=1)
+                c[ind, :] = draw_range
+                coords = np.append(coords, c, axis=1)
 
-            sorted_coords = sort_coords(coords)
-            face = Poly3DCollection([sorted_coords])
-#            color = [(c + 3) / 4 for c in compound.composition_vector(elements)]
-#            face.set_color(color)
+            sorted_t_coords = sort_coords(np.transpose(coords))
+            face = Poly3DCollection([sorted_t_coords])
+
+            color = [(comp.get_atomic_fraction(e) + 3) / 4 for e in elements]
+            face.set_color(color)
             face.set_edgecolor("black")
             ax.add_collection3d(face)
-            # mean = np.mean(sorted_vertices_coords, axis=0)
-            # ax.text(mean[0], mean[1], mean[2],
-            #         compound.name,
-            #         size='smaller',
-            #         zorder=1,
-            #         ha='center',
-            #         va='center')
-            # try:
-            #     compound_name = \
-            #         Composition(compound.name).reduced_formula
-            # except CompositionError:
-            #     compound_name = compound.name
 
-            # remarked_compound_name = None
-            # if remarked_compound:
-            #     remarked_compound_name = \
-            #         Composition(remarked_compound).reduced_formula
+            center = np.average(coords, axis=1)
+            label = latexify(comp.get_reduced_formula_and_factor()[0])
+            color = "black"
+            if self.target_composition and comp == self.target_composition:
+                color = "blue"
 
-            # if compound_name == remarked_compound_name:
-            #     sorted_vertices.set_alphabetical_label()
-            #     # vertices_coords.set_alphabetical_label()
-            #     for j, v in enumerate(sorted_vertices):
-            #         if v.label:
-            #             ax.text(v.coords_vector(elements)[0],
-            #                     v.coords_vector(elements)[1],
-            #                     v.coords_vector(elements)[2],
-            #                     v.label,
-            #                     size="smaller",
-            #                     zorder=2,
-            #                     weight="bold",
-            #                     color="red")
+            ax.text(center[0], center[1], center[2], label, size='smaller',
+                    zorder=100, ha='center', va='center', color=color)
+
+        for label, cp in self.target_comp_chempot.items():
+            ax.text(cp[elements[0]], cp[elements[1]], cp[elements[2]], label,
+                    zorder=200, color="blue", weight="bold")
+
         return ax
 
 
-def sort_coords(coords):
-    """
+def sort_coords(coords: np.ndarray):
+    """Sort coordinates based on the angle with first coord from the center.
+
     Args:
+        coords (np.ndarray):
+            Coordinates to be sorted
+            np.array([[x1, y1, z1], [x2, y2, z2], [x3, y3, z3]]
         sort indices of vertex to loop (for drawing diagram)
+
+    Returns:
+        np.ndarray for sorted coordinates.
     """
-    if len(coords) != 3:
+    if len(coords[0]) != 3:
         raise ValueError("Only valid for 3D vector")
 
-    t_coords = np.transpose(coords)
-    mean = np.average(coords)
-    rel_coords = t_coords - mean
+    center = np.average(coords, axis=0)
+    rel_coords = coords - center
     n = np.cross(rel_coords[0], rel_coords[1])
     if abs(np.linalg.norm(n)) < 1e-8:  # unfortunately, get parallel vectors
         n = np.cross(rel_coords[0], rel_coords[2])
@@ -267,20 +272,13 @@ def sort_coords(coords):
         Returns (float):
             angle between from_mean[index] and from_mean[0]
         """
-        v0 = rel_coords[0]
-        v = rel_coords[index]
-        v0 = v0 / np.linalg.norm(v0)
-        v = v / np.linalg.norm(v)
-        if np.linalg.norm(v - v0) < 1e-10:
-            return 0
-        dot = np.dot(v0, v)
-        det = v0[0]*v[1]*n[2] + v[0]*n[1]*v0[2] + n[0]*v0[1]*v[2] - \
-            v0[2]*v[1]*n[0] - v[2]*n[1]*v0[0] - n[2]*v0[1]*v[0]
-        angle = np.arctan2(det, dot)
-        # For easy debug
-        angle = np.rad2deg(angle)
+        v0 = rel_coords[0] / np.linalg.norm(rel_coords[0])
+        v = rel_coords[index] / np.linalg.norm(rel_coords[index])
+        det = np.linalg.det(np.concatenate(([v0], [v], [n]), axis=0))
+        angle = np.arctan2(np.clip(np.dot(v0, v), -1.0, 1.0), det)
         return angle
 
-    indices = [i for i in range(len(vertices_coords))]
+    indices = [i for i in range(len(coords))]
     indices.sort(key=angle_between_v0)
-    return VerticesList([self[i] for i in indices])
+
+    return coords[indices]
