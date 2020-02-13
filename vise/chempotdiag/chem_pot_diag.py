@@ -38,8 +38,7 @@ class ChemPotDiag(MSONable):
                  unstable_energy: Optional[float] = None):
         """
 
-        To utilize MSONable, the key elements and composition need to be
-        converged to str.
+        Chemical potential is in eV/atom even for the complex diagrams.
 
         Args:
             elements (List[Element]):

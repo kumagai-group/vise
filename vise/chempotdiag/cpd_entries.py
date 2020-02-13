@@ -9,11 +9,14 @@ from pymatgen.analysis.phase_diagram import PDEntry
 from pymatgen.core.composition import Composition
 from pymatgen.io.vasp import Vasprun
 
+from vise.config import REFERENCE_PRESSURE
 from vise.util.logger import get_logger
 from vise.util.tools import parse_file
 from vise.chempotdiag.gas import Gas
 
 logger = get_logger(__name__)
+
+
 
 
 class EnergyEntry(PDEntry):
@@ -66,7 +69,7 @@ class EnergyEntries:
     def __init__(self,
                  energy_entries: List[EnergyEntry],
                  temperature: float = 0,
-                 pressure: float = 1e+5):
+                 pressure: float = REFERENCE_PRESSURE):
         self.energy_entries = energy_entries
         self.temperature = temperature
         self.pressure = pressure

@@ -2,15 +2,14 @@
 #  Distributed under the terms of the MIT License.
 
 import unittest
-from pathlib import Path
 import numpy as np
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.sites import Element
-from pymatgen.analysis.phase_diagram import PDEntry, PhaseDiagram, CompoundPhaseDiagram, PDPlotter
+from pymatgen.analysis.phase_diagram import (
+    PDEntry, PhaseDiagram, CompoundPhaseDiagram, PDPlotter)
 
 from vise.chempotdiag.chem_pot_diag import ChemPotDiag, sort_coords
-from vise.config import ROOM_TEMPERATURE, REFERENCE_PRESSURE, MOLECULE_SUFFIX
 from vise.util.testing import ViseTest
 
 
@@ -59,7 +58,7 @@ class TestChemPotDiag(ViseTest):
 
         self.comp_cpd = ChemPotDiag.from_phase_diagram(
             pd=self.comp_pd,
-            target_comp="CaMgO",
+            target_comp="CaMgO2",
             allow_unstable_target_chempot=True)
 
     def test_cpd_1d(self):
@@ -135,8 +134,11 @@ class TestChemPotDiag(ViseTest):
         # print(self.comp_cpd.qhull_entries)
         # print(self.comp_cpd.comp_facets)
         # print(self.comp_cpd.target_comp)
-
-        self.comp_cpd.draw_diagram()
+        pdp = PDPlotter(self.comp_pd)
+        pdp.show()
+#        self.comp_pd.draw_diagram()
+#        print(self.comp_cpd.target_comp_abs_chempot)
+#        self.comp_cpd.draw_diagram()
 
 
 class TestSortCoords(ViseTest):
