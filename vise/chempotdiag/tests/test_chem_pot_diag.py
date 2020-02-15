@@ -1,5 +1,4 @@
-#  Copyright (c) Oba-group 
-#  Distributed under the terms of the MIT License.
+# -*- coding: utf-8 -*-
 
 import unittest
 import numpy as np
@@ -58,7 +57,7 @@ class TestChemPotDiag(ViseTest):
 
         self.comp_cpd = ChemPotDiag.from_phase_diagram(
             pd=self.comp_pd,
-            target_comp="CaMgO2",
+            target_comp="MgCaO2",
             allow_unstable_target_chempot=True)
 
     def test_cpd_1d(self):
@@ -136,9 +135,11 @@ class TestChemPotDiag(ViseTest):
         # print(self.comp_cpd.target_comp)
         pdp = PDPlotter(self.comp_pd)
         pdp.show()
+
+    def test_comp_cpd_4d(self):
 #        self.comp_pd.draw_diagram()
-#        print(self.comp_cpd.target_comp_abs_chempot)
-#        self.comp_cpd.draw_diagram()
+        print(self.comp_cpd.target_comp_abs_chempot)
+        self.comp_cpd.draw_diagram()
 
 
 class TestSortCoords(ViseTest):

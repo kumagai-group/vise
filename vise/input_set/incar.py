@@ -46,11 +46,14 @@ class ViseIncar(Incar):
 
     @classmethod
     def from_dict(cls, d: dict) -> "ViseIncar":
-        if d.get("MAGMOM") and isinstance(d["MAGMOM"][0], dict):
-            d["MAGMOM"] = [Magmom.from_dict(m) for m in d["MAGMOM"]]
+        kwargs = deepcopy(d)
+        if kwargs.get("MAGMOM") and isinstance(kwargs["MAGMOM"][0], dict):
+            kwargs["MAGMOM"] = [Magmom.from_dict(m) for m in kwargs["MAGMOM"]]
 
-        return cls({k: v for k, v in d.items() if k not in ("@module",
-                                                            "@class")})
+        kwargs.pop("@module", None)
+        kwargs.pop("@class", None)
+
+        return cls(**kwargs)
 
     @classmethod
     def from_string(cls, string: str):

@@ -1,5 +1,4 @@
-#  Copyright (c) Oba-group 
-#  Distributed under the terms of the MIT License.
+# -*- coding: utf-8 -*-
 
 from abc import ABCMeta, abstractmethod
 from typing import Union, List, Tuple, Dict, Any

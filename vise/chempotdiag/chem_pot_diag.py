@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-#  Copyright (c) Oba-group
-#  Distributed under the terms of the MIT License.
 
 import json
 import string
@@ -114,8 +112,7 @@ class ChemPotDiag(MSONable):
         unstable_energy = None
         if target_comp:
             target_inds = [i for i, e in enumerate(pd.qhull_entries)
-                           if e.name == target_comp]
-#                           if Composition(e.name) == Composition(target_comp)]
+                           if Composition(e.name) == Composition(target_comp)]
 
             alphabet_list = list(string.ascii_uppercase)
             if not target_inds:
@@ -126,8 +123,7 @@ class ChemPotDiag(MSONable):
                 else:
                     target_inds = \
                         [e for e in pd.unstable_entries
-                         if e.name == target_comp]
-#                         if Composition(e.name) == Composition(target_comp)]
+                         if Composition(e.name) == Composition(target_comp)]
                     if not target_inds:
                         raise ValueError(
                             f"Target composition {target_comp} does not "
@@ -175,7 +171,7 @@ class ChemPotDiag(MSONable):
         """
         abs_chempot = {}
         for point, chempot in self.target_comp_chempot.items():
-            abs_chempot[point] = [e.energy_per_atom + c
+            abs_chempot[point] = [round(e.energy_per_atom + c, 10)
                                   for e, c in zip(self.el_ref_list, chempot)]
         return abs_chempot
 
@@ -334,7 +330,8 @@ def sort_coords(coords: np.ndarray) -> np.ndarray:
             index (int): index of coords.
 
         Returns (float):
-            angle between rel_coords[0] and rel_coords[int] from the center.
+            Angle between rays from the center to rel_coords[0] and
+            rel_coords[int].
         """
         v0 = rel_coords[0] / np.linalg.norm(rel_coords[0])
         v = rel_coords[index] / np.linalg.norm(rel_coords[index])

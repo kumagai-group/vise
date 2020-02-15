@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
-#  Copyright (c) Oba-group
-#  Distributed under the terms of the MIT License.
 
+from copy import deepcopy
 from pathlib import Path
 from typing import Optional, List, Dict, Tuple, Union, Any
 
 from pymatgen.analysis.phase_diagram import PDEntry
 from pymatgen.core.composition import Composition
+from pymatgen.entries.entry_tools import EntrySet
+from pymatgen.ext.matproj import MPRester
 from pymatgen.io.vasp import Vasprun
+from pymatgen.core.periodic_table import Element
 
 from vise.config import REFERENCE_PRESSURE
 from vise.util.logger import get_logger
@@ -17,9 +19,7 @@ from vise.chempotdiag.gas import Gas
 logger = get_logger(__name__)
 
 
-
-
-class EnergyEntry(PDEntry):
+class FreeEnergyEntry(PDEntry):
 
     def __init__(self,
                  composition: Union[Composition, str],
@@ -27,50 +27,62 @@ class EnergyEntry(PDEntry):
                  zero_point_vib: float = None,
                  free_e_shift: float = None,
                  name: str = None,
+                 data: dict = None,
                  attribute: object = None):
         """
 
         Args:
-            composition:
-            total_energy:
+            composition (Composition):
+                Composition of the entry.
+            total_energy (float):
+                Energy of the entry. Usually final calculated energy from VASP.
             zero_point_vib:
             free_e_shift:
             name:
+            data (dict): An optional dict of any additional data associated
+                with the entry. Defaults to None.
             attribute:
         """
         super().__init__(composition, 0.0, name, attribute)
         self.total_energy = total_energy
         self.zero_point_vib = zero_point_vib
         self.free_e_shift = free_e_shift
-
+        self.data = data
         self.energy = total_energy
+
         if zero_point_vib:
             self.energy += zero_point_vib
         if free_e_shift:
             self.energy += free_e_shift
 
     def as_dict(self):
-        return {"@module": self.__class__.__module__,
-                "@class": self.__class__.__name__,
-                "composition": self.composition.as_dict(),
+        return {"composition": self.composition.as_dict(),
                 "total_energy": self.total_energy,
                 "zero_point_vib": self.zero_point_vib,
                 "free_e_shift": self.free_e_shift,
                 "name": self.name,
+                "data": self.data,
                 "attribute": self.attribute}
 
     @classmethod
     def from_dict(cls, d):
-        d["composition"] = Composition(d["composition"])
-        return cls(**d)
+        kwargs = deepcopy(d)
+        kwargs["composition"] = Composition(d["composition"])
+        kwargs.pop("@module", None)
+        kwargs.pop("@class", None)
+        return cls(**kwargs)
+
+    def __repr__(self):
+        return f"PDEntry : {self.name} with composition {self.composition}" \
+               f" and energy = {self.energy:.4f}"
 
 
-class EnergyEntries:
+class FreeEnergyEntrySet(EntrySet):
     def __init__(self,
-                 energy_entries: List[EnergyEntry],
-                 temperature: float = 0,
-                 pressure: float = REFERENCE_PRESSURE):
-        self.energy_entries = energy_entries
+                 entries: List[FreeEnergyEntry],
+                 temperature: float = None,
+                 pressure: float = None):
+        super().__init__(entries)
         self.temperature = temperature
         self.pressure = pressure
 
@@ -80,33 +92,96 @@ class EnergyEntries:
                         vasprun: str = "vasprun.xml",
                         parse_gas: bool = True,
                         temperature: float = 0,
-                        pressure: float = 1e+5,
-                        ) -> "EnergyEntries":
+                        pressure: float = REFERENCE_PRESSURE
+                        ) -> "FreeEnergyEntrySet":
 
         energy_entries = []
         for d in directory_paths:
             logger.info(f"Parsing data in {d} ...")
-            vasprun = parse_file(Vasprun, Path(d) / vasprun)
-            composition = vasprun.unit_cell_formula
+            v: Vasprun = parse_file(Vasprun, Path(d) / vasprun)
+            composition = v.final_structure.composition.reduced_formula
+            kwargs = {}
             if parse_gas and composition in Gas.name_list():
                 gas = Gas[composition]
-                d = {"zero_point_vib": gas.zero_point_vibrational_energy,
+                kwargs = \
+                    {"zero_point_vib": gas.zero_point_vibrational_energy,
                      "free_e_shift": gas.free_e_shift(temperature, pressure)}
-                energy_entries.append(
-                    EnergyEntry(composition=composition,
-                                total_energy=vasprun.final_energy, **d))
+
+            energy_entries.append(
+                FreeEnergyEntry(composition=composition,
+                                total_energy=v.final_energy, **kwargs))
 
         return cls(energy_entries, temperature, pressure)
 
     @classmethod
-    def from_mp(cls,
-                elements: List[str],
-                align_substances: bool,
-                substance_energies: dict) -> "EnergyEntries":
+    def from_mp(cls, elements: List[str]) -> "FreeEnergyEntrySet":
         """ """
+        exclude_z = list(i for i in range(1, 100))  # from C to Ne
+        excluded_elements = [str(Element.from_Z(z)) for z in exclude_z]
+        for e in elements:
+            excluded_elements.remove(e)
 
+        with MPRester() as m:
+            materials = \
+                m.query(criteria={"nelements": {"$lte": 2},
+                                  "elements": {"$in": elements,
+                                               "$nin": excluded_elements},
+                                  "e_above_hull": {"$lte": 0.0001}},
+                        properties=["task_id", "full_formula", "final_energy"])
+
+        energy_entries = []
+        for m in materials:
+            energy_entries.append(
+                FreeEnergyEntry(composition=m["full_formula"],
+                                total_energy=m["final_energy"],
+                                mp_id=m["task_id"]))
+
+        return cls(energy_entries)
+
+
+class ConstrainedFreeEnergyEntrySet(FreeEnergyEntrySet):
+    def __init__(self,
+                 entries: List[FreeEnergyEntry],
+                 original_entries:  List[FreeEnergyEntry],
+                 constr_chempot: Dict[str, float],
+                 temperature: float = None,
+                 pressure: float = None):
+        """ """
+        super().__init__(entries, temperature, pressure)
+        self.original_entries = original_entries
+        self.constr_chempot = constr_chempot
 
     @classmethod
-    def from_yaml(cls, filename: str) -> "EnergyEntries":
-        pass
+    def from_entry_set(cls,
+                       entry_set: FreeEnergyEntrySet,
+                       constr_chempot: Dict[str, float]
+                       ) -> "ConstrainedFreeEnergyEntrySet":
+        """
+
+        Args:
+            entry_set:
+                Original FreeEnergyEntrySet.
+            constr_chempot:
+                Constrained chemical potentials in absolute scale.
+        Returns:
+            ConstrainedFreeEnergyEntrySet object.
+        """
+        new_entries = []
+        for e in entry_set.entries:
+            new_entry = deepcopy(e)
+            comp = e.composition
+            sub_comp = Composition({e: comp[e] for e in constr_chempot})
+            if comp == sub_comp:
+                continue
+            new_entry.composition = comp - sub_comp
+            sub_energy = sum([comp[e] * c for e, c in constr_chempot.items()])
+            new_entry.energy = e.energy - sub_energy
+            new_entries.append(new_entry)
+
+        return cls(entries=new_entries,
+                   original_entries=entry_set.entries,
+                   constr_chempot=constr_chempot,
+                   temperature=entry_set.temperature,
+                   pressure=entry_set.pressure)
+
 
