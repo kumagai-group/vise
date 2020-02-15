@@ -7,10 +7,8 @@ from pathlib import Path
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.sites import Element
-from pymatgen.analysis.phase_diagram import (
-    PDEntry, PhaseDiagram, CompoundPhaseDiagram, PDPlotter)
 
-from vise.chempotdiag.cpd_entries import (
+from vise.chempotdiag.free_energy_entries import (
     FreeEnergyEntry, FreeEnergyEntrySet, ConstrainedFreeEnergyEntrySet)
 from vise.util.testing import ViseTest
 
@@ -19,7 +17,6 @@ DISABLE_DISPLAY_DIAGRAM = False
 
 
 class TestFreeEnergyEntry(ViseTest):
-
     def setUp(self) -> None:
         self.mgo = FreeEnergyEntry("MgO", total_energy=-10)
         self.o2 = FreeEnergyEntry("O2",
@@ -38,6 +35,10 @@ class TestFreeEnergyEntry(ViseTest):
         self.assertMSONable(self.mgo)
         self.assertMSONable(self.o2)
 
+    def test_print(self):
+        expected = "PDEntry : O2 with composition O2 and energy = -112.0000"
+        self.assertEqual(expected, str(self.o2))
+
 
 class TestFreeEnergyEntrySet(ViseTest):
     def setUp(self) -> None:
@@ -53,7 +54,6 @@ class TestFreeEnergyEntrySet(ViseTest):
         self.entry_set = FreeEnergyEntrySet([mgo, self.o2])
 
     def test_msonable(self):
-        print(self.entry_set)
         self.assertMSONable(self.entry_set)
 
     def test_add_discard(self):
@@ -71,11 +71,10 @@ class TestFreeEnergyEntrySet(ViseTest):
         print([str(i) for i in a])
 
     def test_from_vasp_files(self):
-        entry_set = \
-            FreeEnergyEntrySet.from_vasp_files([Path(".") / "vasp_Mg",
-                                                Path(".") / "vasp_O2",
-                                                Path(".") / "vasp_MgO"],
-                                                parse_gas=True)
+        paths = [Path(".") / "vasp_Mg",
+                 Path(".") / "vasp_O2",
+                 Path(".") / "vasp_MgO"]
+        entry_set = FreeEnergyEntrySet.from_vasp_files(paths, parse_gas=True)
         print([e for e in entry_set])
 
     def test_from_mp(self):

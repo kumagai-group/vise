@@ -86,7 +86,7 @@ class TestGas(ViseTest):
         self.o2 = Gas.O2
 
     def test_read_properties(self):
-        self.assertEqual(self.o2._properties["total_magnetization"], 2)
+        self.assertEqual(self.o2.properties["total_magnetization"], 2)
 
     def test_str(self):
         self.assertEqual(str(self.o2), "O2")
@@ -129,12 +129,6 @@ class TestGas(ViseTest):
                     expected = self.o2.zero_point_vibrational_energy + \
                                self.o2.vib_rot_term(t) + \
                                t * self.o2.r_ln_p_p0_ev_per_atom(p)
-                print(f"tttttt {t}")
-                print(self.o2.zero_point_vibrational_energy)
-#                print(self.o2.vib_rot_term(t))
-                print(t * self.o2.r_ln_p_p0_ev_per_atom(p))
-                print(self.o2.free_e_shift(t, p))
-                print(self.o2.energy_shift(t, p))
 
                 actual = self.o2.energy_shift(temperature=t,
                                               pressure=p)

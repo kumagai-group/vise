@@ -31,17 +31,28 @@ class FreeEnergyEntry(PDEntry):
                  attribute: object = None):
         """
 
+        Name is used for the plot of the chemical potential.
+
         Args:
             composition (Composition):
                 Composition of the entry.
             total_energy (float):
                 Energy of the entry. Usually final calculated energy from VASP.
-            zero_point_vib:
-            free_e_shift:
-            name:
-            data (dict): An optional dict of any additional data associated
+            zero_point_vib (float):
+                Zero point vibration energy.
+            free_e_shift (float):
+                Entropic contribution to the free energy
+            name (str):
+                Name of the Entry.
+            data (dict):
+                An optional dict of any additional data associated
                 with the entry. Defaults to None.
             attribute:
+                Optional attribute of the entry. This can be used to specify
+                that the entry is a newly found compound, or to specify a
+                particular label for the entry, or else ... Used for further
+                analysis and plotting purposes. An attribute can be anything
+                but must be MSONable.
         """
         super().__init__(composition, 0.0, name, attribute)
         self.total_energy = total_energy
@@ -65,7 +76,7 @@ class FreeEnergyEntry(PDEntry):
                 "attribute": self.attribute}
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, d: dict):
         kwargs = deepcopy(d)
         kwargs["composition"] = Composition(d["composition"])
         kwargs.pop("@module", None)
@@ -78,6 +89,7 @@ class FreeEnergyEntry(PDEntry):
 
 
 class FreeEnergyEntrySet(EntrySet):
+    """List of FreeEnergyEntries with temperature and pressure."""
     def __init__(self,
                  entries: List[FreeEnergyEntry],
                  temperature: float = None,
@@ -115,16 +127,15 @@ class FreeEnergyEntrySet(EntrySet):
 
     @classmethod
     def from_mp(cls, elements: List[str]) -> "FreeEnergyEntrySet":
-        """ """
-        exclude_z = list(i for i in range(1, 100))  # from C to Ne
+        """Obtain the energies from Materials Project."""
+        exclude_z = list(i for i in range(1, 111))  # from H to Cn
         excluded_elements = [str(Element.from_Z(z)) for z in exclude_z]
         for e in elements:
             excluded_elements.remove(e)
 
         with MPRester() as m:
             materials = \
-                m.query(criteria={"nelements": {"$lte": 2},
-                                  "elements": {"$in": elements,
+                m.query(criteria={"elements": {"$in": elements,
                                                "$nin": excluded_elements},
                                   "e_above_hull": {"$lte": 0.0001}},
                         properties=["task_id", "full_formula", "final_energy"])
@@ -134,12 +145,13 @@ class FreeEnergyEntrySet(EntrySet):
             energy_entries.append(
                 FreeEnergyEntry(composition=m["full_formula"],
                                 total_energy=m["final_energy"],
-                                mp_id=m["task_id"]))
+                                data={"mp_id": m["task_id"]}))
 
         return cls(energy_entries)
 
 
 class ConstrainedFreeEnergyEntrySet(FreeEnergyEntrySet):
+    """FreeEnergyEntrySet obtained at the constrained chemical potential."""
     def __init__(self,
                  entries: List[FreeEnergyEntry],
                  original_entries:  List[FreeEnergyEntry],
@@ -163,6 +175,7 @@ class ConstrainedFreeEnergyEntrySet(FreeEnergyEntrySet):
                 Original FreeEnergyEntrySet.
             constr_chempot:
                 Constrained chemical potentials in absolute scale.
+
         Returns:
             ConstrainedFreeEnergyEntrySet object.
         """

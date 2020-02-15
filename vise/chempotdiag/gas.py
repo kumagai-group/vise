@@ -152,6 +152,14 @@ class ShomateParameters:
     def can_apply(self, temp: float) -> bool:
         return self.temperature_range[0] <= temp <= self.temperature_range[1]
 
+    @property
+    def min_temperature(self) -> float:
+        return self.temperature_range[0]
+
+    @property
+    def max_temperature(self) -> float:
+        return self.temperature_range[1]
+
     def __str__(self):
         outs = [f"Temperature_range: {self.temperature_range}\n",
                 f"A: {self.a}\n", f"B: {self.b}\n", f"C: {self.c}\n",
@@ -414,8 +422,6 @@ class Gas(Enum):
         h = self.standard_enthalpy(temperature)
         s = self.standard_entropy(temperature)
         h_0 = self.thermodynamics_function.enthalpy_zero
-        print("h, h_0")
-        print(h, h_0)
         val_joule = h - temperature * s - h_0
         joule_to_ev = physical_constants["joule-electron volt relationship"][0]
         return val_joule * joule_to_ev / (self.n_atom * Avogadro)
