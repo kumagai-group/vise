@@ -15,7 +15,6 @@ from vise.analyzer.band_gap import band_gap_properties
 from vise.analyzer.band_plotter import PrettyBSPlotter
 from vise.analyzer.dos_plotter import get_dos_plot
 from vise.chempotdiag.chem_pot_diag import ChemPotDiag
-from vise.chempotdiag.free_energy_entries import make_poscars_from_mp
 from vise.custodian_extension.handler_groups import handler_group
 from vise.custodian_extension.jobs import (
     ViseVaspJob, KptConvResult, StructureOptResult)

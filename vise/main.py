@@ -146,9 +146,9 @@ def main():
         "-ldaul", dest="ldaul", type=str, default=vasp_defaults["ldaul"],
         nargs="+", help="Dict of LDAUL values.")
 
-    # -- get_poscar ----------------------------------------------------
+    # -- get_poscars -----------------------------------------------------------
     parser_get_poscar = subparsers.add_parser(
-        name="get_poscar",
+        name="get_poscars",
         description="Tools for generating POSCAR file(s)",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         aliases=['gp'])
@@ -158,7 +158,7 @@ def main():
         help="POSCAR-type file name.", metavar="FILE")
     parser_get_poscar.add_argument(
         "-n", "--number", dest="number", type=int,
-        help="MP entry number w/o mp-")
+        help="MP entry number without prefix 'mp-'")
 
 
     parser_get_poscar.set_defaults(func=get_poscar_from_mp)

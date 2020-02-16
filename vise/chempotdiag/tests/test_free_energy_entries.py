@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import unittest
-import numpy as np
 from copy import deepcopy
 from pathlib import Path
 import shutil
@@ -10,8 +8,7 @@ from pymatgen.core.composition import Composition
 from pymatgen.core.sites import Element
 
 from vise.chempotdiag.free_energy_entries import (
-    FreeEnergyEntry, FreeEnergyEntrySet, ConstrainedFreeEnergyEntrySet,
-    make_poscars_from_mp)
+    FreeEnergyEntry, FreeEnergyEntrySet, ConstrainedFreeEnergyEntrySet)
 from vise.util.testing import ViseTest
 
 
@@ -74,6 +71,7 @@ MgO,1.0,1.0,-10
 O2,0,2.0,-112
 """
         self.assertEqual(expected, actual)
+        shutil.rmtree("entries.csv")
 
     def test_from_vasp_files(self):
         paths = [Path(".") / "vasp_Mg",
@@ -126,16 +124,3 @@ class TestConstrainedFreeEnergyEntrySet(ViseTest):
         self.assertEqual(str(expected), str(actual))
 
 
-class TestGetMpMaterials(ViseTest):
-    pass
-
-
-class TestMakePoscarsFromMp(ViseTest):
-    def test(self):
-        make_poscars_from_mp(elements=["Mg", "O"])
-
-    # uncomment these if one wants to check the created directories.
-    # def tearDown(self) -> None:
-    #     shutil.rmtree("mol_O2")
-    #     shutil.rmtree("mp-1265_MgO")
-    #     shutil.rmtree("mp-1094122_Mg")
