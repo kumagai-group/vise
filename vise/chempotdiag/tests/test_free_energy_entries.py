@@ -4,12 +4,14 @@ import unittest
 import numpy as np
 from copy import deepcopy
 from pathlib import Path
+import shutil
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.sites import Element
 
 from vise.chempotdiag.free_energy_entries import (
-    FreeEnergyEntry, FreeEnergyEntrySet, ConstrainedFreeEnergyEntrySet)
+    FreeEnergyEntry, FreeEnergyEntrySet, ConstrainedFreeEnergyEntrySet,
+    make_poscars_from_mp)
 from vise.util.testing import ViseTest
 
 
@@ -43,6 +45,7 @@ class TestFreeEnergyEntry(ViseTest):
 class TestFreeEnergyEntrySet(ViseTest):
     def setUp(self) -> None:
         mgo = FreeEnergyEntry("MgO", total_energy=-10)
+        self.mg = FreeEnergyEntry("Mg", total_energy=-10)
         self.o2 = FreeEnergyEntry("O2",
                                   total_energy=-2,
                                   zero_point_vib=-10,
@@ -50,36 +53,50 @@ class TestFreeEnergyEntrySet(ViseTest):
                                   data={"id": 10},
                                   attribute="new")
 
-        self.mg = FreeEnergyEntry("Mg", total_energy=-10)
         self.entry_set = FreeEnergyEntrySet([mgo, self.o2])
 
     def test_msonable(self):
         self.assertMSONable(self.entry_set)
 
     def test_add_discard(self):
-        es = self.entry_set
-        print(len(es))
+        es = deepcopy(self.entry_set)
+        self.assertEqual(2, len(es))
         es.add(self.mg)
-        print(len(es))
+        self.assertEqual(3, len(es))
         es.discard(self.o2)
-        print([str(i) for i in es])
-        print(len(es))
+        self.assertEqual(2, len(es))
 
     def test_csv(self):
         self.entry_set.to_csv("entries.csv")
-        a = FreeEnergyEntrySet.from_csv("entries.csv")
-        print([str(i) for i in a])
+        actual = open("entries.csv").read()
+        expected = """Name,Mg,O,Energy
+MgO,1.0,1.0,-10
+O2,0,2.0,-112
+"""
+        self.assertEqual(expected, actual)
 
     def test_from_vasp_files(self):
         paths = [Path(".") / "vasp_Mg",
                  Path(".") / "vasp_O2",
                  Path(".") / "vasp_MgO"]
         entry_set = FreeEnergyEntrySet.from_vasp_files(paths, parse_gas=True)
-        print([e for e in entry_set])
+        expected = {"Mg", "MgO", "O2"}
+        actual = {str(e.name) for e in entry_set}
+
+        self.assertEqual(expected, actual)
+        expected = {-5.18827492, -12.51242284, -9.110124797191427}
+        actual = {e.energy for e in entry_set}
+        self.assertEqual(expected, actual)
 
     def test_from_mp(self):
         entry_set = FreeEnergyEntrySet.from_mp(["Mg", "O"])
-        print([e for e in entry_set])
+        expected = {"Mg", "MgO", "O2"}
+        actual = {str(e.name) for e in entry_set}
+        self.assertEqual(expected, actual)
+
+        expected = {-39.42964153, -14.43901464, -11.96804153}
+        actual = {e.energy for e in entry_set}
+        self.assertEqual(expected, actual)
 
 
 class TestConstrainedFreeEnergyEntrySet(ViseTest):
@@ -93,9 +110,32 @@ class TestConstrainedFreeEnergyEntrySet(ViseTest):
         mgcao = FreeEnergyEntry("MgCaO", total_energy=-33)
         self.entry_set = FreeEnergyEntrySet([mg, ca, mgo, cao, o2, mgcao])
 
-    def test_(self):
-        entry_set = ConstrainedFreeEnergyEntrySet.from_entry_set(self.entry_set,
-                                                                 {"Ca": -2})
-        print(entry_set.entries)
-        print(entry_set.original_entries)
+    def test_constraint(self):
+        entry_set = ConstrainedFreeEnergyEntrySet.\
+            from_entry_set(self.entry_set, {"Ca": -2})
+        expected = {Element.Mg, Element.O}
+        actual = set()
+        for e in entry_set.entries:
+            actual.update(e.composition.elements)
+        self.assertEqual(expected, actual)
 
+        expected = FreeEnergyEntry(composition=Composition({"Mg": 1, "O": 1}),
+                                   total_energy=-33-(-2),
+                                   name="CaMgO")
+        actual = [e for e in entry_set if e.name == "CaMgO"][0]
+        self.assertEqual(str(expected), str(actual))
+
+
+class TestGetMpMaterials(ViseTest):
+    pass
+
+
+class TestMakePoscarsFromMp(ViseTest):
+    def test(self):
+        make_poscars_from_mp(elements=["Mg", "O"])
+
+    # uncomment these if one wants to check the created directories.
+    # def tearDown(self) -> None:
+    #     shutil.rmtree("mol_O2")
+    #     shutil.rmtree("mp-1265_MgO")
+    #     shutil.rmtree("mp-1094122_Mg")
