@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import argparse
+from distutils.util import strtobool
 from typing import Union
 
 from vise.config import SYMMETRY_TOLERANCE, ANGLE_TOL, KPT_DENSITY
@@ -11,6 +12,7 @@ from vise.main_function import (
     band_gap)
 from vise.util.logger import get_logger
 from vise.util.main_tools import dict2list, get_user_settings, get_default_args
+from vise.util.mp_tools import make_poscars_from_mp
 from vise.input_set.input_set import ViseInputSet
 
 __author__ = "Yu Kumagai"
@@ -78,12 +80,10 @@ def main():
     prec_parser = argparse.ArgumentParser(description="Prec-related parser",
                                           add_help=False)
     prec_parser.add_argument(
-        "--symprec", dest="symprec", type=float,
-        default=prec["symprec"],
+        "--symprec", type=float, default=prec["symprec"],
         help="Set length precision used for symmetry analysis [A].")
     prec_parser.add_argument(
-        "--angle_tolerance", dest="angle_tolerance", type=float,
-        default=prec["angle_tolerance"],
+        "--angle_tolerance", type=float, default=prec["angle_tolerance"],
         help="Set angle precision used for symmetry analysis.")
 
     # -- parent parser:  vasp set
@@ -110,41 +110,35 @@ def main():
         type=str, nargs="+",
         help="User specifying POTCAR set. E.g., Mg_pv O_h")
     vasp_parser.add_argument(
-        "--potcar_set_name", dest="potcar_set_name",
-        default=vasp_defaults["potcar_set_name"],
-        type=str, nargs="+",
-        help="User specifying POTCAR set name, i.e., normal ,gw, or "
+        "--potcar_set_name", default=vasp_defaults["potcar_set_name"], type=str,
+        nargs="+", help="User specifying POTCAR set name, i.e., normal ,gw, or "
              "mp_relax_set.")
     vasp_parser.add_argument(
-        "-x", "--xc", dest="xc", default=str(vasp_defaults["xc"]), type=str,
+        "-x", "--xc", default=str(vasp_defaults["xc"]), type=str,
         help="Exchange-correlation (XC) interaction treatment.")
     vasp_parser.add_argument(
-        "-t", "--task", dest="task", default=str(vasp_defaults["task"]),
-        type=str,
+        "-t", "--task", default=str(vasp_defaults["task"]), type=str,
         help="The task name. See document of vise.")
     vasp_parser.add_argument(
-        "-vise_opts", dest="vise_opts", type=str, nargs="+",
-        default=vasp_defaults["vise_opts"],
+        "--vise_opts", type=str, nargs="+", default=vasp_defaults["vise_opts"],
         help="Keyword arguments for options in make_input classmethod of "
              "ViseInputSet in vise. See document in vise for details.")
     vasp_parser.add_argument(
-        "-uis", "--user_incar_setting", dest="user_incar_setting", type=str,
-        nargs="+",
+        "-uis", "--user_incar_setting", type=str, nargs="+",
         default=vasp_defaults["user_incar_setting"],
         help="user_incar_setting in make_input classmethod of ViseInputSet in "
              "vise. See document in vise for details.")
     vasp_parser.add_argument(
-        "-auis", "--additional_user_incar_setting",
-        dest="additional_user_incar_setting", type=str,
-        nargs="+", default=None,
+        "-auis", "--additional_user_incar_setting", type=str, nargs="+",
+        default=None,
         help="Use this if one does not want to override user_incar_setting "
              "written in the yaml file")
     vasp_parser.add_argument(
-        "-ldauu", dest="ldauu", type=str, default=vasp_defaults["ldauu"],
-        nargs="+", help="Dict of LDAUU values")
+        "-ldauu", type=str, default=vasp_defaults["ldauu"], nargs="+",
+        help="Dict of LDAUU values")
     vasp_parser.add_argument(
-        "-ldaul", dest="ldaul", type=str, default=vasp_defaults["ldaul"],
-        nargs="+", help="Dict of LDAUL values.")
+        "-ldaul", type=str, default=vasp_defaults["ldaul"], nargs="+",
+        help="Dict of LDAUL values.")
 
     # -- get_poscars -----------------------------------------------------------
     parser_get_poscar = subparsers.add_parser(
@@ -153,13 +147,23 @@ def main():
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         aliases=['gp'])
 
+    gp_defaults = get_default_args(make_poscars_from_mp)
+
     parser_get_poscar.add_argument(
-        "-p", "--poscar", dest="poscar", default="POSCAR", type=str,
+        "-p", "--poscar", type=str,
         help="POSCAR-type file name.", metavar="FILE")
     parser_get_poscar.add_argument(
-        "-n", "--number", dest="number", type=int,
+        "-n", "--number", type=int,
         help="MP entry number without prefix 'mp-'")
-
+    parser_get_poscar.add_argument(
+        "-e", "--elements", type=str, nargs="+",
+        help="Create directories with POSCARs containing the input elements.")
+    parser_get_poscar.add_argument(
+        "--e_above_hull", type=float, default=gp_defaults["e_above_hull"],
+        help="Collect materials with this hull energy in eV/atom.")
+    parser_get_poscar.add_argument(
+        "--molecules", type=strtobool, default=gp_defaults["molecules"],
+        help="Whether one doesn't want to replace pmg structures to molecules.")
 
     parser_get_poscar.set_defaults(func=get_poscar_from_mp)
 
@@ -178,28 +182,26 @@ def main():
         "--pj", dest="print_json", type=str,
         help="Print the ViseInputSet info from the given json file.")
     parser_vasp_set.add_argument(
-        "-p", "--poscar", dest="poscar", default="POSCAR", type=str,
+        "-p", "--poscar", default="POSCAR", type=str,
         help="POSCAR-type file name.")
     parser_vasp_set.add_argument(
-        "-k", "--kpt_density", dest="kpt_density",
-        default=vs_defaults["kpt_density"], type=float,
+        "-k", "--kpt_density", default=vs_defaults["kpt_density"], type=float,
         help="K-point density in Angstrom along each direction .")
     parser_vasp_set.add_argument(
-        "-s", "--standardize", dest="standardize", action="store_false",
+        "-s", "--standardize", action="store_false",
         help="Store if one doesn't want the cell to be transformed to a "
              "primitive cell.")
     parser_vasp_set.add_argument(
-        "-d", "--prev_dir", dest="prev_dir", type=str,
+        "-d", "--prev_dir", type=str,
         help="Inherit input files from the previous directory.")
     parser_vasp_set.add_argument(
-        "-c", "--charge", dest="charge", type=int, default=0,
-        help="Supercell charge state.")
+        "-c", "--charge", type=int, default=0, help="Supercell charge state.")
     parser_vasp_set.add_argument(
-        "--dirs", dest="dirs", nargs="+", type=str, default=None,
+        "--dirs", nargs="+", type=str, default=None,
         help="Make vasp set for the directories in the same condition.")
     parser_vasp_set.add_argument(
-        "-pi", "-prior_info", dest="prior_info", action="store_true",
-        help="Set if prior_info.json is read.")
+        "-npi", "--no_prior_info", dest="prior_info", action="store_false",
+        help="Set if prior_info.json is *not* read although it exists.")
 
     del vs_defaults
 
@@ -222,45 +224,41 @@ def main():
                                   "convergence_criterion"])
 
     parser_vasp_run.add_argument(
-        "--print", dest="print", action="store_true",
+        "--print", action="store_true",
         help="Print the structure_opt.json or kpt_conv.json (if -kc is set) "
              "info.")
     parser_vasp_run.add_argument(
-        "--json_file", dest="json_file", default=None, type=str,
-        help="Json file name.")
+        "--json_file", default=None, type=str, help="Json file name.")
     parser_vasp_run.add_argument(
-        "-v", "--vasp_cmd", dest="vasp_cmd", nargs="+", type=str,
+        "-v", "--vasp_cmd", nargs="+", type=str,
         default=vr_defaults["vasp_cmd"],
         help="VASP command. If you are using mpirun, set this to something "
              "like \"mpirun pvasp\".",)
     parser_vasp_run.add_argument(
-        "-ikd", "-initial_kpt_density", dest="initial_kpt_density",
-        type=float,
+        "-ikd", "-initial_kpt_density", type=float,
         default=vr_defaults["initial_kpt_density"],
         help="Initial k-point density.")
     parser_vasp_run.add_argument(
-        "-handler_name", dest="handler_name", type=str, default="default",
+        "-handler_name", type=str, default="default",
         help="Custodian error handler name listed in error_handlers.")
     parser_vasp_run.add_argument(
-        "-timeout", dest="timeout", type=int, default=518400,
+        "-timeout", type=int, default=518400,
         help="Timeout used in TooLongTimeCalcErrorHandler.")
     parser_vasp_run.add_argument(
         "--remove_wavecar", dest="rm_wavecar", action="store_true",
         help="Remove WAVECAR file after the calculation is finished.")
     parser_vasp_run.add_argument(
-        "--max_relax_num", dest="max_relax_num",
-        default=vr_defaults["max_relax_num"], type=int,
+        "--max_relax_num", default=vr_defaults["max_relax_num"], type=int,
         help="Maximum number of relaxations.")
     parser_vasp_run.add_argument(
         "-criteria", dest="convergence_criterion",
         default=vr_defaults["convergence_criterion"], type=float,
         help="Convergence criterion of kpoints in eV / atom.")
     parser_vasp_run.add_argument(
-        "--left_files", dest="left_files", type=str, nargs="+",
-        default=vr_defaults["left_files"],
+        "--left_files", type=str, nargs="+", default=vr_defaults["left_files"],
         help="Filenames that are left at the calculation directory.")
     parser_vasp_run.add_argument(
-        "-kc", "-kpoint_conv", dest="kpoint_conv", action="store_true",
+        "-kc", "--kpoint_conv", action="store_true",
         help="Set if k-point convergence is checked.")
 
     del vr_defaults
@@ -272,39 +270,16 @@ def main():
         description="Tools for chemical potentials",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         aliases=['cpd'])
-    # get poscar from materials project
-    parser_cpd.add_argument(
-        "-m", "--mat_proj_poscar", help="", action="store_true")
-    parser_cpd.add_argument(
-        "-el", "--elements", dest="elements", type=str, nargs='+', default=None,
-        help="")
-    parser_cpd.add_argument(
-        "-dp", "--dir_path", dest="dir_path", type=str, default=None, help="")
-    parser_cpd.add_argument(
-        "-ch", "--criterion_hull", dest="criterion_hull", type=float,
-        default=None,
-        help="Collect materials only if energy above hull is less than "
-             "criterion_hull. Unit is meV/atom.")
-    parser_cpd.add_argument(
-        "-k", "--mp_api_key", help="", action="store_true")
-    parser_cpd.add_argument(
-        "-gp", "--gets_poly", help="", action="store_true")
-    parser_cpd.add_argument(
-        "-no_mol", "--not_molecules", help="", action="store_true")
 
     # input
     # from file
-    parser_cpd.add_argument("-e", "--energy", dest="energy_file",
-                        type=str, default=None,
-                        help="Name of text file of "
-                             "energies of compounds")
-
-    # from VASP
-    parser_cpd.add_argument("-v", "--vasp_dirs",
-                        dest="vasp_dirs", type=str, nargs='+',
-                        default=None,
-                        help="Drawing diagram from specified "
-                             "directories of vasp calculations")
+    parser_cpd.add_argument(
+        "-e", "--energy", dest="energy_csv", type=str, default=None,
+        help="Name of csv file of energies of compounds")
+    parser_cpd.add_argument(
+        "-v", "--vasp_dirs", dest="vasp_dirs", type=str, nargs='+',
+        default=None,
+        help="Drawing diagram from specified directories of vasp calculations")
     # from VASP and MP
     parser_cpd.add_argument("-fmp_target", "--from_mp_target",
                         help="VASP result of target material,"
@@ -450,8 +425,7 @@ def main():
         "-l", dest="legend", action="store_false",
         help="Not show the legend.")
     parser_plot_dos.add_argument(
-        "-c", dest="c", action="store_false",
-        help="Not crop the first value.")
+        "-c", action="store_false", help="Not crop the first value.")
 
     parser_plot_dos.set_defaults(func=plot_dos)
 

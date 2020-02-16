@@ -4,10 +4,14 @@ import json
 import shutil
 from pathlib import Path
 from typing import List
+import yaml
 
 from pymatgen import Element, MPRester, Composition
-from vise.chempotdiag.free_energy_entries import logger
+
+from vise.util.logger import get_logger
 from vise.chempotdiag.gas import Gas
+
+logger = get_logger(__name__)
 
 
 def get_mp_materials(elements: List[str],
@@ -34,7 +38,7 @@ def make_poscars_from_mp(elements,
                          path: Path = Path.cwd(),
                          e_above_hull=0.01,
                          api_key=None,
-                         add_molecules=True,
+                         molecules=True,
                          only_molecules=True) -> None:
     """
 
@@ -43,7 +47,7 @@ def make_poscars_from_mp(elements,
         path(str):
         e_above_hull(float):
         api_key(str):
-        add_molecules(bool):
+        molecules(bool):
         only_molecules:
 
     Returns:
@@ -52,10 +56,10 @@ def make_poscars_from_mp(elements,
     if not path.is_dir:
         raise NotADirectoryError(f"{path} is not directory.")
 
-    mol_dir = Path(__file__).parent / "molecules"
+    mol_dir = Path(__file__).parent / ".." / "chempotdiag" / "molecules"
 
     molecules_formula_list = []
-    if add_molecules:
+    if molecules:
         for g in Gas:
             comp = Composition(str(g))
             if set([str(e) for e in comp.elements]) < set(elements):
@@ -67,6 +71,8 @@ def make_poscars_from_mp(elements,
                     dirname.mkdir()
                     shutil.copyfile(mol_dir / str(comp) / "POSCAR",
                                     dirname / "POSCAR")
+                    shutil.copyfile(mol_dir / str(comp) / "prior_info.yaml",
+                                    dirname / "prior_info.yaml")
 
     properties = ["task_id",
                   "full_formula",
@@ -85,6 +91,6 @@ def make_poscars_from_mp(elements,
         m_path = path / f"{m['task_id']}_{comp}"
         m_path.mkdir()
         m.pop("structure").to(filename=m_path / "POSCAR")
-        json_path = m_path / "prior_info.json"
-        with open(str(json_path), "w") as fw:
-            json.dump(m, fw)
+        yaml_path = m_path / "prior_info.yaml"
+        with open(str(yaml_path), "w") as fw:
+            fw.write(yaml.dump(m))

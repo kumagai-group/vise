@@ -361,7 +361,10 @@ class Gas(Enum):
         self.formula = str(formula)
         dirname = Path(__file__).parent / "molecules" / self.formula
 
-        self.properties = PriorInfo.load_json(dirname / "prior_info.json")
+        try:
+            self.properties = PriorInfo.load_json(dirname / "prior_info.yaml")
+        except:
+            pass
         self.thermodynamics_function = ShomateThermodynamicsFunction.\
             from_nist_table(dirname / "shomate_nist.dat")
         self.fundamental_frequencies = FundamentalFrequencies.\

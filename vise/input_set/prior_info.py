@@ -2,6 +2,7 @@
 
 import json
 from typing import Optional
+import yaml
 
 from monty.json import MSONable
 from monty.serialization import loadfn
@@ -19,7 +20,8 @@ class PriorInfo(MSONable):
                  data_source: str = None,
                  is_cluster: bool = None,
                  mag_threshold: float = 0.05,
-                 band_gap_threshold: float = 0.1):
+                 band_gap_threshold: float = 0.1,
+                 incar: dict = None):
         """
             Args:
                 energy_per_atom (float):
@@ -36,6 +38,8 @@ class PriorInfo(MSONable):
                     Threshold to judge if the system is magnetic.
                 band_gap_threshold (float):
                     Threshold to judge if the system is metal.
+                incar (dict):
+                    Dict of INCAR flags to be set.
         """
         self.energy_per_atom = energy_per_atom
         self.band_gap = band_gap
@@ -44,14 +48,31 @@ class PriorInfo(MSONable):
         self.is_cluster = is_cluster
         self.mag_threshold = mag_threshold
         self.band_gap_threshold = band_gap_threshold
+        self.incar = incar
 
     def __repr__(self):
-        outs = ["energy_per_atom: " + str(self.energy_per_atom),
-                "band gap: " + str(self.band_gap),
-                "total magnetization: " + str(self.total_magnetization),
-                "data source: " + str(self.data_source),
-                "is cluster: " + str(self.is_cluster)]
+        outs = [f"energy_per_atom: {self.energy_per_atom}",
+                f"band gap: {self.band_gap}",
+                f"total magnetization: {self.total_magnetization}",
+                f"data source: {self.data_source}",
+                f"is cluster: {self.is_cluster}",
+                f"incar flags {self.incar}"]
         return "\n".join(outs)
+
+    def dump_yaml(self, filename: str = "prior_info.yaml") -> None:
+        with open(filename, "w") as f:
+            f.write(yaml.dump(self.as_dict()))
+
+    @classmethod
+    def load_yaml(cls, filename: str = "prior_info.yaml"):
+        with open(filename, "r") as f:
+            d = yaml.load(f, Loader=yaml.FullLoader)
+        if "incar" in d:
+            flag = {}
+            for i in d["incar"]:
+                flag.update(i)
+            d["incar"] = flag
+        return cls.from_dict(d)
 
     def dump_json(self, filename: str = "prior_info.json") -> None:
         with open(filename, "w") as fw:

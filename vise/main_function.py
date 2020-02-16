@@ -5,6 +5,7 @@ from itertools import chain
 import os
 
 from custodian.custodian import Custodian
+from pathlib import Path
 
 from pymatgen.core.structure import Structure
 from pymatgen.core.periodic_table import Element
@@ -26,6 +27,7 @@ from vise.input_set.xc import Xc
 from vise.util.error_classes import NoVaspCommandError
 from vise.util.logger import get_logger
 from vise.util.main_tools import potcar_str2dict, list2dict
+from vise.util.mp_tools import make_poscars_from_mp
 
 
 __author__ = "Yu Kumagai"
@@ -35,8 +37,19 @@ logger = get_logger(__name__)
 
 
 def get_poscar_from_mp(args):
-    s = MPRester().get_structure_by_material_id(f"mp-{args.number}")
-    s.to(filename=args.poscar)
+    if args.number:
+        s = MPRester().get_structure_by_material_id(f"mp-{args.number}")
+        s.to(filename=args.poscar)
+        return True
+
+    if args.elements:
+        make_poscars_from_mp(elements=args.elements,
+                             e_above_hull=args.e_above_hull,
+                             molecules=args.molecules)
+        return True
+
+    logger.warning("Set mp number or elements")
+    return False
 
 
 def vasp_set(args):
@@ -72,17 +85,26 @@ def vasp_set(args):
     dirs = args.dirs or ["."]
 
     for d in dirs:
-        os.chdir(os.path.join(original_dir, d))
+        d = Path.cwd() / d
+        os.chdir(d)
         logger.info(f"Constructing vasp set in {d}")
         user_incar_settings = deepcopy(base_user_incar_settings)
         kwargs = deepcopy(vise_base_kwargs)
 
         if args.prior_info:
-            if os.path.exists("prior_info.json"):
-                prior_info = PriorInfo.load_json("prior_info.json")
-                kwargs["band_gap"] = prior_info["band_gap"]
-                kwargs["is_magnetization"] = \
-                    abs(prior_info["total_magnetization"]) > 0.1
+            yaml_file = d / "prior_info.yaml"
+            if yaml_file.exists():
+                prior_info = PriorInfo.load_yaml(yaml_file)
+                print(prior_info)
+                if prior_info.is_magnetic:
+                    kwargs["is_magnetization"] = True
+                if prior_info.is_cluster:
+                    if task != Task.cluster_opt:
+                        logger.warning(f"task is changed from {task} to "
+                                       f"{Task.cluster_opt}.")
+                        task = Task.cluster_opt
+                if prior_info.incar:
+                    user_incar_settings.update(prior_info.incar)
 
         if args.prev_dir:
             files = {"CHGCAR": "C", "WAVECAR": "M", "WAVEDER": "M"}

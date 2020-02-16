@@ -7,6 +7,7 @@ from pymatgen.analysis.phase_diagram import PDEntry
 from pymatgen.core.composition import Composition
 from pymatgen.entries.entry_tools import EntrySet
 from pymatgen.io.vasp import Vasprun
+
 from vise.util.mp_tools import get_mp_materials
 from vise.chempotdiag.gas import Gas
 from vise.config import REFERENCE_PRESSURE
