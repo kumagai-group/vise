@@ -7,6 +7,7 @@ import os
 from custodian.custodian import Custodian
 from pathlib import Path
 
+from pymatgen.analysis.phase_diagram import PhaseDiagram, PDPlotter
 from pymatgen.core.structure import Structure
 from pymatgen.core.periodic_table import Element
 from pymatgen.ext.matproj import MPRester
@@ -16,6 +17,7 @@ from vise.analyzer.band_gap import band_gap_properties
 from vise.analyzer.band_plotter import PrettyBSPlotter
 from vise.analyzer.dos_plotter import get_dos_plot
 from vise.chempotdiag.chem_pot_diag import ChemPotDiag
+from vise.chempotdiag.free_energy_entries import FreeEnergyEntrySet
 from vise.custodian_extension.handler_groups import handler_group
 from vise.custodian_extension.jobs import (
     ViseVaspJob, KptConvResult, StructureOptResult)
@@ -94,8 +96,8 @@ def vasp_set(args):
         if args.prior_info:
             yaml_file = d / "prior_info.yaml"
             if yaml_file.exists():
-                prior_info = PriorInfo.load_yaml(yaml_file)
-                print(prior_info)
+                print(yaml_file)
+                prior_info = PriorInfo.load_yaml(str(yaml_file))
                 if prior_info.is_magnetic:
                     kwargs["is_magnetization"] = True
                 if prior_info.is_cluster:
@@ -193,119 +195,30 @@ def vasp_run(args):
 
 
 def chempotdiag(args):
-    if args.mat_proj_poscar:
-        kwargs_to_make_vasp_inputs = {}
-        if args.dir_path:
-            kwargs_to_make_vasp_inputs["dir_path"] = args.dir_path
-        if args.criterion_hull is not None:
-            kwargs_to_make_vasp_inputs["criterion_e_above_hull"] \
-                = args.criterion_hull
-        if args.mp_api_key:
-            kwargs_to_make_vasp_inputs["api_key"] = args.mp_api_key
-        if args.gets_poly:
-            kwargs_to_make_vasp_inputs["gets_poly"] = True
-        if args.not_molecules:
-            kwargs_to_make_vasp_inputs["adds_molecule"] = False
-        make_vasp_inputs_from_mp(args.elements, **kwargs_to_make_vasp_inputs)
+    if args.elements:
+        entry_set = FreeEnergyEntrySet.from_mp(args.elements)
     else:
-        if len([f for f in
-                [args.energy_file, args.vasp_dirs, args.from_mp_target]
-                if bool(f)]) != 1:
-            raise ValueError("Specify one of energy_file, vasp_dirs "
-                             "and from_mp_target")
+        entry_set = FreeEnergyEntrySet.from_vasp_files(
+            directory_paths=args.dirs,
+            vasprun=args.vasprun,
+            parse_gas=args.parse_gas,
+            temperature=args.temperature,
+            partial_pressures=args.partial_pressures)
 
-        # energy_shift
-        energy_shift_dict = {}
-        if args.energy_shift:
-            if len(args.energy_shift) % 2 != 0:
-                raise ValueError(f"Invalid energy shift "
-                                 f"input {args.energy_shift}")
-            for i in range(int(len(args.energy_shift) / 2)):
-                output_name = \
-                    args.energy_shift[2 * i] + "/" + args.outcar_name
-                es = args.energy_shift[2 * i + 1]
-                energy_shift_dict[output_name] = float(es)
-
-        # pressure and temperature
-        partial_pressure_dict = {}
-        if args.partial_pressures:
-            if len(args.partial_pressures) % 2 != 0:
-                raise ValueError(f"Invalid partial pressures "
-                                 f"input {args.partial_pressures}")
-            for i in range(int(len(args.partial_pressures) / 2)):
-                formula = args.partial_pressures[2 * i]
-                pressure = args.partial_pressures[2 * i + 1]
-                partial_pressure_dict[formula] = float(pressure)
-
-        if args.energy_file:
-            if args.temperature or args.partial_pressures:
-                logger.warning("Now temperature and pressures can not apply "
-                               "when reading data from energy_file")
-            cp = ChemPotDiag.from_file(args.energy_file)
-
-        elif args.vasp_dirs:
-
-            poscar_paths = [d + args.poscar_name for d in args.vasp_dirs]
-            outcar_paths = [d + args.outcar_name for d in args.vasp_dirs]
-
-            cp = ChemPotDiag. \
-                from_vasp_calculations_files(poscar_paths,
-                                             outcar_paths,
-                                             temperature=args.temperature,
-                                             pressure=partial_pressure_dict,
-                                             energy_shift_dict=energy_shift_dict)
-            if args.elements:
-                cp.set_elements([Element(e) for e in args.elements])
-
-        elif args.from_mp_target:
-            elem_poscar_paths = [os.path.join(d, args.poscar_name) for d in args.from_mp_element]
-            elem_outcar_paths = [os.path.join(d, args.outcar_name) for d in args.from_mp_element]
-            cp = ChemPotDiag.from_vasp_and_materials_project(
-                vasp_target_poscar=f"{args.from_mp_target}/{args.poscar_name}",
-                vasp_target_output=f"{args.from_mp_target}/{args.outcar_name}",
-                vasp_element_poscar=elem_poscar_paths,
-                vasp_element_output=elem_outcar_paths,
-                temperature=args.temperature,
-                pressure=partial_pressure_dict,
-                energy_shift_dict=energy_shift_dict
-            )
-            if args.elements:
-                cp.set_elements([Element(e) for e in args.elements])
-
-        print(f"Energies of elements ({cp.elements}) : {cp.element_energy}")
-        #  Read args of drawing diagram from parser
-        if args.remarked_compound:
-            try:
-                for vertex in cp.get_neighbor_vertices(args.remarked_compound):
-                    print(vertex)
-            except ValueError:
-                print(f"{args.remarked_compound} is unstable."
-                      f" No vertex is labeled.")
-
-        kwargs_for_diagram = {}
-        if args.remarked_compound:
-            kwargs_for_diagram["remarked_compound"] = args.remarked_compound
-        if args.save_file:
-            kwargs_for_diagram["save_file_name"] = args.save_file
-        if args.without_label:
-            kwargs_for_diagram["with_label"] = False
-        if args.draw_range:
-            kwargs_for_diagram["draw_range"] = args.draw_range
-
-        if cp.dim >= 4:
-            print("Currently diagram is not available for quaternary or more.")
+    entry_set.to_json()
+    pd = PhaseDiagram(entries=entry_set.entries)
+    if args.draw_phase_diagram:
+        pd_plotter = PDPlotter(pd)
+        if args.pd_filename:
+            image_format = args.pd_filename.split(".")[-1]
+            pd_plotter.write_image(args.pd_filename, image_format)
         else:
-            cp.draw_diagram(**kwargs_for_diagram)
-            # try:
-            #     cp.draw_diagram(**kwargs_for_diagram)
-            # except ValueError:
-            #     kwargs_for_diagram.pop("remarked_compound")
-            #     cp.draw_diagram(**kwargs_for_diagram)
+            pd_plotter.show()
 
-        if args.yaml:
-            if args.remarked_compound is None:
-                raise ValueError("remarked_compound is needed to dump yaml")
-            cp.dump_vertices_yaml(os.getcwd(), args.remarked_compound, args.elements)
+    cpd = ChemPotDiag.from_phase_diagram(pd, target_comp=args.target_comp)
+    cpd.to_json_file()
+
+    cpd.draw_diagram(filename=args.filename)
 
 
 def plot_band(args):

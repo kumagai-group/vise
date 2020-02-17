@@ -3,6 +3,8 @@ from copy import deepcopy
 from pathlib import Path
 from typing import List, Dict, Union
 
+from monty.json import MSONable
+
 from pymatgen.analysis.phase_diagram import PDEntry
 from pymatgen.core.composition import Composition
 from pymatgen.entries.entry_tools import EntrySet
@@ -82,11 +84,18 @@ class FreeEnergyEntry(PDEntry):
         return cls(**kwargs)
 
     def __repr__(self):
-        return f"PDEntry : {self.name} with composition {self.composition}" \
-               f" and energy = {self.energy:.4f}"
+        zero_point_vib = \
+            f"{self.zero_point_vib:.3f}" if self.zero_point_vib else "none"
+        free_e_shift = \
+            f"{self.free_e_shift:.3f}" if self.free_e_shift else "none"
+        return f"PDEntry : {self.name} with composition {self.composition}." \
+               f"Energy: {self.energy:.3f}. " \
+               f"Zero point vib energy: {zero_point_vib}. " \
+               f"Free energy contribution: {free_e_shift}. " \
+               f"Data: {self.data}"
 
 
-class FreeEnergyEntrySet(EntrySet):
+class FreeEnergyEntrySet(EntrySet, MSONable):
     """List of FreeEnergyEntries with temperature and pressure."""
     def __init__(self,
                  entries: List[FreeEnergyEntry],
@@ -102,8 +111,7 @@ class FreeEnergyEntrySet(EntrySet):
                         vasprun: str = "vasprun.xml",
                         parse_gas: bool = True,
                         temperature: float = 0,
-                        pressure: float = REFERENCE_PRESSURE
-                        ) -> "FreeEnergyEntrySet":
+                        partial_pressures: dict = None) -> "FreeEnergyEntrySet":
 
         energy_entries = []
         for d in directory_paths:
@@ -112,15 +120,28 @@ class FreeEnergyEntrySet(EntrySet):
             composition = v.final_structure.composition.reduced_formula
             kwargs = {}
             if parse_gas and composition in Gas.name_list():
+                if partial_pressures is None:
+                    pressure = REFERENCE_PRESSURE
+                else:
+                    pressure = partial_pressures[composition]
+
                 gas = Gas[composition]
-                kwargs = {"zero_point_vib": gas.zero_point_vibrational_energy,
-                          "free_e_shift": gas.free_e_shift(temperature,
-                                                           pressure)}
+                zpve = gas.zero_point_vibrational_energy
+                free_e = gas.free_e_shift(temperature, pressure)
+                logger.warning(
+                    f"{composition} is parsed as gas. "
+                    f"Pressure: {pressure}, "
+                    f"temperature: {temperature}, "
+                    f"zero point vib energy: {zpve}, "
+                    f"free energy: {free_e}")
+
+                kwargs = {"zero_point_vib": zpve, "free_e_shift": free_e}
+
             energy_entries.append(
                 FreeEnergyEntry(composition=composition,
                                 total_energy=v.final_energy, **kwargs))
 
-        return cls(energy_entries, temperature, pressure)
+        return cls(energy_entries, temperature, partial_pressures)
 
     @classmethod
     def from_mp(cls, elements: List[str]) -> "FreeEnergyEntrySet":
@@ -136,6 +157,13 @@ class FreeEnergyEntrySet(EntrySet):
                                 data={"mp_id": m["task_id"]}))
 
         return cls(energy_entries)
+
+    def __repr__(self):
+        lines = [f"pressure {self.pressure}",
+                 f"temperature {self.temperature}"]
+        lines.extend([str(i) for i in self.entries])
+
+        return "\n".join(lines)
 
 
 class ConstrainedFreeEnergyEntrySet(FreeEnergyEntrySet):

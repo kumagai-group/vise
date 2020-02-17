@@ -212,6 +212,10 @@ class ChemPotDiag(MSONable):
 
     def _plot(self, draw_range: float, title: str):
 
+        plt.rcParams['pdf.fonttype'] = 42
+        plt.rcParams['ps.fonttype'] = 42
+        plt.rcParams['svg.fonttype'] = "none"
+
         if self.dim == 2:
             ax = plt.figure().add_subplot(111)
         else:

@@ -18,8 +18,10 @@ from monty.serialization import loadfn
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp import Kpoints, Vasprun
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
 from vise.config import (
     SYMMETRY_TOLERANCE, ANGLE_TOL, KPT_INIT_DENSITY, KPT_FACTOR)
+from vise.input_set.incar import Incar
 from vise.input_set.input_set import ViseInputSet
 from vise.input_set.task import Task, LATTICE_RELAX_TASK
 from vise.input_set.xc import Xc
@@ -364,6 +366,8 @@ class ViseVaspJob(VaspJob):
     def __init__(self,
                  vasp_cmd: list,
                  gamma_vasp_cmd: Optional[list] = None,
+#                 ncl_vasp_cmd: Optional[list] = None,
+#                 auto_ncl_vasp: Optional[list] = True,
                  output_file: str = "vasp.out",
                  stderr_file: str = "std_err.txt",
                  suffix: str = "",
@@ -380,6 +384,16 @@ class ViseVaspJob(VaspJob):
         if gamma_vasp_cmd is None:
             gamma_vasp_cmd = vasp_cmd[:-1]
             gamma_vasp_cmd.append(vasp_cmd[-1].replace("std", "gam"))
+
+        # if auto_ncl_vasp:
+        #     incar = Incar.from_file("INCAR")
+        #     ncl_calc = \
+        #         any([incar.get("LNONCOLLINEAR", False), incar.get("LSORBIT")])
+        #     if ncl_calc:
+        #         if ncl_vasp_cmd is None:
+        #             ncl_vasp_cmd = vasp_cmd[:-1]
+        #             ncl_vasp_cmd.append(vasp_cmd[-1].replace("std", "ncl"))
+        #         vasp_cmd = ncl_vasp_cmd
 
         # Note that only list instance is accepted for vasp_cmd in VaspJob at
         # ver.2019.8.24.

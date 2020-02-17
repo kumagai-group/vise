@@ -344,15 +344,14 @@ class ShomateThermodynamicsFunction(AbstractThermodynamicsFunction):
 
 
 class Gas(Enum):
-    H2 = "H2"
-    N2 = "N2"
-    O2 = "O2"
     F2 = "F2"
-    P2 = "P2"
-    P4 = "P4"
+    H2 = "H2"
     H2O = "H2O"
+    N2 = "N2"
     NH3 = "NH3"
     NO2 = "NO2"
+    O2 = "O2"
+    P4 = "P4"
 
     def __str__(self):
         return self.name
@@ -434,7 +433,7 @@ class Gas(Enum):
                      pressure: float = 1e+5) -> float:
         """Free energy shift (eV/atom) """
         if abs(temperature) < 1e-12:
-            return self.zero_point_vibrational_energy
+            return 0.0
 
         vib_rot_term = self.vib_rot_term(temperature)
         trans_term = temperature * self.r_ln_p_p0_ev_per_atom(pressure)

@@ -273,88 +273,59 @@ def main():
 
     # input
     # from file
+    # parser_cpd.add_argument(
+    #     "-e", "--energy", dest="energy_csv", type=str, default=None,
+    #     help="Name of csv file of energies of compounds")
     parser_cpd.add_argument(
-        "-e", "--energy", dest="energy_csv", type=str, default=None,
-        help="Name of csv file of energies of compounds")
-    parser_cpd.add_argument(
-        "-v", "--vasp_dirs", dest="vasp_dirs", type=str, nargs='+',
-        default=None,
+        "-d", "--vasp_dirs", dest="dirs", type=str, nargs='+', default=None,
         help="Drawing diagram from specified directories of vasp calculations")
-    # from VASP and MP
-    parser_cpd.add_argument("-fmp_target", "--from_mp_target",
-                        help="VASP result of target material,"
-                             "when get competing phases from mp")
+    parser_cpd.add_argument(
+        "-v", dest="vasprun", default="vasprun.xml.finish", type=str)
+    parser_cpd.add_argument(
+        "-e", "--elements", type=str, nargs="+",
+        help="Element names. Obtain the total energies from the MP.")
+    parser_cpd.add_argument(
+        "-c", "--target_comp", type=str, default=None,
+        help="Target compound focused for post process such as defect "
+             "calculations.")
+    parser_cpd.add_argument(
+        "-f", dest="filename", type=str, default=None, help="pdf file name.")
+    parser_cpd.add_argument(
+        "-dpd", "--draw_phase_diagram", action="store_true",
+        help="set when drawing the phase diagram.")
+    parser_cpd.add_argument(
+        "-pdf", "--pd_filename", type=str, default=None,
+        help="Phase diagram filename.")
+    parser_cpd.add_argument(
+        "-pg", "--parse_gas", type=strtobool, default=True,
+        help="Whether to parse results as gas for gas phases.")
+    parser_cpd.add_argument("-pp", "--partial_pressures",
+                            dest="partial_pressures", type=str,
+                            nargs='+', default=None,
+                            help="partial pressure of system. "
+                                 "e.g. -pp O2 1e+5 N2 20000 "
+                                 "-> O2: 1e+5(Pa), N2: 20000(Pa)")
+    parser_cpd.add_argument("-t", "--temperature",
+                            dest="temperature", type=float,
+                            default=0,
+                            help="temperature of system (unit: K)"
+                                 "e.g. -t 3000 -> 3000(K)")
 
-    parser_cpd.add_argument("-fmp_elem", "--from_mp_element", nargs="*",
-                        help="VASP result of elements,"
-                             "when get competing phases from mp")
-
-    # VASP_option
-    parser_cpd.add_argument("-p", "--poscar_name",
-                        dest="poscar_name", type=str,
-                        default="POSCAR",
-                        help="Name of POSCAR, like CONTCAR, "
-                             "POSCAR-finish,...")
-    parser_cpd.add_argument("-o", "--outcar_name",
-                        dest="outcar_name", type=str,
-                        default="OUTCAR",
-                        help="Name of OUTCAR, like OUTCAR-finish")
-
-    parser_cpd.add_argument("-es", "--energy_shift", type=str,
-                        dest="energy_shift",
-                        nargs='+', default=None,
-                        help="Energy shift, "
-                             "e.g. -es N2/molecule 1 "
-                             "-> make more unstable N2/molecule "
-                             "by 1 eV")
+    # parser_cpd.add_argument("-es", "--energy_shift", type=str,
+    #                     dest="energy_shift",
+    #                     nargs='+', default=None,
+    #                     help="Energy shift, "
+    #                          "e.g. -es N2/molecule 1 "
+    #                          "-> make more unstable N2/molecule "
+    #                          "by 1 eV")
 
     # thermodynamic status (P and T) input
-    parser_cpd.add_argument("-pp", "--partial_pressures",
-                        dest="partial_pressures", type=str,
-                        nargs='+', default=None,
-                        help="partial pressure of system. "
-                             "e.g. -pp O2 1e+5 N2 20000 "
-                             "-> O2: 1e+5(Pa), N2: 20000(Pa)")
 
-    parser_cpd.add_argument("-t", "--temperature",
-                        dest="temperature", type=float,
-                        default=0,
-                        help="temperature of system (unit: K)"
-                             "e.g. -t 3000 -> 3000(K)")
-
-    # drawing diagram
-    parser_cpd.add_argument("-w", "--without_label",
-                        help="Draw diagram without label.",
-                        action="store_true")
-
-    parser_cpd.add_argument("-c", "--remarked_compound",
-                        dest="remarked_compound", type=str,
-                        default=None,
-                        help="Name of compound you are remarking."
-                             "Outputted equilibrium_points are "
-                             "limited to neighboring that "
-                             "compounds, and those equilibrium "
-                             "points are labeled in "
-                             "chem_pot_diagram.")
-
-    parser_cpd.add_argument("-d", "--draw_range",
-                        dest="draw_range", type=float,
-                        default=None,
-                        help="Drawing range of diagram."
-                             "If range is shallower than the "
-                             "deepest vertex, "
-                             "ValueError will occur")
-
-    # output
-    parser_cpd.add_argument("-s", "--save_file",
-                        dest="save_file", type=str,
-                        default=None,
-                        help="File name to save the drawn diagram.")
-
-    parser_cpd.add_argument("-y", "--yaml",
-                        action="store_const", const=True,
-                        default=False,
-                        help="Dumps yaml of remarked_compound")
+    # # output
+    # parser_cpd.add_argument("-y", "--yaml",
+    #                     action="store_const", const=True,
+    #                     default=False,
+    #                     help="Dumps yaml of remarked_compound")
 
     parser_cpd.set_defaults(func=chempotdiag)
 

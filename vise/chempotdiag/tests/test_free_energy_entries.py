@@ -77,14 +77,17 @@ O2,0,2.0,-112
         paths = [Path(".") / "vasp_Mg",
                  Path(".") / "vasp_O2",
                  Path(".") / "vasp_MgO"]
-        entry_set = FreeEnergyEntrySet.from_vasp_files(paths, parse_gas=True)
+        entry_set = FreeEnergyEntrySet.from_vasp_files(paths,
+                                                       parse_gas=True,
+                                                       temperature=200)
         expected = {"Mg", "MgO", "O2"}
         actual = {str(e.name) for e in entry_set}
 
         self.assertEqual(expected, actual)
-        expected = {-5.18827492, -12.51242284, -9.110124797191427}
+        expected = {-5.18827492, -12.51242284, -9.359640931322565}
         actual = {e.energy for e in entry_set}
         self.assertEqual(expected, actual)
+        print(entry_set)
 
     def test_from_mp(self):
         entry_set = FreeEnergyEntrySet.from_mp(["Mg", "O"])
@@ -95,6 +98,18 @@ O2,0,2.0,-112
         expected = {-39.42964153, -14.43901464, -11.96804153}
         actual = {e.energy for e in entry_set}
         self.assertEqual(expected, actual)
+        print(entry_set)
+
+    def test_dict(self):
+        expected = self.o2.as_dict()
+        actual = FreeEnergyEntry.from_dict(expected).as_dict()
+        self.assertEqual(expected, actual)
+
+    def test_msonable(self):
+        self.assertMSONable(self.entry_set)
+
+    def test_print(self):
+        print(self.entry_set)
 
 
 class TestConstrainedFreeEnergyEntrySet(ViseTest):

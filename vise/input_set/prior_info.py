@@ -21,7 +21,8 @@ class PriorInfo(MSONable):
                  is_cluster: bool = None,
                  mag_threshold: float = 0.05,
                  band_gap_threshold: float = 0.1,
-                 incar: dict = None):
+                 incar: dict = None,
+                 **kwargs):
         """
             Args:
                 energy_per_atom (float):
@@ -49,6 +50,7 @@ class PriorInfo(MSONable):
         self.mag_threshold = mag_threshold
         self.band_gap_threshold = band_gap_threshold
         self.incar = incar
+        self.kwargs = kwargs
 
     def __repr__(self):
         outs = [f"energy_per_atom: {self.energy_per_atom}",
@@ -67,11 +69,7 @@ class PriorInfo(MSONable):
     def load_yaml(cls, filename: str = "prior_info.yaml"):
         with open(filename, "r") as f:
             d = yaml.load(f, Loader=yaml.FullLoader)
-        if "incar" in d:
-            flag = {}
-            for i in d["incar"]:
-                flag.update(i)
-            d["incar"] = flag
+        d["incar"] = d.get("incar", None)
         return cls.from_dict(d)
 
     def dump_json(self, filename: str = "prior_info.json") -> None:

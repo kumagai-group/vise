@@ -62,11 +62,9 @@ class TaskStructureKpoints:
             orig_symbol_list = get_symbol_list(original_structure)
             if symbol_list != orig_symbol_list:
                 logger.warning(
-                    "CAUTION: The sequence of the species is changed."
-                    f"Symbol set in the original structure " 
-                    f"{symbol_list} "
-                    f"Symbol set in the generated structure "
-                    f"{orig_symbol_list}")
+                    "CAUTION: The sequence of the species is changed. \n"
+                    f"Symbol set in the original structure {symbol_list} \n"
+                    f"Symbol set in the generated structure {orig_symbol_list}")
         else:
             structure = original_structure.copy()
 
