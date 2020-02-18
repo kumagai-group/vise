@@ -2,6 +2,7 @@
 from copy import deepcopy
 from pathlib import Path
 from typing import List, Dict, Union
+import re
 
 from monty.json import MSONable
 
@@ -88,7 +89,7 @@ class FreeEnergyEntry(PDEntry):
             f"{self.zero_point_vib:.3f}" if self.zero_point_vib else "none"
         free_e_shift = \
             f"{self.free_e_shift:.3f}" if self.free_e_shift else "none"
-        return f"PDEntry : {self.name} with composition {self.composition}." \
+        return f"PDEntry : {self.name} with composition {self.composition}. " \
                f"Energy: {self.energy:.3f}. " \
                f"Zero point vib energy: {zero_point_vib}. " \
                f"Free energy contribution: {free_e_shift}. " \
@@ -119,7 +120,8 @@ class FreeEnergyEntrySet(EntrySet, MSONable):
             v: Vasprun = parse_file(Vasprun, Path(d) / vasprun)
             composition = v.final_structure.composition.reduced_formula
             kwargs = {}
-            if parse_gas and composition in Gas.name_list():
+            if parse_gas and composition in Gas.name_list() \
+                    and re.match(r"^mol_", str(d)):
                 if partial_pressures is None:
                     pressure = REFERENCE_PRESSURE
                 else:

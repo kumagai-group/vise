@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+#  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
 import argparse
 from distutils.util import strtobool
 from typing import Union
+import sys
 
 from vise.config import SYMMETRY_TOLERANCE, ANGLE_TOL, KPT_DENSITY
 from vise.custodian_extension.jobs import ViseVaspJob
-from vise.main_function import (
-    get_poscar_from_mp, vasp_set, chempotdiag, plot_band, plot_dos, vasp_run,
-    band_gap)
+from vise.cli.main_function import (
+    get_poscar_from_mp, vasp_set, create_atoms, chempotdiag, plot_band,
+    plot_dos, vasp_run, band_gap)
 from vise.util.logger import get_logger
 from vise.util.main_tools import dict2list, get_user_settings, get_default_args
 from vise.util.mp_tools import make_poscars_from_mp
@@ -31,7 +33,7 @@ setting_keys = ["vasp_cmd",
                 "kpt_density",
                 "initial_kpt_density",
                 "vise_opts",
-                "user_incar_setting",
+                "user_incar_settings",
                 "ldauu",
                 "ldaul",
                 "potcar_set",
@@ -43,22 +45,23 @@ user_settings = get_user_settings(yaml_filename="vise.yaml",
                                   setting_keys=setting_keys)
 
 
-def main():
+def simple_override(d: dict, keys: Union[list, str]) -> None:
+    """Override dict if keys exist in vise.yaml.
 
-    def simple_override(d: dict, keys: Union[list, str]) -> None:
-        """Override dict if keys exist in vise.yaml.
+    When the value in the user_settings is a dict, it will be changed to
+    list using dict2list.
+    """
+    if isinstance(keys, str):
+        keys = [keys]
+    for key in keys:
+        if key in user_settings:
+            v = user_settings[key]
+            if isinstance(v, dict):
+                v = dict2list(v)
+            d[key] = v
 
-        When the value in the user_settings is a dict, it will be changed to
-        list using dict2list.
-        """
-        if isinstance(keys, str):
-            keys = [keys]
-        for key in keys:
-            if key in user_settings:
-                v = user_settings[key]
-                if isinstance(v, dict):
-                    v = dict2list(v)
-                d[key] = v
+
+def parse_args(args):
 
     parser = argparse.ArgumentParser(
         description="""                            
@@ -92,11 +95,11 @@ def main():
     vasp_defaults.update(ViseInputSet.XC_OPTIONS)
     vasp_defaults["potcar_set"] = None
     vasp_defaults["vise_opts"] = None
-    vasp_defaults["user_incar_setting"] = None
+    vasp_defaults["user_incar_settings"] = None
     simple_override(vasp_defaults, ["xc",
                                     "task",
                                     "vise_opts",
-                                    "user_incar_setting",
+                                    "user_incar_settings",
                                     "potcar_set",
                                     "potcar_set_name",
                                     "ldauu",
@@ -112,7 +115,7 @@ def main():
     vasp_parser.add_argument(
         "--potcar_set_name", default=vasp_defaults["potcar_set_name"], type=str,
         nargs="+", help="User specifying POTCAR set name, i.e., normal ,gw, or "
-             "mp_relax_set.")
+              "mp_relax_set.")
     vasp_parser.add_argument(
         "-x", "--xc", default=str(vasp_defaults["xc"]), type=str,
         help="Exchange-correlation (XC) interaction treatment.")
@@ -124,14 +127,17 @@ def main():
         help="Keyword arguments for options in make_input classmethod of "
              "ViseInputSet in vise. See document in vise for details.")
     vasp_parser.add_argument(
-        "-uis", "--user_incar_setting", type=str, nargs="+",
-        default=vasp_defaults["user_incar_setting"],
-        help="user_incar_setting in make_input classmethod of ViseInputSet in "
-             "vise. See document in vise for details.")
+        "-uis", "--user_incar_settings", type=str, nargs="+",
+        default=vasp_defaults["user_incar_settings"],
+        help="user_incar_settings in make_input classmethod of ViseInputSet in "
+             "vise. The default of this flag is set by the vise.yaml, so if one"
+             "does not want to override the default, use "
+             "additional_user_incar_setting instead. See also document in "
+             "vise input_set for details.")
     vasp_parser.add_argument(
-        "-auis", "--additional_user_incar_setting", type=str, nargs="+",
+        "-auis", "--additional_user_incar_settings", type=str, nargs="+",
         default=None,
-        help="Use this if one does not want to override user_incar_setting "
+        help="Use this if one does not want to override user_incar_settings "
              "written in the yaml file")
     vasp_parser.add_argument(
         "-ldauu", type=str, default=vasp_defaults["ldauu"], nargs="+",
@@ -188,24 +194,38 @@ def main():
         "-k", "--kpt_density", default=vs_defaults["kpt_density"], type=float,
         help="K-point density in Angstrom along each direction .")
     parser_vasp_set.add_argument(
-        "-s", "--standardize", action="store_false",
+        "-s", "--standardize", type=strtobool, default=True,
         help="Store if one doesn't want the cell to be transformed to a "
              "primitive cell.")
     parser_vasp_set.add_argument(
-        "-d", "--prev_dir", type=str,
-        help="Inherit input files from the previous directory.")
+        "-pi", "--prior_info", type=strtobool, default=True,
+        help="Whether prior_info.json is read.")
     parser_vasp_set.add_argument(
-        "-c", "--charge", type=int, default=0, help="Supercell charge state.")
+        "-c", "--charge", type=int, help="Charge state.")
     parser_vasp_set.add_argument(
-        "--dirs", nargs="+", type=str, default=None,
+        "--dirs", nargs="+", type=str,
         help="Make vasp set for the directories in the same condition.")
     parser_vasp_set.add_argument(
-        "-npi", "--no_prior_info", dest="prior_info", action="store_false",
-        help="Set if prior_info.json is *not* read although it exists.")
+        "-d", "--prev_dir", type=str,
+        help="Inherit input files from the previous directory.")
 
     del vs_defaults
 
     parser_vasp_set.set_defaults(func=vasp_set)
+
+    # -- create_atoms ----------------------------------------------------------
+    parser_vasp_set = subparsers.add_parser(
+        name="create_elements",
+        parents=[vasp_parser],
+        description="Tools for constructing vasp input set for atoms.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        aliases=['ce'])
+
+    parser_vasp_set.add_argument(
+        "-ms", "--mp_set", action="store_true",
+        help="Set when using the MP set.")
+
+    parser_vasp_set.set_defaults(func=create_atoms)
 
     # -- vasp_run --------------------------------------------------------------
     parser_vasp_run = subparsers.add_parser(
@@ -413,7 +433,11 @@ def main():
         "-o", dest="outcar", type=str, default="OUTCAR", metavar="FILE")
     parser_band_gap.set_defaults(func=band_gap)
 
-    args = parser.parse_args()
+    return parser.parse_args(args)
+
+
+def main():
+    args = parse_args(sys.argv[1:])
     args.func(args)
 
 

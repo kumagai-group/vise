@@ -366,8 +366,9 @@ class ViseVaspJob(VaspJob):
     def __init__(self,
                  vasp_cmd: list,
                  gamma_vasp_cmd: Optional[list] = None,
-#                 ncl_vasp_cmd: Optional[list] = None,
-#                 auto_ncl_vasp: Optional[list] = True,
+                 ncl_vasp_cmd: Optional[list] = None,
+                 auto_gamma_vasp: Optional[list] = True,
+                 auto_ncl_vasp: Optional[list] = True,
                  output_file: str = "vasp.out",
                  stderr_file: str = "std_err.txt",
                  suffix: str = "",
@@ -381,19 +382,19 @@ class ViseVaspJob(VaspJob):
         Args: See docstrings of VaspJob.
         """
         # Should be fine for vasp.5.4.4
-        if gamma_vasp_cmd is None:
+        if auto_gamma_vasp and gamma_vasp_cmd is None:
             gamma_vasp_cmd = vasp_cmd[:-1]
             gamma_vasp_cmd.append(vasp_cmd[-1].replace("std", "gam"))
 
-        # if auto_ncl_vasp:
-        #     incar = Incar.from_file("INCAR")
-        #     ncl_calc = \
-        #         any([incar.get("LNONCOLLINEAR", False), incar.get("LSORBIT")])
-        #     if ncl_calc:
-        #         if ncl_vasp_cmd is None:
-        #             ncl_vasp_cmd = vasp_cmd[:-1]
-        #             ncl_vasp_cmd.append(vasp_cmd[-1].replace("std", "ncl"))
-        #         vasp_cmd = ncl_vasp_cmd
+        if auto_ncl_vasp:
+            incar = Incar.from_file("INCAR")
+            ncl_calc = any([incar.get("LNONCOLLINEAR", False),
+                            incar.get("LSORBIT", False)])
+            if ncl_calc:
+                if ncl_vasp_cmd is None:
+                    ncl_vasp_cmd = vasp_cmd[:-1]
+                    ncl_vasp_cmd.append(vasp_cmd[-1].replace("std", "ncl"))
+                vasp_cmd = ncl_vasp_cmd
 
         # Note that only list instance is accepted for vasp_cmd in VaspJob at
         # ver.2019.8.24.
@@ -417,11 +418,11 @@ class ViseVaspJob(VaspJob):
             for f in VASP_SAVED_FILES | {self.output_file}:
                 if os.path.exists(f):
                     if f in ["PROCAR", "OUTCAR", "vasprun.xml"]:
-                        shutil.move(f, "{}{}".format(f, self.suffix))
+                        shutil.move(f, f"{f}{self.suffix}")
                     else:
-                        shutil.copy(f, "{}{}".format(f, self.suffix))
+                        shutil.copy(f, f"{f}{self.suffix}")
 
-        # Remove continuation so if a subsequent job is run in
+        # Remove continue.json if a subsequent job is run in
         # the same directory, will not restart this job.
         if os.path.exists("continue.json"):
             os.remove("continue.json")

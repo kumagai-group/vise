@@ -2,6 +2,7 @@
 
 import unittest
 import numpy as np
+from unittest.mock import patch
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.sites import Element
@@ -89,6 +90,18 @@ class TestChemPotDiag(ViseTest):
     @unittest.skipIf(DISABLE_DISPLAY_DIAGRAM, "not display chempotdiag")
     def test_cpd_2d_draw(self):
         self.cpd_2d.draw_diagram()
+
+    def test_cpd_2d_draw_show(self):
+        path = "vise.chempotdiag.chem_pot_diag.plt.show"
+        with patch(path) as show_patch:
+            self.cpd_2d.draw_diagram()
+            assert show_patch.called
+
+    def test_cpd_2d_draw_savefig(self):
+        path = "vise.chempotdiag.chem_pot_diag.plt.savefig"
+        with patch(path) as show_patch:
+            self.cpd_2d.draw_diagram(filename="a.pdf")
+            show_patch.assert_called_once_with("a.pdf")
 
     def test_cpd_3d(self):
         self.assertEqual([Element.Ca, Element.Mg, Element.O],

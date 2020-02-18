@@ -75,7 +75,7 @@ O2,0,2.0,-112
 
     def test_from_vasp_files(self):
         paths = [Path(".") / "vasp_Mg",
-                 Path(".") / "vasp_O2",
+                 Path(".") / "mol_O2",
                  Path(".") / "vasp_MgO"]
         entry_set = FreeEnergyEntrySet.from_vasp_files(paths,
                                                        parse_gas=True,

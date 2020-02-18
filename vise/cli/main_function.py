@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
+#  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
+from argparse import Namespace
 from copy import deepcopy
 from itertools import chain
 import os
@@ -32,33 +34,11 @@ from vise.util.main_tools import potcar_str2dict, list2dict
 from vise.util.mp_tools import make_poscars_from_mp
 
 
-__author__ = "Yu Kumagai"
-__maintainer__ = "Yu Kumagai"
-
 logger = get_logger(__name__)
 
 
-def get_poscar_from_mp(args):
-    if args.number:
-        s = MPRester().get_structure_by_material_id(f"mp-{args.number}")
-        s.to(filename=args.poscar)
-        return True
-
-    if args.elements:
-        make_poscars_from_mp(elements=args.elements,
-                             e_above_hull=args.e_above_hull,
-                             molecules=args.molecules)
-        return True
-
-    logger.warning("Set mp number or elements")
-    return False
-
-
-def vasp_set(args):
-    if args.print_json:
-        vis = ViseInputSet.load_json(args.print_json)
-        print(vis)
-        return
+def vasp_setting_from_args(args: Namespace):
+    """Generate vasp input settings from the given args."""
 
     flags = [str(s) for s in list(Element)]
     ldauu = list2dict(args.ldauu, flags)
@@ -66,32 +46,57 @@ def vasp_set(args):
     potcar_set = potcar_str2dict(args.potcar_set)
     task = Task.from_string(args.task)
     xc = Xc.from_string(args.xc)
-
-    vise_base_kwargs = {"kpt_density": args.kpt_density,
-                        "standardize_structure": args.standardize,
-                        "potcar_set_name": args.potcar_set_name,
-                        "ldauu": ldauu,
-                        "ldaul": ldaul}
-
     key_candidates = list(ViseInputSet.ALL_OPTIONS.keys())
-    vise_base_kwargs.update(list2dict(args.vise_opts, key_candidates))
-
+    vis_base_kwargs = list2dict(args.vise_opts, key_candidates)
     key_candidates = list(chain.from_iterable(incar_flags.values()))
-    base_user_incar_settings = list2dict(args.user_incar_setting,
-                                         key_candidates)
-    if args.additional_user_incar_setting:
-        d = list2dict(args.additional_user_incar_setting, key_candidates)
-        base_user_incar_settings.update(d)
+    user_incar_settings = list2dict(args.user_incar_settings, key_candidates)
 
-    original_dir = os.getcwd()
-    dirs = args.dirs or ["."]
+    if args.additional_user_incar_settings:
+        d = list2dict(args.additional_user_incar_settings, key_candidates)
+        user_incar_settings.update(d)
+    vis_base_kwargs.update({"potcar_set_name": args.potcar_set_name,
+                            "override_potcar_set": potcar_set,
+                            "ldauu": ldauu,
+                            "ldaul": ldaul})
+
+    return user_incar_settings, vis_base_kwargs, task, xc
+
+
+def get_poscar_from_mp(args: Namespace) -> None:
+    if getattr(args, "number", None):
+        s = MPRester().get_structure_by_material_id(f"mp-{args.number}")
+        s.to(filename=args.poscar)
+    elif getattr(args, "elements", None):
+        make_poscars_from_mp(elements=args.elements,
+                             e_above_hull=args.e_above_hull,
+                             molecules=args.molecules)
+    else:
+        print("aaaaaaa")
+        logger.warning("Set mp number or elements")
+
+
+def vasp_set(args: Namespace) -> None:
+    if args.print_json:
+        vis = ViseInputSet.load_json(args.print_json)
+        print(vis)
+        return
+
+    base_user_incar_settings, vis_base_kwargs, task, xc = \
+        vasp_setting_from_args(args)
+
+    vis_base_kwargs.update({"kpt_density": args.kpt_density,
+                            "standardize_structure": args.standardize})
+
+    started_dir = os.getcwd()
+    dirs = getattr(args, "dirs", ".")
 
     for d in dirs:
         d = Path.cwd() / d
         os.chdir(d)
         logger.info(f"Constructing vasp set in {d}")
         user_incar_settings = deepcopy(base_user_incar_settings)
-        kwargs = deepcopy(vise_base_kwargs)
+        kwargs = deepcopy(vis_base_kwargs)
+        kwargs["charge"] = getattr(args, "charge", 0)
 
         if args.prior_info:
             yaml_file = d / "prior_info.yaml"
@@ -109,11 +114,12 @@ def vasp_set(args):
                     user_incar_settings.update(prior_info.incar)
 
         if args.prev_dir:
+            logger.warning("user_incar_settings is not used when using "
+                           "previous calculation.")
             files = {"CHGCAR": "C", "WAVECAR": "M", "WAVEDER": "M"}
             input_set = ViseInputSet.from_prev_calc(args.prev_dir,
                                                     task=task,
                                                     xc=xc,
-                                                    charge=args.charge,
                                                     files_to_transfer=files,
                                                     **kwargs)
         else:
@@ -122,17 +128,19 @@ def vasp_set(args):
                 ViseInputSet.make_input(structure=s,
                                         task=task,
                                         xc=xc,
-                                        charge=args.charge,
                                         user_incar_settings=user_incar_settings,
-                                        override_potcar_set=potcar_set,
                                         **kwargs)
 
         input_set.write_input(".")
 
-    os.chdir(original_dir)
+    os.chdir(started_dir)
 
 
-def vasp_run(args):
+def create_atoms(args) -> None:
+    pass
+
+
+def vasp_run(args) -> None:
 
     if args.print:
         if args.kpoint_conv:
@@ -145,7 +153,6 @@ def vasp_run(args):
             print(str_opt)
         return
 
-    # TODO: implement a way to use different type of vasp (vasp_ncl, e.g.)
     if isinstance(args.vasp_cmd, str):
         vasp_cmd = args.vasp_cmd.split()
     elif isinstance(args.vasp_cmd, list):
@@ -156,18 +163,13 @@ def vasp_run(args):
     else:
         raise NoVaspCommandError("Vasp command must be specified properly.")
 
-    flags = list(chain.from_iterable(incar_flags.values()))
-    user_incar_settings = list2dict(args.user_incar_setting, flags)
-    if args.additional_user_incar_setting:
-        key_candidates = list(chain.from_iterable(incar_flags.values()))
-        d = list2dict(args.additional_user_incar_setting, key_candidates)
-        user_incar_settings.update(d)
+    user_incar_settings, vis_kwargs, task, xc = vasp_setting_from_args(args)
 
     handlers = handler_group(args.handler_name, timeout=args.timeout)
 
     optimization_args = {"vasp_cmd": vasp_cmd,
-                         "removes_wavecar": args.rm_wavecar,
                          "max_relax_num": args.max_relax_num,
+                         "removes_wavecar": args.rm_wavecar,
                          "left_files": args.left_files,
                          "removed_files": ["PCDAT", "vasprun.xml"],
                          "symprec": args.symprec,
@@ -182,10 +184,11 @@ def vasp_run(args):
     if args.kpoint_conv:
         custodian_args["jobs"] = ViseVaspJob.kpt_converge(
             xc=args.xc,
+            task=task,
             convergence_criterion=args.convergence_criterion,
             initial_kpt_density=args.initial_kpt_density,
             user_incar_settings=user_incar_settings,
-            **optimization_args)
+            **optimization_args, **vis_kwargs)
     else:
         custodian_args["jobs"] = ViseVaspJob.structure_optimization_run(
             **optimization_args)
@@ -194,7 +197,7 @@ def vasp_run(args):
     c.run()
 
 
-def chempotdiag(args):
+def chempotdiag(args) -> None:
     if args.elements:
         entry_set = FreeEnergyEntrySet.from_mp(args.elements)
     else:
@@ -221,7 +224,7 @@ def chempotdiag(args):
     cpd.draw_diagram(filename=args.filename)
 
 
-def plot_band(args):
+def plot_band(args) -> None:
     p = PrettyBSPlotter.from_vasp_files(kpoints_filenames=args.kpoints,
                                         vasprun_filenames=args.vasprun,
                                         vasprun2_filenames=args.vasprun2,
@@ -234,7 +237,7 @@ def plot_band(args):
     p.show(args.filename, format_type="pdf")
 
 
-def plot_dos(args):
+def plot_dos(args) -> None:
     dos = get_dos_plot(vasprun_file=args.vasprun,
                        cbm_vbm=args.cbm_vbm,
                        pdos_type=args.pdos_type,
@@ -251,7 +254,7 @@ def plot_dos(args):
     dos.savefig(args.filename, format="pdf")
 
 
-def band_gap(args):
+def band_gap(args) -> None:
     v = BSVasprun(args.vasprun)
     o = Outcar(args.outcar)
     try:
