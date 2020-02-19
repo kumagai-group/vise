@@ -37,6 +37,29 @@ class ViseVaspErrorHandler(orig_handlers.VaspErrorHandler):
                          natoms_large_cell=natoms_large_cell,
                          errors_subset_to_catch=ViseVaspErrorHandler.error_msgs)
 
+    def check(self):
+        incar = Incar.from_file("INCAR")
+        self.errors = set()
+        error_msgs = set()
+        with open(self.output_filename, "r") as f:
+            for line in f:
+                l = line.strip()
+                for err, msgs in error_msgs.items():
+                    if err in self.errors_subset_to_catch:
+                        for msg in msgs:
+                            if l.find(msg) != -1:
+                                # this checks if we want to run a charged
+                                # computation (e.g., defects) if yes we don't
+                                # want to kill it because there is a change in
+                                # e-density (brmix error)
+                                if err == "brmix" and 'NELECT' in incar:
+                                    continue
+                                self.errors.add(err)
+                                error_msgs.add(msg)
+        for msg in error_msgs:
+            self.logger.error(msg, extra={"incar": incar.as_dict()})
+        return len(self.errors) > 0
+
     def correct(self):
 
         backup(orig_handlers.VASP_BACKUP_FILES | {self.output_filename})
