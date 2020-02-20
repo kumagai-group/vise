@@ -203,7 +203,7 @@ def chempotdiag(args: Namespace) -> None:
         entry_set = FreeEnergyEntrySet.from_mp(args.elements)
     else:
         entry_set = FreeEnergyEntrySet.from_vasp_files(
-            directory_paths=args.dirs,
+            directory_paths=args.vasp_dirs,
             vasprun=args.vasprun,
             parse_gas=args.parse_gas,
             temperature=args.temperature,
@@ -214,11 +214,12 @@ def chempotdiag(args: Namespace) -> None:
 
     if args.draw_phase_diagram:
         pd_plotter = PDPlotter(pd)
-        if args.pd_filename:
-            image_format = args.pd_filename.split(".")[-1]
+        if args.filename:
+            image_format = args.filename.split(".")[-1]
             pd_plotter.write_image(args.pd_filename, image_format)
         else:
             pd_plotter.show()
+        return
 
     cpd = ChemPotDiag.from_phase_diagram(pd, target_comp=args.target_comp)
     cpd.to_json_file()

@@ -24,24 +24,24 @@ from vise.config import KPT_DENSITY
 logger = get_logger(__name__)
 
 
-# prec = {"symprec": 0.1,
-#         "angle_tolerance": 5}
-# vasp = {"task": "band",
-#         "xc": "hse",
-#         "ldauu": ["Mn", "5", "O", "3"],
-#         "ldaul": ["Mn", "3", "O", "2"],
-#         "vise_opts": ["only_even", "True"],
-#         "user_incar_settings": ["POTIM", "0.4"],
-#         "additional_user_incar_settings": ["ALGO", "Fast"],
-#         "potcar_set": ["Mn_pv"],
-#         "potcar_set_name": "normal",
-#         "charge": 1}
 vasp_args = default_vasp_args
 
 
 class VaspSymprecSettingsFromArgsTest(ViseTest):
     def setUp(self) -> None:
-        self.args = Namespace(**vasp_args, **symprec_args)
+        prec = {"symprec": 0.1,
+                "angle_tolerance": 5}
+        vasp = {"task": "band",
+                "xc": "hse",
+                "ldauu": ["Mn", "5", "O", "3"],
+                "ldaul": ["Mn", "3", "O", "2"],
+                "vise_opts": ["only_even", "True"],
+                "user_incar_settings": ["POTIM", "0.4"],
+                "additional_user_incar_settings": ["ALGO", "Fast"],
+                "potcar_set": ["Mn_pv"],
+                "potcar_set_name": "normal",
+                "charge": 1}
+        self.args = Namespace(**vasp, **prec)
 
     def test(self):
         user_incar_settings, vis_base_kwargs, task, xc = \
@@ -190,33 +190,55 @@ class VaspRunTest(ViseTest):
 
 class TestChemPotDiag(ViseTest):
     def setUp(self) -> None:
-        self.from_mp_pd_filename = {"poscar": "POSCAR",
-                                   "kpt_density": KPT_DENSITY,
-                                   "standardize_structure": True,
-                                   "prior_info": True,
-                                   }
-        self.args_print = Namespace(json="vasp_input_set.json",
-                                    **self.min_default_kwargs,
-                                    **vasp_args, **symprec_args)
-        self.prev_dir = "a"
-        self.args_prev = Namespace(json=None,
-                                   prev_dir=self.prev_dir,
-                                   **self.min_default_kwargs,
-                                   **vasp_args, **symprec_args)
+        self.kwargs_1 = {
+            "draw_phase_diagram": True,
+            "vasp_dirs": None,
+            "vasprun": None,
+            "elements": ["Mg", "O"],
+            "target_comp": "MgO",
+            "filename": None,
+            "parse_gas": True,
+            "partial_pressures": ["O", "1e+5"],
+            "temperature": 1000.0}
 
-        self.args_normal = Namespace(json=None,
-                                     **self.min_default_kwargs,
-                                     dirs=["."],
-                                     prev_dir=None,
-                                     **vasp_args, **symprec_args)
+        self.from_mp_pd_filename = Namespace(**self.kwargs_1)
 
+        self.kwargs_2 = {
+            "draw_phase_diagram": False,
+            "vasp_dirs": ["a_dir", "b_dir"],
+            "vasprun": "vasprun.xml.finish",
+            "elements": None,
+            "target_comp": "MgO",
+            "filename": "cpd.pdf",
+            "parse_gas": False,
+            "partial_pressures": ["O", "1e+5"],
+            "temperature": 0.0}
 
-    @patch('vise.cli.main_function.ChemPotDiag.from_phase_diagram')
+        self.from_dir_cpd = Namespace(**self.kwargs_2)
+
     @patch('vise.cli.main_function.PDPlotter')
     @patch('vise.cli.main_function.PhaseDiagram')
     @patch('vise.cli.main_function.FreeEnergyEntrySet.from_mp')
-    def test_elements(self, mock_entry_set, mock_pd, mock_pd_plotter, mock_cpd):
-        pass
+    def test_from_mp_pd_filename(self, mock_entry_set, mock_pd, mock_pd_plot):
+        chempotdiag(self.from_mp_pd_filename)
+        mock_entry_set.assert_called_with(self.kwargs_1["elements"])
+        mock_pd.assert_called_with(entries=mock_entry_set().entries)
+        mock_pd_plot.assert_called_with(mock_pd())
+
+    @patch('vise.cli.main_function.ChemPotDiag.from_phase_diagram')
+    @patch('vise.cli.main_function.PhaseDiagram')
+    @patch('vise.cli.main_function.FreeEnergyEntrySet.from_vasp_files')
+    def test_from_dir_cpd(self, mock_entry_set, mock_pd, mock_cpd):
+        chempotdiag(self.from_dir_cpd)
+        mock_entry_set.assert_called_with(
+            directory_paths=self.kwargs_2["vasp_dirs"],
+            vasprun=self.kwargs_2["vasprun"],
+            parse_gas=self.kwargs_2["parse_gas"],
+            temperature=self.kwargs_2["temperature"],
+            partial_pressures=self.kwargs_2["partial_pressures"])
+        mock_pd.assert_called_with(entries=mock_entry_set().entries)
+        mock_cpd.assert_called_with(mock_pd(),
+                                    target_comp=self.kwargs_2["target_comp"])
 
 
 class TestPlotBand(ViseTest):
