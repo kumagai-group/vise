@@ -7,7 +7,7 @@ from distutils.util import strtobool
 from typing import Union
 import sys
 
-from vise.config import SYMMETRY_TOLERANCE, ANGLE_TOL, KPT_DENSITY
+from vise.config import SYMMETRY_TOLERANCE, ANGLE_TOL, KPT_DENSITY, TIMEOUT
 from vise.custodian_extension.jobs import ViseVaspJob
 from vise.cli.main_function import (
     get_poscar_from_mp, vasp_set, create_atoms, chempotdiag, plot_band,
@@ -16,6 +16,7 @@ from vise.util.logger import get_logger
 from vise.util.main_tools import dict2list, get_user_settings, get_default_args
 from vise.util.mp_tools import make_poscars_from_mp
 from vise.input_set.input_set import ViseInputSet
+from vise.util.tools import str2bool
 
 __author__ = "Yu Kumagai"
 __maintainer__ = "Yu Kumagai"
@@ -39,10 +40,8 @@ setting_keys = ["vasp_cmd",
                 "potcar_set",
                 "potcar_set_name",
                 "relax_iter_num",
-                "removed_files"]
-
-user_settings = get_user_settings(yaml_filename="vise.yaml",
-                                  setting_keys=setting_keys)
+                "removed_files",
+                "timeout"]
 
 
 def simple_override(d: dict, keys: Union[list, str]) -> None:
@@ -51,8 +50,14 @@ def simple_override(d: dict, keys: Union[list, str]) -> None:
     When the value in the user_settings is a dict, it will be changed to
     list using dict2list.
     """
+    user_settings, yaml_path = get_user_settings(yaml_filename="vise.yaml",
+                                                 setting_keys=setting_keys)
+    if user_settings:
+        logger.info(f"vise.yaml at {yaml_path} is load.")
+
     if isinstance(keys, str):
         keys = [keys]
+
     for key in keys:
         if key in user_settings:
             v = user_settings[key]
@@ -114,8 +119,7 @@ def parse_args(args):
         help="User specifying POTCAR set. E.g., Mg_pv O_h")
     vasp_parser.add_argument(
         "--potcar_set_name", default=vasp_defaults["potcar_set_name"], type=str,
-        nargs="+", help="User specifying POTCAR set name, i.e., normal ,gw, or "
-              "mp_relax_set.")
+        help="User specifying POTCAR set, i ie. normal ,gw, or mp_relax_set.")
     vasp_parser.add_argument(
         "-x", "--xc", default=str(vasp_defaults["xc"]), type=str,
         help="Exchange-correlation (XC) interaction treatment.")
@@ -140,11 +144,13 @@ def parse_args(args):
         help="Use this if one does not want to override user_incar_settings "
              "written in the yaml file")
     vasp_parser.add_argument(
-        "-ldauu", type=str, default=vasp_defaults["ldauu"], nargs="+",
+        "--ldauu", type=str, default=vasp_defaults["ldauu"], nargs="+",
         help="Dict of LDAUU values")
     vasp_parser.add_argument(
-        "-ldaul", type=str, default=vasp_defaults["ldaul"], nargs="+",
+        "--ldaul", type=str, default=vasp_defaults["ldaul"], nargs="+",
         help="Dict of LDAUL values.")
+    vasp_parser.add_argument(
+        "-c", "--charge", type=float, help="Charge state.")
 
     # -- get_poscars -----------------------------------------------------------
     parser_get_poscar = subparsers.add_parser(
@@ -168,7 +174,7 @@ def parse_args(args):
         "--e_above_hull", type=float, default=gp_defaults["e_above_hull"],
         help="Collect materials with this hull energy in eV/atom.")
     parser_get_poscar.add_argument(
-        "--molecules", type=strtobool, default=gp_defaults["molecules"],
+        "--molecules", type=str2bool, default=gp_defaults["molecules"],
         help="Whether one doesn't want to replace pmg structures to molecules.")
 
     parser_get_poscar.set_defaults(func=get_poscar_from_mp)
@@ -185,8 +191,8 @@ def parse_args(args):
     simple_override(vs_defaults, ["kpt_density"])
 
     parser_vasp_set.add_argument(
-        "--pj", dest="print_json", type=str,
-        help="Print the ViseInputSet info from the given json file.")
+        "--json", type=str,
+        help="Json file name for printing the ViseInputSet info.")
     parser_vasp_set.add_argument(
         "-p", "--poscar", default="POSCAR", type=str,
         help="POSCAR-type file name.")
@@ -194,14 +200,12 @@ def parse_args(args):
         "-k", "--kpt_density", default=vs_defaults["kpt_density"], type=float,
         help="K-point density in Angstrom along each direction .")
     parser_vasp_set.add_argument(
-        "-s", "--standardize", type=strtobool, default=True,
+        "-s", "--standardize_structure", type=str2bool, default=True,
         help="Store if one doesn't want the cell to be transformed to a "
              "primitive cell.")
     parser_vasp_set.add_argument(
-        "-pi", "--prior_info", type=strtobool, default=True,
-        help="Whether prior_info.json is read.")
-    parser_vasp_set.add_argument(
-        "-c", "--charge", type=int, help="Charge state.")
+        "-pi", "--prior_info", type=str2bool, default=True,
+        help="Whether to use prior_info.json when it exists.")
     parser_vasp_set.add_argument(
         "--dirs", nargs="+", type=str,
         help="Make vasp set for the directories in the same condition.")
@@ -237,49 +241,48 @@ def parse_args(args):
 
     vr_defaults = get_default_args(ViseVaspJob.kpt_converge)
     vr_defaults["vasp_cmd"] = None
+    vr_defaults["timeout"] = TIMEOUT
 
     simple_override(vr_defaults, ["vasp_cmd",
                                   "initial_kpt_density"
+                                  "timeout",
                                   "relax_iter_num",
                                   "convergence_criterion"])
 
     parser_vasp_run.add_argument(
-        "--print", action="store_true",
-        help="Print the structure_opt.json or kpt_conv.json (if -kc is set) "
-             "info.")
+        "-kc", "--kpoint_conv", action="store_true",
+        help="Set if k-point convergence is checked.")
     parser_vasp_run.add_argument(
-        "--json_file", default=None, type=str, help="Json file name.")
+        "--json_file", default=None, type=str,
+        help="Print structure_opt.json or kpt_conv.json (if -kc is set) info.")
     parser_vasp_run.add_argument(
         "-v", "--vasp_cmd", nargs="+", type=str,
         default=vr_defaults["vasp_cmd"],
         help="VASP command. If you are using mpirun, set this to something "
              "like \"mpirun pvasp\".",)
     parser_vasp_run.add_argument(
-        "-ikd", "-initial_kpt_density", type=float,
+        "-ikd", "--initial_kpt_density", type=float,
         default=vr_defaults["initial_kpt_density"],
         help="Initial k-point density.")
     parser_vasp_run.add_argument(
-        "-handler_name", type=str, default="default",
+        "--handler_name", type=str, default="default",
         help="Custodian error handler name listed in error_handlers.")
     parser_vasp_run.add_argument(
-        "-timeout", type=int, default=518400,
+        "--timeout", type=int, default=vr_defaults["timeout"],
         help="Timeout used in TooLongTimeCalcErrorHandler.")
     parser_vasp_run.add_argument(
-        "--remove_wavecar", dest="rm_wavecar", action="store_true",
+        "--remove_wavecar", action="store_true",
         help="Remove WAVECAR file after the calculation is finished.")
     parser_vasp_run.add_argument(
         "--max_relax_num", default=vr_defaults["max_relax_num"], type=int,
         help="Maximum number of relaxations.")
     parser_vasp_run.add_argument(
-        "-criteria", dest="convergence_criterion",
+        "--criterion", dest="convergence_criterion",
         default=vr_defaults["convergence_criterion"], type=float,
         help="Convergence criterion of kpoints in eV / atom.")
     parser_vasp_run.add_argument(
         "--left_files", type=str, nargs="+", default=vr_defaults["left_files"],
         help="Filenames that are left at the calculation directory.")
-    parser_vasp_run.add_argument(
-        "-kc", "--kpoint_conv", action="store_true",
-        help="Set if k-point convergence is checked.")
 
     del vr_defaults
     parser_vasp_run.set_defaults(func=vasp_run)
@@ -297,50 +300,34 @@ def parse_args(args):
     #     "-e", "--energy", dest="energy_csv", type=str, default=None,
     #     help="Name of csv file of energies of compounds")
     parser_cpd.add_argument(
-        "-d", "--vasp_dirs", dest="dirs", type=str, nargs='+', default=None,
+        "-dpd", "--draw_phase_diagram", action="store_true",
+        help="set when drawing the phase diagram.")
+    parser_cpd.add_argument(
+        "-d", "--vasp_dirs", type=str, nargs='+',
         help="Drawing diagram from specified directories of vasp calculations")
     parser_cpd.add_argument(
-        "-v", dest="vasprun", default="vasprun.xml.finish", type=str)
+        "-v", "--vasprun", default="vasprun.xml", type=str)
     parser_cpd.add_argument(
         "-e", "--elements", type=str, nargs="+",
         help="Element names. Obtain the total energies from the MP.")
     parser_cpd.add_argument(
-        "-c", "--target_comp", type=str, default=None,
+        "-c", "--target_comp", type=str,
         help="Target compound focused for post process such as defect "
              "calculations.")
     parser_cpd.add_argument(
-        "-f", dest="filename", type=str, default=None, help="pdf file name.")
+        "-f", dest="filename", type=str, help="Saved pdf file name.")
     parser_cpd.add_argument(
-        "-dpd", "--draw_phase_diagram", action="store_true",
-        help="set when drawing the phase diagram.")
-    parser_cpd.add_argument(
-        "-pdf", "--pd_filename", type=str, default=None,
-        help="Phase diagram filename.")
-    parser_cpd.add_argument(
-        "-pg", "--parse_gas", type=strtobool, default=True,
+        "-pg", "--parse_gas", type=str2bool, default=True,
         help="Whether to parse results as gas for gas phases.")
-    parser_cpd.add_argument("-pp", "--partial_pressures",
-                            dest="partial_pressures", type=str,
-                            nargs='+', default=None,
-                            help="partial pressure of system. "
-                                 "e.g. -pp O2 1e+5 N2 20000 "
-                                 "-> O2: 1e+5(Pa), N2: 20000(Pa)")
-    parser_cpd.add_argument("-t", "--temperature",
-                            dest="temperature", type=float,
-                            default=0,
-                            help="temperature of system (unit: K)"
-                                 "e.g. -t 3000 -> 3000(K)")
-
-    # parser_cpd.add_argument("-es", "--energy_shift", type=str,
-    #                     dest="energy_shift",
-    #                     nargs='+', default=None,
-    #                     help="Energy shift, "
-    #                          "e.g. -es N2/molecule 1 "
-    #                          "-> make more unstable N2/molecule "
-    #                          "by 1 eV")
+    parser_cpd.add_argument(
+        "-pp", "--partial_pressures", type=str, nargs='+',
+        help="partial pressure of system in Pa. "
+             "Example: -pp O2 1e+5 N2 20000 -> O2: 1e+5(Pa), N2: 20000(Pa)")
+    parser_cpd.add_argument(
+        "-t", "--temperature", type=float, default=0.0,
+        help="temperature of system in K.")
 
     # thermodynamic status (P and T) input
-
     # # output
     # parser_cpd.add_argument("-y", "--yaml",
     #                     action="store_const", const=True,
@@ -396,27 +383,28 @@ def parse_args(args):
     parser_plot_dos.add_argument(
         "-s", dest="specific", type=str, nargs="+", default=None, help=".")
     parser_plot_dos.add_argument(
-        "-o", dest="orbital", action="store_false",
-        help="Switch off the orbital decomposition.")
+        "-o", dest="orbital", type=strtobool, default=True,
+        help="Whether to decompose orbital components.")
     parser_plot_dos.add_argument(
-        "-x", dest="x_range", nargs="+", type=float, default=None,
+        "-x", "--x_range", nargs="+", type=float, default=None,
         help="Set energy minimum and maximum.")
     parser_plot_dos.add_argument(
-        "-y", dest="ymaxs", nargs="+", type=float, default=None,
+        "-y", "--ymaxs", nargs="+", type=float, default=None,
         help="Set max values of y ranges. Support two ways."
              "1st: total_max, all_the_atoms" 
              "2nd: total_max, 1st_atom, 2nd_atom, ...")
     parser_plot_dos.add_argument(
         "-f", dest="filename", type=str, default="dos.pdf",
-        help="pdf file name.")
+        help="Pdf file name.")
     parser_plot_dos.add_argument(
-        "-a", dest="absolute", action="store_true",
-        help="Show in the absolute energy scale.")
+        "-a", "--absolute", action="store_true",
+        help="Set when showing the figure in the absolute energy scale.")
     parser_plot_dos.add_argument(
-        "-l", dest="legend", action="store_false",
-        help="Not show the legend.")
+        "-l", "--legend", type=strtobool, default=True,
+        help="Whether to show the figure legend.")
     parser_plot_dos.add_argument(
-        "-c", action="store_false", help="Not crop the first value.")
+        "-c", "--crop_first_value", type=strtobool, default=True,
+        help="Whether to crop the first value in DOS.")
 
     parser_plot_dos.set_defaults(func=plot_dos)
 
@@ -428,9 +416,9 @@ def parse_args(args):
         aliases=['bg'])
 
     parser_band_gap.add_argument(
-        "-v", dest="vasprun", type=str, default="vasprun.xml", metavar="FILE")
+        "-v", "--vasprun", type=str, default="vasprun.xml", metavar="FILE")
     parser_band_gap.add_argument(
-        "-o", dest="outcar", type=str, default="OUTCAR", metavar="FILE")
+        "-o", "--outcar", type=str, default="OUTCAR", metavar="FILE")
     parser_band_gap.set_defaults(func=band_gap)
 
     return parser.parse_args(args)

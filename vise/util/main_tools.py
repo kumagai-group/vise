@@ -1,25 +1,32 @@
 # -*- coding: utf-8 -*-
 
-import re
+from distutils.util import strtobool
 from inspect import signature, _empty
 from pathlib import Path
-from typing import Optional, Callable
-
+import re
+from typing import Optional, Callable, List, Union, Tuple
 import yaml
+
 from pydefect.util.tools import is_str_int, is_str_digit
+from pymatgen.core.periodic_table import Element
 
 
-def potcar_str2dict(potcar_list: Optional[str]) -> dict:
-    """Sanitize the string type potcar setting to dict.
+def potcar_str2dict(potcar_list: Union[str, List[str], None]) -> dict:
+    """Sanitize potcar names to dict.
 
-    An example is "Mg_pv O_h" -> {"Mg": "Mg_pv", "O": "O_h"}
     If potcar_list is None, {} is returned.
+    Examples
+        ["Mg_pv", O_h"] -> {"Mg": "Mg_pv", "O": "O_h"}
+        "Mg_pv" -> {"Mg": "Mg_pv"}
+        None -> {}
 
     Args:
-         potcar_list (str/None):
+         potcar_list (str/list/None):
+            List of Potcar names or a name, including element names before the
+            hyphen.
 
     Returns:
-         Dictionary of potcar types.
+         Dictionary with element names as keys and potcar names as values.
     """
     if potcar_list is None:
         return {}
@@ -32,25 +39,35 @@ def potcar_str2dict(potcar_list: Optional[str]) -> dict:
         if element in d:
             raise ValueError("Multiple POTCAR files for an element are not "
                              "supported yet.")
+        try:
+            Element(element)
+        except ValueError:
+            raise ValueError(f"First part of POTCAR file name {p} is not an "
+                             f"element supported yet.")
+
         d[element] = p
     return d
 
 
 def list2dict(flattened_list: Optional[list], key_candidates: list) -> dict:
-    """Sanitize the list to dict with keys in the flags
+    """Sanitize a list to a dict with keys in the flags
 
-    If a string in l does not exist in key_candidates, raise ValueError.
+    If a string in list does not exist in key_candidates, raise ValueError.
 
-    key_candidates = ["ENCUT", "MAGMOM", "LWAVE", ...]
-    list2dict(["ENCUT", "500", "MAGMOM", "4", "4", "LWAVE", "F"]) =
-                        {"ENCUT": 500, "MAGMOM": [4, 4], "LWAVE": False}
+    Examples:
+        flattened_list = ["ENCUT", "500", "MAGMOM", "4", "4", "LWAVE", "F"]
+        key_candidates = ["ENCUT", "MAGMOM", "LWAVE", ...]
+        list2dict(flattened_list, key_candidates) =
+                            {"ENCUT": 500, "MAGMOM": [4, 4], "LWAVE": False}
 
-    arg_list = ["ENCUT", "500", "MAGMAM", "4", "4"]
-    raise ValueError
+        flattened_list = ["ENCUT", "500", "MAGMAM", "4", "4"]
+        list2dict(flattened_list, key_candidates) raises ValueError
 
     Args:
-        flattened_list (list): Input list
-        key_candidates (list): List of key candidates, e.g., INCAR flags.
+        flattened_list (list):
+            Input list.
+        key_candidates (list):
+            List of key candidates, e.g., INCAR flags.
 
     Returns:
         Sanitized dict
@@ -58,16 +75,13 @@ def list2dict(flattened_list: Optional[list], key_candidates: list) -> dict:
     flattened_list = flattened_list or []
 
     d = {}
-    key = None
+    key = None  # key is None at the beginning or after inserting a value.
     value_list = []
 
     def insert():
         if not value_list:
             raise ValueError(f"Invalid input: {flattened_list}.")
-        if len(value_list) == 1:
-            d[key] = value_list[0]
-        else:
-            d[key] = value_list
+        d[key] = value_list[0] if len(value_list) == 1 else value_list
 
     for string in flattened_list:
         if key is None and string not in key_candidates:
@@ -79,16 +93,15 @@ def list2dict(flattened_list: Optional[list], key_candidates: list) -> dict:
                 value_list = []
             key = string
         else:
-            if string.lower() == "true" or string == "T":
-                value = True
-            elif string.lower() == "false" or string == "F":
-                value = False
-            elif is_str_int(string):
-                value = int(string)
-            elif is_str_digit(string):
-                value = float(string)
-            else:
-                value = string
+            try:
+                value = strtobool(string)
+            except ValueError:
+                if is_str_int(string):
+                    value = int(string)
+                elif is_str_digit(string):
+                    value = float(string)
+                else:
+                    value = string
 
             value_list.append(value)
     else:
@@ -99,20 +112,21 @@ def list2dict(flattened_list: Optional[list], key_candidates: list) -> dict:
 
 
 def dict2list(d: dict) -> list:
-    """Sanitize the string type potcar setting to dict.
+    """Flatten dict to list w/ string keys. String is also separated by space.
 
-    The string is also separated by space. An example is
-    dict2list({"a": 1, "b": "2 3 4", "c": True}) =
+    Example:
+        dict2list({"a": 1, "b": "2 3 4", "c": True}) =
                                  ["a", "1", "b", "2", "3", "4", "c", "True"]
 
     Args:
-         d (dict)
+         d (dict):
+            Input dict.
 
     Returns:
-         List of flattened dict
+         List of flattened dict.
     """
 
-    d = d if d else {}
+    d = d or {}
     flattened_list = []
     for k, v in d.items():
         flattened_list.append(k)
@@ -125,7 +139,7 @@ def dict2list(d: dict) -> list:
 
 
 def get_user_settings(yaml_filename: str,
-                      setting_keys: list) -> dict:
+                      setting_keys: list) -> Tuple[dict, Optional[Path]]:
     """Get the user specifying settings written in yaml_filename
 
     Note1: The yaml_filename is explored in the parent folders up to home
@@ -133,8 +147,8 @@ def get_user_settings(yaml_filename: str,
            dictionary is returned.
     Note2: When the key includes "/", the absolute path is added as a prefix.
            E.g., unitcell/unitcell.json -> /something/../unitcell/unitcell.json
-    Note3: The value of "potcar_set: Mg_pv O_h" is "Mg_pv O_h" string, which
-           is suited when used for main default value.
+    Note3: The value of "potcar_set: Mg_pv O_h" is string of  "Mg_pv O_h", which
+           is suited for main default value.
 
     Args:
         yaml_filename (str):
@@ -144,7 +158,7 @@ def get_user_settings(yaml_filename: str,
             ValueError.
 
     Returns:
-        Dictionary of configs.
+        Tuple of dictionary of configs and Path to the config file.
     """
 
     config_path = Path.cwd()
@@ -152,12 +166,12 @@ def get_user_settings(yaml_filename: str,
 
     while True:
         if config_path == home or config_path == Path("/"):
-            return {}
+            return {}, None
 
         f = config_path / yaml_filename
         if f.exists():
-            with open(f, "r") as f:
-                user_settings = yaml.load(f, Loader=yaml.FullLoader)
+            with open(f, "r") as fin:
+                user_settings = yaml.load(fin, Loader=yaml.FullLoader)
             break
 
         else:
@@ -173,7 +187,7 @@ def get_user_settings(yaml_filename: str,
         if isinstance(v, str) and re.match(r'\S*/\S*', v):
             user_settings[k] = str(config_path / v)
 
-    return user_settings
+    return user_settings, f
 
 
 def get_default_args(function: Callable) -> dict:

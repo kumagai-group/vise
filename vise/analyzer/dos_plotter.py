@@ -189,7 +189,7 @@ class ViseDosPlotter(DosPlotter):
         return plt
 
 
-def get_dos_plot(vasprun_file: str,
+def get_dos_plot(vasprun: str,
                  cbm_vbm: list = None,
                  pdos_type: str = "element",
                  specific: list = None,
@@ -205,7 +205,7 @@ def get_dos_plot(vasprun_file: str,
     """
 
     Args:
-        vasprun_file (str):
+        vasprun (str):
             vasprun.xml-type file name
         cbm_vbm (list):
             List of [cbm, vbm]. This is used when band edge is determined from
@@ -241,7 +241,7 @@ def get_dos_plot(vasprun_file: str,
             Angle tolerance for symmetry analysis in degree.
     """
 
-    v = Vasprun(vasprun_file, ionic_step_skip=True, parse_eigen=False)
+    v = Vasprun(vasprun, ionic_step_skip=True, parse_eigen=False)
     if v.converged_electronic is False:
         logger.warning("SCF is not attained in the vasp calculation.")
 

@@ -7,7 +7,8 @@ from glob import glob
 from pymatgen.core.structure import Structure
 
 from vise.util.testing import ViseTest
-from vise.custodian_extension.jobs import rm_wavecar, StructureOptResult, KptConvResult
+from vise.custodian_extension.jobs import (
+    rm_wavecar, StructureOptResult, KptConvResult)
 
 __author__ = "Yu Kumagai"
 __maintainer__ = "Yu Kumagai"

@@ -12,8 +12,8 @@ __maintainer__ = "Yu Kumagai"
 class ViseDosPlotterTest(ViseTest):
 
     def setUp(self) -> None:
-        self.mgo_dos = get_dos_plot(vasprun_file="MgO_dos_vasprun.xml")
-        self.nan3_dos_mod = get_dos_plot(vasprun_file="NaN3_dos_vasprun.xml",
+        self.mgo_dos = get_dos_plot(vasprun="MgO_dos_vasprun.xml")
+        self.nan3_dos_mod = get_dos_plot(vasprun="NaN3_dos_vasprun.xml",
                                          pdos_type="none",
                                          orbital=False,
                                          xlim=[-3, 5],

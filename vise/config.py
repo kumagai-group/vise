@@ -22,6 +22,8 @@ BAND_GAP_CRITERION = 0.2  # Criterion in eV to determine if band gap exists.
 
 DEFAULT_NUM_NODES = 1
 
+TIMEOUT = 518400
+
 # chempotdiag
 ROOM_TEMPERATURE = 298.15
 REFERENCE_PRESSURE = 1e+5

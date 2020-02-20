@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+
+from distutils.util import strtobool
 from typing import Callable, Any
 from xml.etree.ElementTree import ParseError
 
@@ -26,3 +28,6 @@ def parse_file(class_method_name: Callable, parsed_filename: str) -> Any:
     except FileNotFoundError:
         logger.warning(f"File {parsed_filename} not found.")
         raise
+
+def str2bool(string: str) -> bool:
+    return bool(strtobool(string))

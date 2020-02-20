@@ -40,11 +40,11 @@ class ViseVaspErrorHandler(orig_handlers.VaspErrorHandler):
     def check(self):
         incar = Incar.from_file("INCAR")
         self.errors = set()
-        error_msgs = set()
+        errors = set()
         with open(self.output_filename, "r") as f:
             for line in f:
                 l = line.strip()
-                for err, msgs in error_msgs.items():
+                for err, msgs in self.error_msgs.items():
                     if err in self.errors_subset_to_catch:
                         for msg in msgs:
                             if l.find(msg) != -1:
@@ -55,8 +55,8 @@ class ViseVaspErrorHandler(orig_handlers.VaspErrorHandler):
                                 if err == "brmix" and 'NELECT' in incar:
                                     continue
                                 self.errors.add(err)
-                                error_msgs.add(msg)
-        for msg in error_msgs:
+                                errors.add(msg)
+        for msg in errors:
             self.logger.error(msg, extra={"incar": incar.as_dict()})
         return len(self.errors) > 0
 
