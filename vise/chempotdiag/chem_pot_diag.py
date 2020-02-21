@@ -2,22 +2,20 @@
 
 import json
 import string
-from typing import Optional, List, Dict, Tuple, Union, Any
-
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+import numpy as np
+from typing import Optional, List, Dict
+
 from monty.json import MSONable, MontyEncoder
 from monty.serialization import loadfn
 
-import numpy as np
-
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.composition import Composition
 from pymatgen.analysis.phase_diagram import PhaseDiagram, PDEntry
+from pymatgen.core.composition import Composition
+from pymatgen.core.periodic_table import Element
 from pymatgen.util.string import latexify
 
 from vise.util.logger import get_logger
-
 
 logger = get_logger(__name__)
 
@@ -90,7 +88,7 @@ class ChemPotDiag(MSONable):
         """
         elements = sorted(pd.elements)
         vertices = []
-        adjoin_comps = []  # List of adjoining composition to each vertex.
+        adjoin_comps = []  # List of adjoining compositions to each vertex.
 
         for fc in pd.facets:
             comp_list = [pd.qhull_entries[i].composition for i in fc]

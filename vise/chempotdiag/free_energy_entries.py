@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+#  Copyright (c) 2020. Distributed under the terms of the MIT License.
+
 from copy import deepcopy
 from pathlib import Path
 from typing import List, Dict, Union
@@ -30,12 +32,14 @@ class FreeEnergyEntry(PDEntry):
                  name: str = None,
                  data: dict = None,
                  attribute: object = None):
-        """
+        """Free energy version of PDEntry with zero_point_vib and free_e_shift
 
-        Name is used for the plot of the chemical potential.
+        Name is used for plotting chemical potential and phase diagrams. It is
+        especially important for CompoundPhaseDiagram, as the composition is
+        described with DummySpecie.
 
         Args:
-            composition (Composition):
+            composition (Composition/str):
                 Composition of the entry.
             total_energy (float):
                 Energy of the entry. Usually final calculated energy from VASP.
@@ -44,7 +48,7 @@ class FreeEnergyEntry(PDEntry):
             free_e_shift (float):
                 Entropic contribution to the free energy
             name (str):
-                Name of the Entry.
+                Name of the Entry. Mostly used for drawing the figure.
             data (dict):
                 An optional dict of any additional data associated
                 with the entry. Defaults to None.
@@ -111,22 +115,53 @@ class FreeEnergyEntrySet(EntrySet, MSONable):
                         directory_paths: List[Path],
                         vasprun: str = "vasprun.xml",
                         parse_gas: bool = True,
-                        temperature: float = 0,
-                        partial_pressures: dict = None) -> "FreeEnergyEntrySet":
+                        temperature: float = 0.0,
+                        partial_pressures: Dict[str, float] = None
+                        ) -> "FreeEnergyEntrySet":
+        """ Constructs class object from vasp output files.
 
+        Args:
+            directory_paths (list):
+                List of relative directory paths, containig vasp results.
+            vasprun (str):
+                Name of the vasprun.xml file.
+            parse_gas (bool):
+                Whether to parse gases as gas phases if the composition exists
+                in the Gas.name_list().
+            temperature (float):
+                Temperature in K.
+            partial_pressures (dict):
+                Dict of species as keys (str) and pressures in Pa as values.
+                Example: {"O2": 2e5, "N2": 70000}
+
+        Returns:
+            FreeEnergyEntrySet class object.
+        """
         energy_entries = []
         for d in directory_paths:
             logger.info(f"Parsing data in {d} ...")
             v: Vasprun = parse_file(Vasprun, Path(d) / vasprun)
             composition = v.final_structure.composition.reduced_formula
+
             kwargs = {}
-            if parse_gas and composition in Gas.name_list() \
-                    and re.match(r"^mol_", str(d)):
+            mol_dir = re.match(r"^mol_", str(d))
+            if parse_gas and mol_dir:
+                if composition not in Gas.name_list():
+                    logger.critical(f"{d} does not exist in Gas.name_list, so "
+                                    f"skipp to generate the zero point vib "
+                                    f"and free energies.")
+
                 if partial_pressures is None:
+                    logger.info(f"Pressure of {composition} is set to "
+                                f"{REFERENCE_PRESSURE} (Pa).")
                     pressure = REFERENCE_PRESSURE
                 else:
-                    pressure = partial_pressures[composition]
-
+                    try:
+                        pressure = partial_pressures[composition]
+                    except KeyError as e:
+                        msg = f"Partial pressure for {composition} is not set."
+                        raise Exception(msg) from e
+                        
                 gas = Gas[composition]
                 zpve = gas.zero_point_vibrational_energy
                 free_e = gas.free_e_shift(temperature, pressure)
@@ -169,14 +204,24 @@ class FreeEnergyEntrySet(EntrySet, MSONable):
 
 
 class ConstrainedFreeEnergyEntrySet(FreeEnergyEntrySet):
-    """FreeEnergyEntrySet obtained at the constrained chemical potential."""
     def __init__(self,
                  entries: List[FreeEnergyEntry],
                  original_entries:  List[FreeEnergyEntry],
                  constr_chempot: Dict[str, float],
                  temperature: float = None,
                  pressure: float = None):
-        """ """
+        """FreeEnergyEntrySet obtained at the constrained chemical potential.
+
+       Args:
+           entries (List[FreeEnergyEntry]):
+               Entries for the
+           original_entries (List[FreeEnergyEntry]):
+           constr_chempot (Dict[str, float]):
+           temperature (float):
+
+           pressure (float):
+
+        """
         super().__init__(entries, temperature, pressure)
         self.original_entries = original_entries
         self.constr_chempot = constr_chempot

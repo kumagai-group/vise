@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from copy import deepcopy
+import os
 from pathlib import Path
 import shutil
 
@@ -35,7 +35,7 @@ class TestFreeEnergyEntry(ViseTest):
         self.assertMSONable(self.o2)
 
     def test_print(self):
-        expected = "PDEntry : O2 with composition O2 and energy = -112.0000"
+        expected = "PDEntry : O2 with composition O2. Energy: -112.000. Zero point vib energy: -10.000. Free energy contribution: -100.000. Data: {'id': 10}"
         self.assertEqual(expected, str(self.o2))
 
 
@@ -56,7 +56,7 @@ class TestFreeEnergyEntrySet(ViseTest):
         self.assertMSONable(self.entry_set)
 
     def test_add_discard(self):
-        es = deepcopy(self.entry_set)
+        es = self.entry_set
         self.assertEqual(2, len(es))
         es.add(self.mg)
         self.assertEqual(3, len(es))
@@ -71,7 +71,7 @@ MgO,1.0,1.0,-10
 O2,0,2.0,-112
 """
         self.assertEqual(expected, actual)
-        shutil.rmtree("entries.csv")
+        os.remove("entries.csv")
 
     def test_from_vasp_files(self):
         paths = [Path(".") / "vasp_Mg",

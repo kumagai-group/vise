@@ -368,6 +368,9 @@ class ViseInputSet(VaspInputSet):
         # TODO: tweak the unfavorable combination of the input set.
         # e.g., Avoiding ICHARG = 11 is a must for hybrid functional.
 
+        logger.info("testtesttesttest")
+        raise ValueError
+
         return cls(structure=task_str_kpt.structure,
                    task=task,
                    xc=xc,

@@ -15,6 +15,7 @@ from pymatgen.util.string import latexify_spacegroup, latexify
 
 from vise.config import SYMMETRY_TOLERANCE, ANGLE_TOL
 from vise.util.logger import get_logger
+from vise.util.error_classes import InvalidStructureError
 
 __author__ = "Yu Kumagai"
 __maintainer__ = "Yu Kumagai"
@@ -287,7 +288,19 @@ def get_dos_plot(vasprun: str,
         for l in equiv_index_lists:
             specie = structure[l[0]].specie
             wyckoff = sga.get_symmetry_dataset()["wyckoffs"][l[0]]
+
             name = f"{specie} {wyckoff}"
+            if name in grouped_indices:
+                for i in range(2, 10):
+                    name = f"{specie} {wyckoff} {i}"
+                    print(name, grouped_indices)
+                    if name in grouped_indices:
+                        continue
+                    else:
+                        break
+                else:
+                    raise InvalidStructureError(
+                        "More than 9 same wyckoff sits are not supported.")
             grouped_indices[name] = l
 
     elif pdos_type == "none":
@@ -355,7 +368,7 @@ def get_dos_plot(vasprun: str,
                                      xlim=xlim,
                                      crop_first_value=crop_first_value)
         if v.incar.get("ISPIN", 1) == 2:
-            ylims = [-tdos_max, tdos_max]
+            ylims = [[-tdos_max, tdos_max]]
         else:
             ylims = [[0, tdos_max]]
 

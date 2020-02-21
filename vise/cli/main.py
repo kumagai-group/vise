@@ -3,19 +3,19 @@
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
 import argparse
+import sys
 from distutils.util import strtobool
 from typing import Union
-import sys
 
-from vise.config import SYMMETRY_TOLERANCE, ANGLE_TOL, KPT_DENSITY, TIMEOUT
-from vise.custodian_extension.jobs import ViseVaspJob
 from vise.cli.main_function import (
     get_poscar_from_mp, vasp_set, create_atoms, chempotdiag, plot_band,
     plot_dos, vasp_run, band_gap)
+from vise.config import SYMMETRY_TOLERANCE, ANGLE_TOL, KPT_DENSITY, TIMEOUT
+from vise.custodian_extension.jobs import ViseVaspJob
+from vise.input_set.input_set import ViseInputSet
 from vise.util.logger import get_logger
 from vise.util.main_tools import dict2list, get_user_settings, get_default_args
 from vise.util.mp_tools import make_poscars_from_mp
-from vise.input_set.input_set import ViseInputSet
 from vise.util.tools import str2bool
 
 __author__ = "Yu Kumagai"
@@ -52,9 +52,6 @@ def simple_override(d: dict, keys: Union[list, str]) -> None:
     """
     user_settings, yaml_path = get_user_settings(yaml_filename="vise.yaml",
                                                  setting_keys=setting_keys)
-    if user_settings:
-        logger.info(f"vise.yaml at {yaml_path} is load.")
-
     if isinstance(keys, str):
         keys = [keys]
 
@@ -420,6 +417,16 @@ def parse_args(args):
     parser_band_gap.add_argument(
         "-o", "--outcar", type=str, default="OUTCAR", metavar="FILE")
     parser_band_gap.set_defaults(func=band_gap)
+
+    # try:
+    #     import argcomplete
+    #     argcomplete.autocomplete(parser)
+    #     # This supports bash autocompletion. To enable this, pip install
+    #     # argcomplete, activate global completion, or add
+    #     #      eval "$(register-python-argcomplete vise)"
+    #     # into your .bash_profile or .bashrc
+    # except ImportError:
+    #     pass
 
     return parser.parse_args(args)
 

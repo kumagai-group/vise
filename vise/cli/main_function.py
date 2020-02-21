@@ -1,19 +1,18 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
+import os
 from argparse import Namespace
 from copy import deepcopy
 from itertools import chain
-import os
-
-from custodian.custodian import Custodian
 from pathlib import Path
 
+from custodian.custodian import Custodian
+
 from pymatgen.analysis.phase_diagram import PhaseDiagram, PDPlotter
-from pymatgen.core.structure import Structure
 from pymatgen.core.periodic_table import Element
+from pymatgen.core.structure import Structure
 from pymatgen.ext.matproj import MPRester
-from pymatgen.io.vasp.outputs import BSVasprun, Outcar
 
 from vise.analyzer.band_gap import band_gap_properties
 from vise.analyzer.band_plotter import PrettyBSPlotter
@@ -32,7 +31,6 @@ from vise.util.error_classes import NoVaspCommandError
 from vise.util.logger import get_logger
 from vise.util.main_tools import potcar_str2dict, list2dict
 from vise.util.mp_tools import make_poscars_from_mp
-
 
 logger = get_logger(__name__)
 
@@ -241,8 +239,9 @@ def plot_band(args) -> None:
 
 
 def plot_dos(args) -> None:
-    if len(args.cbm_vbm) != 2 or args.cbm_vbm[0] < args.cbm_vbm[1]:
-        raise ValueError(f"cbm_vbm values {args.cbm_vbm} are not proper.")
+    if args.cbm_vbm:
+        if len(args.cbm_vbm) != 2 or args.cbm_vbm[0] < args.cbm_vbm[1]:
+            raise ValueError(f"cbm_vbm values {args.cbm_vbm} are not proper.")
 
     dos = get_dos_plot(vasprun=args.vasprun,
                        cbm_vbm=args.cbm_vbm,
