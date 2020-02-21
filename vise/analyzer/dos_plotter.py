@@ -292,7 +292,7 @@ def get_dos_plot(vasprun: str,
             name = f"{specie} {wyckoff}"
             if name in grouped_indices:
                 for i in range(2, 10):
-                    name = f"{specie} {wyckoff} {i}"
+                    name = f"{specie} {wyckoff}{i}"
                     if name in grouped_indices:
                         continue
                     else:
@@ -301,7 +301,7 @@ def get_dos_plot(vasprun: str,
                     raise InvalidStructureError(
                         "More than 9 same wyckoff sits are not supported.")
             grouped_indices[name] = l
-            logger.info({f"Atoms {grouped_indices} are grouped to {name}."})
+            logger.info({f"Atoms {grouped_indices[name]} are grouped to {name}."})
 
     elif pdos_type == "none":
         for indices, s in enumerate(structure):
