@@ -6,13 +6,19 @@ from argparse import Namespace
 from copy import deepcopy
 from itertools import chain
 from pathlib import Path
+import shutil
+from typing import Tuple
 
 from custodian.custodian import Custodian
+from pymatgen import Lattice, Element, Structure
 
 from pymatgen.analysis.phase_diagram import PhaseDiagram, PDPlotter
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure
 from pymatgen.ext.matproj import MPRester
+from pymatgen.io.vasp import Poscar
+from pymatgen.io.vasp.inputs import VaspInput
+from pymatgen.io.vasp.sets import MPStaticSet
 
 from vise.analyzer.band_gap import band_gap_properties
 from vise.analyzer.band_plotter import PrettyBSPlotter
@@ -22,8 +28,9 @@ from vise.chempotdiag.free_energy_entries import FreeEnergyEntrySet
 from vise.custodian_extension.handler_groups import handler_group
 from vise.custodian_extension.jobs import (
     ViseVaspJob, KptConvResult, StructureOptResult)
-from vise.input_set.incar import incar_flags
+from vise.input_set.incar import incar_flags, ViseIncar
 from vise.input_set.input_set import ViseInputSet
+from vise.input_set.make_kpoints import MakeKpoints
 from vise.input_set.prior_info import PriorInfo
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc
@@ -35,7 +42,8 @@ from vise.util.mp_tools import make_poscars_from_mp
 logger = get_logger(__name__)
 
 
-def vasp_symprec_settings_from_args(args: Namespace):
+def vasp_symprec_settings_from_args(args: Namespace
+                                    ) -> Tuple[dict, dict, Task, Xc]:
     """Generate vasp input settings from the given args."""
 
     flags = [str(s) for s in list(Element)]
@@ -52,13 +60,16 @@ def vasp_symprec_settings_from_args(args: Namespace):
     if args.additional_user_incar_settings:
         d = list2dict(args.additional_user_incar_settings, key_candidates)
         user_incar_settings.update(d)
+
     vis_base_kwargs.update({"potcar_set_name": args.potcar_set_name,
                             "override_potcar_set": potcar_set,
                             "ldauu": ldauu,
                             "ldaul": ldaul,
-                            "charge": args.charge,
-                            "symprec": args.symprec,
-                            "angle_tolerance": args.angle_tolerance})
+                            "charge": args.charge})
+
+    if hasattr(args, "symprec"):
+        vis_base_kwargs.update({"symprec": args.symprec,
+                                "angle_tolerance": args.angle_tolerance})
 
     return user_incar_settings, vis_base_kwargs, task, xc
 
@@ -136,8 +147,55 @@ def vasp_set(args: Namespace) -> None:
     os.chdir(started_dir)
 
 
-def create_atoms(args) -> None:
-    pass
+def create_atoms(args: Namespace) -> None:
+
+    lattice = Lattice([[10, 0, 0], [0, 10, 0], [0, 0, 10]])
+
+    user_incar_settings, vis_kwargs, task, xc = \
+        vasp_symprec_settings_from_args(args)
+
+    if user_incar_settings.get("ISPIN", 1) != 2:
+        logger.info(f"ISPIN is switched to 2.")
+        user_incar_settings["ISPIN"] = 2
+
+    if task != Task.cluster_opt:
+        logger.info(f"Task {task} is switched to Task.cluster_opt.")
+
+    for z in range(1, args.z + 1):
+        elem = str(Element.from_Z(z))
+        d = Path(elem)
+        s = Structure(lattice, [elem], [[0.5, 0.5, 0.5]])
+
+        if args.mp_set:
+            mp_set = MPStaticSet(structure=s)
+            incar = ViseIncar.from_dict(mp_set.incar.as_dict())
+            incar["ISIF"] = 2
+            incar["ISMEAR"] = 0  # Needed to avoid tetrahedron error.
+            incar["ALGO"] = "All"  # Needed to avoid EDDDAV error.
+            incar.pop("LCHARG", None)
+            incar.pop("LAECHG", None)
+            incar.pop("LVHAR", None)
+            potcar = mp_set.potcar
+            make_kpoints = MakeKpoints(mode="manual_set",
+                                       structure=s,
+                                       manual_kpts=[1, 1, 1])
+            make_kpoints.make_kpoints()
+            kpoints = make_kpoints.kpoints
+            poscar = Poscar(s)
+            vasp_input = VaspInput(incar, kpoints, poscar, potcar)
+        else:
+            user_incar_settings["ALGO"] = "D"
+            vasp_input = \
+                ViseInputSet.make_input(structure=s,
+                                        task=Task.cluster_opt,
+                                        xc=xc,
+                                        user_incar_settings=user_incar_settings,
+                                        **vis_kwargs)
+        d.mkdir()
+        vasp_input.write_input(d)
+        vise = Path("vise.json")
+        if vise.exists():
+            shutil.move(vise, d / "vise.json")
 
 
 def vasp_run(args) -> None:
@@ -267,3 +325,5 @@ def band_gap(args) -> None:
         print(f"band gap info {band_gap_value}")
     except TypeError:
         print("Metallic system")
+
+

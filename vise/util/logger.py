@@ -10,10 +10,10 @@ def get_logger(name: str,
                level=logging.DEBUG,
                stream=sys.stdout,
                log_format: str = None,
-               log_filename: str = None):
+               log_filename: str = "vise.log"):
 
     log_format = log_format or \
-                 '%(asctime)25s %(levelname)7s %(name)20s %(message)s'
+                 '%(asctime)25s %(levelname)7s %(name)25s \n --> %(message)s'
 
     logger = logging.getLogger(name)
     logger.setLevel(level)

@@ -4,17 +4,15 @@ import os
 from copy import deepcopy
 
 from argparse import Namespace
-from unittest import TestCase
-import numpy as np
-from numpy.testing import assert_allclose
+from shutil import rmtree
 from unittest.mock import patch, Mock, MagicMock
 
 from pymatgen.core.structure import IStructure
 
 from vise.util.testing import ViseTest
 from vise.cli.main_function import (
-    vasp_symprec_settings_from_args, get_poscar_from_mp, vasp_set, vasp_run, chempotdiag,
-    plot_band, plot_dos, band_gap)
+    vasp_symprec_settings_from_args, get_poscar_from_mp, vasp_set, vasp_run,
+    create_atoms, chempotdiag, plot_band, plot_dos, band_gap)
 from vise.cli.tests.test_main import default_vasp_args, symprec_args
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc
@@ -186,6 +184,16 @@ class VaspRunTest(ViseTest):
                                     **vasp_args, **symprec_args)
 
 
+class CreateAtomsTest(ViseTest):
+    def setUp(self) -> None:
+#        self.args = Namespace(mp_set=False, z=1, **vasp_args, **symprec_args)
+        self.args = Namespace(mp_set=True, z=1, **vasp_args, **symprec_args)
+
+    def test(self) -> None:
+        create_atoms(self.args)
+
+    # def tearDown(self) -> None:
+    #     rmtree("H")
 
 
 class TestChemPotDiag(ViseTest):

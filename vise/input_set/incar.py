@@ -104,10 +104,8 @@ class ViseIncar(Incar):
                     if comment is False:
                         lines.append(f"# {key} \n")
                         comment = True
-
                     if v == "MAGMOM" and isinstance(self[v], list):
                         value = []
-
                         if (isinstance(self[v][0], list) or
                             isinstance(self[v][0], Magmom)) and \
                                 (self.get("LSORBIT") or
@@ -119,7 +117,7 @@ class ViseIncar(Incar):
                                 value.append("3*{}*{}".format(len(tuple(g)), m))
                         # YK: Add this
                         elif len(self[v]) == 1:
-                            value.append(self[v][0])
+                            value.append(str(self[v][0]))
                         else:
                             # float() to ensure backwards compatibility between
                             # float magmoms and Magmom objects

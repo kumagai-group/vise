@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+#  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
 import json
 import string
@@ -34,7 +35,7 @@ class ChemPotDiag(MSONable):
                  unstable_energy: Optional[float] = None):
         """
 
-        Chemical potential is in eV/atom even for the complex diagrams.
+        Note: Chemical potential is in eV/*atom* even for the complex diagrams.
 
         Args:
             elements (List[Element]):
@@ -74,7 +75,7 @@ class ChemPotDiag(MSONable):
             target_comp: Optional[str] = None,
             allow_unstable_target_chempot: bool = False,
             ) -> "ChemPotDiag":
-        """Create from pymatgen PhaseDiagram object
+        """Create class instance object from pymatgen PhaseDiagram object
 
         Args:
             pd (PhaseDiagram):
@@ -183,6 +184,9 @@ class ChemPotDiag(MSONable):
                 Title of the diagram.
             filename (None/str):
                 Specify this when saving the diagram as an image file.
+
+        Returns:
+            Pyplot
         """
         draw_range = min(-1.0, min(sum([i for i in self.vertices], [])) * 1.1)
 

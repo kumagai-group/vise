@@ -69,11 +69,12 @@ class TaskStructureKpoints:
             structure = original_structure.copy()
 
         is_structure_changed = False
+        manual_kpts = None
         if task == Task.defect:
             kpt_mode = "manual_set"
         elif task == Task.cluster_opt:
             kpt_mode = "manual_set"
-            kpt_density = 1e-5
+            manual_kpts = [1, 1, 1]
             only_even = False
             kpt_shift = [0, 0, 0]
         elif task == Task.band:
@@ -128,6 +129,7 @@ class TaskStructureKpoints:
                               structure=structure,
                               kpt_density=kpt_density,
                               only_even=only_even,
+                              manual_kpts=manual_kpts,
                               ref_distance=band_ref_dist,
                               kpt_shift=kpt_shift,
                               factor=factor,

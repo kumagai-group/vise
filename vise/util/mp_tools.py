@@ -39,7 +39,8 @@ def make_poscars_from_mp(elements,
                          e_above_hull=0.01,
                          api_key=None,
                          molecules=True,
-                         only_molecules=True) -> None:
+                         only_molecules=True,
+                         only_unary=False) -> None:
     """
 
     Args:
@@ -49,6 +50,7 @@ def make_poscars_from_mp(elements,
         api_key(str):
         molecules(bool):
         only_molecules:
+        only_unary:
 
     Returns:
         None
@@ -85,10 +87,14 @@ def make_poscars_from_mp(elements,
     materials = get_mp_materials(elements, properties, e_above_hull, api_key)
 
     for m in materials:
-        comp = Composition(m.pop("full_formula")).reduced_formula
-        if only_molecules and comp in molecules_formula_list:
+        comp = Composition(m.pop("full_formula"))
+        formula = comp.reduced_formula
+        if only_molecules and formula in molecules_formula_list:
             continue
-        m_path = path / f"{m['task_id']}_{comp}"
+        if only_unary and len(comp) == 1:
+            continue
+
+        m_path = path / f"{m['task_id']}_{formula}"
         m_path.mkdir()
         m.pop("structure").to(filename=m_path / "POSCAR")
         yaml_path = m_path / "prior_info.yaml"
