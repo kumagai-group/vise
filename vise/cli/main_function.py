@@ -147,57 +147,6 @@ def vasp_set(args: Namespace) -> None:
     os.chdir(started_dir)
 
 
-def create_atoms(args: Namespace) -> None:
-
-    lattice = Lattice([[10, 0, 0], [0, 10, 0], [0, 0, 10]])
-
-    user_incar_settings, vis_kwargs, task, xc = \
-        vasp_symprec_settings_from_args(args)
-
-    if user_incar_settings.get("ISPIN", 1) != 2:
-        logger.info(f"ISPIN is switched to 2.")
-        user_incar_settings["ISPIN"] = 2
-
-    if task != Task.cluster_opt:
-        logger.info(f"Task {task} is switched to Task.cluster_opt.")
-
-    for z in range(1, args.z + 1):
-        elem = str(Element.from_Z(z))
-        d = Path(elem)
-        s = Structure(lattice, [elem], [[0.5, 0.5, 0.5]])
-
-        if args.mp_set:
-            mp_set = MPStaticSet(structure=s)
-            incar = ViseIncar.from_dict(mp_set.incar.as_dict())
-            incar["ISIF"] = 2
-            incar["ISMEAR"] = 0  # Needed to avoid tetrahedron error.
-            incar["ALGO"] = "All"  # Needed to avoid EDDDAV error.
-            incar.pop("LCHARG", None)
-            incar.pop("LAECHG", None)
-            incar.pop("LVHAR", None)
-            potcar = mp_set.potcar
-            make_kpoints = MakeKpoints(mode="manual_set",
-                                       structure=s,
-                                       manual_kpts=[1, 1, 1])
-            make_kpoints.make_kpoints()
-            kpoints = make_kpoints.kpoints
-            poscar = Poscar(s)
-            vasp_input = VaspInput(incar, kpoints, poscar, potcar)
-        else:
-            user_incar_settings["ALGO"] = "D"
-            vasp_input = \
-                ViseInputSet.make_input(structure=s,
-                                        task=Task.cluster_opt,
-                                        xc=xc,
-                                        user_incar_settings=user_incar_settings,
-                                        **vis_kwargs)
-        d.mkdir()
-        vasp_input.write_input(d)
-        vise = Path("vise.json")
-        if vise.exists():
-            shutil.move(vise, d / "vise.json")
-
-
 def vasp_run(args) -> None:
 
     if args.json_file:

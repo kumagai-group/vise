@@ -17,8 +17,6 @@ from vise.config import SYMMETRY_TOLERANCE, ANGLE_TOL
 from vise.util.logger import get_logger
 from vise.util.error_classes import InvalidStructureError
 
-__author__ = "Yu Kumagai"
-__maintainer__ = "Yu Kumagai"
 
 logger = get_logger(__name__)
 
@@ -426,11 +424,11 @@ def max_density(density: dict,
                 energies: list,
                 xlim: list,
                 crop_first_value: bool = True) -> float:
-    """Evaluate max of the density of states in the given energy range.
+    """Evaluate max value of the density of states in the given energy range.
 
     Args:
         density (dict):
-            Note that the first value may contains huge values when the
+            Note that the first value may contain a huge value when the
             lower limit of the calculation of density of states is larger than
             that of occupied states. Therefore, we need to crop the first value
             by default.

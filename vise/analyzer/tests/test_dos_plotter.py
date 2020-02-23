@@ -5,30 +5,26 @@ from pymatgen.electronic_structure.core import Spin
 from vise.analyzer.dos_plotter import get_dos_plot, max_density
 from vise.util.testing import ViseTest
 
-__author__ = "Yu Kumagai"
-__maintainer__ = "Yu Kumagai"
-
 
 class ViseDosPlotterTest(ViseTest):
 
-    def setUp(self) -> None:
-        self.mgo_dos = get_dos_plot(vasprun="MgO_dos_vasprun.xml")
-        self.nan3_dos_mod = get_dos_plot(vasprun="NaN3_dos_vasprun.xml",
-                                         pdos_type="none",
-                                         orbital=False,
-                                         xlim=[-3, 5],
-                                         ymaxs=[10, 5],
-                                         zero_at_efermi=False,
-                                         specific=["1"],
-                                         crop_first_value=False,
-                                         show_spg=False,
-                                         )
-
+    # Must split pyplot constructors. Otherwise, mgo_dos.pdf shows NaN3 results.
     def test_normal(self):
-        self.mgo_dos.savefig("mgo_dos.pdf")
+        mgo_dos = get_dos_plot(vasprun="MgO_dos_vasprun.xml")
+        mgo_dos.savefig("mgo_dos.pdf")
 
     def test_w_args(self):
-        self.nan3_dos_mod.savefig("nan3_dos.pdf")
+        nan3_dos_mod = get_dos_plot(vasprun="NaN3_dos_vasprun.xml",
+                                    pdos_type="none",
+                                    orbital=False,
+                                    xlim=[-3, 5],
+                                    ymaxs=[10, 5],
+                                    zero_at_efermi=False,
+                                    specific=["1"],
+                                    crop_first_value=False,
+                                    show_spg=False,
+                                    )
+        nan3_dos_mod.savefig("nan3_dos.pdf")
 
 
 class MaxDensityTest(ViseTest):

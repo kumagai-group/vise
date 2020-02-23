@@ -184,18 +184,6 @@ class VaspRunTest(ViseTest):
                                     **vasp_args, **symprec_args)
 
 
-class CreateAtomsTest(ViseTest):
-    def setUp(self) -> None:
-#        self.args = Namespace(mp_set=False, z=1, **vasp_args, **symprec_args)
-        self.args = Namespace(mp_set=True, z=1, **vasp_args, **symprec_args)
-
-    def test(self) -> None:
-        create_atoms(self.args)
-
-    # def tearDown(self) -> None:
-    #     rmtree("H")
-
-
 class TestChemPotDiag(ViseTest):
     def setUp(self) -> None:
         self.kwargs_1 = {

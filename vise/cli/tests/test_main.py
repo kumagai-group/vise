@@ -59,8 +59,6 @@ default_vasp_args = {
     "ldaul": vis_defaults["ldaul"],
     "charge": None}
 
-print(default_vasp_args)
-
 symprec_args = {"symprec": SYMMETRY_TOLERANCE,  "angle_tolerance": ANGLE_TOL}
 
 

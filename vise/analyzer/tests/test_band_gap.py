@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
-from pymatgen.io.vasp.outputs import Vasprun, Outcar
+#  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
-from vise.analyzer.band_gap import band_gap_properties
+import numpy as np
+
+from pymatgen.io.vasp.outputs import Vasprun, Outcar
+from pymatgen.electronic_structure.core import Spin
+
+from vise.analyzer.band_gap import band_gap_properties, edge_info
 from vise.util.testing import ViseTest
 
 
@@ -50,4 +55,24 @@ class BandGapPropertiesTest(ViseTest):
                      'band_index': 9,
                      'kpoints': [0.0, 0.0, 0.0]})
         self.assertEqual(expected, band_gap_properties(vasprun, outcar))
+
+
+class EdgeInfoTest(ViseTest):
+    def setUp(self) -> None:
+        values = np.array([[[1.0, 2.0], [3.0, 4.0]], [[5.0, 6.0], [7.0, 8.0]]])
+        # [[[ 1.  2.]   1st k: 1st band (hob)
+        #   [ 3.  4.]]  1st k: 2nd band (lub)
+        #
+        #  [[ 5.  6.]   2nd k: 1st band (hob)
+        #   [ 7.  8.]]] 2nd k: 2st band (lub)
+        self.eigenvalues = {Spin.up: values}
+
+    def test(self):
+        actual = edge_info(self.eigenvalues,
+                           hob_index=0,
+                           spin=Spin.up)
+        expected = 5.0, 1, 3.0, 0
+        self.assertEqual(expected, actual)
+
+
 

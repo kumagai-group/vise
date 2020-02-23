@@ -214,22 +214,6 @@ def parse_args(args):
 
     parser_vasp_set.set_defaults(func=vasp_set)
 
-    # -- create_atoms ----------------------------------------------------------
-    parser_vasp_set = subparsers.add_parser(
-        name="create_atoms",
-        parents=[vasp_parser],
-        description="Tools for constructing vasp input set for atoms.",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-        aliases=['ca'])
-
-    parser_vasp_set.add_argument(
-        "-ms", "--mp_set", action="store_true",
-        help="Set when using the MP set.")
-    parser_vasp_set.add_argument(
-        "-z", "--z", type=int, default=83, help=".")
-
-    parser_vasp_set.set_defaults(func=create_atoms)
-
     # -- vasp_run --------------------------------------------------------------
     parser_vasp_run = subparsers.add_parser(
         name="vasp_run",

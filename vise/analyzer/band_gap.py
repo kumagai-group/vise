@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+#  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
 import numpy as np
 
@@ -9,18 +10,22 @@ from pymatgen.electronic_structure.core import Spin
 
 def band_gap_properties(vasprun: Union[Vasprun, str],
                         outcar: Union[Outcar, str],
-                        frac_threshold: float = 0.1) -> Optional[Tuple]:
-    """Evaluate the band gap properties from vasprun.xml
+                        int_m_threshold: float = 0.1
+                        ) -> Tuple[dict, Optional[dict], Optional[dict]]:
+    """Evaluate the band gap properties from vasprun.xml and OUTCAR files
 
     Args:
         vasprun (Vasprun/ str):
             Vasprun file.
         outcar (Outcar/ str):
            OUTCAR file.
-        frac_threshold:
+        int_m_threshold:
+            The threshold to judge if the magnetization is not integer.
 
     Return:
-        Tuple of band_gap, vbm, and cbm-related info.
+        Tuple of band_gap, vbm, and cbm-related info. For metals,
+        {'energy': 0.0, 'direct': False, 'transition': None}, None, None
+        is returned.
     """
     if isinstance(vasprun, str):
         vasprun = Vasprun(vasprun)
@@ -33,7 +38,7 @@ def band_gap_properties(vasprun: Union[Vasprun, str],
     mag = outcar.total_mag
 
     if mag is None:
-        if abs(outcar.nelect - round(outcar.nelect / 2) * 2) > frac_threshold:
+        if abs(outcar.nelect - round(outcar.nelect / 2) * 2) > int_m_threshold:
             return metal
         hob_index = round((outcar.nelect / 2) - 1)
 
@@ -51,7 +56,7 @@ def band_gap_properties(vasprun: Union[Vasprun, str],
 
     else:
         frac_occupation = mag - round(mag)
-        if abs(frac_occupation) > frac_threshold:
+        if abs(frac_occupation) > int_m_threshold:
             return metal
 
         up_hob_index = round((outcar.nelect + (mag + 0.1)) / 2) - 1
@@ -100,12 +105,13 @@ def edge_info(eigenvalues: dict,
               hob_index: int,
               spin=Spin.up
               ) -> Tuple[float, int, float, int]:
-    """Evaluate the band gap properties from eigenvalues.
+    """Evaluate the band edge info from eigenvalues and given band index.
 
     Args:
         eigenvalues (dict):
+            Dict of eigenvalues.
             eigenvalue, occupation =
-                Eigenvalues[spin][k-point index][band index][0:2]
+            Eigenvalues[spin][k-point index][band index][0:2]
         hob_index (int):
             Highest-occupied band (HOB) index starting from0.
         spin:

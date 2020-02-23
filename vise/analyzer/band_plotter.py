@@ -1,13 +1,17 @@
 # -*- coding: utf-8 -*-
+#  Copyright (c) 2020. Distributed under the terms of the MIT License.
+
+from typing import List, Union
 
 import numpy as np
-from typing import List, Union
+
 import scipy.interpolate as scint
+
 from matplotlib import pyplot
 
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
-from pymatgen.electronic_structure.bandstructure \
-    import get_reconstructed_band_structure
+from pymatgen.electronic_structure.bandstructure import (
+    get_reconstructed_band_structure)
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.plotter import BSPlotter
 from pymatgen.io.vasp import Kpoints, Vasprun
@@ -19,9 +23,6 @@ from vise.config import SYMMETRY_TOLERANCE, ANGLE_TOL
 from vise.util.logger import get_logger
 
 
-__author__ = "Yu Kumagai"
-__maintainer__ = "Yu Kumagai"
-
 logger = get_logger(__name__)
 
 
@@ -31,18 +32,38 @@ class PrettyBSPlotter:
                  band: BandStructureSymmLine,
                  band2: BandStructureSymmLine = None,
                  absolute: bool = False,
-                 y_range: list = None,
+                 y_range: List[float] = None,
                  legend: bool = False,
                  symprec: float = SYMMETRY_TOLERANCE,
                  angle_tolerance: float = ANGLE_TOL):
+        """
+
+        Note:
+
+        Args:
+            band (BandStructureSymmLine):
+                A BandStructureSymmLine object.
+            band2 (BandStructureSymmLine):
+                Another BandStructureSymmLine object to be compared.
+            absolute (bool):
+                Whether to show the band structure in the absolute energy scale.
+            y_range (List[float, float]):
+                The min and max of energy range.
+            legend (bool):
+                Whether to show te figure legend.
+            symprec (float):
+                Symprec used for determining the space group.
+            angle_tolerance (float):
+                Angle tolerance used for determining the space group.
+        """
 
         bs_plotter = ModBSPlotter(band)
-        comp = latexify(
-            band.structure.composition.get_reduced_formula_and_factor()[0])
+        comp = band.structure.composition.get_reduced_formula_and_factor()[0]
         sga = SpacegroupAnalyzer(structure=band.structure,
                                  symprec=symprec,
                                  angle_tolerance=angle_tolerance)
 
+        comp = latexify(comp)
         sg_symbol = latexify_spacegroup(sga.get_space_group_symbol())
         sg_num = sga.get_space_group_number()
 
@@ -65,14 +86,22 @@ class PrettyBSPlotter:
                         **kwargs) -> "PrettyBSPlotter":
 
         band = cls.make_sym_line(kpoints_filenames, vasprun_filenames)
-        band2 = cls.make_sym_line(kpoints_filenames, vasprun2_filenames) \
-            if vasprun2_filenames else None
+        if vasprun2_filenames:
+            band2 = cls.make_sym_line(kpoints_filenames, vasprun2_filenames)
+        else:
+            band2 = None
 
         return cls(band=band, band2=band2, **kwargs)
 
     @staticmethod
     def make_sym_line(kpoints_filenames: Union[List[str], str],
-                      vasprun_filenames: Union[List[str], str]):
+                      vasprun_filenames: Union[List[str], str]
+                      ) -> "VaspBandStructureSymmLine":
+        """Create VaspBandStructureSymmLine from vasp files.
+
+
+        """
+
         if isinstance(kpoints_filenames, list):
             band = [VaspBandStructureSymmLine(k, v)
                     for k, v in zip(kpoints_filenames, vasprun_filenames)]
@@ -90,21 +119,26 @@ class PrettyBSPlotter:
 
 class ModBSPlotter(BSPlotter):
 
-    def get_plot(self, ylim=None, smooth=False, vbm_cbm_marker=True,
-                 smooth_tol=None, legend=False, zero_to_efermi=True,
-                 title=None):
+    def get_plot(self,
+                 ylim: List[float] = None,
+                 smooth: bool = False,
+                 vbm_cbm_marker: bool = True,
+                 smooth_tol: float = None,
+                 legend: bool = False,
+                 zero_to_efermi: bool = True,
+                 title: str = None) -> pyplot:
         """Get a matplotlib object for the band structure plot.
 
         Original function is copied from PYMATGEN.2018.5.22.
 
         Args:
-            zero_to_efermi (bool):
-                Automatically subtract off the Fermi energy from the eigenvalues
-                and plot (E-Ef).
             ylim (list):
                 Specify the y-axis (energy) limits; by default None let the code
                 choose. It is vbm-4 and cbm+4 if insulator efermi-10 and
                 efermi+10 if metal.
+            zero_to_efermi (bool):
+                Automatically subtract off the Fermi energy from the eigenvalues
+                and plot (E-Ef).
             smooth (bool):
                 Whether to interpolates the bands by a spline cubic
             vbm_cbm_marker (bool):
@@ -116,6 +150,9 @@ class ModBSPlotter(BSPlotter):
                 If the figure legend is shown or not.
             title (str):
                 The title of the figure.
+
+        Returns:
+            Matplotlib pyplot
         """
         plt = pretty_plot(12, 8)
 
@@ -144,11 +181,10 @@ class ModBSPlotter(BSPlotter):
             # number of branches (high symmetry lines) defined in the
             # BandStructureSymmLine object (see BandStructureSymmLine._branches)
 
-            warning = "WARNING! Distance / branch {d}, band {i} cannot be " + \
-                      "interpolated.\n" + \
-                      "See full warning in source.\n" + \
-                      "If this is not a mistake, try increasing " + \
-                      "smooth_tol.\nCurrent smooth_tol is {s}."
+            warning = "WARNING! Distance / branch {d}, band {i} cannot be " \
+                      "interpolated.\n See full warning in source.\n " \
+                      "If this is not a mistake, try increasing smooth_tol.\n"\
+                      "Current smooth_tol is {s}."
 
             for d in range(len(data['distances'])):
                 # self._nb_bands means the number of bands.
@@ -195,31 +231,18 @@ class ModBSPlotter(BSPlotter):
         if ylim:
             plt.ylim(ylim)
         else:
-            # default energy range
             if self._bs.is_metal():
-                e_range = [-10, 10]
+                fl = self._bs.efermi
+                e_range = [fl - 10, fl + 10] if zero_to_efermi else [-10, 10]
+                plt.ylim(e_range)
             else:
-                e_range = [-4, 4]
-
-            # metal case
-            if self._bs.is_metal():
-                if zero_to_efermi:
-                    plt.ylim(e_range)
-                else:
-                    plt.ylim(self._bs.efermi + e_range[0],
-                             self._bs.efermi + e_range[1])
-            # insulator case
-            else:
-                plt.ylim(data['vbm'][0][1] + e_range[0],
-                         data['cbm'][0][1] + e_range[1])
+                plt.ylim(data['vbm'][0][1] - 4, data['cbm'][0][1] + 4)
 
         if not self._bs.is_metal() and vbm_cbm_marker:
             for cbm in data['cbm']:
-                plt.scatter(cbm[0], cbm[1], color='r', marker='o',
-                            s=100)
+                plt.scatter(cbm[0], cbm[1], color='r', marker='o', s=100)
             for vbm in data['vbm']:
-                plt.scatter(vbm[0], vbm[1], color='g', marker='o',
-                            s=100)
+                plt.scatter(vbm[0], vbm[1], color='g', marker='o', s=100)
 
         if legend:
             import matplotlib.lines as mlines
@@ -261,8 +284,6 @@ class ModBSPlotter(BSPlotter):
                      fontsize=11, color='black',
                      arrowprops=dict(edgecolor='black', arrowstyle='<|-|>',
                                      shrinkA=0, shrinkB=0))
-        # TODO: When adding the following annotation, the Gamma notation
-        # TODO: disappears at x=0.
         plt.annotate(f"{str(round(band_gap, 3))} eV",
                      (annotate_x * 1.03, vbm + band_gap * 0.4), fontsize=20)
 
@@ -270,33 +291,35 @@ class ModBSPlotter(BSPlotter):
 
     def plot_compare(self,
                      another_plotter: "ModBSPlotter",
-                     ylim: list = None,
+                     ylim: List[float] = None,
                      legend: bool = True,
                      zero_to_efermi: bool = True,
                      title: str = None) -> pyplot:
-        """The x- and y-ranges are determined based on the original data.
+        """Generate pyplot for comparing two band structures.
+
+        Note: x- and y-ranges are determined based on the original data.
 
         Args:
-            another_plotter:
+            another_plotter (ModBSPlotter):
                 Another BSPlotter class object.
-            ylim:
+            ylim (List[float]):
                 Y-axis limit [y min, y max].
-            legend:
+            legend (bool):
                 If the figure legend is shown or not.
-            zero_to_efermi:
+            zero_to_efermi (bool):
                 If the energy is aligned to the Fermi level or not.
-            title:
+            title (str):
                 Title of the plot.
+
+        Returns:
+            Matplotlib pyplot.
         """
 
         plt = self.get_plot(ylim=ylim, zero_to_efermi=zero_to_efermi)
         data_orig = self.bs_plot_data(zero_to_efermi=zero_to_efermi)
         data = another_plotter.bs_plot_data(zero_to_efermi=zero_to_efermi)
 
-        if self._bs.is_spin_polarized:
-            spin = [Spin.up, Spin.down]
-        else:
-            spin = [Spin.up]
+        spin = [Spin.up, Spin.down] if self._bs.is_spin_polarized else [Spin.up]
 
         second_line_style = {Spin.up: 'c-', Spin.down: 'm--'}
 
@@ -351,14 +374,18 @@ class VaspBandStructureSymmLine(BandStructureSymmLine):
                  kpoints_filename: str,
                  vasprun_filename: str,
                  is_projection=False):
-        """
+        """Create BandStructureSymmLine from KPOINTS and vasprun.xml.
+
+        Notes: KPOINTS file includes finite weight part and zero weight part;
+               the former is used for constructing the Hamiltonian while the
+               latter for band structure symmetry line.
 
         Args:
-            kpoints_filename:
+            kpoints_filename (str):
                 KPOINTS file name parsed.
-            vasprun_filename:
+            vasprun_filename (str):
                 vasprun.xml file name parsed.
-            is_projection:
+            is_projection (bool):
                 Whether to calculate the projection values.
         """
         kpoints = Kpoints.from_file(kpoints_filename)
@@ -368,7 +395,7 @@ class VaspBandStructureSymmLine(BandStructureSymmLine):
                           parse_projected_eigen=is_projection)
 
         if vasprun.converged_electronic is False:
-            logger.warning("SCF is not attained!!!!!")
+            logger.critical("SCF is not attained!!!!!")
 
         eigenvalues = vasprun.eigenvalues
         reciprocal_lattice = vasprun.final_structure.lattice.reciprocal_lattice
