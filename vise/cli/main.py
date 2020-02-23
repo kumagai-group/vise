@@ -8,8 +8,8 @@ from distutils.util import strtobool
 from typing import Union
 
 from vise.cli.main_function import (
-    get_poscar_from_mp, vasp_set, create_atoms, chempotdiag, plot_band,
-    plot_dos, vasp_run, band_gap)
+    get_poscar_from_mp, vasp_set, chempotdiag, plot_band, plot_dos, vasp_run,
+    band_gap)
 from vise.config import SYMMETRY_TOLERANCE, ANGLE_TOL, KPT_DENSITY, TIMEOUT
 from vise.custodian_extension.jobs import ViseVaspJob
 from vise.input_set.input_set import ViseInputSet

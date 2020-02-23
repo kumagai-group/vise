@@ -1,5 +1,5 @@
 is_cluster: True
 incar:
   ISPIN: 2
-  NUPDOWN: 3
+  NUPDOWN: 2
 

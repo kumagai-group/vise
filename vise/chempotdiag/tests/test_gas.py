@@ -86,7 +86,7 @@ class TestGas(ViseTest):
         self.o2 = Gas.O2
 
     def test_read_properties(self):
-        self.assertEqual(self.o2.properties["total_magnetization"], 2)
+        self.assertEqual(self.o2.properties["incar"]["NUPDOWN"], 2)
 
     def test_str(self):
         self.assertEqual(str(self.o2), "O2")

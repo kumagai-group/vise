@@ -212,7 +212,7 @@ class MainVaspRunTest(ViseTest):
 
     def test_vasp_set_w_options(self):
         parsed_args = parse_args(["vr",
-                                  "-kc"
+                                  "-kc",
                                   "--json_file", "test.json",
                                   "-v", "vasp", "cmd",
                                   "-ikd", "3.5",

@@ -2,22 +2,20 @@
 
 import numpy as np
 
+from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.structure import Structure
 
 from vise.util.structure_handler import (
     get_symmetry_dataset, structure_to_spglib_cell, spglib_cell_to_structure,
-    find_hpkot_primitive, structure_to_seekpath )
+    find_hpkot_primitive, structure_to_seekpath)
 from vise.util.testing import ViseTest
 from vise.util.error_classes import InvalidStructureError
-
-__author__ = "Yu Kumagai"
-__maintainer__ = "Yu Kumagai"
 
 
 class GetSymmetryDatasetTest(ViseTest):
 
     def setUp(self):
-        self.structure = Structure.from_file("POSCAR-MgSe300atoms")
+        self.structure = self.get_structure_by_name("MgSe300atoms")
 
     def test(self):
         dataset = get_symmetry_dataset(self.structure, symprec=0.1)
@@ -27,7 +25,7 @@ class GetSymmetryDatasetTest(ViseTest):
 class StructureToSpglibCellTest(ViseTest):
 
     def setUp(self):
-        structure = Structure.from_file("BPOSCAR-MgO")
+        structure = self.get_structure_by_name("conventional_MgO")
         self.cell = structure_to_spglib_cell(structure)
 
     def test(self):
@@ -45,7 +43,7 @@ class StructureToSpglibCellTest(ViseTest):
 
 class SpglibCellToStructureTest(ViseTest):
     def setUp(self):
-        self.structure = Structure.from_file("BPOSCAR-MgO")
+        self.structure = self.get_structure_by_name("conventional_MgO")
         self.cell = structure_to_spglib_cell(self.structure)
         self.returned_structure = spglib_cell_to_structure(self.cell)
 
@@ -55,16 +53,16 @@ class SpglibCellToStructureTest(ViseTest):
 
 class FindSpglibStandardConventionalTest(ViseTest):
     def setUp(self):
-        self.structure = Structure.from_file("PPOSCAR-MgO")
+        self.structure = self.get_structure_by_name("MgO")
         self.cell = structure_to_spglib_cell(self.structure)
 
 
 class FindHPKOTPrimitiveTest(ViseTest):
     def test(self):
-        expected = Structure.from_file("PPOSCAR-MgO")
-        actual = find_hpkot_primitive(Structure.from_file("BPOSCAR-MgO"))
+        expected = self.get_structure_by_name("MgO")
+        actual = find_hpkot_primitive(
+            self.get_structure_by_name("conventional_MgO"))
 
-        from pymatgen.analysis.structure_matcher import StructureMatcher
         sm = StructureMatcher(ltol=0.0001, stol=0.0001, angle_tol=0.001,
                               primitive_cell=False, scale=False)
         self.assertTrue(sm.fit(expected, actual))
@@ -73,36 +71,19 @@ class FindHPKOTPrimitiveTest(ViseTest):
 class StructureToSeekpathTest(ViseTest):
 
     def setUp(self):
-        self.conventional_cell_structure = \
-            Structure.from_file("PPOSCAR-MgO-strange_lattice")
-        self.primitive_cell_structure = Structure.from_file("PPOSCAR-MgO")
+        # self.conventional_cell_structure = \
+        #     Structure.from_file("PPOSCAR-MgO-strange_lattice")
+        self.primitive_cell_structure = self.get_structure_by_name("MgO")
 
-    def test_raise_error(self):
-        with self.assertRaises(InvalidStructureError):
-            structure_to_seekpath(self.conventional_cell_structure)
-
-    def test_return_res(self):
-        res = structure_to_seekpath(self.primitive_cell_structure)
-        expected = np.array([0.5, 0, 0.5])
-        np.testing.assert_equal(expected, res["explicit_kpoints_rel"][-1])
-        self.assertEqual("X", res["explicit_kpoints_labels"][-1])
-
-
-class StructureToSeekpathTest(ViseTest):
-
-    def setUp(self):
-        self.conventional_cell_structure = \
-            Structure.from_file("PPOSCAR-MgO-strange_lattice")
-        self.primitive_cell_structure = Structure.from_file("PPOSCAR-MgO")
-
-    def test_raise_error(self):
-        with self.assertRaises(InvalidStructureError):
-            structure_to_seekpath(self.conventional_cell_structure)
+    # def test_raise_error(self):
+    #     with self.assertRaises(InvalidStructureError):
+    #         structure_to_seekpath(self.conventional_cell_structure)
 
     def test_return_res(self):
         res = structure_to_seekpath(self.primitive_cell_structure)
         expected = np.array([0.5, 0, 0.5])
         np.testing.assert_equal(expected, res["explicit_kpoints_rel"][-1])
         self.assertEqual("X", res["explicit_kpoints_labels"][-1])
+
 
 

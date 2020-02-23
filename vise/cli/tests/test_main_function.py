@@ -12,7 +12,7 @@ from pymatgen.core.structure import IStructure
 from vise.util.testing import ViseTest
 from vise.cli.main_function import (
     vasp_symprec_settings_from_args, get_poscar_from_mp, vasp_set, vasp_run,
-    create_atoms, chempotdiag, plot_band, plot_dos, band_gap)
+    chempotdiag, plot_band, plot_dos, band_gap)
 from vise.cli.tests.test_main import default_vasp_args, symprec_args
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc
