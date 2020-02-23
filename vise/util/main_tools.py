@@ -5,10 +5,12 @@ from inspect import signature, _empty
 from pathlib import Path
 import re
 from typing import Optional, Callable, List, Union, Tuple
+
 import yaml
 
-from pydefect.util.tools import is_str_int, is_str_digit
 from pymatgen.core.periodic_table import Element
+
+from vise.util.tools import is_str_int, is_str_digit
 
 
 def potcar_str2dict(potcar_list: Union[str, List[str], None]) -> dict:

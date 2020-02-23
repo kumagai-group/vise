@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
+
 import os
 from copy import deepcopy
 
@@ -18,6 +19,7 @@ from vise.input_set.task import Task
 from vise.input_set.xc import Xc
 from vise.util.logger import get_logger
 from vise.config import KPT_DENSITY
+
 
 logger = get_logger(__name__)
 

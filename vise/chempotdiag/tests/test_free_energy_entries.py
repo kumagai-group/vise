@@ -13,6 +13,7 @@ from vise.util.testing import ViseTest
 
 
 DISABLE_DISPLAY_DIAGRAM = False
+parent_dir = Path(__file__).parent
 
 
 class TestFreeEnergyEntry(ViseTest):
@@ -74,9 +75,9 @@ O2,0,2.0,-112
         os.remove("entries.csv")
 
     def test_from_vasp_files(self):
-        paths = [Path(".") / "vasp_Mg",
-                 Path(".") / "mol_O2",
-                 Path(".") / "vasp_MgO"]
+        paths = [parent_dir / "vasp_Mg",
+                 parent_dir / "mol_O2",
+                 parent_dir / "vasp_MgO"]
         entry_set = FreeEnergyEntrySet.from_vasp_files(paths,
                                                        parse_gas=True,
                                                        temperature=200)
@@ -84,7 +85,7 @@ O2,0,2.0,-112
         actual = {str(e.name) for e in entry_set}
 
         self.assertEqual(expected, actual)
-        expected = {-5.18827492, -12.51242284, -9.359640931322565}
+        expected = {-5.18827492, -12.51242284, -9.20808429}
         actual = {e.energy for e in entry_set}
         self.assertEqual(expected, actual)
         print(entry_set)

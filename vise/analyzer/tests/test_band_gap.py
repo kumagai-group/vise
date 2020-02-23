@@ -2,7 +2,7 @@
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
 import numpy as np
-
+from pathlib import Path
 from pymatgen.io.vasp.outputs import Vasprun, Outcar
 from pymatgen.electronic_structure.core import Spin
 
@@ -10,10 +10,13 @@ from vise.analyzer.band_gap import band_gap_properties, edge_info
 from vise.util.testing import ViseTest
 
 
+parent_dir = Path(__file__).parent
+
+
 class BandGapPropertiesTest(ViseTest):
     def test_mgo(self):
-        vasprun = Vasprun("MgO_band_vasprun.xml")
-        outcar = Outcar("MgO_band_OUTCAR")
+        vasprun = Vasprun(parent_dir / "MgO_band_vasprun.xml")
+        outcar = Outcar(parent_dir / "MgO_band_OUTCAR")
         expected = ({'energy': 4.6597,
                      'direct': True},
                     {'energy': 3.0663,
@@ -27,8 +30,8 @@ class BandGapPropertiesTest(ViseTest):
         self.assertEqual(expected, band_gap_properties(vasprun, outcar))
 
     def test_bata6o16(self):
-        vasprun = Vasprun("BaTa6O16_band_vasprun.xml")
-        outcar = Outcar("BaTa6O16_band_OUTCAR")
+        vasprun = Vasprun(parent_dir / "BaTa6O16_band_vasprun.xml")
+        outcar = Outcar(parent_dir / "BaTa6O16_band_OUTCAR")
         expected = ({'energy': 2.6454000000000004,
                      'direct': False},
                     {'energy': 1.8945000000000001,
@@ -42,8 +45,8 @@ class BandGapPropertiesTest(ViseTest):
         self.assertEqual(expected, band_gap_properties(vasprun, outcar))
 
     def test_mno(self):
-        vasprun = Vasprun("MnO_uniform_vasprun.xml")
-        outcar = Outcar("MnO_uniform_OUTCAR")
+        vasprun = Vasprun(parent_dir / "MnO_uniform_vasprun.xml")
+        outcar = Outcar(parent_dir / "MnO_uniform_OUTCAR")
         expected = ({'energy': 0.47020000000000017,
                      'direct': False},
                     {'energy': 4.6665999999999999,

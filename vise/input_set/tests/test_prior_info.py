@@ -2,13 +2,8 @@
 
 import tempfile
 
-from pydefect.util.testing import PydefectTest
-
 from vise.input_set.prior_info import PriorInfo
 from vise.util.testing import ViseTest
-
-__author__ = "Yu Kumagai"
-__maintainer__ = "Yu Kumagai"
 
 
 class PriorInfoTest(ViseTest):

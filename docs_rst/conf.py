@@ -7,7 +7,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'pydefect'
+project = 'vise'
 copyright = '2020, Yu Kumagai'
 author = 'Yu Kumagai'
 

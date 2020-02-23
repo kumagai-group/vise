@@ -4,7 +4,9 @@ from distutils.util import strtobool
 from typing import Callable, Any
 from xml.etree.ElementTree import ParseError
 
-from pydefect.util.tools import logger
+from vise.util.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 def parse_file(class_method_name: Callable, parsed_filename: str) -> Any:
@@ -31,3 +33,37 @@ def parse_file(class_method_name: Callable, parsed_filename: str) -> Any:
 
 def str2bool(string: str) -> bool:
     return bool(strtobool(string))
+
+
+def is_str_digit(n: str) -> bool:
+    """Check whether the given string is a digit or not.
+
+    Args:
+        n (str): The checked string.
+
+    Returns:
+        Bool.
+    """
+    try:
+        float(n)
+        return True
+    except ValueError:
+        return False
+
+
+def is_str_int(n: str) -> bool:
+    """Check whether the given string is an integer or not.
+
+    Args:
+        n (str): The checked string.
+
+    Returns:
+        Bool.
+    """
+    try:
+        if int(n) - float(n) < 1e-5:
+            return True
+        else:
+            return False
+    except ValueError:
+        return False

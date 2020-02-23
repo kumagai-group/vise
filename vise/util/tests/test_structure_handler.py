@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
+#  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
 import numpy as np
 
 from pymatgen.analysis.structure_matcher import StructureMatcher
-from pymatgen.core.structure import Structure
 
 from vise.util.structure_handler import (
     get_symmetry_dataset, structure_to_spglib_cell, spglib_cell_to_structure,

@@ -15,8 +15,6 @@ from pymatgen.util.io_utils import clean_lines
 
 from tabulate import tabulate
 
-__author__ = "Yu Kumagai"
-__maintainer__ = "Yu Kumagai"
 
 MODULE_DIR = Path(os.path.dirname(os.path.abspath(__file__)))
 # This incar_flags should be OrderedDict, but from python 3.6, dict uses

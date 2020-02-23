@@ -32,9 +32,9 @@ setup(
         "License :: OSI Approved :: MIT License"
     ],
     python_requires='>=3.6',
-    install_requires=['numpy','pymatgen','matplotlib','seekpath','spglib',
-                      'custodian', 'scipy', 'PyYAML'],
+    # install_requires=['numpy','pymatgen','matplotlib','seekpath','spglib',
+    #                   'custodian', 'scipy'],
     cmdclass = cmdclass,
     ext_modules=ext_modules,
-    include_package_data=True,
+    include_package_data=True, install_requires=['PyYAML']
 )

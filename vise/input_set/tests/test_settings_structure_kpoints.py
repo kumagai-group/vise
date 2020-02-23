@@ -4,9 +4,6 @@ from vise.util.testing import ViseTest
 from vise.input_set.settings_structure_kpoints import TaskStructureKpoints
 from vise.input_set.task import Task
 
-__author__ = "Yu Kumagai"
-__maintainer__ = "Yu Kumagai"
-
 
 class TaskStructureKpointsTest(ViseTest):
     def setUp(self) -> None:

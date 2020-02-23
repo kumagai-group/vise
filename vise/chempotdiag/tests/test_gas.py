@@ -9,12 +9,14 @@ from vise.chempotdiag.gas import (
 from vise.config import ROOM_TEMPERATURE, REFERENCE_PRESSURE
 from vise.util.testing import ViseTest
 
+molecules_dir = Path(__file__).parent / ".." / "molecules"
+
 
 class TestFundamentalFrequencies(ViseTest):
 
     def test_from_yaml(self):
-        nh3_yaml = \
-            Path("..") / "molecules" / "NH3" / "fundamental_frequencies.yaml"
+        nh3_yaml = molecules_dir / "NH3" / "fundamental_frequencies.yaml"
+
         nh3 = FundamentalFrequencies.from_yaml(nh3_yaml)
         expected = [3506, 1022, 3577, 1691]
         actual = [f.wave_number for f in nh3.frequencies]
@@ -28,8 +30,8 @@ class TestFundamentalFrequencies(ViseTest):
 class TestShomateThermodynamicsFunction(ViseTest):
 
     def setUp(self):
-        o2_file = Path("..") / "molecules" / "O2" / "shomate_nist.dat"
-        no2_file = Path("..") / "molecules" / "NO2" / "shomate_nist.dat"
+        o2_file = molecules_dir / "O2" / "shomate_nist.dat"
+        no2_file = molecules_dir / "NO2" / "shomate_nist.dat"
         self.o2 = ShomateThermodynamicsFunction.from_nist_table(o2_file)
         self.no2 = ShomateThermodynamicsFunction.from_nist_table(no2_file)
 
@@ -99,7 +101,7 @@ class TestGas(ViseTest):
         those from NIST=JANAF Thermodynamical Tables.
 
         """
-        o2_file = Path("..") / "molecules" / "O2" / "shomate_nist.dat"
+        o2_file = molecules_dir / "O2" / "shomate_nist.dat"
         o2_shomate = ShomateThermodynamicsFunction.from_nist_table(o2_file)
 
         self.assertEqual(self.o2.heat_capacity(400),

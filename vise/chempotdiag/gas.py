@@ -8,9 +8,9 @@ import math
 import os
 from pathlib import Path
 import re
+import yaml
 
 from scipy.constants import speed_of_light, physical_constants, R, Avogadro
-from ruamel import yaml
 
 from monty.json import MSONable
 

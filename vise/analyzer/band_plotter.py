@@ -35,7 +35,7 @@ class PrettyBSPlotter:
                  y_range: List[float] = None,
                  legend: bool = False,
                  symprec: float = SYMMETRY_TOLERANCE,
-                 angle_tolerance: float = ANGLE_TOL):
+                 angle_tolerance: float = ANGLE_TOL) -> None:
         """
 
         Note:

@@ -1,20 +1,23 @@
 # -*- coding: utf-8 -*-
 
 from pymatgen.electronic_structure.core import Spin
+from pathlib import Path
 
 from vise.analyzer.dos_plotter import get_dos_plot, max_density
 from vise.util.testing import ViseTest
+
+parent_dir = Path(__file__).parent
 
 
 class ViseDosPlotterTest(ViseTest):
 
     # Must split pyplot constructors. Otherwise, mgo_dos.pdf shows NaN3 results.
     def test_normal(self):
-        mgo_dos = get_dos_plot(vasprun="MgO_dos_vasprun.xml")
-        mgo_dos.savefig("mgo_dos.pdf")
+        mgo_dos = get_dos_plot(vasprun=parent_dir / "MgO_dos_vasprun.xml")
+        mgo_dos.savefig(str(parent_dir / "mgo_dos.pdf"))
 
     def test_w_args(self):
-        nan3_dos_mod = get_dos_plot(vasprun="NaN3_dos_vasprun.xml",
+        nan3_dos_mod = get_dos_plot(vasprun=parent_dir / "NaN3_dos_vasprun.xml",
                                     pdos_type="none",
                                     orbital=False,
                                     xlim=[-3, 5],

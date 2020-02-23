@@ -6,6 +6,7 @@ import unittest
 import numpy as np
 import os
 import shutil
+from pathlib import Path
 from unittest.mock import patch
 
 from pymatgen.core.composition import Composition
@@ -25,9 +26,13 @@ from vise.config import (
     SYMMETRY_TOLERANCE, ANGLE_TOL, KPT_DENSITY, KPT_INIT_DENSITY, TIMEOUT)
 
 
+parent_dir = Path(__file__).parent
+
+
 class SimpleOverrideTest(ViseTest):
     def setUp(self) -> None:
-        shutil.copy("../../test_files/vise.yaml", "vise.yaml")
+        vise_yaml = parent_dir / ".." / ".." / "test_files" / "vise.yaml"
+        shutil.copy(str(vise_yaml), "vise.yaml")
 
     def test(self):
         d = {"xc": "pbesol", "symprec": 1}
@@ -38,6 +43,7 @@ class SimpleOverrideTest(ViseTest):
 
     def tearDown(self) -> None:
         os.remove("vise.yaml")
+
 
 vis_defaults = get_default_args(ViseInputSet.make_input)
 vis_defaults.update(ViseInputSet.TASK_OPTIONS)
@@ -113,7 +119,8 @@ class MainVaspSetTest(ViseTest):
         self.assertEqual(expected, parsed_args)
 
     def test_vasp_set_yaml(self):
-        shutil.copy("../../test_files/vise.yaml", "vise.yaml")
+        vise_yaml = parent_dir / ".." / ".." / "test_files" / "vise.yaml"
+        shutil.copy(str(vise_yaml), str("vise.yaml"))
         parsed_args = parse_args(["vs",
                                   "--ldauu", "Mg", "5",
                                   "-d", "c"])
