@@ -2,6 +2,9 @@ version: 2
 
 jobs:
   build:
+    branches:
+      only:
+        - master
     working_directory: ~/vise
     environment:
       PMG_DEFAULT_FUNCTIONAL: PBE_54
@@ -26,14 +29,12 @@ jobs:
             sudo pip install --quiet pytest pytest-cov
             pytest vise --cov=vise --cov-report html:coverage_reports vise
 
-
-
-workflows:
-  version: 2
-  main:
-    jobs:
-      - build
-          filters:
-            branches:
-              only:
-                - master
+#
+#workflows:
+#  version: 2
+#  main:
+#    jobs:
+#      - build:
+#        filters:
+#          branches:
+#            only: master
