@@ -2,7 +2,7 @@ version: 2.1
 
 jobs:
   test:
-  working_directory: ~/vise
+    working_directory: ~/vise
     docker:
       - image: circleci/python:3.6.9
     steps:
