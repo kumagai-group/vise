@@ -1,22 +1,44 @@
-version: 2.1
+version: 2
 
 jobs:
-  test:
+  build:
     working_directory: ~/vise
+    environment:
+      PMG_DEFAULT_FUNCTIONAL: PBE_54
+    # remove this later and use CircleCI env
+#      PMG_MAPI_KEY: Hcn75yCk48lGP2Vi
+#      PMG_VASP_PSP_DIR: ~/vise/vise/test_files/potcars
     docker:
       - image: circleci/python:3.6.9
     steps:
-      - checkuout
+      - checkout
       - run:
           command: |
-            pip install -r requirements.txt
-            pip install --quiet pytest
-            echo "Run pytest."
+            ls $HOME/vise/vise/test_files/potcars
+      - run:
+          command: |
+            echo 'PMG_VASP_PSP_DIR: ~/vise/vise/test_files/potcars' > $HOME/.pmgrc.yaml
+            echo 'PMG_DEFAULT_FUNCTIONAL: PBE_54' >> $HOME/.pmgrc.yaml
+            echo "PMG_MAPI_KEY: ${KEY}" >> $HOME/.pmgrc.yaml
+      - run:
+          command: |
+            cat $HOME/.pmgrc.yaml
+      - run:
+          command: |
+            sudo pip install -r requirements.txt
+            sudo pip install --quiet pytest
             pytest vise
-            echo "--- Done ---"
+      - store_test_results:
+          path: test-results
+      - store_artifacts:
+          path: test-results
+          destination: tr1
+
+
 
 workflows:
   version: 2
   main:
     jobs:
-      - test
+      - build
+

@@ -21,12 +21,12 @@ class XcTaskPotcarTest(ViseTest):
         self.assertEqual(expected, xc_task_potcar.potcar.as_dict())
         self.assertEqual(400.0, xc_task_potcar.max_enmax)
 
-    def test_lda(self) -> None:
-        xc_task_potcar = XcTaskPotcar.from_options(xc=Xc.lda,
-                                                   symbol_list=["Mg", "O"])
+    # def test_lda(self) -> None:
+    #     xc_task_potcar = XcTaskPotcar.from_options(xc=Xc.lda,
+    #                                                symbol_list=["Mg", "O"])
 
-        expected = Potcar(["Mg", "O"], functional="LDA").as_dict()
-        self.assertEqual(expected, xc_task_potcar.potcar.as_dict())
+        # expected = Potcar(["Mg", "O"], functional="LDA").as_dict()
+        # self.assertEqual(expected, xc_task_potcar.potcar.as_dict())
 
     def test_mp_relax_set(self) -> None:
         xc_task_potcar = \
@@ -41,7 +41,7 @@ class XcTaskPotcarTest(ViseTest):
         xc_task_potcar = \
             XcTaskPotcar.from_options(xc=Xc.pbe,
                                       symbol_list=["Mg", "O"],
-                                      override_potcar_set={"O": "O_h"})
+                                      override_potcar_set={"Mg": "Mg_pv"})
 
-        expected = Potcar(["Mg", "O_h"], functional="PBE_54").as_dict()
+        expected = Potcar(["Mg_pv", "O"], functional="PBE_54").as_dict()
         self.assertEqual(expected, xc_task_potcar.potcar.as_dict())
