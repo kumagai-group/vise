@@ -7,7 +7,7 @@ jobs:
       - image: circleci/python:3.6.9
     steps:
       - checkuout
-     - run:
+      - run:
           command: |
             pip install -r requirements.txt
             pip install --quiet pytest
