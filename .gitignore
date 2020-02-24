@@ -8,7 +8,7 @@
 *.pyc
 *.pyd
 *.swp
-POTCAR*
+#POTCAR*
 obadb/vasp/pos_examples
 obadb/vasp/prev_calc_test
 
