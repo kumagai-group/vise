@@ -10,7 +10,7 @@ __maintainer__ = "Yu Kumagai"
 
 class InputSetTest(ViseTest):
     def setUp(self) -> None:
-        mgo = self.get_structure_by_name("YMnO3")
+        mgo = self.get_structure_by_name("MgO")
         self.input_set = ViseInputSet.make_input(structure=mgo, xc=Xc.hse)
 
     def test_write(self):
