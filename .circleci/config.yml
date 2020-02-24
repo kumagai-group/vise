@@ -5,9 +5,6 @@ jobs:
     working_directory: ~/vise
     environment:
       PMG_DEFAULT_FUNCTIONAL: PBE_54
-    # remove this later and use CircleCI env
-#      PMG_MAPI_KEY: Hcn75yCk48lGP2Vi
-#      PMG_VASP_PSP_DIR: ~/vise/vise/test_files/potcars
     docker:
       - image: circleci/python:3.6.9
     steps:
@@ -36,4 +33,7 @@ workflows:
   main:
     jobs:
       - build
-
+          filters:
+            branches:
+              only:
+                - master
