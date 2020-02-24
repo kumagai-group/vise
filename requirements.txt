@@ -1,5 +1,4 @@
 tabulate==0.8.6
-pydefect_yuuukuma.egg==info
 spglib==1.14.1.post0
 custodian==2019.9.23
 monty==3.0.2
