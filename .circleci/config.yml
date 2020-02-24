@@ -26,13 +26,8 @@ jobs:
       - run:
           command: |
             sudo pip install -r requirements.txt
-            sudo pip install --quiet pytest
-            pytest vise
-      - store_test_results:
-          path: test-results
-      - store_artifacts:
-          path: test-results
-          destination: tr1
+            sudo pip install --quiet pytest pytest-cov
+            pytest vise --cov=vise --cov-report html:coverage_reports vise
 
 
 
