@@ -31,6 +31,7 @@ def parse_file(class_method_name: Callable, parsed_filename: str) -> Any:
         logger.warning(f"File {parsed_filename} not found.")
         raise
 
+
 def str2bool(string: str) -> bool:
     return bool(strtobool(string))
 

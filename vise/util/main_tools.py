@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from distutils.util import strtobool
 from inspect import signature, _empty
 from pathlib import Path
 import re
@@ -10,7 +9,7 @@ import yaml
 
 from pymatgen.core.periodic_table import Element
 
-from vise.util.tools import is_str_int, is_str_digit
+from vise.util.tools import is_str_int, is_str_digit, str2bool
 
 
 def potcar_str2dict(potcar_list: Union[str, List[str], None]) -> dict:
@@ -96,7 +95,7 @@ def list2dict(flattened_list: Optional[list], key_candidates: list) -> dict:
             key = string
         else:
             try:
-                value = strtobool(string)
+                value = str2bool(string)
             except ValueError:
                 if is_str_int(string):
                     value = int(string)

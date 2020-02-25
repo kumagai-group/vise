@@ -4,7 +4,6 @@
 
 import argparse
 import sys
-from distutils.util import strtobool
 from typing import Union
 
 from vise.cli.main_function import (
@@ -204,7 +203,7 @@ def parse_args(args):
         "-pi", "--prior_info", type=str2bool, default=True,
         help="Whether to use prior_info.json when it exists.")
     parser_vasp_set.add_argument(
-        "--dirs", nargs="+", type=str,
+        "--dirs", nargs="+", type=str, required=True,
         help="Make vasp set for the directories in the same condition.")
     parser_vasp_set.add_argument(
         "-d", "--prev_dir", type=str,
@@ -366,7 +365,7 @@ def parse_args(args):
     parser_plot_dos.add_argument(
         "-s", dest="specific", type=str, nargs="+", default=None, help=".")
     parser_plot_dos.add_argument(
-        "-o", dest="orbital", type=strtobool, default=True,
+        "-o", dest="orbital", type=str2bool, default=True,
         help="Whether to decompose orbital components.")
     parser_plot_dos.add_argument(
         "-x", "--x_range", nargs="+", type=float, default=None,
@@ -383,10 +382,10 @@ def parse_args(args):
         "-a", "--absolute", action="store_true",
         help="Set when showing the figure in the absolute energy scale.")
     parser_plot_dos.add_argument(
-        "-l", "--legend", type=strtobool, default=True,
+        "-l", "--legend", type=str2bool, default=True,
         help="Whether to show the figure legend.")
     parser_plot_dos.add_argument(
-        "-c", "--crop_first_value", type=strtobool, default=True,
+        "-c", "--crop_first_value", type=str2bool, default=True,
         help="Whether to crop the first value in DOS.")
 
     parser_plot_dos.set_defaults(func=plot_dos)

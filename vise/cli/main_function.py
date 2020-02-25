@@ -44,7 +44,9 @@ logger = get_logger(__name__)
 
 def vasp_symprec_settings_from_args(args: Namespace
                                     ) -> Tuple[dict, dict, Task, Xc]:
-    """Generate vasp input settings from the given args."""
+    """Generate vasp input settings from the given args.
+
+    """
 
     flags = [str(s) for s in list(Element)]
     ldauu = list2dict(args.ldauu, flags)
@@ -53,6 +55,7 @@ def vasp_symprec_settings_from_args(args: Namespace
     task = Task.from_string(args.task)
     xc = Xc.from_string(args.xc)
     key_candidates = list(ViseInputSet.ALL_OPTIONS.keys())
+    # Sanitize values of vis_base_kwargs and user_incar_settings with list2dict.
     vis_base_kwargs = list2dict(args.vise_opts, key_candidates)
     key_candidates = list(chain.from_iterable(incar_flags.values()))
     user_incar_settings = list2dict(args.user_incar_settings, key_candidates)
