@@ -10,6 +10,7 @@ import yaml
 from pymatgen.core.periodic_table import Element
 
 from vise.util.tools import is_str_int, is_str_digit, str2bool
+from distutils.util import strtobool
 
 
 def potcar_str2dict(potcar_list: Union[str, List[str], None]) -> dict:
@@ -71,7 +72,7 @@ def list2dict(flattened_list: Optional[list], key_candidates: list) -> dict:
             List of key candidates, e.g., INCAR flags.
 
     Returns:
-        Sanitized dict
+        Sanitized dict.
     """
     flattened_list = flattened_list or []
 
@@ -94,15 +95,18 @@ def list2dict(flattened_list: Optional[list], key_candidates: list) -> dict:
                 value_list = []
             key = string
         else:
-            try:
-                value = str2bool(string)
-            except ValueError:
-                if is_str_int(string):
-                    value = int(string)
-                elif is_str_digit(string):
-                    value = float(string)
-                else:
-                    value = string
+            # We first need to check numbers as 0 and 1 are parse as False and
+            # True with str2bool.
+            if is_str_int(string):
+                value = int(string)
+            else:
+                try:
+                    value = str2bool(string)
+                except ValueError:
+                    if is_str_digit(string):
+                        value = float(string)
+                    else:
+                        value = string
 
             value_list.append(value)
     else:
