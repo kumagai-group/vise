@@ -1,0 +1,1149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="a5b67aba-b1fa-4556-a910-24c189cda276" name="Default Changelist" comment="Reset gitignore" />
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CoverageViewManager">
+    <option name="myElementSize" value="395" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Rebase.Settings">
+    <option name="ONTO" value="refs/heads/master" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="master" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectId" id="1OcStcUpeX1MKMOODKYKwI4IIan" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="PropertiesComponent">
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/vise/test_files/potcars/POT_GGA_PAW_PBE_54" />
+    <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
+    <property name="nodejs_npm_path_reset_for_default_project" value="true" />
+    <property name="run.code.analysis.last.selected.profile" value="aDefault" />
+    <property name="settings.editor.selected.configurable" value="Errors" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/vise/test_files/potcars/POT_GGA_PAW_PBE_54" />
+      <recent name="$PROJECT_DIR$/vise/test_files/potcars/POT_GGA_PAW_PBE_54/O" />
+      <recent name="$PROJECT_DIR$/vise/util/tests" />
+      <recent name="$PROJECT_DIR$/vise/chempotdiag/molecules/F2" />
+      <recent name="$PROJECT_DIR$/vise/chempotdiag/molecules/H2" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/vise/test_files" />
+      <recent name="$PROJECT_DIR$/vise/cli" />
+      <recent name="$PROJECT_DIR$/vise/util/tests" />
+      <recent name="$PROJECT_DIR$/vise/util" />
+      <recent name="$PROJECT_DIR$/vise" />
+    </key>
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="RunManager" selected="Python tests.pytest for test_main_tools.List2DictTest.test_dict2list">
+    <configuration default="true" type="tests" factoryName="py.test">
+      <module name="obadb" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="$USER_HOME$/my_programs/virtualenvs/python3/bin/python3" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="pytest all" type="tests" factoryName="py.test">
+      <module name="obadb" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="$USER_HOME$/my_programs/virtualenvs/python3/bin/python3" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/vise&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="pytest for test_main_tools.GetUserSettingsTest.test_bool" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+      <module name="obadb" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="$USER_HOME$/my_programs/virtualenvs/python3/bin/python3" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/vise/util/tests" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;test_main_tools.GetUserSettingsTest.test_bool&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="pytest for test_main_tools.List2DictTest.test_dict2list" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+      <module name="obadb" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="$USER_HOME$/my_programs/virtualenvs/python3/bin/python3" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/vise/util/tests" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;test_main_tools.List2DictTest.test_dict2list&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="pytest for test_settings_incar.TaskIncarSettingsTest" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+      <module name="obadb" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="$USER_HOME$/my_programs/virtualenvs/python3/bin/python3" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/vise/input_set/tests" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;test_settings_incar.TaskIncarSettingsTest&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="pytest for test_settings_potcar.XcTaskPotcarTest" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+      <module name="obadb" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="$USER_HOME$/my_programs/virtualenvs/python3/bin/python3" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/vise/input_set/tests" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;test_settings_potcar.XcTaskPotcarTest&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="pytest in chempotdiag" type="tests" factoryName="py.test">
+      <module name="obadb" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/vise/chempotdiag/tests" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/vise/chempotdiag/tests&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="pytest in cli" type="tests" factoryName="py.test">
+      <module name="obadb" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/vise/cli/tests" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/vise/cli/tests&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="pytest in test_settings_incar.py" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+      <module name="obadb" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="$USER_HOME$/my_programs/virtualenvs/python3/bin/python3" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/vise/input_set/tests" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/vise/input_set/tests/test_settings_incar.py&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Python tests.pytest all" />
+      <item itemvalue="Python tests.pytest in chempotdiag" />
+      <item itemvalue="Python tests.pytest in cli" />
+      <item itemvalue="Python tests.pytest for test_settings_incar.TaskIncarSettingsTest" />
+      <item itemvalue="Python tests.pytest in test_settings_incar.py" />
+      <item itemvalue="Python tests.pytest for test_settings_potcar.XcTaskPotcarTest" />
+      <item itemvalue="Python tests.pytest for test_main_tools.GetUserSettingsTest.test_bool" />
+      <item itemvalue="Python tests.pytest for test_main_tools.List2DictTest.test_dict2list" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python tests.pytest for test_main_tools.List2DictTest.test_dict2list" />
+        <item itemvalue="Python tests.pytest for test_main_tools.GetUserSettingsTest.test_bool" />
+        <item itemvalue="Python tests.pytest in test_settings_incar.py" />
+        <item itemvalue="Python tests.pytest for test_settings_incar.TaskIncarSettingsTest" />
+        <item itemvalue="Python tests.pytest for test_settings_potcar.XcTaskPotcarTest" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="a5b67aba-b1fa-4556-a910-24c189cda276" name="Default Changelist" comment="" />
+      <created>1553679226802</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1553679226802</updated>
+      <workItem from="1553679228567" duration="414000" />
+      <workItem from="1553679680570" duration="2688000" />
+      <workItem from="1553771209733" duration="101000" />
+      <workItem from="1554079286991" duration="360000" />
+      <workItem from="1554250421305" duration="565000" />
+      <workItem from="1554338349265" duration="484000" />
+      <workItem from="1554421565111" duration="895000" />
+      <workItem from="1554442476166" duration="104000" />
+      <workItem from="1554525403840" duration="193000" />
+      <workItem from="1554533676325" duration="184000" />
+      <workItem from="1554769071029" duration="131000" />
+      <workItem from="1555546532517" duration="2643000" />
+      <workItem from="1555810046025" duration="1828000" />
+      <workItem from="1555920312345" duration="598000" />
+      <workItem from="1555975434367" duration="599000" />
+      <workItem from="1556066058217" duration="469000" />
+      <workItem from="1556101705378" duration="477000" />
+      <workItem from="1556162032408" duration="2826000" />
+      <workItem from="1556268315881" duration="496000" />
+      <workItem from="1557564063060" duration="152000" />
+      <workItem from="1557624760839" duration="504000" />
+      <workItem from="1557710804032" duration="247000" />
+      <workItem from="1557715695910" duration="407000" />
+      <workItem from="1558658236415" duration="137000" />
+      <workItem from="1558743063745" duration="2842000" />
+      <workItem from="1559005638049" duration="539000" />
+      <workItem from="1559014509995" duration="1143000" />
+      <workItem from="1559625700149" duration="1730000" />
+      <workItem from="1560293582886" duration="2211000" />
+      <workItem from="1560385449234" duration="556000" />
+      <workItem from="1560388140341" duration="1183000" />
+      <workItem from="1560472016711" duration="509000" />
+      <workItem from="1560497837835" duration="575000" />
+      <workItem from="1560729165626" duration="353000" />
+      <workItem from="1560811491465" duration="1400000" />
+      <workItem from="1560845863677" duration="670000" />
+      <workItem from="1560898184826" duration="291000" />
+      <workItem from="1560928987660" duration="856000" />
+      <workItem from="1560994832543" duration="548000" />
+      <workItem from="1560998797678" duration="2777000" />
+      <workItem from="1561073900018" duration="807000" />
+      <workItem from="1561165995794" duration="524000" />
+      <workItem from="1561259473621" duration="636000" />
+      <workItem from="1561333819094" duration="988000" />
+      <workItem from="1561422156866" duration="612000" />
+      <workItem from="1562464454344" duration="1297000" />
+      <workItem from="1562742572639" duration="509000" />
+      <workItem from="1562745755787" duration="2195000" />
+      <workItem from="1562752748994" duration="1219000" />
+      <workItem from="1562801863925" duration="874000" />
+      <workItem from="1562830994752" duration="1021000" />
+      <workItem from="1562922092760" duration="1987000" />
+      <workItem from="1562982134004" duration="2622000" />
+      <workItem from="1563318706235" duration="2655000" />
+      <workItem from="1563418572722" duration="1370000" />
+      <workItem from="1563494828362" duration="2702000" />
+      <workItem from="1563508688178" duration="1487000" />
+      <workItem from="1563606275866" duration="936000" />
+      <workItem from="1563674360578" duration="1585000" />
+      <workItem from="1564019538416" duration="6831000" />
+      <workItem from="1564275615480" duration="49000" />
+      <workItem from="1564314837116" duration="13317000" />
+      <workItem from="1564375800183" duration="153000" />
+      <workItem from="1564383045763" duration="812000" />
+      <workItem from="1564538088464" duration="432000" />
+      <workItem from="1564622372658" duration="225000" />
+      <workItem from="1565855303433" duration="1032000" />
+      <workItem from="1565863837845" duration="2248000" />
+      <workItem from="1565913640094" duration="1436000" />
+      <workItem from="1566372939103" duration="1767000" />
+      <workItem from="1566439431542" duration="3856000" />
+      <workItem from="1566473541778" duration="1877000" />
+      <workItem from="1566516459833" duration="1594000" />
+      <workItem from="1566626230841" duration="16000" />
+      <workItem from="1566640961419" duration="624000" />
+      <workItem from="1566905106692" duration="800000" />
+      <workItem from="1566947457038" duration="1438000" />
+      <workItem from="1566993738007" duration="613000" />
+      <workItem from="1567037156430" duration="1286000" />
+      <workItem from="1567065387086" duration="1576000" />
+      <workItem from="1567125258683" duration="3986000" />
+      <workItem from="1567137497147" duration="708000" />
+      <workItem from="1567555070329" duration="6047000" />
+      <workItem from="1567641952097" duration="16226000" />
+      <workItem from="1568159224516" duration="167000" />
+      <workItem from="1568159464774" duration="16228000" />
+      <workItem from="1568246601577" duration="26596000" />
+      <workItem from="1568331927059" duration="9488000" />
+      <workItem from="1568418002592" duration="525000" />
+      <workItem from="1568424904538" duration="4188000" />
+      <workItem from="1568510143490" duration="6611000" />
+      <workItem from="1568526035526" duration="11160000" />
+      <workItem from="1568595562204" duration="20770000" />
+      <workItem from="1568679391456" duration="12629000" />
+      <workItem from="1568704445878" duration="7462000" />
+      <workItem from="1568763728292" duration="7549000" />
+      <workItem from="1568784682976" duration="5003000" />
+      <workItem from="1568874229228" duration="598000" />
+      <workItem from="1568937909364" duration="3776000" />
+      <workItem from="1568959668903" duration="2394000" />
+      <workItem from="1569024083148" duration="594000" />
+      <workItem from="1569040218598" duration="590000" />
+      <workItem from="1569112411173" duration="595000" />
+      <workItem from="1569123235100" duration="1868000" />
+      <workItem from="1569195620444" duration="4135000" />
+      <workItem from="1569208811180" duration="13437000" />
+      <workItem from="1569281899454" duration="4416000" />
+      <workItem from="1569450882224" duration="514000" />
+      <workItem from="1569481080211" duration="637000" />
+      <workItem from="1569640660539" duration="1448000" />
+      <workItem from="1569666331736" duration="4776000" />
+      <workItem from="1569899259736" duration="3737000" />
+      <workItem from="1570340396946" duration="1759000" />
+      <workItem from="1570683187146" duration="1264000" />
+      <workItem from="1571780508158" duration="411000" />
+      <workItem from="1571805386791" duration="4634000" />
+      <workItem from="1571816280132" duration="7743000" />
+      <workItem from="1571895566436" duration="597000" />
+      <workItem from="1572044267673" duration="8436000" />
+      <workItem from="1572086695254" duration="688000" />
+      <workItem from="1572131944729" duration="5983000" />
+      <workItem from="1572220286261" duration="6317000" />
+      <workItem from="1572307409276" duration="1135000" />
+      <workItem from="1572397280540" duration="6581000" />
+      <workItem from="1572474414603" duration="1184000" />
+      <workItem from="1572565571401" duration="3518000" />
+      <workItem from="1572613189020" duration="1030000" />
+      <workItem from="1572654614567" duration="4248000" />
+      <workItem from="1572748769911" duration="1172000" />
+      <workItem from="1572755889935" duration="529000" />
+      <workItem from="1572829882009" duration="1135000" />
+      <workItem from="1572907561364" duration="1146000" />
+      <workItem from="1572928471988" duration="3335000" />
+      <workItem from="1572995781128" duration="5074000" />
+      <workItem from="1573082086421" duration="1191000" />
+      <workItem from="1573188695778" duration="5467000" />
+      <workItem from="1573265271501" duration="1582000" />
+      <workItem from="1573354037034" duration="2179000" />
+      <workItem from="1573429165861" duration="4425000" />
+      <workItem from="1573516577219" duration="5167000" />
+      <workItem from="1573696909340" duration="783000" />
+      <workItem from="1573723599503" duration="557000" />
+      <workItem from="1573788996488" duration="4422000" />
+      <workItem from="1573863592452" duration="2318000" />
+      <workItem from="1573890344103" duration="275000" />
+      <workItem from="1573966649054" duration="431000" />
+      <workItem from="1573968281521" duration="311000" />
+      <workItem from="1574223295864" duration="28000" />
+      <workItem from="1574223351009" duration="4688000" />
+      <workItem from="1574298640554" duration="9155000" />
+      <workItem from="1574381500058" duration="3088000" />
+      <workItem from="1574390406869" duration="4481000" />
+      <workItem from="1574418432125" duration="48000" />
+      <workItem from="1574480370579" duration="1485000" />
+      <workItem from="1574758078971" duration="1300000" />
+      <workItem from="1574814896562" duration="1729000" />
+      <workItem from="1575516081405" duration="1210000" />
+      <workItem from="1575778763114" duration="667000" />
+      <workItem from="1576199906493" duration="18285000" />
+      <workItem from="1576292061541" duration="12017000" />
+      <workItem from="1576373551885" duration="15423000" />
+      <workItem from="1576452994519" duration="6367000" />
+      <workItem from="1576538182895" duration="11596000" />
+      <workItem from="1576645756998" duration="531000" />
+      <workItem from="1579238407484" duration="1262000" />
+      <workItem from="1579398641788" duration="2244000" />
+      <workItem from="1579478859832" duration="1713000" />
+      <workItem from="1579565606669" duration="6888000" />
+      <workItem from="1579650126799" duration="433000" />
+      <workItem from="1579663872802" duration="2827000" />
+      <workItem from="1579736186089" duration="1532000" />
+      <workItem from="1579830285341" duration="1109000" />
+      <workItem from="1579922043293" duration="680000" />
+      <workItem from="1579927550830" duration="651000" />
+      <workItem from="1580083290272" duration="828000" />
+      <workItem from="1580173255467" duration="1035000" />
+      <workItem from="1580178880436" duration="5607000" />
+      <workItem from="1580257763074" duration="1601000" />
+      <workItem from="1580289785525" duration="3632000" />
+      <workItem from="1580343292650" duration="641000" />
+      <workItem from="1580429863061" duration="504000" />
+      <workItem from="1581292151571" duration="306000" />
+      <workItem from="1581292479813" duration="2691000" />
+      <workItem from="1581377797534" duration="8924000" />
+      <workItem from="1581396772128" duration="22536000" />
+      <workItem from="1581461880178" duration="15487000" />
+      <workItem from="1581483991842" duration="2458000" />
+      <workItem from="1581499100214" duration="401000" />
+      <workItem from="1581549181189" duration="38142000" />
+      <workItem from="1581633668169" duration="14023000" />
+      <workItem from="1581724359513" duration="16130000" />
+      <workItem from="1581812877055" duration="7206000" />
+      <workItem from="1581830782655" duration="9128000" />
+      <workItem from="1581896267782" duration="16336000" />
+      <workItem from="1581980251346" duration="22730000" />
+      <workItem from="1582069598778" duration="2979000" />
+      <workItem from="1582089223788" duration="6701000" />
+      <workItem from="1582113464709" duration="2521000" />
+      <workItem from="1582116272258" duration="2243000" />
+      <workItem from="1582150785475" duration="26627000" />
+      <workItem from="1582240051759" duration="17428000" />
+      <workItem from="1582329882884" duration="9284000" />
+      <workItem from="1582351220359" duration="7683000" />
+      <workItem from="1582417541681" duration="13723000" />
+      <workItem from="1582499700751" duration="8399000" />
+      <workItem from="1582514203696" duration="8698000" />
+      <workItem from="1582587271140" duration="1281000" />
+      <workItem from="1582619811495" duration="22000" />
+      <workItem from="1582619842580" duration="3018000" />
+      <workItem from="1582682672950" duration="7045000" />
+      <workItem from="1582940383087" duration="573000" />
+      <workItem from="1582957146809" duration="5304000" />
+    </task>
+    <task id="LOCAL-00089" summary="Misc changes">
+      <created>1576383237779</created>
+      <option name="number" value="00089" />
+      <option name="presentableId" value="LOCAL-00089" />
+      <option name="project" value="LOCAL" />
+      <updated>1576383237779</updated>
+    </task>
+    <task id="LOCAL-00090" summary="Set version 0.1.0">
+      <created>1576383515783</created>
+      <option name="number" value="00090" />
+      <option name="presentableId" value="LOCAL-00090" />
+      <option name="project" value="LOCAL" />
+      <updated>1576383515784</updated>
+    </task>
+    <task id="LOCAL-00091" summary="Copy comment from titas">
+      <created>1576384117626</created>
+      <option name="number" value="00091" />
+      <option name="presentableId" value="LOCAL-00091" />
+      <option name="project" value="LOCAL" />
+      <updated>1576384117626</updated>
+    </task>
+    <task id="LOCAL-00092" summary="Add comment to show SGs w/ different primitives b/w seekpath and spglib">
+      <created>1576389648293</created>
+      <option name="number" value="00092" />
+      <option name="presentableId" value="LOCAL-00092" />
+      <option name="project" value="LOCAL" />
+      <updated>1576389648293</updated>
+    </task>
+    <task id="LOCAL-00093" summary="Fix bug in LOPTICS">
+      <created>1576395327763</created>
+      <option name="number" value="00093" />
+      <option name="presentableId" value="LOCAL-00093" />
+      <option name="project" value="LOCAL" />
+      <updated>1576395327763</updated>
+    </task>
+    <task id="LOCAL-00094" summary="Add spectra mesh to INCAR settings">
+      <created>1576496515467</created>
+      <option name="number" value="00094" />
+      <option name="presentableId" value="LOCAL-00094" />
+      <option name="project" value="LOCAL" />
+      <updated>1576496515467</updated>
+    </task>
+    <task id="LOCAL-00095" summary="Modify band_gap_properties and add its unittest">
+      <created>1576547223185</created>
+      <option name="number" value="00095" />
+      <option name="presentableId" value="LOCAL-00095" />
+      <option name="project" value="LOCAL" />
+      <updated>1576547223185</updated>
+    </task>
+    <task id="LOCAL-00096" summary="Modify return of band_gap_properties and its unittest">
+      <created>1576550992390</created>
+      <option name="number" value="00096" />
+      <option name="presentableId" value="LOCAL-00096" />
+      <option name="project" value="LOCAL" />
+      <updated>1576550992390</updated>
+    </task>
+    <task id="LOCAL-00097" summary="Change EDIFFG for defect from -0.05 to -0.03">
+      <created>1580297306699</created>
+      <option name="number" value="00097" />
+      <option name="presentableId" value="LOCAL-00097" />
+      <option name="project" value="LOCAL" />
+      <updated>1580297306699</updated>
+    </task>
+    <task id="LOCAL-00098" summary="Misc modification">
+      <created>1580297371151</created>
+      <option name="number" value="00098" />
+      <option name="presentableId" value="LOCAL-00098" />
+      <option name="project" value="LOCAL" />
+      <updated>1580297371151</updated>
+    </task>
+    <task id="LOCAL-00099" summary="Temporary">
+      <created>1581411376275</created>
+      <option name="number" value="00099" />
+      <option name="presentableId" value="LOCAL-00099" />
+      <option name="project" value="LOCAL" />
+      <updated>1581411376275</updated>
+    </task>
+    <task id="LOCAL-00100" summary="Modify ChemPotDiag to use PhaseDiagram">
+      <created>1581466514946</created>
+      <option name="number" value="00100" />
+      <option name="presentableId" value="LOCAL-00100" />
+      <option name="project" value="LOCAL" />
+      <updated>1581466514947</updated>
+    </task>
+    <task id="LOCAL-00101" summary="Update chempotdiag">
+      <created>1581598975900</created>
+      <option name="number" value="00101" />
+      <option name="presentableId" value="LOCAL-00101" />
+      <option name="project" value="LOCAL" />
+      <updated>1581598975900</updated>
+    </task>
+    <task id="LOCAL-00102" summary="Update chempotdiag">
+      <created>1581603226082</created>
+      <option name="number" value="00102" />
+      <option name="presentableId" value="LOCAL-00102" />
+      <option name="project" value="LOCAL" />
+      <updated>1581603226082</updated>
+    </task>
+    <task id="LOCAL-00103" summary="Update chempotdiag">
+      <created>1581732369144</created>
+      <option name="number" value="00103" />
+      <option name="presentableId" value="LOCAL-00103" />
+      <option name="project" value="LOCAL" />
+      <updated>1581732369144</updated>
+    </task>
+    <task id="LOCAL-00104" summary="Update chempotdiag">
+      <created>1581749628651</created>
+      <option name="number" value="00104" />
+      <option name="presentableId" value="LOCAL-00104" />
+      <option name="project" value="LOCAL" />
+      <updated>1581749628651</updated>
+    </task>
+    <task id="LOCAL-00105" summary="Update chempotdiag">
+      <created>1581820013207</created>
+      <option name="number" value="00105" />
+      <option name="presentableId" value="LOCAL-00105" />
+      <option name="project" value="LOCAL" />
+      <updated>1581820013207</updated>
+    </task>
+    <task id="LOCAL-00106" summary="Update chempotdiag">
+      <created>1581831638570</created>
+      <option name="number" value="00106" />
+      <option name="presentableId" value="LOCAL-00106" />
+      <option name="project" value="LOCAL" />
+      <updated>1581831638570</updated>
+    </task>
+    <task id="LOCAL-00107" summary="Update chempotdiag">
+      <created>1581840015451</created>
+      <option name="number" value="00107" />
+      <option name="presentableId" value="LOCAL-00107" />
+      <option name="project" value="LOCAL" />
+      <updated>1581840015451</updated>
+    </task>
+    <task id="LOCAL-00108" summary="Update chempotdiag">
+      <created>1581908402889</created>
+      <option name="number" value="00108" />
+      <option name="presentableId" value="LOCAL-00108" />
+      <option name="project" value="LOCAL" />
+      <updated>1581908402889</updated>
+    </task>
+    <task id="LOCAL-00109" summary="Update main and main_function">
+      <created>1582023477644</created>
+      <option name="number" value="00109" />
+      <option name="presentableId" value="LOCAL-00109" />
+      <option name="project" value="LOCAL" />
+      <updated>1582023477644</updated>
+    </task>
+    <task id="LOCAL-00110" summary="Add check to ViseVaspErrorHandler">
+      <created>1582093977061</created>
+      <option name="number" value="00110" />
+      <option name="presentableId" value="LOCAL-00110" />
+      <option name="project" value="LOCAL" />
+      <updated>1582093977061</updated>
+    </task>
+    <task id="LOCAL-00111" summary="Update unittest for main and main_function">
+      <created>1582192009953</created>
+      <option name="number" value="00111" />
+      <option name="presentableId" value="LOCAL-00111" />
+      <option name="project" value="LOCAL" />
+      <updated>1582192009953</updated>
+    </task>
+    <task id="LOCAL-00112" summary="Update unittest for main and main_function">
+      <created>1582193659406</created>
+      <option name="number" value="00112" />
+      <option name="presentableId" value="LOCAL-00112" />
+      <option name="project" value="LOCAL" />
+      <updated>1582193659406</updated>
+    </task>
+    <task id="LOCAL-00113" summary="Fix bug in dos_plotter">
+      <created>1582262789363</created>
+      <option name="number" value="00113" />
+      <option name="presentableId" value="LOCAL-00113" />
+      <option name="project" value="LOCAL" />
+      <updated>1582262789363</updated>
+    </task>
+    <task id="LOCAL-00114" summary="Add logger to dos_plotter">
+      <created>1582263347118</created>
+      <option name="number" value="00114" />
+      <option name="presentableId" value="LOCAL-00114" />
+      <option name="project" value="LOCAL" />
+      <updated>1582263347118</updated>
+    </task>
+    <task id="LOCAL-00115" summary="Modify logger message in dos_plotter">
+      <created>1582263468679</created>
+      <option name="number" value="00115" />
+      <option name="presentableId" value="LOCAL-00115" />
+      <option name="project" value="LOCAL" />
+      <updated>1582263468679</updated>
+    </task>
+    <task id="LOCAL-00116" summary="Update the main and main function">
+      <created>1582351791369</created>
+      <option name="number" value="00116" />
+      <option name="presentableId" value="LOCAL-00116" />
+      <option name="project" value="LOCAL" />
+      <updated>1582351791369</updated>
+    </task>
+    <task id="LOCAL-00117" summary="Update the main and main function">
+      <created>1582420412007</created>
+      <option name="number" value="00117" />
+      <option name="presentableId" value="LOCAL-00117" />
+      <option name="project" value="LOCAL" />
+      <updated>1582420412007</updated>
+    </task>
+    <task id="LOCAL-00118" summary="Fix broken unittests.">
+      <created>1582421502462</created>
+      <option name="number" value="00118" />
+      <option name="presentableId" value="LOCAL-00118" />
+      <option name="project" value="LOCAL" />
+      <updated>1582421502462</updated>
+    </task>
+    <task id="LOCAL-00119" summary="Add .circleci config.yml">
+      <created>1582443655716</created>
+      <option name="number" value="00119" />
+      <option name="presentableId" value="LOCAL-00119" />
+      <option name="project" value="LOCAL" />
+      <updated>1582443655716</updated>
+    </task>
+    <task id="LOCAL-00120" summary="Modify circleci config">
+      <created>1582443730833</created>
+      <option name="number" value="00120" />
+      <option name="presentableId" value="LOCAL-00120" />
+      <option name="project" value="LOCAL" />
+      <updated>1582443730833</updated>
+    </task>
+    <task id="LOCAL-00121" summary="Misc refactoring">
+      <created>1582500232552</created>
+      <option name="number" value="00121" />
+      <option name="presentableId" value="LOCAL-00121" />
+      <option name="project" value="LOCAL" />
+      <updated>1582500232552</updated>
+    </task>
+    <task id="LOCAL-00122" summary="Add batch header to README.md">
+      <created>1582502999558</created>
+      <option name="number" value="00122" />
+      <option name="presentableId" value="LOCAL-00122" />
+      <option name="project" value="LOCAL" />
+      <updated>1582502999558</updated>
+    </task>
+    <task id="LOCAL-00123" summary="Modify batch header of README.md">
+      <created>1582503998654</created>
+      <option name="number" value="00123" />
+      <option name="presentableId" value="LOCAL-00123" />
+      <option name="project" value="LOCAL" />
+      <updated>1582503998654</updated>
+    </task>
+    <task id="LOCAL-00124" summary="Modify config.yml">
+      <created>1582504657149</created>
+      <option name="number" value="00124" />
+      <option name="presentableId" value="LOCAL-00124" />
+      <option name="project" value="LOCAL" />
+      <updated>1582504657149</updated>
+    </task>
+    <task id="LOCAL-00125" summary="Modify config.yml">
+      <created>1582504715860</created>
+      <option name="number" value="00125" />
+      <option name="presentableId" value="LOCAL-00125" />
+      <option name="project" value="LOCAL" />
+      <updated>1582504715860</updated>
+    </task>
+    <task id="LOCAL-00126" summary="Modify config.yml">
+      <created>1582504768280</created>
+      <option name="number" value="00126" />
+      <option name="presentableId" value="LOCAL-00126" />
+      <option name="project" value="LOCAL" />
+      <updated>1582504768280</updated>
+    </task>
+    <task id="LOCAL-00127" summary="Modify config.yml">
+      <created>1582504935035</created>
+      <option name="number" value="00127" />
+      <option name="presentableId" value="LOCAL-00127" />
+      <option name="project" value="LOCAL" />
+      <updated>1582504935035</updated>
+    </task>
+    <task id="LOCAL-00128" summary="Add test files">
+      <created>1582506393211</created>
+      <option name="number" value="00128" />
+      <option name="presentableId" value="LOCAL-00128" />
+      <option name="project" value="LOCAL" />
+      <updated>1582506393211</updated>
+    </task>
+    <task id="LOCAL-00129" summary="Add test files">
+      <created>1582516800053</created>
+      <option name="number" value="00129" />
+      <option name="presentableId" value="LOCAL-00129" />
+      <option name="project" value="LOCAL" />
+      <updated>1582516800053</updated>
+    </task>
+    <task id="LOCAL-00130" summary="Add test files">
+      <created>1582516853745</created>
+      <option name="number" value="00130" />
+      <option name="presentableId" value="LOCAL-00130" />
+      <option name="project" value="LOCAL" />
+      <updated>1582516853745</updated>
+    </task>
+    <task id="LOCAL-00131" summary="Add test files">
+      <created>1582519311267</created>
+      <option name="number" value="00131" />
+      <option name="presentableId" value="LOCAL-00131" />
+      <option name="project" value="LOCAL" />
+      <updated>1582519311267</updated>
+    </task>
+    <task id="LOCAL-00132" summary="Modify circleci config.">
+      <created>1582520070547</created>
+      <option name="number" value="00132" />
+      <option name="presentableId" value="LOCAL-00132" />
+      <option name="project" value="LOCAL" />
+      <updated>1582520070547</updated>
+    </task>
+    <task id="LOCAL-00133" summary="Add filters to circle CI config">
+      <created>1582527708149</created>
+      <option name="number" value="00133" />
+      <option name="presentableId" value="LOCAL-00133" />
+      <option name="project" value="LOCAL" />
+      <updated>1582527708149</updated>
+    </task>
+    <task id="LOCAL-00134" summary="Add filters to circle CI config">
+      <created>1582528548521</created>
+      <option name="number" value="00134" />
+      <option name="presentableId" value="LOCAL-00134" />
+      <option name="project" value="LOCAL" />
+      <updated>1582528548521</updated>
+    </task>
+    <task id="LOCAL-00135" summary="Fix bug to use strtobool, which returns 0 or 1. &#10;&#10;Instead, use str2bool in vise.">
+      <created>1582620970979</created>
+      <option name="number" value="00135" />
+      <option name="presentableId" value="LOCAL-00135" />
+      <option name="project" value="LOCAL" />
+      <updated>1582620970979</updated>
+    </task>
+    <task id="LOCAL-00136" summary="Fix bug to use strtobool, which returns True and False for 1 and 0.">
+      <created>1582957793525</created>
+      <option name="number" value="00136" />
+      <option name="presentableId" value="LOCAL-00136" />
+      <option name="project" value="LOCAL" />
+      <updated>1582957793526</updated>
+    </task>
+    <task id="LOCAL-00137" summary="Reset gitignore">
+      <created>1582966115232</created>
+      <option name="number" value="00137" />
+      <option name="presentableId" value="LOCAL-00137" />
+      <option name="project" value="LOCAL" />
+      <updated>1582966115232</updated>
+    </task>
+    <option name="localTasksCounter" value="138" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="UnknownFeatures">
+    <option featureType="com.intellij.fileTypeFactory" implementationName="*.log" />
+  </component>
+  <component name="Vcs.Log.History.Properties">
+    <option name="COLUMN_ORDER">
+      <list>
+        <option value="0" />
+        <option value="2" />
+        <option value="3" />
+        <option value="1" />
+      </list>
+    </option>
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Change EDIFFG for defect from -0.05 to -0.03" />
+    <MESSAGE value="Misc modification" />
+    <MESSAGE value="Modify ChemPotDiag to use PhaseDiagram" />
+    <MESSAGE value="Update chempotdiag" />
+    <MESSAGE value="Update main and main_function" />
+    <MESSAGE value="Add check to ViseVaspErrorHandler" />
+    <MESSAGE value="Update unittest for main and main_function" />
+    <MESSAGE value="Fix bug in dos_plotter" />
+    <MESSAGE value="Add logger to dos_plotter" />
+    <MESSAGE value="Modify logger message in dos_plotter" />
+    <MESSAGE value="Update the main and main function" />
+    <MESSAGE value="Fix broken unittests." />
+    <MESSAGE value="Add .circleci config.yml" />
+    <MESSAGE value="Modify circleci config" />
+    <MESSAGE value="Misc refactoring" />
+    <MESSAGE value="Add batch header to README.md" />
+    <MESSAGE value="Modify batch header of README.md" />
+    <MESSAGE value="Modify config.yml" />
+    <MESSAGE value="Add test files" />
+    <MESSAGE value="Modify circleci config." />
+    <MESSAGE value="Add filters to circle CI config" />
+    <MESSAGE value="Fix bug to use strtobool, which returns 0 or 1. &#10;&#10;Instead, use str2bool in vise." />
+    <MESSAGE value="Fix bug to use strtobool, which returns True and False for 1 and 0." />
+    <MESSAGE value="Remove POTCARs and add License" />
+    <MESSAGE value="Reset gitignore" />
+    <option name="LAST_COMMIT_MESSAGE" value="Reset gitignore" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$USER_HOME$/my_programs/virtualenvs/python3/lib/python3.6/site-packages/atomate/vasp/firetasks/write_inputs.py</url>
+          <line>24</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$USER_HOME$/my_programs/virtualenvs/python3/lib/python3.6/site-packages/pymatgen/io/vasp/inputs.py</url>
+          <line>1799</line>
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$USER_HOME$/my_programs/virtualenvs/python3/lib/python3.6/site-packages/pymatgen/io/vasp/outputs.py</url>
+          <line>817</line>
+          <option name="timeStamp" value="4" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/vise/input_set/tests/test_make_kpoints.py</url>
+          <line>99</line>
+          <option name="timeStamp" value="7" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/vise/input_set/tests/test_make_kpoints.py</url>
+          <line>110</line>
+          <option name="timeStamp" value="8" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/vise/input_set/settings_incar.py</url>
+          <line>234</line>
+          <option name="timeStamp" value="9" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/vise/analyzer/tests/test_band_gap.py</url>
+          <line>38</line>
+          <option name="timeStamp" value="22" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/vise/analyzer/tests/test_band_plotter.py</url>
+          <line>15</line>
+          <option name="timeStamp" value="23" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_jobs_RMWavecar_test_remove_wavecar_at_subdir.coverage" NAME="Nosetests for test_jobs.RMWavecar.test_remove_wavecar_at_subdir Coverage Results" MODIFIED="1571805698967" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/custodian_extension/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_jobs_StructureOptResultTest_test_is_sg_changed.coverage" NAME="Nosetests for test_jobs.StructureOptResultTest.test_is_sg_changed Coverage Results" MODIFIED="1571807896756" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/custodian_extension/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_make_kpoints_MakeKpointsTest_test_band_sg23.coverage" NAME="Nosetests for test_make_kpoints.MakeKpointsTest.test_band_sg23 Coverage Results" MODIFIED="1580196103900" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_function_VaspSetTest_test_prev_dir.coverage" NAME="Nosetests for test_main_function.VaspSetTest.test_prev_dir Coverage Results" MODIFIED="1582178944859" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_tools_List2DictTest.coverage" NAME="Nosetests for test_main_tools.List2DictTest Coverage Results" MODIFIED="1582152677833" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/util/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_function_TestUpdateVaspSet_test.coverage" NAME="Nosetests for test_main_function.TestUpdateVaspSet.test Coverage Results" MODIFIED="1582020882371" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_function_VaspSetTest_test_input_set.coverage" NAME="Nosetests for test_main_function.VaspSetTest.test_input_set Coverage Results" MODIFIED="1582179649290" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_settings_incar_XcIncarSettingsTest.coverage" NAME="Nosetests for test_settings_incar.XcIncarSettingsTest Coverage Results" MODIFIED="1576496449946" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_jobs_StructureOptResultTest_test_json.coverage" NAME="Nosetests for test_jobs.StructureOptResultTest.test_json Coverage Results" MODIFIED="1571807623736" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/custodian_extension/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_gas_TestFundamentalFrequencies_test_from_yaml.coverage" NAME="Nosetests for test_gas.TestFundamentalFrequencies.test_from_yaml Coverage Results" MODIFIED="1581601797949" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_in_test_settings_util_py.coverage" NAME="Nosetests in test_settings_util.py Coverage Results" MODIFIED="1582420747108" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_make_kpoints_IrreducibleKpointsTest.coverage" NAME="Nosetests for test_make_kpoints.IrreducibleKpointsTest Coverage Results" MODIFIED="1579584811795" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/obadb$Nosetests_for_test_dos_plotter_MaxDensityTest_test.coverage" NAME="Nosetests for test_dos_plotter.MaxDensityTest.test Coverage Results" MODIFIED="1564360435301" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/obadb/analyzer/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_function_CreateAtomsTest_test.coverage" NAME="Nosetests for test_main_function.CreateAtomsTest.test Coverage Results" MODIFIED="1582336133503" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_function_VaspSetTest.coverage" NAME="Nosetests for test_main_function.VaspSetTest Coverage Results" MODIFIED="1582177294562" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_function_TestGetDosPlotter.coverage" NAME="Nosetests for test_main_function.TestGetDosPlotter Coverage Results" MODIFIED="1582180241298" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_function_TestGetPoscarFromMp.coverage" NAME="Nosetests for test_main_function.TestGetPoscarFromMp Coverage Results" MODIFIED="1582070781908" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_incar_IncarFlagsTest.coverage" NAME="Nosetests for test_incar.IncarFlagsTest Coverage Results" MODIFIED="1580195517073" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_in_test_main_py.coverage" NAME="Nosetests in test_main.py Coverage Results" MODIFIED="1582420623348" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_settings_incar_XcIncarSettingsTest_test_hubbard_u.coverage" NAME="Nosetests for test_settings_incar.XcIncarSettingsTest.test_hubbard_u Coverage Results" MODIFIED="1576297578371" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_in_test_structure_handler_py.coverage" NAME="Nosetests in test_structure_handler.py Coverage Results" MODIFIED="1582420778361" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/util/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_settings_potcar_XcTaskPotcarTest_test_gga.coverage" NAME="Nosetests for test_settings_potcar.XcTaskPotcarTest.test_gga Coverage Results" MODIFIED="1576229952716" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_chem_pot_diag_TestChemPotDiag_test_cpd_1d.coverage" NAME="Nosetests for test_chem_pot_diag.TestChemPotDiag.test_cpd_1d Coverage Results" MODIFIED="1581595389129" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_function_VaspSetTest_test_print.coverage" NAME="Nosetests for test_main_function.VaspSetTest.test_print Coverage Results" MODIFIED="1582164745023" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$pytest_for_test_main_MainVaspSetTest.coverage" NAME="pytest for test_main.MainVaspSetTest Coverage Results" MODIFIED="1582457933834" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_gas_TestGas_test_str.coverage" NAME="Nosetests for test_gas.TestGas.test_str Coverage Results" MODIFIED="1581602036872" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$test.coverage" NAME="test Coverage Results" MODIFIED="1572421685889" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_make_kpoints_IrreducibleKpointsTest_test_num_kpts.coverage" NAME="Nosetests for test_make_kpoints.IrreducibleKpointsTest.test_num_kpts Coverage Results" MODIFIED="1576294700759" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_in_test_settings_potcar_py.coverage" NAME="Nosetests in test_settings_potcar.py Coverage Results" MODIFIED="1582420738311" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/obadb$Nosetests_for_test_structure_handler_GetCoordinationDistanceTest_test_get_coordination_environment.coverage" NAME="Nosetests for test_structure_handler.GetCoordinationDistanceTest.test_get_coordination_environment Coverage Results" MODIFIED="1558745553198" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/obadb/util/tests" />
+    <SUITE FILE_PATH="coverage/vise$pytest_for_test_jobs_KptConvResultTest_test_from_dirs.coverage" NAME="pytest for test_jobs.KptConvResultTest.test_from_dirs Coverage Results" MODIFIED="1582458157768" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/custodian_extension/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_settings_incar_TaskIncarSettingsTest_test_structure_opt.coverage" NAME="Nosetests for test_settings_incar.TaskIncarSettingsTest.test_structure_opt Coverage Results" MODIFIED="1576226825289" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_TestMain_test.coverage" NAME="Nosetests for test_main.TestMain.test Coverage Results" MODIFIED="1582002067065" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_cpd_entries_TestFreeEnergyEntrySet_test_msonable.coverage" NAME="Nosetests for test_cpd_entries.TestFreeEnergyEntrySet.test_msonable Coverage Results" MODIFIED="1581637888675" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_in_test_input_set_py.coverage" NAME="Nosetests in test_input_set.py Coverage Results" MODIFIED="1582420713527" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_in_test_main_tools_py.coverage" NAME="Nosetests in test_main_tools.py Coverage Results" MODIFIED="1582420760142" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/util/tests" />
+    <SUITE FILE_PATH="coverage/vise$pytest_in_test_gas_py.coverage" NAME="pytest in test_gas.py Coverage Results" MODIFIED="1582499734521" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_TestSimpleOverride_test.coverage" NAME="Nosetests for test_main.TestSimpleOverride.test Coverage Results" MODIFIED="1582157062072" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_free_energy_entries_TestFreeEnergyEntry_test_print.coverage" NAME="Nosetests for test_free_energy_entries.TestFreeEnergyEntry.test_print Coverage Results" MODIFIED="1581748971990" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_dos_plotter_ViseDosPlotterTest.coverage" NAME="Nosetests for test_dos_plotter.ViseDosPlotterTest Coverage Results" MODIFIED="1582420098452" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/analyzer/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_dos_plotter_ViseDosPlotterTest_test_normal.coverage" NAME="Nosetests for test_dos_plotter.ViseDosPlotterTest.test_normal Coverage Results" MODIFIED="1582420226457" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/analyzer/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_settings_incar_TaskIncarSettingsTest_test_structure_opt_tight.coverage" NAME="Nosetests for test_settings_incar.TaskIncarSettingsTest.test_structure_opt_tight Coverage Results" MODIFIED="1576226744704" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_chem_pot_diag_TestChemPotDiag_test_pd_4d_plot.coverage" NAME="Nosetests for test_chem_pot_diag.TestChemPotDiag.test_pd_4d_plot Coverage Results" MODIFIED="1582003627264" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_band_gap_BandGapPropertiesTest_test_bata6o16.coverage" NAME="Nosetests for test_band_gap.BandGapPropertiesTest.test_bata6o16 Coverage Results" MODIFIED="1576550822042" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/analyzer/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_in_test_prior_info_py.coverage" NAME="Nosetests in test_prior_info.py Coverage Results" MODIFIED="1582420723148" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_chem_pot_diag_TestChemPotDiag_test2.coverage" NAME="Nosetests for test_chem_pot_diag.TestChemPotDiag.test2 Coverage Results" MODIFIED="1581556466917" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_MainVaspSetTest_test_yaml.coverage" NAME="Nosetests for test_main.MainVaspSetTest.test_yaml Coverage Results" MODIFIED="1582164596660" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_free_energy_entries_TestFreeEnergyEntrySet_test_from_mp.coverage" NAME="Nosetests for test_free_energy_entries.TestFreeEnergyEntrySet.test_from_mp Coverage Results" MODIFIED="1581911889681" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_tools_TestPotcarStr2Dict_test.coverage" NAME="Nosetests for test_main_tools.TestPotcarStr2Dict.test Coverage Results" MODIFIED="1582151904393" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/util/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_function_TestPlotBand.coverage" NAME="Nosetests for test_main_function.TestPlotBand Coverage Results" MODIFIED="1582167428094" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_function_TestGetPoscarFromMp_test_mp_poscars.coverage" NAME="Nosetests for test_main_function.TestGetPoscarFromMp.test_mp_poscars Coverage Results" MODIFIED="1582021736107" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_tests_test_RemovalServiceTestCase_test_rm.coverage" NAME="Nosetests for tests.test.RemovalServiceTestCase.test_rm Coverage Results" MODIFIED="1581990944897" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_RemovalServiceTestCase_test_rm.coverage" NAME="Nosetests for test.RemovalServiceTestCase.test_rm Coverage Results" MODIFIED="1581991711833" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_cpd_entries_TestFreeEnergyEntrySet_test_from_vasp_files.coverage" NAME="Nosetests for test_cpd_entries.TestFreeEnergyEntrySet.test_from_vasp_files Coverage Results" MODIFIED="1581648982752" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_band_gap_BandGapPropertiesTest_test_mgo.coverage" NAME="Nosetests for test_band_gap.BandGapPropertiesTest.test_mgo Coverage Results" MODIFIED="1576550764385" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/analyzer/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_make_kpoints_MakeKpointsTest_test_primitive_uniform_sg1.coverage" NAME="Nosetests for test_make_kpoints.MakeKpointsTest.test_primitive_uniform_sg1 Coverage Results" MODIFIED="1576378414911" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_band_plotter_Test_test.coverage" NAME="Nosetests for test_band_plotter.Test.test Coverage Results" MODIFIED="1582357343131" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/analyzer/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_gas_TestGas.coverage" NAME="Nosetests for test_gas.TestGas Coverage Results" MODIFIED="1581602043402" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$pytest_for_test_free_energy_entries_TestFreeEnergyEntrySet_test_from_vasp_files.coverage" NAME="pytest for test_free_energy_entries.TestFreeEnergyEntrySet.test_from_vasp_files Coverage Results" MODIFIED="1582457328622" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$pytest_in_chempotdiag.coverage" NAME="pytest in chempotdiag Coverage Results" MODIFIED="1582425474338" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_chem_pot_diag_TestSortCoords.coverage" NAME="Nosetests for test_chem_pot_diag.TestSortCoords Coverage Results" MODIFIED="1581421104610" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_TestMain_test_get_poscars_w_options.coverage" NAME="Nosetests for test_main.TestMain.test_get_poscars_w_options Coverage Results" MODIFIED="1582114951321" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$pytest_in_tests.coverage" NAME="pytest in analyzer Coverage Results" MODIFIED="1582426042443" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/analyzer/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_free_energy_entries_TestFreeEnergyEntrySet_test_csv.coverage" NAME="Nosetests for test_free_energy_entries.TestFreeEnergyEntrySet.test_csv Coverage Results" MODIFIED="1581815441837" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_chem_pot_diag_TestChemPotDiag_test_cpd_3d_draw.coverage" NAME="Nosetests for test_chem_pot_diag.TestChemPotDiag.test_cpd_3d_draw Coverage Results" MODIFIED="1581595757301" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_chem_pot_diag_TestChemPotDiag_test_cpd_3d.coverage" NAME="Nosetests for test_chem_pot_diag.TestChemPotDiag.test_cpd_3d Coverage Results" MODIFIED="1581596676094" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_MainVaspRunTest_test_vasp_run_wo_options.coverage" NAME="Nosetests for test_main.MainVaspRunTest.test_vasp_run_wo_options Coverage Results" MODIFIED="1582181862557" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_dos_plotter_MaxDensityTest.coverage" NAME="Nosetests for test_dos_plotter.MaxDensityTest Coverage Results" MODIFIED="1582420106572" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/analyzer/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_structure_handler_SpglibCellToStructureTest.coverage" NAME="Nosetests for test_structure_handler.SpglibCellToStructureTest Coverage Results" MODIFIED="1582421167527" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/util/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_in_test_mp_tools_py.coverage" NAME="Nosetests in test_mp_tools.py Coverage Results" MODIFIED="1582420765054" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/util/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_jobs_StructureOptResultTest_test_from_dir.coverage" NAME="Nosetests for test_jobs.StructureOptResultTest.test_from_dir Coverage Results" MODIFIED="1571807853267" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/custodian_extension/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_chem_pot_diag_TestChemPotDiag_test_cpd_2d_draw_b.coverage" NAME="Nosetests for test_chem_pot_diag.TestChemPotDiag.test_cpd_2d_draw_b Coverage Results" MODIFIED="1581994366792" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$monkey_patch_test.coverage" NAME="monkey_patch_test Coverage Results" MODIFIED="1568707844547" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/custodian" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_band_gap_EdgeInfoTest_test.coverage" NAME="Nosetests for test_band_gap.EdgeInfoTest.test Coverage Results" MODIFIED="1582418470400" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/analyzer/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_structure_handler_GetSymmetryDatasetTest.coverage" NAME="Nosetests for test_structure_handler.GetSymmetryDatasetTest Coverage Results" MODIFIED="1582421135422" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/util/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_input_set_InputSetTest_test_dict.coverage" NAME="Nosetests for test_input_set.InputSetTest.test_dict Coverage Results" MODIFIED="1572656693162" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_make_kpoints_IrreducibleKpointsTest_test.coverage" NAME="Nosetests for test_make_kpoints.IrreducibleKpointsTest.test Coverage Results" MODIFIED="1576293886721" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_settings_incar_TaskIncarSettingsTest_test_band.coverage" NAME="Nosetests for test_settings_incar.TaskIncarSettingsTest.test_band Coverage Results" MODIFIED="1576227620354" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_make_kpoints_MakeKpointsTest_test_band_sg1.coverage" NAME="Nosetests for test_make_kpoints.MakeKpointsTest.test_band_sg1 Coverage Results" MODIFIED="1576378062997" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_tools_GetUserSettingsTest_test_dict.coverage" NAME="Nosetests for test_main_tools.GetUserSettingsTest.test_dict Coverage Results" MODIFIED="1582155569479" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/util/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_TestSimpleOverride.coverage" NAME="Nosetests for test_main.TestSimpleOverride Coverage Results" MODIFIED="1582157094045" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_chem_pot_diag_TestChemPotDiag_test_comp_cpd_4d.coverage" NAME="Nosetests for test_chem_pot_diag.TestChemPotDiag.test_comp_cpd_4d Coverage Results" MODIFIED="1582003647797" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_tools_TestPotcarStr2Dict_test_incorrect_element_potcar_error.coverage" NAME="Nosetests for test_main_tools.TestPotcarStr2Dict.test_incorrect_element_potcar_error Coverage Results" MODIFIED="1582152179960" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/util/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_function_VaspSymprecSettingsFromArgsTest_test.coverage" NAME="Nosetests for test_main_function.VaspSymprecSettingsFromArgsTest.test Coverage Results" MODIFIED="1582193602194" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$monkey_patch_test2.coverage" NAME="monkey_patch_test2 Coverage Results" MODIFIED="1568709089191" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/custodian" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_chem_pot_diag_TestChemPotDiag_test_cpd_3d_unstable.coverage" NAME="Nosetests for test_chem_pot_diag.TestChemPotDiag.test_cpd_3d_unstable Coverage Results" MODIFIED="1581596871341" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_MainGetPoscarsTest_test_get_poscars_w_options.coverage" NAME="Nosetests for test_main.MainGetPoscarsTest.test_get_poscars_w_options Coverage Results" MODIFIED="1582164018866" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_settings_incar_XcIncarSettingsTest_test.coverage" NAME="Nosetests for test_settings_incar.XcIncarSettingsTest.test Coverage Results" MODIFIED="1576297012155" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_settings_incar_TaskIncarSettingsTest_test_dielectric_function.coverage" NAME="Nosetests for test_settings_incar.TaskIncarSettingsTest.test_dielectric_function Coverage Results" MODIFIED="1576393729634" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_input_set_InputSetTest_test_write.coverage" NAME="Nosetests for test_input_set.InputSetTest.test_write Coverage Results" MODIFIED="1582249875328" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_settings_incar_TaskIncarSettingsTest_test_dielectric_dfpt.coverage" NAME="Nosetests for test_settings_incar.TaskIncarSettingsTest.test_dielectric_dfpt Coverage Results" MODIFIED="1576227926908" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_cpd_entries_TestFreeEnergyEntrySet_test_csv.coverage" NAME="Nosetests for test_cpd_entries.TestFreeEnergyEntrySet.test_csv Coverage Results" MODIFIED="1581638398859" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_settings_incar_XcIncarSettingsTest_test_hybrid.coverage" NAME="Nosetests for test_settings_incar.XcIncarSettingsTest.test_hybrid Coverage Results" MODIFIED="1576297708569" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_settings_potcar_XcTaskPotcarTest_test_mp_relax_set.coverage" NAME="Nosetests for test_settings_potcar.XcTaskPotcarTest.test_mp_relax_set Coverage Results" MODIFIED="1576230076017" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_chem_pot_diag_TestChemPotDiag_test_cpd.coverage" NAME="Nosetests for test_chem_pot_diag.TestChemPotDiag.test_cpd Coverage Results" MODIFIED="1581579797733" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$pytest_for_test_main_MainVaspSetTest_test_vasp_set_wo_options.coverage" NAME="pytest for test_main.MainVaspSetTest.test_vasp_set_wo_options Coverage Results" MODIFIED="1582458001708" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$pytest_for_vise_cli_tests_test_main_MainVaspRunTest_test_vasp_set_w_options.coverage" NAME="pytest for vise.cli.tests.test_main.MainVaspRunTest.test_vasp_set_w_options Coverage Results" MODIFIED="1582457670459" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$pytest_in_test_main_py.coverage" NAME="pytest in test_main.py Coverage Results" MODIFIED="1582458011990" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_band_plotter_PlotBandStructureTest.coverage" NAME="Nosetests for test_band_plotter.PlotBandStructureTest Coverage Results" MODIFIED="1582352135179" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/analyzer/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_jobs_KptConvResultTest_test_json.coverage" NAME="Nosetests for test_jobs.KptConvResultTest.test_json Coverage Results" MODIFIED="1572265594003" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/custodian_extension/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_settings_incar_TaskIncarSettingsTest_test_structure_opt_rough.coverage" NAME="Nosetests for test_settings_incar.TaskIncarSettingsTest.test_structure_opt_rough Coverage Results" MODIFIED="1576226586318" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_free_energy_entries_TestConstrainedFreeEnergyEntrySet.coverage" NAME="Nosetests for test_free_energy_entries.TestConstrainedFreeEnergyEntrySet Coverage Results" MODIFIED="1582242824858" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_settings_potcar_XcTaskPotcarTest_test_override.coverage" NAME="Nosetests for test_settings_potcar.XcTaskPotcarTest.test_override Coverage Results" MODIFIED="1576230113550" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_TestMain_test_get_poscars.coverage" NAME="Nosetests for test_main.TestMain.test_get_poscars Coverage Results" MODIFIED="1582114746672" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_gas_TestGas_test_energy_shift.coverage" NAME="Nosetests for test_gas.TestGas.test_energy_shift Coverage Results" MODIFIED="1581907681292" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_cpd_entries_TestConstrainedFreeEnergyEntrySet_test_.coverage" NAME="Nosetests for test_cpd_entries.TestConstrainedFreeEnergyEntrySet.test_ Coverage Results" MODIFIED="1581731574595" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_settings_incar_TaskIncarSettingsTest_test_dielectric_finite_field.coverage" NAME="Nosetests for test_settings_incar.TaskIncarSettingsTest.test_dielectric_finite_field Coverage Results" MODIFIED="1576228036580" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_band_gap_BandGapPropertiesTest_test_mno.coverage" NAME="Nosetests for test_band_gap.BandGapPropertiesTest.test_mno Coverage Results" MODIFIED="1582417911334" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/analyzer/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_chem_pot_diag_TestChemPotDiag_test_cpd_2d.coverage" NAME="Nosetests for test_chem_pot_diag.TestChemPotDiag.test_cpd_2d Coverage Results" MODIFIED="1581595670188" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_function_VaspSettingsFromArgsTest_test.coverage" NAME="Nosetests for test_main_function.VaspSettingsFromArgsTest.test Coverage Results" MODIFIED="1582167187508" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_settings_incar_TaskIncarSettingsTest_test_defect.coverage" NAME="Nosetests for test_settings_incar.TaskIncarSettingsTest.test_defect Coverage Results" MODIFIED="1576227399897" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_tools_GetUserSettingsTest_test_fail.coverage" NAME="Nosetests for test_main_tools.GetUserSettingsTest.test_fail Coverage Results" MODIFIED="1582155747450" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/util/tests" />
+    <SUITE FILE_PATH="coverage/vise$pytest_for_test_settings_potcar_XcTaskPotcarTest.coverage" NAME="pytest for test_settings_potcar.XcTaskPotcarTest Coverage Results" MODIFIED="1582518036757" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_cpd_entries_TestFreeEnergyEntry_test_msonable.coverage" NAME="Nosetests for test_cpd_entries.TestFreeEnergyEntry.test_msonable Coverage Results" MODIFIED="1581731526151" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$pytest_in_test_settings_incar_py.coverage" NAME="pytest in test_settings_incar.py Coverage Results" MODIFIED="1582518270833" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_cpd_entries_TestFreeEnergyEntrySet_test_add_discard.coverage" NAME="Nosetests for test_cpd_entries.TestFreeEnergyEntrySet.test_add_discard Coverage Results" MODIFIED="1581638244550" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_structure_handler_FindHPKOTPrimitiveTest.coverage" NAME="Nosetests for test_structure_handler.FindHPKOTPrimitiveTest Coverage Results" MODIFIED="1582421221707" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/util/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_in_test_settings_incar_py.coverage" NAME="Nosetests in test_settings_incar.py Coverage Results" MODIFIED="1582420733334" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$pytest_in_test_jobs_py.coverage" NAME="pytest in test_jobs.py Coverage Results" MODIFIED="1582458105094" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/custodian_extension/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_cpd_entries_TestFreeEnergyEntrySet_test_add.coverage" NAME="Nosetests for test_cpd_entries.TestFreeEnergyEntrySet.test_add Coverage Results" MODIFIED="1581638088574" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_band_plotter_Test_test_ws.coverage" NAME="Nosetests for test_band_plotter.Test.test_ws Coverage Results" MODIFIED="1582357599142" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/analyzer/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_settings_potcar_XcTaskPotcarTest_test_lda.coverage" NAME="Nosetests for test_settings_potcar.XcTaskPotcarTest.test_lda Coverage Results" MODIFIED="1576229974191" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_free_energy_entries_TestFreeEnergyEntrySet_test_print.coverage" NAME="Nosetests for test_free_energy_entries.TestFreeEnergyEntrySet.test_print Coverage Results" MODIFIED="1581907535488" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_settings_incar_TaskIncarSettingsTest_test_cluster_opt.coverage" NAME="Nosetests for test_settings_incar.TaskIncarSettingsTest.test_cluster_opt Coverage Results" MODIFIED="1579751833356" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/obadb$Nosetests_for_test_dos_plotter_MaxDensityTest.coverage" NAME="Nosetests for test_dos_plotter.MaxDensityTest Coverage Results" MODIFIED="1564359843393" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/obadb/analyzer/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_free_energy_entries_TestConstrainedFreeEnergyEntrySet_test_.coverage" NAME="Nosetests for test_free_energy_entries.TestConstrainedFreeEnergyEntrySet.test_ Coverage Results" MODIFIED="1581816556311" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_settings_incar_TaskIncarSettingsTest.coverage" NAME="Nosetests for test_settings_incar.TaskIncarSettingsTest Coverage Results" MODIFIED="1576496440702" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_tools_GetUserSettingsTest_test_full_path.coverage" NAME="Nosetests for test_main_tools.GetUserSettingsTest.test_full_path Coverage Results" MODIFIED="1582155897683" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/util/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_in_tests.coverage" NAME="Unittests in analyzer Coverage Results" MODIFIED="1582424879590" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/analyzer/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_cpd_entries_TestFreeEnergyEntry_test_dict.coverage" NAME="Nosetests for test_cpd_entries.TestFreeEnergyEntry.test_dict Coverage Results" MODIFIED="1581731520569" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_MainGetPoscarsTest.coverage" NAME="Nosetests for test_main.MainGetPoscarsTest Coverage Results" MODIFIED="1582157208743" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_band_plotter_PlotBandStructureTest_test.coverage" NAME="Nosetests for test_band_plotter.PlotBandStructureTest.test Coverage Results" MODIFIED="1582419637044" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/analyzer/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_gas_TestFundamentalFrequencies.coverage" NAME="Nosetests for test_gas.TestFundamentalFrequencies Coverage Results" MODIFIED="1581601383636" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_cpd_entries_TestFreeEnergyEntrySet_test_to_csv.coverage" NAME="Nosetests for test_cpd_entries.TestFreeEnergyEntrySet.test_to_csv Coverage Results" MODIFIED="1581638387293" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_function_TestGetPoscarFromMp_test_warning.coverage" NAME="Nosetests for test_main_function.TestGetPoscarFromMp.test_warning Coverage Results" MODIFIED="1582022341909" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_chem_pot_diag_TestChemPotDiag_test.coverage" NAME="Nosetests for test_chem_pot_diag.TestChemPotDiag.test Coverage Results" MODIFIED="1581556362919" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_free_energy_entries_TestFreeEnergyEntrySet.coverage" NAME="Nosetests for test_free_energy_entries.TestFreeEnergyEntrySet Coverage Results" MODIFIED="1582242783765" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_free_energy_entries_TestConstrainedFreeEnergyEntrySet_test_constraint.coverage" NAME="Nosetests for test_free_energy_entries.TestConstrainedFreeEnergyEntrySet.test_constraint Coverage Results" MODIFIED="1581816862539" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_tools_Dict2ListTest_test_dict2list.coverage" NAME="Nosetests for test_main_tools.Dict2ListTest.test_dict2list Coverage Results" MODIFIED="1582153059070" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/util/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_function_TestChemPotDiag_test_from_mp_pd_filename.coverage" NAME="Nosetests for test_main_function.TestChemPotDiag.test_from_mp_pd_filename Coverage Results" MODIFIED="1582193411013" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$main_function.coverage" NAME="main_function Coverage Results" MODIFIED="1582240333765" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_function_TestGetPoscarFromMp_test_number.coverage" NAME="Nosetests for test_main_function.TestGetPoscarFromMp.test_number Coverage Results" MODIFIED="1582070638902" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_band_gap_BandGapPropertiesTest.coverage" NAME="Nosetests for test_band_gap.BandGapPropertiesTest Coverage Results" MODIFIED="1582352033621" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/analyzer/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_chem_pot_diag_TestChemPotDiag_test_cpd_1d_draw.coverage" NAME="Nosetests for test_chem_pot_diag.TestChemPotDiag.test_cpd_1d_draw Coverage Results" MODIFIED="1581986625152" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_in_test_main_function_py.coverage" NAME="Nosetests in test_main_function.py Coverage Results" MODIFIED="1582420671435" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$pytest_for_test_main_tools_GetUserSettingsTest_test_bool.coverage" NAME="pytest for test_main_tools.GetUserSettingsTest.test_bool Coverage Results" MODIFIED="1582620179295" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/util/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_UploadServiceTestCase_test_upload_complete.coverage" NAME="Nosetests for test.UploadServiceTestCase.test_upload_complete Coverage Results" MODIFIED="1581991186255" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_jobs_KptConvResultTest_test_from_dirs.coverage" NAME="Nosetests for test_jobs.KptConvResultTest.test_from_dirs Coverage Results" MODIFIED="1572266879686" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/custodian_extension/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_MainChemPotDiagTest_test_vasp_run_w_options.coverage" NAME="Nosetests for test_main.MainChemPotDiagTest.test_vasp_run_w_options Coverage Results" MODIFIED="1582191338109" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_in_test_make_kpoints_py.coverage" NAME="Nosetests in test_make_kpoints.py Coverage Results" MODIFIED="1582420719428" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_chem_pot_diag_TestChemPotDiag_test_cpd_2d_draw.coverage" NAME="Nosetests for test_chem_pot_diag.TestChemPotDiag.test_cpd_2d_draw Coverage Results" MODIFIED="1582003588491" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_function_GetPoscarFromMpTest.coverage" NAME="Nosetests for test_main_function.GetPoscarFromMpTest Coverage Results" MODIFIED="1582167413929" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_jobs_StructureOptResultTest_test_msonable.coverage" NAME="Nosetests for test_jobs.StructureOptResultTest.test_msonable Coverage Results" MODIFIED="1571807629955" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/custodian_extension/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_MainVaspSetTest.coverage" NAME="Nosetests for test_main.MainVaspSetTest Coverage Results" MODIFIED="1582177897283" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_chem_pot_diag_TestSortCoords_test_sort_coords.coverage" NAME="Nosetests for test_chem_pot_diag.TestSortCoords.test_sort_coords Coverage Results" MODIFIED="1581420099357" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_jobs_RmWavecarTest_test_remove_wavecar_at_current_dir.coverage" NAME="Nosetests for test_jobs.RmWavecarTest.test_remove_wavecar_at_current_dir Coverage Results" MODIFIED="1572265344919" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/custodian_extension/tests" />
+    <SUITE FILE_PATH="coverage/vise$pytest_for_test_dos_plotter_ViseDosPlotterTest.coverage" NAME="pytest for test_dos_plotter.ViseDosPlotterTest Coverage Results" MODIFIED="1582457168825" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/analyzer/tests" />
+    <SUITE FILE_PATH="coverage/vise$pytest_for_test_gas_TestFundamentalFrequencies_test_from_yaml.coverage" NAME="pytest for test_gas.TestFundamentalFrequencies.test_from_yaml Coverage Results" MODIFIED="1582455945274" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_MainVaspSetTest_test_vasp_set_wo_options.coverage" NAME="Nosetests for test_main.MainVaspSetTest.test_vasp_set_wo_options Coverage Results" MODIFIED="1582162792842" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$pytest_for_test_band_gap_BandGapPropertiesTest_test_mgo.coverage" NAME="pytest for test_band_gap.BandGapPropertiesTest.test_mgo Coverage Results" MODIFIED="1582456980741" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/analyzer/tests" />
+    <SUITE FILE_PATH="coverage/vise$pytest_for_vise_analyzer_tests_test_band_plotter.coverage" NAME="pytest for vise.analyzer.tests.test_band_plotter Coverage Results" MODIFIED="1582446659080" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_chem_pot_diag_TestChemPotDiag_test_cpd_2d_draw_savefig.coverage" NAME="Nosetests for test_chem_pot_diag.TestChemPotDiag.test_cpd_2d_draw_savefig Coverage Results" MODIFIED="1581994567469" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_MainChemPotDiagTest_test_vasp_run_wo_options.coverage" NAME="Nosetests for test_main.MainChemPotDiagTest.test_vasp_run_wo_options Coverage Results" MODIFIED="1582191064249" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_make_kpoints_MakeKpointsTest.coverage" NAME="Nosetests for test_make_kpoints.MakeKpointsTest Coverage Results" MODIFIED="1579584805211" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_tools_TestPotcarStr2Dict_test_none.coverage" NAME="Nosetests for test_main_tools.TestPotcarStr2Dict.test_none Coverage Results" MODIFIED="1582151535803" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/util/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_chem_pot_diag_TestChemPotDiag_test_pd_1d_draw.coverage" NAME="Nosetests for test_chem_pot_diag.TestChemPotDiag.test_pd_1d_draw Coverage Results" MODIFIED="1581597380952" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_function_TestGetDosPlotter_test_succeed.coverage" NAME="Nosetests for test_main_function.TestGetDosPlotter.test_succeed Coverage Results" MODIFIED="1582095242433" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_make_kpoints_MakeKpointsTest_test_manual_set.coverage" NAME="Nosetests for test_make_kpoints.MakeKpointsTest.test_manual_set Coverage Results" MODIFIED="1576296617930" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$pytest_for_test_main_MainVaspSetTest_test_vasp_set_w_options.coverage" NAME="pytest for test_main.MainVaspSetTest.test_vasp_set_w_options Coverage Results" MODIFIED="1582457832711" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_free_energy_entries_TestMakePoscarsFromMp_test.coverage" NAME="Nosetests for test_free_energy_entries.TestMakePoscarsFromMp.test Coverage Results" MODIFIED="1581819849533" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_settings_incar_TaskIncarSettingsTest_test_args.coverage" NAME="Nosetests for test_settings_incar.TaskIncarSettingsTest.test_args Coverage Results" MODIFIED="1576228942339" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_gas_TestShomateThermodynamicsFunction.coverage" NAME="Nosetests for test_gas.TestShomateThermodynamicsFunction Coverage Results" MODIFIED="1581601900553" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_tools_GetUserSettingsTest.coverage" NAME="Nosetests for test_main_tools.GetUserSettingsTest Coverage Results" MODIFIED="1582155945089" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/util/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_MainVaspSetTest_test_vasp_set_w_options.coverage" NAME="Nosetests for test_main.MainVaspSetTest.test_vasp_set_w_options Coverage Results" MODIFIED="1582163779515" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_band_gap_BandGapPropertiesTest_test.coverage" NAME="Nosetests for test_band_gap.BandGapPropertiesTest.test Coverage Results" MODIFIED="1576546121717" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/analyzer/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_tools_GetDefaultArgsTest.coverage" NAME="Nosetests for test_main_tools.GetDefaultArgsTest Coverage Results" MODIFIED="1582156016349" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/util/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_settings_structure_kpoints_TaskStructureKpointsTest_test.coverage" NAME="Nosetests for test_settings_structure_kpoints.TaskStructureKpointsTest.test Coverage Results" MODIFIED="1582335660391" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_structure_handler_StructureToSpglibCellTest.coverage" NAME="Nosetests for test_structure_handler.StructureToSpglibCellTest Coverage Results" MODIFIED="1582421106030" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/util/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_chem_pot_diag_TestChemPotDiag.coverage" NAME="Nosetests for test_chem_pot_diag.TestChemPotDiag Coverage Results" MODIFIED="1581725579772" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_chem_pot_diag_TestChemPotDiag_test_msonable.coverage" NAME="Nosetests for test_chem_pot_diag.TestChemPotDiag.test_msonable Coverage Results" MODIFIED="1581561697022" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_settings_incar_TaskIncarSettingsTest_test_dos.coverage" NAME="Nosetests for test_settings_incar.TaskIncarSettingsTest.test_dos Coverage Results" MODIFIED="1576496201594" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_jobs_StructureOptResultTest.coverage" NAME="Nosetests for test_jobs.StructureOptResultTest Coverage Results" MODIFIED="1572265529668" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/custodian_extension/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_settings_incar_TaskIncarSettingsTest_test_phonon_force.coverage" NAME="Nosetests for test_settings_incar.TaskIncarSettingsTest.test_phonon_force Coverage Results" MODIFIED="1576227336920" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$pytest_for_test_main_tools_List2DictTest_test_dict2list.coverage" NAME="pytest for test_main_tools.List2DictTest.test_dict2list Coverage Results" MODIFIED="1582957992657" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/util/tests" />
+    <SUITE FILE_PATH="coverage/obadb$Nosetests_for_test_structure_handler_StructureToSeekpathTest.coverage" NAME="Nosetests for test_structure_handler.StructureToSeekpathTest Coverage Results" MODIFIED="1558743986068" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/obadb/util/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_function_TestBandGap_test_succeed.coverage" NAME="Nosetests for test_main_function.TestBandGap.test_succeed Coverage Results" MODIFIED="1582090104561" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_gas_TestGas_test_zero_point.coverage" NAME="Nosetests for test_gas.TestGas.test_zero_point Coverage Results" MODIFIED="1581907674421" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_in_test_settings_structure_kpoints_py.coverage" NAME="Nosetests in test_settings_structure_kpoints.py Coverage Results" MODIFIED="1582420742608" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_prior_info_PriorInfoTest.coverage" NAME="Nosetests for test_prior_info.PriorInfoTest Coverage Results" MODIFIED="1581838392780" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_chem_pot_diag_TestChemPotDiag_test_cpd_2d_draw_show.coverage" NAME="Nosetests for test_chem_pot_diag.TestChemPotDiag.test_cpd_2d_draw_show Coverage Results" MODIFIED="1582003566321" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_gas_TestGas_test_read_properties.coverage" NAME="Nosetests for test_gas.TestGas.test_read_properties Coverage Results" MODIFIED="1582420546076" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_chem_pot_diag_TestChemPotDiag_test_cpd2.coverage" NAME="Nosetests for test_chem_pot_diag.TestChemPotDiag.test_cpd2 Coverage Results" MODIFIED="1581592589870" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_free_energy_entries_TestFreeEnergyEntrySet_test_msonable.coverage" NAME="Nosetests for test_free_energy_entries.TestFreeEnergyEntrySet.test_msonable Coverage Results" MODIFIED="1581905913337" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_chem_pot_diag_TestChemPotDiag_test_cpd_4d.coverage" NAME="Nosetests for test_chem_pot_diag.TestChemPotDiag.test_cpd_4d Coverage Results" MODIFIED="1581725383450" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_in_test_free_energy_entries_py.coverage" NAME="Nosetests in test_free_energy_entries.py Coverage Results" MODIFIED="1582420444738" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_function_VaspSettingsFromArgsTest.coverage" NAME="Nosetests for test_main_function.VaspSettingsFromArgsTest Coverage Results" MODIFIED="1582166834908" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_tools_TestPotcarStr2Dict.coverage" NAME="Nosetests for test_main_tools.TestPotcarStr2Dict Coverage Results" MODIFIED="1582152023377" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/util/tests" />
+    <SUITE FILE_PATH="coverage/obadb$Nosetests_for_test_structure_handler_GetCoordinationDistanceTest_test_get_neighbors.coverage" NAME="Nosetests for test_structure_handler.GetCoordinationDistanceTest.test_get_neighbors Coverage Results" MODIFIED="1558744443409" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/obadb/util/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_settings_incar_TaskIncarSettingsTest_test_write.coverage" NAME="Nosetests for test_settings_incar.TaskIncarSettingsTest.test_write Coverage Results" MODIFIED="1576226363701" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_in_test_incar_py.coverage" NAME="Nosetests in test_incar.py Coverage Results" MODIFIED="1582420704070" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_cpd_entries_TestFreeEnergyEntrySet_test_from_mp.coverage" NAME="Nosetests for test_cpd_entries.TestFreeEnergyEntrySet.test_from_mp Coverage Results" MODIFIED="1581725304660" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_settings_incar_CommonIncarSettingsTest_test.coverage" NAME="Nosetests for test_settings_incar.CommonIncarSettingsTest.test Coverage Results" MODIFIED="1576303966399" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_SimpleOverrideTest.coverage" NAME="Nosetests for test_main.SimpleOverrideTest Coverage Results" MODIFIED="1582164346104" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_free_energy_entries_TestFreeEnergyEntrySet_test_from_vasp_files.coverage" NAME="Nosetests for test_free_energy_entries.TestFreeEnergyEntrySet.test_from_vasp_files Coverage Results" MODIFIED="1581908734341" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_make_kpoints_KpointsModeTest.coverage" NAME="Nosetests for test_make_kpoints.KpointsModeTest Coverage Results" MODIFIED="1579584692835" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_structure_handler_StructureToSeekpathTest.coverage" NAME="Nosetests for test_structure_handler.StructureToSeekpathTest Coverage Results" MODIFIED="1582421440100" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/util/tests" />
+    <SUITE FILE_PATH="coverage/vise$pytest_all.coverage" NAME="pytest all Coverage Results" MODIFIED="1582456787372" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_function_Test_test.coverage" NAME="Nosetests for test_main_function.Test.test Coverage Results" MODIFIED="1581985761289" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_in_test_gas_py.coverage" NAME="Nosetests in test_gas.py Coverage Results" MODIFIED="1582420551243" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_free_energy_entries_TestFreeEnergyEntrySet_test_dict.coverage" NAME="Nosetests for test_free_energy_entries.TestFreeEnergyEntrySet.test_dict Coverage Results" MODIFIED="1581905894925" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$codecs.coverage" NAME="codecs Coverage Results" MODIFIED="1582424934907" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/my_programs/virtualenvs/python3/lib/python3.6" />
+    <SUITE FILE_PATH="coverage/vise$pytest_for_test_settings_incar_TaskIncarSettingsTest.coverage" NAME="pytest for test_settings_incar.TaskIncarSettingsTest Coverage Results" MODIFIED="1582518141375" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_structure_handler_FindSpglibStandardConventionalTest.coverage" NAME="Nosetests for test_structure_handler.FindSpglibStandardConventionalTest Coverage Results" MODIFIED="1582421172659" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/util/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_free_energy_entries_TestFreeEnergyEntrySet_test_add_discard.coverage" NAME="Nosetests for test_free_energy_entries.TestFreeEnergyEntrySet.test_add_discard Coverage Results" MODIFIED="1582242632315" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_free_energy_entries_TestFreeEnergyEntry.coverage" NAME="Nosetests for test_free_energy_entries.TestFreeEnergyEntry Coverage Results" MODIFIED="1582241145232" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_prior_info_PriorInfoTest_test_dict.coverage" NAME="Nosetests for test_prior_info.PriorInfoTest.test_dict Coverage Results" MODIFIED="1582249377295" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_in_test_jobs_py.coverage" NAME="Nosetests in test_jobs.py Coverage Results" MODIFIED="1582420688051" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/custodian_extension/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_jobs_RmWavecarTest.coverage" NAME="Nosetests for test_jobs.RmWavecarTest Coverage Results" MODIFIED="1572265352941" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/custodian_extension/tests" />
+    <SUITE FILE_PATH="coverage/vise$pytest_for_test_main_MainVaspSetTest_test_vasp_set_yaml.coverage" NAME="pytest for test_main.MainVaspSetTest.test_vasp_set_yaml Coverage Results" MODIFIED="1582457822761" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_structure_handler_StructureToSeekpathTest_test_return_res.coverage" NAME="Nosetests for test_structure_handler.StructureToSeekpathTest.test_return_res Coverage Results" MODIFIED="1582421459087" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/util/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_MainGetPoscarsTest_test_vasp_set_wo_options.coverage" NAME="Nosetests for test_main.MainGetPoscarsTest.test_vasp_set_wo_options Coverage Results" MODIFIED="1582157437485" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_chem_pot_diag_TestChemPotDiag_test_cpd_3d_unstable_draw.coverage" NAME="Nosetests for test_chem_pot_diag.TestChemPotDiag.test_cpd_3d_unstable_draw Coverage Results" MODIFIED="1581596624102" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$pytest_for_test_dos_plotter_ViseDosPlotterTest_test_normal.coverage" NAME="pytest for test_dos_plotter.ViseDosPlotterTest.test_normal Coverage Results" MODIFIED="1582457138576" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/analyzer/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_make_kpoints_MakeKpointsTest_test_manual_set_sg1.coverage" NAME="Nosetests for test_make_kpoints.MakeKpointsTest.test_manual_set_sg1 Coverage Results" MODIFIED="1579584610159" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_function_TestPlotBand_test_get_band_plot.coverage" NAME="Nosetests for test_main_function.TestPlotBand.test_get_band_plot Coverage Results" MODIFIED="1582095475623" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_jobs_KptConvResultTest.coverage" NAME="Nosetests for test_jobs.KptConvResultTest Coverage Results" MODIFIED="1576378995432" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/custodian_extension/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_gas_TestShomateThermodynamicsFunction_test_heat_capacity.coverage" NAME="Nosetests for test_gas.TestShomateThermodynamicsFunction.test_heat_capacity Coverage Results" MODIFIED="1581601888656" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_prior_info_PriorInfoTest_test_yaml.coverage" NAME="Nosetests for test_prior_info.PriorInfoTest.test_yaml Coverage Results" MODIFIED="1581838252753" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$pytest_for_test_input_set_InputSetTest.coverage" NAME="pytest for test_input_set.InputSetTest Coverage Results" MODIFIED="1582514604913" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_make_kpoints_IrreducibleKpointsTest_test_mp.coverage" NAME="Nosetests for test_make_kpoints.IrreducibleKpointsTest.test_mp Coverage Results" MODIFIED="1576294333825" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_MainVaspRunTest_test_vasp_set_w_options.coverage" NAME="Nosetests for test_main.MainVaspRunTest.test_vasp_set_w_options Coverage Results" MODIFIED="1582182177357" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_in_test_chem_pot_diag_py.coverage" NAME="Nosetests in test_chem_pot_diag.py Coverage Results" MODIFIED="1582420437370" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_chem_pot_diag_TestChemPotDiag_test3.coverage" NAME="Nosetests for test_chem_pot_diag.TestChemPotDiag.test3 Coverage Results" MODIFIED="1581559652248" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/chempotdiag/tests" />
+    <SUITE FILE_PATH="coverage/obadb$Nosetests_for_test_structure_handler_GetCoordinationDistanceTest.coverage" NAME="Nosetests for test_structure_handler.GetCoordinationDistanceTest Coverage Results" MODIFIED="1558744163711" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/obadb/util/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_main_function_TestVaspSet_test_print.coverage" NAME="Nosetests for test_main_function.TestVaspSet.test_print Coverage Results" MODIFIED="1582071710016" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$pytest_for_vise_cli_tests_test_main_MainVaspSetTest_test_vasp_set_wo_options.coverage" NAME="pytest for vise.cli.tests.test_main.MainVaspSetTest.test_vasp_set_wo_options Coverage Results" MODIFIED="1582457620946" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/cli/tests" />
+    <SUITE FILE_PATH="coverage/vise$pytest_for_test_input_set_InputSetTest_test_write.coverage" NAME="pytest for test_input_set.InputSetTest.test_write Coverage Results" MODIFIED="1582517871536" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_make_kpoints_KpointsModeTest_test2.coverage" NAME="Nosetests for test_make_kpoints.KpointsModeTest.test2 Coverage Results" MODIFIED="1576292853458" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+    <SUITE FILE_PATH="coverage/vise$Nosetests_for_test_incar_IncarFlagsTest_test.coverage" NAME="Nosetests for test_incar.IncarFlagsTest.test Coverage Results" MODIFIED="1581731483351" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/vise/input_set/tests" />
+  </component>
+</project>

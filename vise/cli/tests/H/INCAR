@@ -1,0 +1,34 @@
+# algorithm 
+ALGO  =  N
+
+# accuracy 
+PREC   =  N
+LREAL  =  False
+LASPH  =  True
+ENCUT  =  250.0
+NELM   =  100
+EDIFF  =  1e-07
+
+# ionic relaxation 
+ISIF    =  2
+EDIFFG  =  -0.005
+IBRION  =  2
+NSW     =  50
+
+# occupation 
+ISMEAR  =  0
+SIGMA   =  0.1
+
+# spin 
+ISPIN  =  2
+
+# IO control 
+LWAVE   =  False
+LCHARG  =  False
+
+# analyzer 
+LORBIT  =  12
+
+# parallel 
+KPAR  =  1
+

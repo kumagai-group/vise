@@ -1,0 +1,6 @@
+  2020-02-23 10:18:41,919 WARNING vise.util.structure_handler 
+ --> Given structure is modified to be compatible with HPKOT k-path.
+  2020-02-23 10:18:41,938 WARNING vise.input_set.make_kpoints 
+ --> To keep the space group symmetry, the number of k-points along three directions are kept the same for oI and tI Bravais lattice.
+  2020-02-23 10:19:09,601 CRITICAL vise.input_set.settings_util 
+ --> The accepted potcar set name is dict_keys(['normal', 'gw', 'mp_relax_set'])

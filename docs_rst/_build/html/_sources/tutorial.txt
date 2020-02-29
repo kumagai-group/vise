@@ -1,0 +1,39 @@
+# Tutorial of analyzer.
+-----------------------
+
+
+
+We here illustrate how to use the pydefect code.
+
+**Note1: Pydefect supports only the vienna ab-initio simulation package (VASP), so we suppose its input and output file names (e.g., PO    SCAR, POTCAR, OUTCAR) 
+and computational techniques (e.g., periodic boundary condition) used in VASP.**
+
+**Note2: Units used in pydefect are eV for energy and <span>&#8491;</span> for length following the vasp convention.**
+
+**Note3: Only nonmagnetic host materials are assumed.**
+
+Usually, a point-defect calculation in a non-metallic solid is intricate as shown in the workflow below,
+and, therefore, is a time-consuming task and researchers are prone to make mistakes.
+The main purpose of pydefect is to help researchers by automating almost all point-defect calculation processes.
+
+Here, we suppose the following directory tree; one can see
+some tasks can be performed concurrently, while others must follow some other tasks.
+The `<project_name>` is usually the name of material or that with crystal structure, e.g., rutile-TiO<sub>2</sub>.
+```
+<project_name>
+ │
+ ├ pydefect.yaml
+ │
+ ├ unitcell/ ── structure_opt/
+ │            ├ band/
+ │            └ dos/
+ │
+ ├ competing_phases/ ── <competing_phase 1>
+ │                    ├── <competing_phase 2>
+ │                    ....
+ │
+ └ defects/ ── perfect/
+              ├─ Va_X_0/
+              ├─ Va_X_1/
+              ├─ Va_X_2/
+             ...

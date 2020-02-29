@@ -1,0 +1,346 @@
+# Default POTCARS from potpaw-19Apr12/PBE
+# 2013.8.5  Rb POTCAR changed from Rb_pv to Rb_sv
+# 2013.8.5  Tl POTCAR  changed from Tl to Tl_d
+# 2014.9.18 Re POTCAR  changed from Re to Re_pv
+# 2016.4.1  Zr POTCAR:  VRHFIN =r: 4s4p5s4d ->  VRHFIN =Zr: 4s4p5s4d
+#           This change is needed for vdW corrections.
+# 2016.5.9  Actinoides: Ac -- Cm, Cf are added
+# 2016.5.23 D is made from H: H is replaced by D.
+#           Ra, Fr and Np are added
+#           cp ../potpaw_PBE-v54/Ra_sv/POTCAR POTCAR_Ra
+#           cp ../potpaw_PBE-v54/Fr_sv/POTCAR POTCAR_Fr
+#           cp ../potpaw_PBE-v54/Np/POTCAR POTCAR_Np
+
+normal:
+  H: H
+  He: He
+  Li: Li
+  Na: Na
+  K: K_pv
+  Rb: Rb_sv
+  Cs: Cs_sv
+
+  Be: Be
+  Mg: Mg
+  Ca: Ca_pv
+  Sr: Sr_sv
+  Ba: Ba_sv
+
+  Sc: Sc
+  Y: Y_sv
+
+  Ti: Ti
+  Zr: Zr_sv
+  Hf: Hf
+
+  V: V
+  Nb: Nb_pv
+  Ta: Ta
+
+  Cr: Cr
+  Mo: Mo
+  W: W
+
+  Mn: Mn
+  Tc: Tc
+  Re: Re_pv
+
+  Fe: Fe
+  Ru: Ru
+  Os: Os
+
+  Co: Co
+  Rh: Rh
+  Ir: Ir
+
+  Ni: Ni
+  Pd: Pd
+  Pt: Pt
+
+  Cu: Cu
+  Ag: Ag
+  Au: Au
+
+  Zn: Zn
+  Cd: Cd
+  Hg: Hg
+
+  # Normal Ga POTCAR cannot show the beta-Ga2O3 is the most stable,
+  # thus replaced to Ga_d from the previous default potcar list
+  B: B
+  Al: Al
+  Ga: Ga_d
+  In: In
+  Tl: Tl_d
+
+  C: C
+  Si: Si
+  Ge: Ge
+  Sn: Sn
+  Pb: Pb
+
+  N: N
+  P: P
+  As: As
+  Sb: Sb
+  Bi: Bi
+
+  O : O
+  S : S
+  Se: Se
+  Te: Te
+
+  F : F
+  Cl: Cl
+  Br: Br
+  I : I
+
+  La: La
+  Ce: Ce_3
+  Pr: Pr_3
+  Nd: Nd_3
+  Pm: Pm_3
+  Sm: Sm_3
+  Eu: Eu
+  Gd: Gd_3
+  Tb: Tb_3
+  Dy: Dy_3
+  Ho: Ho_3
+  Er: Er_3
+  Tm: Tm_3
+  Yb: Yb_2
+  Lu: Lu_3
+
+  Ac: Ac
+  Th: Th_s
+  Pa: Pa_s
+  U: U_s
+  Pu: Pu
+  Am: Am
+  Cm: Cm
+  Cf: Cf
+
+# One must be careful that the headers of three GW POTCARs show as if they are
+# normal POTCARs as follows. (Of course, the parameters are different from
+# those in normal ones.
+#
+# grep PAW_PBE /home/common/potpaw_PBE-v54/*_GW*/POTCAR| cut -d: -f 2 | grep -v GW                   [~]
+#  PAW_PBE B 28Sep2005
+#   TITEL  = PAW_PBE B 28Sep2005
+#  PAW_PBE Br 20Mar2012
+#   TITEL  = PAW_PBE Br 20Mar2012
+#  PAW_PBE Ge 04Okt2005
+#   TITEL  = PAW_PBE Ge 04Okt2005
+# for i in `file * | grep dir | cut -d: -f1`;do j=`head -n 1 $i/POTCAR|tail -n 1| cut -d" " -f 4`; if [[ $i != $j ]]; then echo $i $j;fi; done
+# F_GW_new F_GW
+# H_AE
+# He_AE He
+# Ne_s_GW Ne_GW
+# O_GW_new O_GW
+#
+# Modified header of those POTCARs except for all electron ones.
+
+gw:
+  H: H_GW
+  Li: Li_GW
+  Na: Na_sv_GW
+  K: K_sv_GW
+  Rb: Rb_sv_GW
+  Cs: Cs_sv_GW
+
+  Be: Be_GW
+  Mg: Mg_GW
+  Ca: Ca_sv_GW
+  Sr: Sr_sv_GW
+  Ba: Ba_sv_GW
+
+  Sc: Sc_sv_GW
+  Y: Y_sv_GW
+
+  Ti: Ti_sv_GW
+  Zr: Zr_sv_GW
+  Hf: Hf_sv_GW
+
+  V: V_sv_GW
+  Nb: Nb_sv_GW
+  Ta: Ta_sv_GW
+
+  Cr: Cr_sv_GW
+  Mo: Mo_sv_GW
+  W: W_sv_GW
+
+  Mn: Mn_GW
+  Tc: Tc_sv_GW
+  Re: Re_sv_GW
+
+  Fe: Fe_GW
+  Ru: Ru_sv_GW
+  Os: Os_sv_GW
+
+  Co: Co_GW
+  Rh: Rh_GW
+  Ir: Ir_sv_GW
+
+  Ni: Ni_GW
+  Pd: Pd_GW
+  Pt: Pt_GW
+
+  Cu: Cu_GW
+  Ag: Ag_GW
+  Au: Au_GW
+
+  Zn: Zn_GW
+  Cd: Cd_GW
+  Hg: Hg_sv_GW
+
+  B: B_GW
+  Al: Al_GW
+  Ga: Ga_GW
+  In: In_d_GW
+  Tl: Tl_d_GW
+
+  C: C_GW_new
+  Si: Si_GW
+  Ge: Ge_GW
+  Sn: Sn_d_GW
+  Pb: Pb_d_GW
+
+  N: N_GW_new
+  P: P_GW
+  As: As_GW
+  Sb: Sb_GW
+  Bi: Bi_GW
+
+  O : O_GW_new
+  S : S_GW
+  Se: Se_GW
+  Te: Te_GW
+
+  F : F_GW_new
+  Cl: Cl_GW
+  Br: Br_GW
+  I : I_GW
+
+  He: He_GW
+  Ne: Ne_GW
+  Ar: Ar_GW
+  Kr: Kr_GW
+  Xe: Xe_GW
+  Rn: Rn_d_GW
+
+  La: La_GW
+  Ce: Ce_GW
+  # From here, no GW potcars
+  Pr: Pr
+  Nd: Nd
+  Pm: Pm
+  Sm: Sm
+  Eu: Eu
+  Gd: Gd
+  Tb: Tb
+  Dy: Dy
+  Ho: Ho
+  Er: Er
+  Tm: Tm
+  Yb: Yb
+  Lu: Lu
+
+  Ac: Ac
+  Th: Th_s
+  Pa: Pa_s
+  U: U_s
+  Pu: Pu
+  Am: Am
+  Cm: Cm
+  Cf: Cf
+
+mp_relax_set:
+  Ac: Ac
+  Ag: Ag
+  Al: Al
+  Ar: Ar
+  As: As
+  Au: Au
+  B: B
+  Ba: Ba_sv
+  Be: Be_sv
+  Bi: Bi
+  Br: Br
+  C: C
+  Ca: Ca_sv
+  Cd: Cd
+  Ce: Ce
+  Cl: Cl
+  Co: Co
+  Cr: Cr_pv
+  Cs: Cs_sv
+  Cu: Cu_pv
+  Dy: Dy_3
+  Er: Er_3
+  Eu: Eu
+  F: F
+  Fe: Fe_pv
+  Ga: Ga_d
+  Gd: Gd
+  Ge: Ge_d
+  H: H
+  He: He
+  Hf: Hf_pv
+  Hg: Hg
+  Ho: Ho_3
+  I: I
+  In: In_d
+  Ir: Ir
+  K: K_sv
+  Kr: Kr
+  La: La
+  Li: Li_sv
+  Lu: Lu_3
+  Mg: Mg_pv
+  Mn: Mn_pv
+  Mo: Mo_pv
+  N: N
+  Na: Na_pv
+  Nb: Nb_pv
+  Nd: Nd_3
+  Ne: Ne
+  Ni: Ni_pv
+  Np: Np
+  O: O
+  Os: Os_pv
+  P: P
+  Pa: Pa
+  Pb: Pb_d
+  Pd: Pd
+  Pm: Pm_3
+  Pr: Pr_3
+  Pt: Pt
+  Pu: Pu
+  Rb: Rb_sv
+  Re: Re_pv
+  Rh: Rh_pv
+  Ru: Ru_pv
+  S: S
+  Sb: Sb
+  Sc: Sc_sv
+  Se: Se
+  Si: Si
+  Sm: Sm_3
+  Sn: Sn_d
+  Sr: Sr_sv
+  Ta: Ta_pv
+  Tb: Tb_3
+  Tc: Tc_pv
+  Te: Te
+  Th: Th
+  Ti: Ti_pv
+  Tl: Tl_d
+  Tm: Tm_3
+  U: U
+  V: V_pv
+  W: W_pv
+  Xe: Xe
+  Y: Y_sv
+  Yb: Yb_2
+  Zn: Zn
+  Zr: Zr_sv

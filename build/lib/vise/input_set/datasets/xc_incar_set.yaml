@@ -1,0 +1,33 @@
+# task
+LWAVE:
+    pbe: False
+    pbesol: False
+    lda: False
+    scan: False
+    pbe0: True
+    hse: True
+
+ALGO:
+    pbe: N
+    pbesol: N
+    lda: N
+    scan: N
+    pbe0: D
+    hse: D
+
+# Optional for hybrid functional
+LHFCALC:
+    pbe0: True
+    hse: True
+
+PRECFOCK:
+    pbe0: Fast
+    hse: Fast
+
+TIME:
+    pbe0: 0.4
+    hse: 0.4
+
+HFSCREEN:
+    hse: 0.208
+

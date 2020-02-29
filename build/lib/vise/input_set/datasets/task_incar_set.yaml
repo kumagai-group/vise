@@ -1,0 +1,117 @@
+# task
+LREAL:
+  structure_opt: A
+  structure_opt_rough: False
+  structure_opt_tight: False
+  cluster_opt: False
+  phonon_force: False
+  defect: False
+  band: False
+  dos: False
+  dielectric_dfpt: False
+  dielectric_finite_field: False
+  dielectric_function: False
+
+ISPIN:
+  structure_opt: 1
+  structure_opt_rough: 1
+  structure_opt_tight: 1
+  cluster_opt: 1
+  phonon_force: 1
+  defect: 2
+  band: 1
+  dos: 1
+  dielectric_dfpt: 1
+  dielectric_finite_field: 1
+  dielectric_function: 1
+
+ISIF:
+  structure_opt: 3
+  structure_opt_rough: 3
+  structure_opt_tight: 3
+  cluster_opt: 2
+  phonon_force: 2
+  defect: 2
+  band: 0
+  dos: 0
+  dielectric_dfpt: 0
+  dielectric_finite_field: 0
+  dielectric_function: 0
+
+# During the dielectric_dftp calculations, EDIFF is tightened automatically.
+EDIFF:
+  structure_opt: 1.e-7
+  structure_opt_rough: 1.e-4
+  structure_opt_tight: 1.e-8
+  cluster_opt: 1.e-7
+  phonon_force: 1.e-8
+  defect: 1.e-5
+  band: 1.e-5
+  dos: 1.e-5
+  dielectric_dfpt: 1.e-6
+  dielectric_finite_field: 1.e-6
+  dielectric_function: 1.e-5
+
+IBRION:
+  structure_opt: 2
+  structure_opt_rough: 2
+  structure_opt_tight: 2
+  cluster_opt: 2
+  phonon_force: 2
+  defect: 2
+  band: 2
+  dos: 2
+  dielectric_dfpt: 8
+  dielectric_finite_field: 2
+  dielectric_function: 2
+
+# -5 is acceptable for num_kpt >= 4 and is_band_gap = True
+ISMEAR:
+  structure_opt: 0
+  structure_opt_rough: 0
+  structure_opt_tight: 0
+  cluster_opt: 0
+  phonon_force: 0
+  defect: 0
+  band: 0
+  dos: -5
+  dielectric_dfpt: 0
+  dielectric_finite_field: 0
+  dielectric_function: -5
+
+PREC:
+  structure_opt: N
+  structure_opt_rough: N
+  structure_opt_tight: A
+  cluster_opt: N
+  phonon_force: A
+  defect: N
+  band: N
+  dos: N
+  dielectric_dfpt: N
+  dielectric_finite_field: N
+  dielectric_function: N
+
+# optional
+NSW:
+  structure_opt: 50
+  structure_opt_rough: 50
+  structure_opt_tight: 50
+  cluster_opt: 50
+  defect: 50
+
+EDIFFG:
+  structure_opt: -0.005
+  structure_opt_rough: -0.2
+  structure_opt_tight: -0.001
+  cluster_opt: -0.005
+  defect: -0.03
+
+POTIM:
+  structure_opt_rough: 0.1
+
+ADDGRID:
+  structure_opt_tight: True
+  phonon_force:  True
+
+# KPAR depends on the number of kpoints.
