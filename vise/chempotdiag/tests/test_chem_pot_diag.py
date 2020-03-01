@@ -80,11 +80,12 @@ class TestChemPotDiag(ViseTest):
     def test_cpd_2d(self):
         self.assertEqual([Element.Ca, Element.Mg], self.cpd_2d.elements)
         self.assertEqual(2, self.cpd_2d.dim)
-        self.assertEqual([[-5.0, 0.0], [0.0, -5.0]], self.cpd_2d.vertices)
+        self.assertEqual([[0.0, -5.0], [-5.0, 0.0]], self.cpd_2d.vertices)
+#        self.assertEqual([[-5.0, 0.0], [0.0, -5.0]], self.cpd_2d.vertices)
         self.assertEqual("CaMg", self.cpd_2d.target_comp)
-        self.assertEqual({'A': [-5.0, 0.0], 'B': [0.0, -5.0]},
+        self.assertEqual({'A': [0.0, -5.0], 'B': [-5.0, 0.0]},
                          self.cpd_2d.target_comp_chempot)
-        self.assertEqual({'A': [-7.0, -1.0], 'B': [-2.0, -6.0]},
+        self.assertEqual({'A': [-2.0, -6.0], 'B': [-7.0, -1.0]},
                          self.cpd_2d.target_comp_abs_chempot)
 
     @unittest.skipIf(DISABLE_DISPLAY_DIAGRAM, "not display chempotdiag")
@@ -107,12 +108,12 @@ class TestChemPotDiag(ViseTest):
         self.assertEqual([Element.Ca, Element.Mg, Element.O],
                          self.cpd_3d.elements)
         self.assertEqual(3, self.cpd_3d.dim)
-        self.assertEqual([[-10.0, 0.0, 0.0], [0.0, -10.0, 0.0],
-                          [-5.0, 0.0, -5.0], [0.0, -5.0, -5.0]],
+        self.assertEqual([[-10.0, 0.0, 0.0], [-5.0, 0.0, -5.0],
+                          [0.0, -10.0, 0.0], [0.0, -5.0, -5.0]],
                          self.cpd_3d.vertices)
         self.assertEqual("CaMgO", self.cpd_3d.target_comp)
-        self.assertEqual({'A': [-10.0, 0.0, 0.0], 'B': [0.0, -10.0, 0.0],
-                          'C': [-5.0, 0.0, -5.0], 'D': [0.0, -5.0, -5.0]},
+        self.assertEqual({'A': [-10.0, 0.0, 0.0], 'B': [-5.0, 0.0, -5.0],
+                          'C': [0.0, -10.0, 0.0], 'D': [0.0, -5.0, -5.0]},
                          self.cpd_3d.target_comp_chempot)
 
     @unittest.skipIf(DISABLE_DISPLAY_DIAGRAM, "not display chempotdiag")
