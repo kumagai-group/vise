@@ -203,7 +203,7 @@ def parse_args(args):
         "-pi", "--prior_info", type=str2bool, default=True,
         help="Whether to use prior_info.json when it exists.")
     parser_vasp_set.add_argument(
-        "--dirs", nargs="+", type=str, required=True,
+        "--dirs", nargs="+", type=str,
         help="Make vasp set for the directories in the same condition.")
     parser_vasp_set.add_argument(
         "-d", "--prev_dir", type=str,
