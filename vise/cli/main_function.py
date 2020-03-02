@@ -36,8 +36,8 @@ from vise.util.mp_tools import make_poscars_from_mp
 logger = get_logger(__name__)
 
 
-def vasp_symprec_settings_from_args(args: Namespace
-                                    ) -> Tuple[dict, dict, dict, Task, Xc]:
+def vasp_settings_from_args(args: Namespace
+                            ) -> Tuple[dict, dict]:
     """Generate vasp input settings from the given args.
 
     """
@@ -46,8 +46,6 @@ def vasp_symprec_settings_from_args(args: Namespace
     ldauu = list2dict(args.ldauu, flags)
     ldaul = list2dict(args.ldaul, flags)
     potcar_set = potcar_str2dict(args.potcar_set)
-    task = Task.from_string(args.task)
-    xc = Xc.from_string(args.xc)
     key_candidates = list(ViseInputSet.ALL_OPTIONS.keys())
     # Sanitize values of vis_base_kwargs and user_incar_settings with list2dict.
     vis_base_kwargs = list2dict(args.vise_opts, key_candidates)
@@ -63,12 +61,7 @@ def vasp_symprec_settings_from_args(args: Namespace
                             "ldauu": ldauu,
                             "ldaul": ldaul,
                             "charge": args.charge})
-    prec_kwargs = {}
-    if hasattr(args, "symprec"):
-        prec_kwargs.update({"symprec": args.symprec,
-                            "angle_tolerance": args.angle_tolerance})
-
-    return user_incar_settings, vis_base_kwargs, prec_kwargs, task, xc
+    return user_incar_settings, vis_base_kwargs
 
 
 def get_poscar_from_mp(args: Namespace) -> None:
@@ -90,13 +83,14 @@ def vasp_set(args: Namespace) -> None:
         return
 
     # user_incar_settings and base_vis_kwargs can be modified by prior_info.json
-    base_user_incar_settings, base_vis_kwargs, prec_kwargs, task, xc = \
-        vasp_symprec_settings_from_args(args)
-
+    base_user_incar_settings, base_vis_kwargs = vasp_settings_from_args(args)
+    task = Task.from_string(args.task)
+    xc = Xc.from_string(args.xc)
     base_vis_kwargs.update(
-        {"kpt_density": args.kpt_density,
+        {"symprec": args.symprec,
+         "angle_tolerance": args.angle_tolerance,
+         "kpt_density": args.kpt_density,
          "standardize_structure": args.standardize_structure})
-    base_vis_kwargs.update(prec_kwargs)
 
     started_dir = os.getcwd()
     dirs = getattr(args, "dirs", ".")
@@ -145,17 +139,7 @@ def vasp_set(args: Namespace) -> None:
     os.chdir(started_dir)
 
 
-def vasp_run(args) -> None:
-
-    if args.json_file:
-        if args.kpoint_conv:
-            kpt_conv = KptConvResult.load_json(args.json_file)
-            print(kpt_conv)
-        else:
-            str_opt = StructureOptResult.load_json(args.json_file)
-            print(str_opt)
-        return
-
+def vasp_run_parser(args) -> tuple:
     if isinstance(args.vasp_cmd, str):
         vasp_cmd = args.vasp_cmd.split()
     elif isinstance(args.vasp_cmd, list):
@@ -166,34 +150,58 @@ def vasp_run(args) -> None:
     else:
         raise NoVaspCommandError("Vasp command must be specified properly.")
 
-    user_incar_settings, vis_kwargs, prec_kwargs, task, xc = \
-        vasp_symprec_settings_from_args(args)
-
     handlers = handler_group(args.handler_name, timeout=args.timeout)
 
+    # Used in structure_opt
     optimization_args = {"vasp_cmd": vasp_cmd,
                          "max_relax_num": args.max_relax_num,
                          "removes_wavecar": args.remove_wavecar,
                          "left_files": args.left_files,
-                         "removed_files": ["PCDAT", "vasprun.xml"]}
+                         "removed_files": ["PCDAT", "vasprun.xml"],
+                         "symprec": args.symprec,
+                         "angle_tolerance": args.angle_tolerance}
 
+    # Used in custodian
     custodian_args = {"handlers": handlers,
                       "polling_time_step": 5,
                       "monitor_freq": 1,
                       "max_errors": 10,
                       "gzipped_output": False}
 
-    if args.kpoint_conv:
-        custodian_args["jobs"] = ViseVaspJob.kpt_converge(
-            xc=args.xc,
-            task=task,
-            convergence_criterion=args.convergence_criterion,
-            initial_kpt_density=args.initial_kpt_density,
-            user_incar_settings=user_incar_settings,
-            **optimization_args, **vis_kwargs, **prec_kwargs)
-    else:
-        custodian_args["jobs"] = ViseVaspJob.structure_optimization_run(
-            **optimization_args, **prec_kwargs)
+    return optimization_args, custodian_args
+
+
+def vasp_run(args) -> None:
+
+    if args.print:
+        print(StructureOptResult.load_json(args.json_file))
+        return
+
+    optimization_args, custodian_args = vasp_run_parser(args)
+
+    custodian_args["jobs"] = ViseVaspJob.structure_optimization_run(
+        **optimization_args)
+
+    c = Custodian(**custodian_args)
+    c.run()
+
+
+def kpt_conv(args) -> None:
+
+    if args.print:
+        print(KptConvResult.load_json(args.json_file))
+        return
+
+    user_incar_settings, vis_kwargs = vasp_settings_from_args(args)
+    optimization_args, custodian_args = vasp_run_parser(args)
+
+    custodian_args["jobs"] = ViseVaspJob.kpt_converge(
+        xc=Xc.from_string(args.xc),
+        task=Task.from_string(args.task),
+        convergence_criterion=args.convergence_criterion,
+        initial_kpt_density=args.initial_kpt_density,
+        user_incar_settings=user_incar_settings,
+        **optimization_args, **vis_kwargs)
 
     c = Custodian(**custodian_args)
     c.run()

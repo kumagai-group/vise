@@ -8,7 +8,7 @@ from typing import Union
 
 from vise.cli.main_function import (
     get_poscar_from_mp, vasp_set, chempotdiag, plot_band, plot_dos, vasp_run,
-    band_gap)
+    kpt_conv, band_gap)
 from vise.config import SYMMETRY_TOLERANCE, ANGLE_TOL, KPT_DENSITY, TIMEOUT
 from vise.custodian_extension.jobs import ViseVaspJob
 from vise.input_set.input_set import ViseInputSet
@@ -38,8 +38,9 @@ setting_keys = ["vasp_cmd",
                 "ldaul",
                 "potcar_set",
                 "potcar_set_name",
-                "relax_iter_num",
+                "max_relax_num",
                 "removed_files",
+                "left_files",
                 "timeout"]
 
 
@@ -90,62 +91,101 @@ def parse_args(args):
         "--angle_tolerance", type=float, default=prec["angle_tolerance"],
         help="Set angle precision used for symmetry analysis.")
 
+    # -- parent parser:  custodian
+    custodian_defaults = get_default_args(ViseVaspJob.kpt_converge)
+    custodian_defaults["vasp_cmd"] = None
+    custodian_defaults["timeout"] = TIMEOUT
+    simple_override(custodian_defaults, ["vasp_cmd",
+                                         "max_relax_num",
+                                         "timeout",
+                                         "left_files"])
+    custodian_parser = argparse.ArgumentParser(
+        description="Vasp custodian-related parser",
+        add_help=False)
+
+    custodian_parser.add_argument(
+        "-v", "--vasp_cmd", nargs="+", type=str,
+        default=custodian_defaults["vasp_cmd"],
+        help="VASP command. If you are using mpirun, set this to something "
+             "like \"mpirun pvasp\".",)
+    custodian_parser.add_argument(
+        "--handler_name", type=str, default="default",
+        help="Custodian error handler name listed in error_handlers.")
+    custodian_parser.add_argument(
+        "--max_relax_num", default=custodian_defaults["max_relax_num"],
+        type=int,
+        help="Maximum number of relaxations.")
+    custodian_parser.add_argument(
+        "--left_files", type=str, nargs="+",
+        default=custodian_defaults["left_files"],
+        help="Filenames that are left at the calculation directory.")
+    custodian_parser.add_argument(
+        "--timeout", type=int, default=custodian_defaults["timeout"],
+        help="Timeout used in TooLongTimeCalcErrorHandler.")
+    custodian_parser.add_argument(
+        "--remove_wavecar", action="store_true",
+        help="Remove WAVECAR file after the calculation is finished.")
+
     # -- parent parser:  vasp set
-    vasp_defaults = get_default_args(ViseInputSet.make_input)
-    vasp_defaults.update(ViseInputSet.TASK_OPTIONS)
-    vasp_defaults.update(ViseInputSet.XC_OPTIONS)
-    vasp_defaults["potcar_set"] = None
-    vasp_defaults["vise_opts"] = None
-    vasp_defaults["user_incar_settings"] = None
-    simple_override(vasp_defaults, ["xc",
-                                    "task",
-                                    "vise_opts",
-                                    "user_incar_settings",
-                                    "potcar_set",
-                                    "potcar_set_name",
-                                    "ldauu",
-                                    "ldaul"])
+    vasp_set_defaults = get_default_args(ViseInputSet.make_input)
+    vasp_set_defaults.update(ViseInputSet.TASK_OPTIONS)
+    vasp_set_defaults.update(ViseInputSet.XC_OPTIONS)
+    vasp_set_defaults["potcar_set"] = None
+    vasp_set_defaults["vise_opts"] = None
+    vasp_set_defaults["user_incar_settings"] = None
 
-    vasp_parser = argparse.ArgumentParser(description="Vasp set-related parser",
-                                          add_help=False)
+    simple_override(vasp_set_defaults, ["xc",
+                                        "task",
+                                        "vise_opts",
+                                        "user_incar_settings",
+                                        "potcar_set",
+                                        "potcar_set_name",
+                                        "ldauu",
+                                        "ldaul"])
 
-    vasp_parser.add_argument(
-        "--potcar", dest="potcar_set", default=vasp_defaults["potcar_set"],
+    vasp_set_parser = argparse.ArgumentParser(
+        description="Vasp set-related parser",
+        add_help=False)
+
+    vasp_set_parser.add_argument(
+        "--potcar", dest="potcar_set", default=vasp_set_defaults["potcar_set"],
         type=str, nargs="+",
         help="User specifying POTCAR set. E.g., Mg_pv O_h")
-    vasp_parser.add_argument(
-        "--potcar_set_name", default=vasp_defaults["potcar_set_name"], type=str,
+    vasp_set_parser.add_argument(
+        "--potcar_set_name", default=vasp_set_defaults["potcar_set_name"],
+        type=str,
         help="User specifying POTCAR set, i ie. normal ,gw, or mp_relax_set.")
-    vasp_parser.add_argument(
-        "-x", "--xc", default=str(vasp_defaults["xc"]), type=str,
+    vasp_set_parser.add_argument(
+        "-x", "--xc", default=str(vasp_set_defaults["xc"]), type=str,
         help="Exchange-correlation (XC) interaction treatment.")
-    vasp_parser.add_argument(
-        "-t", "--task", default=str(vasp_defaults["task"]), type=str,
+    vasp_set_parser.add_argument(
+        "-t", "--task", default=str(vasp_set_defaults["task"]), type=str,
         help="The task name. See document of vise.")
-    vasp_parser.add_argument(
-        "--vise_opts", type=str, nargs="+", default=vasp_defaults["vise_opts"],
+    vasp_set_parser.add_argument(
+        "--vise_opts", type=str, nargs="+",
+        default=vasp_set_defaults["vise_opts"],
         help="Keyword arguments for options in make_input classmethod of "
              "ViseInputSet in vise. See document in vise for details.")
-    vasp_parser.add_argument(
+    vasp_set_parser.add_argument(
         "-uis", "--user_incar_settings", type=str, nargs="+",
-        default=vasp_defaults["user_incar_settings"],
+        default=vasp_set_defaults["user_incar_settings"],
         help="user_incar_settings in make_input classmethod of ViseInputSet in "
              "vise. The default of this flag is set by the vise.yaml, so if one"
              "does not want to override the default, use "
              "additional_user_incar_setting instead. See also document in "
              "vise input_set for details.")
-    vasp_parser.add_argument(
+    vasp_set_parser.add_argument(
         "-auis", "--additional_user_incar_settings", type=str, nargs="+",
         default=None,
         help="Use this if one does not want to override user_incar_settings "
              "written in the yaml file")
-    vasp_parser.add_argument(
-        "--ldauu", type=str, default=vasp_defaults["ldauu"], nargs="+",
+    vasp_set_parser.add_argument(
+        "--ldauu", type=str, default=vasp_set_defaults["ldauu"], nargs="+",
         help="Dict of LDAUU values")
-    vasp_parser.add_argument(
-        "--ldaul", type=str, default=vasp_defaults["ldaul"], nargs="+",
+    vasp_set_parser.add_argument(
+        "--ldaul", type=str, default=vasp_set_defaults["ldaul"], nargs="+",
         help="Dict of LDAUL values.")
-    vasp_parser.add_argument(
+    vasp_set_parser.add_argument(
         "-c", "--charge", type=float, help="Charge state.")
 
     # -- get_poscars -----------------------------------------------------------
@@ -178,7 +218,7 @@ def parse_args(args):
     # -- vasp_set ---------------------------------------------------------
     parser_vasp_set = subparsers.add_parser(
         name="vasp_set",
-        parents=[vasp_parser, prec_parser],
+        parents=[vasp_set_parser, prec_parser],
         description="Tools for constructing vasp input set with vise",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         aliases=['vs'])
@@ -216,58 +256,52 @@ def parse_args(args):
     # -- vasp_run --------------------------------------------------------------
     parser_vasp_run = subparsers.add_parser(
         name="vasp_run",
-        parents=[vasp_parser, prec_parser],
+        parents=[custodian_parser, prec_parser],
         description="Tools for vasp run",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         aliases=['vr'])
 
-    vr_defaults = get_default_args(ViseVaspJob.kpt_converge)
-    vr_defaults["vasp_cmd"] = None
-    vr_defaults["timeout"] = TIMEOUT
+    parser_vasp_run.add_argument(
+        "-p", "--print", action="store_true",
+        help="Whether to print str_opt.json.")
+    parser_vasp_run.add_argument(
+        "--json_file", default="str_opt.json", type=str,
+        help="str_opt.json filename.")
 
-    simple_override(vr_defaults, ["vasp_cmd",
+    parser_vasp_run.set_defaults(func=vasp_run)
+
+    # -- kpt_conv --------------------------------------------------------------
+    parser_kpt_conv = subparsers.add_parser(
+        name="kpt_conv",
+        parents=[vasp_set_parser, custodian_parser, prec_parser],
+        description="Tools for vasp run for k-point convergence",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        aliases=['kc'])
+
+    kc_defaults = get_default_args(ViseVaspJob.kpt_converge)
+    kc_defaults["vasp_cmd"] = None
+
+    simple_override(kc_defaults, ["vasp_cmd",
                                   "initial_kpt_density"
-                                  "timeout",
-                                  "relax_iter_num",
                                   "convergence_criterion"])
 
-    parser_vasp_run.add_argument(
-        "-kc", "--kpoint_conv", action="store_true",
-        help="Set if k-point convergence is checked.")
-    parser_vasp_run.add_argument(
-        "--json_file", default=None, type=str,
-        help="Print structure_opt.json or kpt_conv.json (if -kc is set) info.")
-    parser_vasp_run.add_argument(
-        "-v", "--vasp_cmd", nargs="+", type=str,
-        default=vr_defaults["vasp_cmd"],
-        help="VASP command. If you are using mpirun, set this to something "
-             "like \"mpirun pvasp\".",)
-    parser_vasp_run.add_argument(
+    parser_kpt_conv.add_argument(
+        "-p", "--print", action="store_true",
+        help="Whether to print str_opt.json.")
+    parser_kpt_conv.add_argument(
+        "--json_file", default="kpt_conv.json", type=str,
+        help="kpt_conv.json filename.")
+    parser_kpt_conv.add_argument(
         "-ikd", "--initial_kpt_density", type=float,
-        default=vr_defaults["initial_kpt_density"],
-        help="Initial k-point density.")
-    parser_vasp_run.add_argument(
-        "--handler_name", type=str, default="default",
-        help="Custodian error handler name listed in error_handlers.")
-    parser_vasp_run.add_argument(
-        "--timeout", type=int, default=vr_defaults["timeout"],
-        help="Timeout used in TooLongTimeCalcErrorHandler.")
-    parser_vasp_run.add_argument(
-        "--remove_wavecar", action="store_true",
-        help="Remove WAVECAR file after the calculation is finished.")
-    parser_vasp_run.add_argument(
-        "--max_relax_num", default=vr_defaults["max_relax_num"], type=int,
-        help="Maximum number of relaxations.")
-    parser_vasp_run.add_argument(
+        default=kc_defaults["initial_kpt_density"],
+        help="Initial k-point density in 1/A.")
+    parser_kpt_conv.add_argument(
         "--criterion", dest="convergence_criterion",
-        default=vr_defaults["convergence_criterion"], type=float,
-        help="Convergence criterion of kpoints in eV / atom.")
-    parser_vasp_run.add_argument(
-        "--left_files", type=str, nargs="+", default=vr_defaults["left_files"],
-        help="Filenames that are left at the calculation directory.")
+        default=kc_defaults["convergence_criterion"], type=float,
+        help="Convergence criterion of kpoints in eV/atom.")
 
-    del vr_defaults
-    parser_vasp_run.set_defaults(func=vasp_run)
+    del kc_defaults
+    parser_kpt_conv.set_defaults(func=kpt_conv)
 
     # -- chempotdiag -----------------------------------------------------------
     parser_cpd = subparsers.add_parser(

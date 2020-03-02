@@ -12,7 +12,7 @@ from pymatgen.core.structure import IStructure
 
 from vise.util.testing import ViseTest
 from vise.cli.main_function import (
-    vasp_symprec_settings_from_args, get_poscar_from_mp, vasp_set, vasp_run,
+    vasp_settings_from_args, get_poscar_from_mp, vasp_set, vasp_run,
     chempotdiag, plot_band, plot_dos, band_gap)
 from vise.cli.tests.test_main import default_vasp_args, symprec_args
 from vise.input_set.task import Task
@@ -27,13 +27,9 @@ logger = get_logger(__name__)
 vasp_args = default_vasp_args
 
 
-class VaspSymprecSettingsFromArgsTest(ViseTest):
+class VaspSettingsFromArgsTest(ViseTest):
     def setUp(self) -> None:
-        prec = {"symprec": 0.1,
-                "angle_tolerance": 5}
-        vasp = {"task": "band",
-                "xc": "hse",
-                "ldauu": ["Mn", "5", "O", "3"],
+        vasp = {"ldauu": ["Mn", "5", "O", "3"],
                 "ldaul": ["Mn", "3", "O", "2"],
                 "vise_opts": ["only_even", "True"],
                 "user_incar_settings": ["POTIM", "0.4"],
@@ -41,11 +37,11 @@ class VaspSymprecSettingsFromArgsTest(ViseTest):
                 "potcar_set": ["Mn_pv"],
                 "potcar_set_name": "normal",
                 "charge": 1}
-        self.args = Namespace(**vasp, **prec)
+        self.args = Namespace(**vasp)
 
     def test(self):
-        user_incar_settings, vis_base_kwargs, prec_kwargs, task, xc = \
-            vasp_symprec_settings_from_args(self.args)
+        user_incar_settings, vis_base_kwargs = \
+            vasp_settings_from_args(self.args)
 
         expected = {"POTIM": 0.4, "ALGO": "Fast"}
         self.assertEqual(expected, user_incar_settings)
@@ -57,12 +53,6 @@ class VaspSymprecSettingsFromArgsTest(ViseTest):
                     "potcar_set_name": "normal",
                     "charge": 1}
         self.assertEqual(expected, vis_base_kwargs)
-
-        expected = {"symprec": 0.1, "angle_tolerance": 5}
-        self.assertEqual(expected, prec_kwargs)
-
-        self.assertEqual(task, Task.band)
-        self.assertEqual(xc, Xc.hse)
 
 
 class GetPoscarFromMpTest(ViseTest):
