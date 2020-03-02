@@ -16,14 +16,12 @@ from vise.util.logger import get_logger
 from vise.cli.main_tools import dict2list, get_user_settings, get_default_args
 from vise.util.mp_tools import make_poscars_from_mp
 from vise.util.tools import str2bool
+from vise import __version__
 
 __author__ = "Yu Kumagai"
 __maintainer__ = "Yu Kumagai"
 
 logger = get_logger(__name__)
-
-__version__ = '0.0.1dev'
-__date__ = 'will be inserted'
 
 # The following keys are set by vise.yaml
 setting_keys = ["vasp_cmd",
@@ -70,9 +68,8 @@ def parse_args(args):
     Vise is a package that helps researchers to do first-principles calculations 
     with the VASP code.""",
         epilog=f"""                                 
-    Author: Yu Kumagai
-    Version: {__version__}                                                                 
-    Last updated: {__date__}""",
+    Author: Yu Kumagai \n
+    Version: {__version__}""",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     subparsers = parser.add_subparsers()
