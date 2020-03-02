@@ -1,3 +1,0 @@
-[console_scripts]
-vise = fireworks.cli.main:vise
-
