@@ -3,6 +3,8 @@ import os
 from setuptools import setup, find_packages
 from distutils.extension import Extension
 
+from vise import __version__
+
 module_dir = os.path.dirname(os.path.abspath(__file__))
 reqs_raw = open(os.path.join(module_dir, "requirements.txt")).read()
 reqs_list = [r.replace("==", "~=") for r in reqs_raw.split("\n")]
@@ -23,7 +25,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name='vise',
-    version="0.1.dev3",
+    version=__version__,
     author="Yu Kumagai",
     author_email="yuuukuma@gmail.com",
     url='https://github.com/kumagai-group/vise',

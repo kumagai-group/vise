@@ -5,11 +5,11 @@ jobs:
     branches:
       only:
         - master
+        - develop
     working_directory: ~/vise
-    environment:
-      PMG_DEFAULT_FUNCTIONAL: PBE_54
     docker:
       - image: circleci/python:3.6.9
+        user: root
     steps:
       - checkout
       - run:
@@ -19,7 +19,7 @@ jobs:
           command: |
             echo 'PMG_VASP_PSP_DIR: ~/vise/vise/test_files/potcars' > $HOME/.pmgrc.yaml
             echo 'PMG_DEFAULT_FUNCTIONAL: PBE_54' >> $HOME/.pmgrc.yaml
-            echo "PMG_MAPI_KEY: ${KEY}" >> $HOME/.pmgrc.yaml
+            echo "PMG_MAPI_KEY: ${PMG_MAPI_KEY}" >> $HOME/.pmgrc.yaml
       - run:
           command: |
             cat $HOME/.pmgrc.yaml
@@ -30,18 +30,29 @@ jobs:
             sudo pip install --quiet pytest pytest-cov
             pytest vise --cov=vise --cov-report html:coverage_reports vise
 
-# write deploy to the pypi using circle-build-package.sh.
-#      - type: deploy
-#        name: Build Package
-#        command: ./circle-build-package.sh
+      - deploy:
+          name: pypi deploy
+          command: |
+            if [[ $CIRCLE_BRANCH == "master" ]]; then
+                echo "Deploy to the pypi and its test"
+                sudo pip install wheel twine
+
+                sudo touch ~/.pypirc
+                sudo echo "[distutils]" >> ~/.pypirc
+                sudo echo "index-servers = pypi pypi-test" >> ~/.pypirc
+
+                sudo echo "[pypi]" >> ~/.pypirc
+                sudo echo "username: ${PYPI_USERNAME}" >> ~/.pypirc
+                sudo echo "password: ${PYPI_PASSWORD}" >> ~/.pypirc
+
+                sudo echo "[pypi-test]" >> ~/.pypirc
+                sudo echo "repository: https://test.pypi.org/legacy/" >> ~/.pypirc
+                sudo echo "username: ${PYPI_USERNAME}" >> ~/.pypirc
+                sudo echo "password: ${PYPI_PASSWORD}" >> ~/.pypirc
+
+                sudo python setup.py sdist bdist_wheel
+                sudo twine upload --repository pypi-test dist/*
+                sudo twine upload --repository pypi dist/*
+            fi
 
 
-#
-#workflows:
-#  version: 2
-#  main:
-#    jobs:
-#      - build:
-#        filters:
-#          branches:
-#            only: master

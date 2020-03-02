@@ -12,7 +12,7 @@ class ViseTest(PymatgenTest):
     POSCARS_DIR = TEST_FILES_DIR / "poscars"
 
     @classmethod
-    def get_structure_by_name(cls, name: str) -> object:
+    def get_structure_by_name(cls, name: str) -> Structure:
         filename = cls.POSCARS_DIR / ("POSCAR-" + name)
         return Structure.from_file(filename)
 
