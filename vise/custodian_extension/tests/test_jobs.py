@@ -7,7 +7,7 @@ from pymatgen.core.structure import Structure
 
 from vise.util.testing import ViseTest
 from vise.custodian_extension.jobs import (
-    rm_wavecar, StructureOptResult, KptConvResult)
+    rm_wavecar, StructureOptResult, KptConvResult, ViseVaspJob)
 
 
 parent_dir = Path(__file__).parent
@@ -162,3 +162,13 @@ class KptConvResultTest(ViseTest):
 
     def test_print(self):
         print(self.kpt_conv)
+
+
+class ViseVaspJobTest(ViseTest):
+
+    def setUp(self) -> None:
+        self.vise_vasp_job = ViseVaspJob(vasp_cmd=["vasp"])
+
+    def test_msonable(self):
+        self.assertMSONable(self.vise_vasp_job)
+

@@ -365,36 +365,46 @@ class KptConvResult(MSONable):
 class ViseVaspJob(VaspJob):
     def __init__(self,
                  vasp_cmd: list,
-                 gamma_vasp_cmd: Optional[list] = None,
-                 ncl_vasp_cmd: Optional[list] = None,
-                 auto_gamma_vasp: Optional[list] = True,
-                 auto_ncl_vasp: Optional[list] = True,
                  output_file: str = "vasp.out",
                  stderr_file: str = "std_err.txt",
                  suffix: str = "",
                  final: bool = True,
                  backup: bool = True,
-                 auto_continue: bool = False):
+                 gamma_vasp_cmd: Optional[list] = None,
+                 auto_continue: bool = False,
+                 # add original args.
+                 ncl_vasp_cmd: Optional[list] = None,
+                 auto_gamma_vasp: Optional[list] = True,
+                 auto_ncl_vasp: Optional[list] = True):
+
         """
         Override constructor to close some options as some options use Incar
         instead of VisaIncar.
 
         Args: See docstrings of VaspJob.
         """
+
+        self.ncl_vasp_cmd = ncl_vasp_cmd
+        self.auto_gamma_vasp = auto_gamma_vasp
+        self.auto_ncl_vasp = auto_ncl_vasp
+
         # Should be fine for vasp.5.4.4
         if auto_gamma_vasp and gamma_vasp_cmd is None:
             gamma_vasp_cmd = vasp_cmd[:-1]
             gamma_vasp_cmd.append(vasp_cmd[-1].replace("std", "gam"))
 
         if auto_ncl_vasp:
-            incar = Incar.from_file("INCAR")
-            ncl_calc = any([incar.get("LNONCOLLINEAR", False),
-                            incar.get("LSORBIT", False)])
-            if ncl_calc:
-                if ncl_vasp_cmd is None:
-                    ncl_vasp_cmd = vasp_cmd[:-1]
-                    ncl_vasp_cmd.append(vasp_cmd[-1].replace("std", "ncl"))
-                vasp_cmd = ncl_vasp_cmd
+            try:
+                incar = Incar.from_file("INCAR")
+                ncl_calc = any([incar.get("LNONCOLLINEAR", False),
+                                incar.get("LSORBIT", False)])
+                if ncl_calc:
+                    if ncl_vasp_cmd is None:
+                        ncl_vasp_cmd = vasp_cmd[:-1]
+                        ncl_vasp_cmd.append(vasp_cmd[-1].replace("std", "ncl"))
+                    vasp_cmd = ncl_vasp_cmd
+            except FileNotFoundError:
+                pass
 
         # Note that only list instance is accepted for vasp_cmd in VaspJob at
         # ver.2019.8.24.
