@@ -5,7 +5,7 @@ from pathlib import Path
 import shutil
 import tempfile
 
-from vise.util.main_tools import (
+from vise.cli.main_tools import (
     potcar_str2dict, list2dict, dict2list, get_user_settings, get_default_args)
 from vise.util.testing import ViseTest
 

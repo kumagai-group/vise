@@ -36,7 +36,7 @@ from vise.input_set.task import Task
 from vise.input_set.xc import Xc
 from vise.util.error_classes import NoVaspCommandError
 from vise.util.logger import get_logger
-from vise.util.main_tools import potcar_str2dict, list2dict
+from vise.cli.main_tools import potcar_str2dict, list2dict
 from vise.util.mp_tools import make_poscars_from_mp
 
 logger = get_logger(__name__)

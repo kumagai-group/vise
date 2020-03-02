@@ -13,7 +13,7 @@ from vise.config import SYMMETRY_TOLERANCE, ANGLE_TOL, KPT_DENSITY, TIMEOUT
 from vise.custodian_extension.jobs import ViseVaspJob
 from vise.input_set.input_set import ViseInputSet
 from vise.util.logger import get_logger
-from vise.util.main_tools import dict2list, get_user_settings, get_default_args
+from vise.cli.main_tools import dict2list, get_user_settings, get_default_args
 from vise.util.mp_tools import make_poscars_from_mp
 from vise.util.tools import str2bool
 
