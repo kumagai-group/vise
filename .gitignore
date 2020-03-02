@@ -1,6 +1,4 @@
 .DS_Store
-.idea # PyCharm Setting Directory
-.idea/workspace.xml # PyCharm Setting Directory
 *.o
 *.pyc
 *.pyd
