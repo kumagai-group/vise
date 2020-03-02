@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import itertools
 import os
 import re
@@ -6,13 +8,13 @@ from pathlib import Path
 
 from monty.io import zopen
 from monty.serialization import loadfn
+
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.io.vasp import Incar
 from pymatgen.util.io_utils import clean_lines
+
 from tabulate import tabulate
 
-__author__ = "Yu Kumagai"
-__maintainer__ = "Yu Kumagai"
 
 MODULE_DIR = Path(os.path.dirname(os.path.abspath(__file__)))
 # This incar_flags should be OrderedDict, but from python 3.6, dict uses
@@ -21,16 +23,15 @@ incar_flags = loadfn(MODULE_DIR / "datasets" / "incar_flags.yaml")
 
 
 class ViseIncar(Incar):
-    """
-    Incar class modified for pretty writing of INCAR file.
+    """Incar class modified for pretty writing of INCAR file.
+
     Since from_file and from_string methods in Incar class use Incar class
     constructor, we need to override them.
     """
 
     @classmethod
     def from_file(cls, filename: str) -> "ViseIncar":
-        """
-        Reads an Incar object from a file.
+        """Reads an Incar object from a file.
 
         Args:
             filename (str): Filename for file
@@ -43,15 +44,16 @@ class ViseIncar(Incar):
 
     @classmethod
     def from_dict(cls, d: dict) -> "ViseIncar":
-        if d.get("MAGMOM") and isinstance(d["MAGMOM"][0], dict):
-            d["MAGMOM"] = [Magmom.from_dict(m) for m in d["MAGMOM"]]
+        kwargs = deepcopy(d)
+        if kwargs.get("MAGMOM") and isinstance(kwargs["MAGMOM"][0], dict):
+            kwargs["MAGMOM"] = [Magmom.from_dict(m) for m in kwargs["MAGMOM"]]
 
         return cls({k: v for k, v in d.items() if k not in ("@module",
                                                             "@class")})
 
     @classmethod
     def from_string(cls, string: str):
-        """ Reads an Incar object from a string.
+        """Reads an Incar object from a string.
 
         This method is different from that of Incar superclass at it does not
         support ";" semantic which split the incar flags.
@@ -77,7 +79,7 @@ class ViseIncar(Incar):
         return cls(params)
 
     def __add__(self, other: Incar) -> "ViseIncar":
-        """ Add all the values of another INCAR object to this object. """
+        """Add all the values of another INCAR object to this object. """
         params = {k: v for k, v in self.items()}
         for k, v in other.items():
             if k in self and v != self[k]:
@@ -100,10 +102,8 @@ class ViseIncar(Incar):
                     if comment is False:
                         lines.append(f"# {key} \n")
                         comment = True
-
                     if v == "MAGMOM" and isinstance(self[v], list):
                         value = []
-
                         if (isinstance(self[v][0], list) or
                             isinstance(self[v][0], Magmom)) and \
                                 (self.get("LSORBIT") or
@@ -115,7 +115,7 @@ class ViseIncar(Incar):
                                 value.append("3*{}*{}".format(len(tuple(g)), m))
                         # YK: Add this
                         elif len(self[v]) == 1:
-                            value.append(self[v][0])
+                            value.append(str(self[v][0]))
                         else:
                             # float() to ensure backwards compatibility between
                             # float magmoms and Magmom objects

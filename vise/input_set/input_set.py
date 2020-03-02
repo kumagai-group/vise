@@ -5,9 +5,9 @@ import os
 import re
 import shutil
 from copy import deepcopy
+from importlib import import_module
 from pathlib import Path
 from typing import Optional, Union
-from importlib import import_module
 
 import numpy as np
 from monty.io import zopen
@@ -21,13 +21,13 @@ from vise.analyzer.band_gap import band_gap_properties
 from vise.config import (
     DOS_STEP_SIZE, KPT_DENSITY, ENCUT_FACTOR_STR_OPT, ANGLE_TOL,
     SYMMETRY_TOLERANCE, BAND_REF_DIST, DEFAULT_NUM_NODES)
-from vise.input_set.task import Task
 from vise.input_set.incar import ViseIncar
 from vise.input_set.settings_incar import (
     TaskIncarSettings, XcIncarSettings, XcTaskIncarSettings,
     CommonIncarSettings)
-from vise.input_set.settings_structure_kpoints import TaskStructureKpoints
 from vise.input_set.settings_potcar import XcTaskPotcar
+from vise.input_set.settings_structure_kpoints import TaskStructureKpoints
+from vise.input_set.task import Task
 from vise.input_set.xc import Xc
 from vise.util.logger import get_logger
 from vise.util.structure_handler import get_symbol_list
@@ -192,8 +192,8 @@ class ViseInputSet(VaspInputSet):
     @classmethod
     def make_input(cls,
                    structure: Structure,
-                   task: Union[str, Task] = Task.structure_opt,
-                   xc: Union[str, Xc] = Xc.pbe,
+                   task: Union[str, Task] = "structure_opt",
+                   xc: Union[str, Xc] = "pbe",
                    prev_set: "ViseInputSet" = None,
                    abs_files_to_transfer: Optional[dict] = None,
                    user_incar_settings: Optional[dict] = None,
@@ -230,13 +230,15 @@ class ViseInputSet(VaspInputSet):
                should be added to COMMON_OPTIONAL_FLAGS.
         Note5: user_incar_settings is not inherited from prev_set. One needs
                to explicitly specify it, again, if needed.
+        Note6: Since default args are used in main function, set
+               "structure_opt" and "pbe" strings as defaults.
 
         Args:
             structure (Structure):
                 The Structure to create inputs for.
-            task (Task):
+            task (str/Task):
                 Task defined in Task.
-            xc (Xc):
+            xc (str/Xc):
                 Exchange-correlation (xc) defined in Xc.
             prev_set (ViseInputSet):
                 Previous ViseInputSet.
@@ -384,7 +386,6 @@ class ViseInputSet(VaspInputSet):
 
     @property
     def incar(self):
-        print(self.incar_settings)
         incar = ViseIncar.from_dict(self.incar_settings)
         return incar
 
@@ -410,20 +411,23 @@ class ViseInputSet(VaspInputSet):
                             make_dir_if_not_present=make_dir_if_not_present,
                             include_cif=include_cif)
 
+        filenames = [f.name for f in os.scandir() if f.is_file()]
+
         out_dir = Path(output_dir).absolute()
         for key, value in self.files_to_transfer.items():
             try:
                 # full path is usually safer for symbolic link.
                 filepath = Path(key).absolute()
                 name = filepath.name
-                with zopen(filepath, "rb") as fin, \
-                        zopen((out_dir / name), "wb") as fout:
-                    if value == "c":
-                        shutil.copyfileobj(fin, fout)
-                    elif value == "m":
-                        shutil.move(fin, fout)
-                    elif value == "l":
-                        os.symlink(fin, fout)
+                if value == "c" or value == "m":
+                    with zopen(filepath, "rb") as fin, \
+                            zopen((out_dir / name), "wb") as fout:
+                        if value == "c":
+                            shutil.copyfileobj(fin, fout)
+                        elif value == "m":
+                            shutil.move(fin, fout)
+                elif value == "l":
+                    os.symlink(filepath, out_dir / name)
 
             except FileNotFoundError:
                 logger.warning(f"{key} does not exist.")
@@ -555,7 +559,7 @@ class ViseInputSet(VaspInputSet):
             vasprun, outcar = get_vasprun_outcar(dirname)
             structure = get_structure_from_prev_run(vasprun, outcar)
 
-            gap_properties = band_gap_properties(vasprun)
+            gap_properties = band_gap_properties(vasprun, outcar)
             if gap_properties:
                 _, vbm, cbm = gap_properties
                 kwargs["vbm_cbm"] = [vbm["energy"], cbm["energy"]]

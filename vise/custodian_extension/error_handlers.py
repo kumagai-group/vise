@@ -37,6 +37,29 @@ class ViseVaspErrorHandler(orig_handlers.VaspErrorHandler):
                          natoms_large_cell=natoms_large_cell,
                          errors_subset_to_catch=ViseVaspErrorHandler.error_msgs)
 
+    def check(self):
+        incar = Incar.from_file("INCAR")
+        self.errors = set()
+        errors = set()
+        with open(self.output_filename, "r") as f:
+            for line in f:
+                l = line.strip()
+                for err, msgs in self.error_msgs.items():
+                    if err in self.errors_subset_to_catch:
+                        for msg in msgs:
+                            if l.find(msg) != -1:
+                                # this checks if we want to run a charged
+                                # computation (e.g., defects) if yes we don't
+                                # want to kill it because there is a change in
+                                # e-density (brmix error)
+                                if err == "brmix" and 'NELECT' in incar:
+                                    continue
+                                self.errors.add(err)
+                                errors.add(msg)
+        for msg in errors:
+            self.logger.error(msg, extra={"incar": incar.as_dict()})
+        return len(self.errors) > 0
+
     def correct(self):
 
         backup(orig_handlers.VASP_BACKUP_FILES | {self.output_filename})
@@ -200,10 +223,14 @@ class ViseVaspErrorHandler(orig_handlers.VaspErrorHandler):
                                 break
                             except (IndexError, ValueError):
                                 pass
+
+        # >>>>>>>>>>>>
+        # Modified since when the nbands is less than 9, it is not incremented
             actions.append({"dict": "INCAR",
                             "action": {
-                                "_set": {"NBANDS": int(1.1 * nbands)}}})
-
+                                "_set": {"NBANDS": int(1.1 * nbands) + 2}}})
+                   #            "_set": {"NBANDS": int(1.1 * nbands)}}})
+        # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         if "pssyevx" in self.errors:
             actions.append({"dict": "INCAR", "action":
                 {"_set": {"ALGO": "Normal"}}})
@@ -303,6 +330,7 @@ class ViseUnconvergedErrorHandler(orig_handlers.UnconvergedErrorHandler):
 
 
 class DielectricMaxIterationErrorHandler(ErrorHandler):
+    """Detects if the SCF is not attained. """
 
     is_monitor = True
 
@@ -320,6 +348,7 @@ class DielectricMaxIterationErrorHandler(ErrorHandler):
             return any(unconverged_line in line for line in fr)
 
     def correct(self):
+        # Uncorrectable error. Just return None for actions.
         return {"errors": ["No_DFPT_convergence"], "actions": None}
 
 
@@ -359,7 +388,7 @@ class TooLongTimeCalcErrorHandler(ErrorHandler):
         60 * 60 * 36 = 129600 (36 hours)
 
         Args:
-            limited_time (int):
+            timeout (int):
         """
         self.timeout = timeout
 
@@ -378,7 +407,7 @@ class TooLongTimeCalcErrorHandler(ErrorHandler):
 
 class DivergingEnergyErrorHandler(ErrorHandler):
 
-    def __init__(self, output_filename="OSZICAR"):
+    def __init__(self, output_filename="OSZICAR", energy_criterion=10**6):
         """Initializes the handler with the output file to check.
 
         Args:
@@ -386,6 +415,7 @@ class DivergingEnergyErrorHandler(ErrorHandler):
                 this only if it is different from the default (unlikely).
         """
         self.output_filename = output_filename
+        self.energy_criterion = energy_criterion
 
     def check(self):
         oszicar = Oszicar(self.output_filename)
@@ -393,11 +423,10 @@ class DivergingEnergyErrorHandler(ErrorHandler):
         # OSZICAR file can be empty, thus we need try-except here.
         try:
             max_energy = max([es["E"] for es in esteps[-1]])
-        #
         except (IndexError, KeyError):
             return False
 
-        if max_energy > 10 ** 6:
+        if max_energy > self.energy_criterion:
             return True
 
     def correct(self):
@@ -420,42 +449,4 @@ class ReturnErrorHandler(ErrorHandler):
         return {"errors": ["Always return Error with this."], "actions": None}
 
 
-# Note1: Custodian handler groups are modified to avoid IBRION=1, which does not
-#        show efermi (& eigenvalues?) in vasprun.xml.
-#        Therefore, IBRION=1 could be switched on only for rough calculations.
-# Note2: Don't forget "()" to generate the ErrorHandler class object.
-HANDLER_GROUP = {
-    "rough":      [orig_handlers.MeshSymmetryErrorHandler(),
-                   orig_handlers.PotimErrorHandler(),
-                   orig_handlers.PositiveEnergyErrorHandler(),
-                   orig_handlers.FrozenJobErrorHandler(),
-                   orig_handlers.StdErrHandler(),
-                   ViseVaspErrorHandler(),
-                   ViseUnconvergedErrorHandler(),
-                   MemoryOverflowHandler(),
-                   ],
-    "default":    [orig_handlers.MeshSymmetryErrorHandler(),
-                   orig_handlers.NonConvergingErrorHandler(),
-                   orig_handlers.PotimErrorHandler(),
-                   orig_handlers.PositiveEnergyErrorHandler(),
-                   orig_handlers.FrozenJobErrorHandler(),
-                   orig_handlers.StdErrHandler(),
-                   ViseVaspErrorHandler(),
-                   ViseUnconvergedErrorHandler(),
-                   MemoryOverflowHandler(),
-                   DivergingEnergyErrorHandler(),
-                   TooLongTimeCalcErrorHandler(timeout=518400),
-                   ],
-    "dielectric": [orig_handlers.MeshSymmetryErrorHandler(),
-                   orig_handlers.NonConvergingErrorHandler(nionic_steps=1),
-                   orig_handlers.PositiveEnergyErrorHandler(),
-                   orig_handlers.FrozenJobErrorHandler(),
-                   orig_handlers.StdErrHandler(),
-                   orig_handlers.LrfCommutatorHandler(),
-                   ViseUnconvergedErrorHandler(),
-                   MemoryOverflowHandler(),
-                   DivergingEnergyErrorHandler(),
-                   TooLongTimeCalcErrorHandler(timeout=518400),
-                   ],
-    "no_handler": []
-}
+

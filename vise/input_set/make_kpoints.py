@@ -1,21 +1,21 @@
 # -*- coding: utf-8 -*-
-from math import ceil, modf, pow
-from typing import Tuple, List, Optional
 
 from enum import Enum, unique
+from math import ceil, modf, pow
+from typing import List
 
 import numpy as np
 from pymatgen import Structure
 from pymatgen.core.periodic_table import Element
 from pymatgen.io.vasp.inputs import Kpoints
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from vise.config import BAND_REF_DIST, KPT_DENSITY
 from vise.config import SYMMETRY_TOLERANCE, ANGLE_TOL
 from vise.input_set.datasets.kpt_centering import kpt_centering
 from vise.util.logger import get_logger
 from vise.util.structure_handler import (
     structure_to_seekpath, find_spglib_primitive, get_symmetry_dataset)
 
-from vise.config import BAND_REF_DIST, KPT_DENSITY
 logger = get_logger(__name__)
 
 __author__ = "Yu Kumagai"
@@ -69,7 +69,6 @@ class KpointsMode(Enum):
 
 
 class MakeKpoints:
-
     """Make Kpoint based on default settings depending on the task.
 
         # The structures of aP (SG:1, 2), mC (5, 8, 9, 12, 15) and
@@ -133,7 +132,7 @@ class MakeKpoints:
                 Angle tolerance used for symmetry analyzer.
             is_magnetization (bool):
                 Whether the magnetization is considered or not.
-                This modifies the band structure path for cases w/o inversion.
+                This modifies the band structure path of systems w/o inversion.
         """
         self.mode = KpointsMode.from_string(mode)
         self.initial_structure = structure
@@ -148,7 +147,6 @@ class MakeKpoints:
         self.is_magnetization = is_magnetization
 
         self.comment = None
-        self.kpt_shift = []
         self.kpt_mesh = None
         self.kpoints = None
         self.num_kpts = None
@@ -169,7 +167,8 @@ class MakeKpoints:
     def make_kpoints(self):
         self._set_structure()
         self._set_kmesh()
-        self._set_centering()
+        if self.kpt_shift is None:
+            self._set_centering()
 
         self.kpoints = Kpoints(comment=self.comment,
                                kpts=(self.kpt_mesh,),
@@ -265,6 +264,7 @@ class MakeKpoints:
                             f"factor: {self.factor}. "
 
     def _set_centering(self):
+        self.kpt_shift = []
         if self.mode is KpointsMode.manual_set:
             angle = self.corresponding_structure.lattice.angles
 

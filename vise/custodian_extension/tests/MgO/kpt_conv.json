@@ -1,0 +1,497 @@
+{
+  "@module": "vise.custodian_extension.jobs",
+  "@class": "KptConvResult",
+  "@version": null,
+  "str_opts": [
+    {
+      "@module": "vise.custodian_extension.jobs",
+      "@class": "StructureOptResult",
+      "@version": null,
+      "uuid": 307128884155949620271696925608470838559,
+      "energy_per_atom": -5.95584738,
+      "num_kpt": [
+        7,
+        7,
+        7
+      ],
+      "final_structure": {
+        "@module": "pymatgen.core.structure",
+        "@class": "Structure",
+        "charge": null,
+        "lattice": {
+          "matrix": [
+            [
+              0.0,
+              2.123375,
+              2.123375
+            ],
+            [
+              2.123375,
+              0.0,
+              2.123375
+            ],
+            [
+              2.123375,
+              2.123375,
+              0.0
+            ]
+          ],
+          "a": 3.0029057230039706,
+          "b": 3.0029057230039706,
+          "c": 3.0029057230039706,
+          "alpha": 60.00000000000001,
+          "beta": 60.00000000000001,
+          "gamma": 60.00000000000001,
+          "volume": 19.147412565636714
+        },
+        "sites": [
+          {
+            "species": [
+              {
+                "element": "Mg",
+                "occu": 1
+              }
+            ],
+            "abc": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "xyz": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "label": "Mg",
+            "properties": {}
+          },
+          {
+            "species": [
+              {
+                "element": "O",
+                "occu": 1
+              }
+            ],
+            "abc": [
+              0.5,
+              0.5,
+              0.5
+            ],
+            "xyz": [
+              2.123375,
+              2.123375,
+              2.123375
+            ],
+            "label": "O",
+            "properties": {}
+          }
+        ]
+      },
+      "final_sg": 225,
+      "kpt_density": 2.5,
+      "initial_structure": {
+        "@module": "pymatgen.core.structure",
+        "@class": "Structure",
+        "charge": null,
+        "lattice": {
+          "matrix": [
+            [
+              0.0,
+              2.123375,
+              2.123375
+            ],
+            [
+              2.123375,
+              0.0,
+              2.123375
+            ],
+            [
+              2.123375,
+              2.123375,
+              0.0
+            ]
+          ],
+          "a": 3.0029057230039706,
+          "b": 3.0029057230039706,
+          "c": 3.0029057230039706,
+          "alpha": 60.00000000000001,
+          "beta": 60.00000000000001,
+          "gamma": 60.00000000000001,
+          "volume": 19.147412565636714
+        },
+        "sites": [
+          {
+            "species": [
+              {
+                "element": "Mg",
+                "occu": 1
+              }
+            ],
+            "abc": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "xyz": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "label": "Mg",
+            "properties": {}
+          },
+          {
+            "species": [
+              {
+                "element": "O",
+                "occu": 1
+              }
+            ],
+            "abc": [
+              0.5,
+              0.5,
+              0.5
+            ],
+            "xyz": [
+              2.123375,
+              2.123375,
+              2.123375
+            ],
+            "label": "O",
+            "properties": {}
+          }
+        ]
+      },
+      "initial_sg": 225,
+      "prev_structure_opt_uuid": null
+    },
+    {
+      "@module": "vise.custodian_extension.jobs",
+      "@class": "StructureOptResult",
+      "@version": null,
+      "uuid": 64782881856798798965584516606915682920,
+      "energy_per_atom": -5.95587987,
+      "num_kpt": [
+        8,
+        8,
+        8
+      ],
+      "final_structure": {
+        "@module": "pymatgen.core.structure",
+        "@class": "Structure",
+        "charge": null,
+        "lattice": {
+          "matrix": [
+            [
+              0.0,
+              2.123375,
+              2.123375
+            ],
+            [
+              2.123375,
+              0.0,
+              2.123375
+            ],
+            [
+              2.123375,
+              2.123375,
+              0.0
+            ]
+          ],
+          "a": 3.0029057230039706,
+          "b": 3.0029057230039706,
+          "c": 3.0029057230039706,
+          "alpha": 60.00000000000001,
+          "beta": 60.00000000000001,
+          "gamma": 60.00000000000001,
+          "volume": 19.147412565636714
+        },
+        "sites": [
+          {
+            "species": [
+              {
+                "element": "Mg",
+                "occu": 1
+              }
+            ],
+            "abc": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "xyz": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "label": "Mg",
+            "properties": {}
+          },
+          {
+            "species": [
+              {
+                "element": "O",
+                "occu": 1
+              }
+            ],
+            "abc": [
+              0.5,
+              0.5,
+              0.5
+            ],
+            "xyz": [
+              2.123375,
+              2.123375,
+              2.123375
+            ],
+            "label": "O",
+            "properties": {}
+          }
+        ]
+      },
+      "final_sg": 225,
+      "kpt_density": 3.0,
+      "initial_structure": {
+        "@module": "pymatgen.core.structure",
+        "@class": "Structure",
+        "charge": null,
+        "lattice": {
+          "matrix": [
+            [
+              0.0,
+              2.123375,
+              2.123375
+            ],
+            [
+              2.123375,
+              0.0,
+              2.123375
+            ],
+            [
+              2.123375,
+              2.123375,
+              0.0
+            ]
+          ],
+          "a": 3.0029057230039706,
+          "b": 3.0029057230039706,
+          "c": 3.0029057230039706,
+          "alpha": 60.00000000000001,
+          "beta": 60.00000000000001,
+          "gamma": 60.00000000000001,
+          "volume": 19.147412565636714
+        },
+        "sites": [
+          {
+            "species": [
+              {
+                "element": "Mg",
+                "occu": 1
+              }
+            ],
+            "abc": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "xyz": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "label": "Mg",
+            "properties": {}
+          },
+          {
+            "species": [
+              {
+                "element": "O",
+                "occu": 1
+              }
+            ],
+            "abc": [
+              0.5,
+              0.5,
+              0.5
+            ],
+            "xyz": [
+              2.123375,
+              2.123375,
+              2.123375
+            ],
+            "label": "O",
+            "properties": {}
+          }
+        ]
+      },
+      "initial_sg": 225,
+      "prev_structure_opt_uuid": 307128884155949620271696925608470838559
+    },
+    {
+      "@module": "vise.custodian_extension.jobs",
+      "@class": "StructureOptResult",
+      "@version": null,
+      "uuid": 213375410158051128414604616357653492786,
+      "energy_per_atom": -5.95588858,
+      "num_kpt": [
+        10,
+        10,
+        10
+      ],
+      "final_structure": {
+        "@module": "pymatgen.core.structure",
+        "@class": "Structure",
+        "charge": null,
+        "lattice": {
+          "matrix": [
+            [
+              0.0,
+              2.123375,
+              2.123375
+            ],
+            [
+              2.123375,
+              0.0,
+              2.123375
+            ],
+            [
+              2.123375,
+              2.123375,
+              0.0
+            ]
+          ],
+          "a": 3.0029057230039706,
+          "b": 3.0029057230039706,
+          "c": 3.0029057230039706,
+          "alpha": 60.00000000000001,
+          "beta": 60.00000000000001,
+          "gamma": 60.00000000000001,
+          "volume": 19.147412565636714
+        },
+        "sites": [
+          {
+            "species": [
+              {
+                "element": "Mg",
+                "occu": 1
+              }
+            ],
+            "abc": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "xyz": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "label": "Mg",
+            "properties": {}
+          },
+          {
+            "species": [
+              {
+                "element": "O",
+                "occu": 1
+              }
+            ],
+            "abc": [
+              0.5,
+              0.5,
+              0.5
+            ],
+            "xyz": [
+              2.123375,
+              2.123375,
+              2.123375
+            ],
+            "label": "O",
+            "properties": {}
+          }
+        ]
+      },
+      "final_sg": 225,
+      "kpt_density": 3.5999999999999996,
+      "initial_structure": {
+        "@module": "pymatgen.core.structure",
+        "@class": "Structure",
+        "charge": null,
+        "lattice": {
+          "matrix": [
+            [
+              0.0,
+              2.123375,
+              2.123375
+            ],
+            [
+              2.123375,
+              0.0,
+              2.123375
+            ],
+            [
+              2.123375,
+              2.123375,
+              0.0
+            ]
+          ],
+          "a": 3.0029057230039706,
+          "b": 3.0029057230039706,
+          "c": 3.0029057230039706,
+          "alpha": 60.00000000000001,
+          "beta": 60.00000000000001,
+          "gamma": 60.00000000000001,
+          "volume": 19.147412565636714
+        },
+        "sites": [
+          {
+            "species": [
+              {
+                "element": "Mg",
+                "occu": 1
+              }
+            ],
+            "abc": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "xyz": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "label": "Mg",
+            "properties": {}
+          },
+          {
+            "species": [
+              {
+                "element": "O",
+                "occu": 1
+              }
+            ],
+            "abc": [
+              0.5,
+              0.5,
+              0.5
+            ],
+            "xyz": [
+              2.123375,
+              2.123375,
+              2.123375
+            ],
+            "label": "O",
+            "properties": {}
+          }
+        ]
+      },
+      "initial_sg": 225,
+      "prev_structure_opt_uuid": 64782881856798798965584516606915682920
+    }
+  ],
+  "convergence_energy_criterion": 0.003,
+  "num_kpt_check": 2,
+  "symprec": 0.01,
+  "angle_tolerance": 5
+}

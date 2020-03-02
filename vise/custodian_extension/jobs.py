@@ -2,25 +2,28 @@
 
 import json
 import os
+import re
 import shutil
 from glob import glob
 from pathlib import Path
-import re
+import tempfile
 from typing import Optional, List
 from uuid import uuid4
-import numpy as np
 
+import numpy as np
 from custodian.vasp.jobs import VaspJob
 from monty.json import MSONable
 from monty.json import MontyEncoder
 from monty.serialization import loadfn
 from pymatgen.core.structure import Structure
-from pymatgen.io.vasp import Poscar, Kpoints, Vasprun
+from pymatgen.io.vasp import Kpoints, Vasprun
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from vise.config import SYMMETRY_TOLERANCE, ANGLE_TOL, KPT_INIT_DENSITY, \
-    KPT_FACTOR
+
+from vise.config import (
+    SYMMETRY_TOLERANCE, ANGLE_TOL, KPT_INIT_DENSITY, KPT_FACTOR)
+from vise.input_set.incar import Incar
 from vise.input_set.input_set import ViseInputSet
-from vise.input_set.task import Task
+from vise.input_set.task import Task, LATTICE_RELAX_TASK
 from vise.input_set.xc import Xc
 from vise.util.error_classes import VaspNotConvergedError, KptNotConvergedError
 from vise.util.logger import get_logger
@@ -38,7 +41,8 @@ VASP_FINISHED_FILES = {i + ".finish" for i in VASP_SAVED_FILES}
 def rm_wavecar(remove_current: bool,
                remove_subdirectories: Optional[bool] = False) -> None:
     """Remove WAVECARs at the current directory and subdirectories."""
-    print(f"rm_wavecar {remove_current} {remove_subdirectories}")
+    logger.info(f"Remove WAVECAR in current directory: {remove_current}")
+    logger.info(f"Remove WAVECAR in   sub directories: {remove_subdirectories}")
 
     if remove_current:
         try:
@@ -109,8 +113,8 @@ class StructureOptResult(MSONable):
                  ) -> "StructureOptResult":
         """Constructor from directory and previous StructureOptResult if exists
 
-        Note: Generate in initial_structure and initial_sg from previous
-              StructureOptResult if exists.
+        Generate initial_structure and initial_sg from previous
+        StructureOptResult if exists.
 
         Args:
             dir_name (str):
@@ -209,7 +213,7 @@ class KptConvResult(MSONable):
 
     def __init__(self,
                  str_opts: List[StructureOptResult],
-                 convergence_energy_criterion: float,
+                 convergence_criterion: float,
                  num_kpt_check: int,
                  symprec: float,
                  angle_tolerance: float):
@@ -232,7 +236,7 @@ class KptConvResult(MSONable):
             This is also checked if the lattice constants are converged.
         """
         self.str_opts = str_opts
-        self.convergence_energy_criterion = convergence_energy_criterion
+        self.convergence_criterion = convergence_criterion
         self.num_kpt_check = num_kpt_check
         self.symprec = symprec
         self.angle_tolerance = angle_tolerance
@@ -308,7 +312,7 @@ class KptConvResult(MSONable):
             target = self.str_opts[target_idx]
             comparator = self.str_opts[target_idx + i]
             energy_diff = target.energy_per_atom - comparator.energy_per_atom
-            if abs(energy_diff) > self.convergence_energy_criterion:
+            if abs(energy_diff) > self.convergence_criterion:
                 logger.info("Energy is not converged, yet")
                 return False
 
@@ -326,12 +330,25 @@ class KptConvResult(MSONable):
         return len(set(self.space_groups)) > 1
 
     def __str__(self):
-        outs = [f"{'kpt':>10} {'energy/atom':>12}"]
+        # TODO: Add lattice info
+        outs = \
+            [f"Initial space group: {self.str_opts[0].initial_sg}",
+                f"Convergence criterion (eV/atom): {self.convergence_criterion}",
+             f"Symprec (A): {self.symprec}",
+             f"Angle tolerance (deg): {self.angle_tolerance}", "",
+             f"{'sg':>4} {'kpt':>10} {'energy/atom':>12}"
+             f" {'relative energy/atom':>21}"]
+
+        ref_energy = self.str_opts[-1].energy_per_atom
         for result in self.str_opts:
-            outs.append(f"{'x'.join(map(str, result.num_kpt)):>10} "
-                        f"{result.energy_per_atom}:>12:4")
+            relative_energy = result.energy_per_atom - ref_energy
+            outs.append(f"{result.final_sg:>4} " 
+                        f"{'x'.join(map(str, result.num_kpt)):>10} "
+                        f"{result.energy_per_atom:12.5f}"
+                        f"{relative_energy:21.5f}")
 
         outs.append("")
+        return "\n".join(outs)
 
     def to_json_file(self, filename: str = "kpt_conv.json") -> None:
         with open(filename, 'w') as fw:
@@ -348,23 +365,46 @@ class KptConvResult(MSONable):
 class ViseVaspJob(VaspJob):
     def __init__(self,
                  vasp_cmd: list,
-                 gamma_vasp_cmd: Optional[list] = None,
                  output_file: str = "vasp.out",
                  stderr_file: str = "std_err.txt",
                  suffix: str = "",
                  final: bool = True,
                  backup: bool = True,
-                 auto_continue: bool = False):
+                 gamma_vasp_cmd: Optional[list] = None,
+                 auto_continue: bool = False,
+                 # add original args.
+                 ncl_vasp_cmd: Optional[list] = None,
+                 auto_gamma_vasp: Optional[list] = True,
+                 auto_ncl_vasp: Optional[list] = True):
+
         """
         Override constructor to close some options as some options use Incar
         instead of VisaIncar.
 
         Args: See docstrings of VaspJob.
         """
+
+        self.ncl_vasp_cmd = ncl_vasp_cmd
+        self.auto_gamma_vasp = auto_gamma_vasp
+        self.auto_ncl_vasp = auto_ncl_vasp
+
         # Should be fine for vasp.5.4.4
-        if gamma_vasp_cmd is None:
+        if auto_gamma_vasp and gamma_vasp_cmd is None:
             gamma_vasp_cmd = vasp_cmd[:-1]
             gamma_vasp_cmd.append(vasp_cmd[-1].replace("std", "gam"))
+
+        if auto_ncl_vasp:
+            try:
+                incar = Incar.from_file("INCAR")
+                ncl_calc = any([incar.get("LNONCOLLINEAR", False),
+                                incar.get("LSORBIT", False)])
+                if ncl_calc:
+                    if ncl_vasp_cmd is None:
+                        ncl_vasp_cmd = vasp_cmd[:-1]
+                        ncl_vasp_cmd.append(vasp_cmd[-1].replace("std", "ncl"))
+                    vasp_cmd = ncl_vasp_cmd
+            except FileNotFoundError:
+                pass
 
         # Note that only list instance is accepted for vasp_cmd in VaspJob at
         # ver.2019.8.24.
@@ -387,9 +427,12 @@ class ViseVaspJob(VaspJob):
         if self.suffix != "":
             for f in VASP_SAVED_FILES | {self.output_file}:
                 if os.path.exists(f):
-                    shutil.copy(f, "{}{}".format(f, self.suffix))
+                    if f in ["PROCAR", "OUTCAR", "vasprun.xml"]:
+                        shutil.move(f, f"{f}{self.suffix}")
+                    else:
+                        shutil.copy(f, f"{f}{self.suffix}")
 
-        # Remove continuation so if a subsequent job is run in
+        # Remove continue.json if a subsequent job is run in
         # the same directory, will not restart this job.
         if os.path.exists("continue.json"):
             os.remove("continue.json")
@@ -448,7 +491,7 @@ class ViseVaspJob(VaspJob):
             shutil.copy(".".join(["CONTCAR", str(job_number)]), "POSCAR")
             backup_initial_input_files = False
 
-            if len(Vasprun("vasprun.xml").ionic_steps) == 1:
+            if len(Vasprun(f"vasprun.xml.{job_number}").ionic_steps) == 1:
                 break
         else:
             raise VaspNotConvergedError("Structure optimization not converged")
@@ -466,7 +509,23 @@ class ViseVaspJob(VaspJob):
         rm_wavecar(removes_wavecar)
 
         if move_unimportant_files:
-            os.mkdir("files")
+            dir_name = "files"
+            if os.path.exists(dir_name):
+                logger.warning(f"{dir_name} is being removed.")
+                # `tempfile.mktemp` Returns an absolute pathname of a file that
+                # did not exist at the time the call is made. We pass
+                # dir=os.path.dirname(dir_name) here to ensure we will move
+                # to the same filesystem. Otherwise, shutil.copy2 will be used
+                # internally and the problem remains.
+                tmp = tempfile.mktemp(dir=os.path.dirname(dir_name))
+                # Rename the dir.
+                shutil.move(dir_name, tmp)
+                # And delete it.
+                shutil.rmtree(tmp)
+
+            # At this point, even if tmp is still being deleted,
+            # there is no name collision.
+            os.makedirs(dir_name)
 
         result = \
             StructureOptResult.from_dir(dir_name=".",
@@ -493,6 +552,7 @@ class ViseVaspJob(VaspJob):
     def kpt_converge(cls,
                      vasp_cmd: list,
                      structure: Structure = None,
+                     task: Task = Task.structure_opt,
                      xc: Xc = Xc.pbe,
                      user_incar_settings: Optional[dict] = None,
                      initial_kpt_density: Optional[float] = KPT_INIT_DENSITY,
@@ -521,6 +581,7 @@ class ViseVaspJob(VaspJob):
             std_out:
                 See docstrings of structure_optimization_run.
             -------
+            task:
             xc:
             user_incar_settings:
             initial_kpt_density:
@@ -544,6 +605,9 @@ class ViseVaspJob(VaspJob):
         Return:
             None
         """
+        if task not in LATTICE_RELAX_TASK:
+            raise ValueError(f"Task: {task} is not in lattice relax set.")
+
         structure = structure or Structure.from_file("POSCAR")
         kpt_conv = KptConvResult.from_dirs(convergence_criterion, num_kpt_check,
                                            symprec, angle_tolerance)
@@ -555,7 +619,7 @@ class ViseVaspJob(VaspJob):
         else:
             is_sg_changed = None
 
-        vis_kwargs.update({"task": Task.structure_opt,
+        vis_kwargs.update({"task": task,
                            "xc": xc,
                            "user_incar_settings": user_incar_settings,
                            "symprec": symprec,
@@ -631,7 +695,7 @@ class ViseVaspJob(VaspJob):
 
             is_sg_changed = str_opt.is_sg_changed
 
-#        rm_wavecar(remove_current=removes_wavecar, remove_subdirectories=True)
+        rm_wavecar(remove_current=removes_wavecar, remove_subdirectories=True)
 
         if kpt_conv.converged_result:
             conv_dirname = Path(kpt_conv.converged_result.dirname)

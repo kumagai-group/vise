@@ -2,23 +2,23 @@
 import shutil
 import tempfile
 from pathlib import Path
-from glob import glob
 
 from pymatgen.core.structure import Structure
 
 from vise.util.testing import ViseTest
-from vise.custodian_extension.jobs import rm_wavecar, StructureOptResult, KptConvResult
+from vise.custodian_extension.jobs import (
+    rm_wavecar, StructureOptResult, KptConvResult, ViseVaspJob)
 
-__author__ = "Yu Kumagai"
-__maintainer__ = "Yu Kumagai"
+
+parent_dir = Path(__file__).parent
 
 
 class RmWavecarTest(ViseTest):
 
     def setUp(self) -> None:
         # Create a temporary directory
-        Path("tmp").mkdir()
-        self.test_dir = Path("tmp")
+        self.test_dir = parent_dir / "tmp"
+        self.test_dir.mkdir()
 
     def tearDown(self):
         # Remove the directory after the test
@@ -43,10 +43,10 @@ class StructureOptResultTest(ViseTest):
 
     def setUp(self) -> None:
         # Create a temporary directory
-        Path("tmp").mkdir()
-        self.test_dir = Path("tmp")
+        self.test_dir = parent_dir / "tmp"
+        self.test_dir.mkdir()
 
-        p = Path("MgO") / "kpt7x7x7_pre-sg225_pos-sg225" / "files"
+        p = parent_dir / "MgO" / "kpt7x7x7_pre-sg225_pos-sg225" / "files"
         poscar = p / "POSCAR.orig"
         contcar = p / "CONTCAR"
         initial_structure = Structure.from_file(poscar)
@@ -75,12 +75,12 @@ class StructureOptResultTest(ViseTest):
         self.assertMSONable(self.result)
 
     def test_from_dir(self):
-        from_dir = Path("MgO") / "kpt7x7x7_pre-sg225_pos-sg225"
+        from_dir = parent_dir / "MgO" / "kpt7x7x7_pre-sg225_pos-sg225"
         for f in ["KPOINTS.orig", "POSCAR.orig", "CONTCAR", "vasprun.xml"]:
             shutil.copy(str(from_dir / "files" / f), str(self.test_dir / f))
 
         with self.assertRaises(FileNotFoundError):
-            StructureOptResult.from_dir(dir_name="tmp",
+            StructureOptResult.from_dir(dir_name=parent_dir / "tmp",
                                         kpoints="KPOINTS.orig",
                                         poscar="POSCAR.orig",
                                         contcar="CONTCAR",
@@ -88,7 +88,7 @@ class StructureOptResultTest(ViseTest):
 
         shutil.copy(str(from_dir / "vise.json"), str(self.test_dir))
 
-        r = StructureOptResult.from_dir(dir_name="tmp",
+        r = StructureOptResult.from_dir(dir_name=parent_dir / "tmp",
                                         kpoints="KPOINTS.orig",
                                         poscar="POSCAR.orig",
                                         contcar="CONTCAR",
@@ -102,11 +102,7 @@ class StructureOptResultTest(ViseTest):
 
 class KptConvResultTest(ViseTest):
     def setUp(self) -> None:
-        # Create a temporary directory
-#        Path("tmp").mkdir()
-#        self.test_dir = Path("tmp")
-
-        p = Path("MgO") / "kpt7x7x7_pre-sg225_pos-sg225" / "files"
+        p = parent_dir / "MgO" / "kpt7x7x7_pre-sg225_pos-sg225" / "files"
         poscar = p / "POSCAR.orig"
         contcar = p / "CONTCAR"
         initial_structure = Structure.from_file(poscar)
@@ -139,7 +135,7 @@ class KptConvResultTest(ViseTest):
                                   prev_structure_opt_uuid=64782881856798798965584516606915682920)
 
         self.kpt_conv = KptConvResult(str_opts=[sor1, sor2, sor3],
-                                      convergence_energy_criterion=0.01,
+                                      convergence_criterion=0.01,
                                       num_kpt_check=2,
                                       symprec=0.01,
                                       angle_tolerance=5)
@@ -158,8 +154,21 @@ class KptConvResultTest(ViseTest):
             num_kpt_check=2,
             symprec=0.01,
             angle_tolerance=5,
-            dirs=["MgO/kpt8x8x8_pre-sg225_pos-sg225",
-                  "MgO/kpt7x7x7_pre-sg225_pos-sg225",
-                  "MgO/kpt10x10x10_pre-sg225_pos-sg225"])
+            dirs=[parent_dir / "MgO/kpt8x8x8_pre-sg225_pos-sg225",
+                  parent_dir / "MgO/kpt7x7x7_pre-sg225_pos-sg225",
+                  parent_dir / "MgO/kpt10x10x10_pre-sg225_pos-sg225"])
 
         self.assertEqual(kpt_conv.as_dict(), self.kpt_conv.as_dict())
+
+    def test_print(self):
+        print(self.kpt_conv)
+
+
+class ViseVaspJobTest(ViseTest):
+
+    def setUp(self) -> None:
+        self.vise_vasp_job = ViseVaspJob(vasp_cmd=["vasp"])
+
+    def test_msonable(self):
+        self.assertMSONable(self.vise_vasp_job)
+

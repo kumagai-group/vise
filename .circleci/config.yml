@@ -1,7 +1,7 @@
 version: 2
 
 jobs:
-  py369:
+  build:
     branches:
       only:
         - master
@@ -12,19 +12,12 @@ jobs:
       - image: circleci/python:3.6.9
     steps:
       - checkout
-
-      - restore_cache:
-          keys:
-          - v1-dependencies-{{ checksum "requirements.txt" }}
-          # fallback to using the latest cache if no exact match is found
-          - v1-dependencies-
-
       - run:
           command: |
-            ls $HOME/vise/vise/test_files/spurious_potcars
+            ls $HOME/vise/vise/test_files/potcars
       - run:
           command: |
-            echo 'PMG_VASP_PSP_DIR: ~/vise/vise/test_files/spurious_potcars' > $HOME/.pmgrc.yaml
+            echo 'PMG_VASP_PSP_DIR: ~/vise/vise/test_files/potcars' > $HOME/.pmgrc.yaml
             echo 'PMG_DEFAULT_FUNCTIONAL: PBE_54' >> $HOME/.pmgrc.yaml
             echo "PMG_MAPI_KEY: ${KEY}" >> $HOME/.pmgrc.yaml
       - run:
@@ -32,14 +25,15 @@ jobs:
             cat $HOME/.pmgrc.yaml
       - run:
           command: |
+            sudo pip install --upgrade pip
             sudo pip install -r requirements.txt
             sudo pip install --quiet pytest pytest-cov
             pytest vise --cov=vise --cov-report html:coverage_reports vise
 
-      - save_cache:
-          paths:
-            - ./test_env
-          key: v1-dependencies-{{ checksum "requirements.txt" }}
+# write deploy to the pypi using circle-build-package.sh.
+#      - type: deploy
+#        name: Build Package
+#        command: ./circle-build-package.sh
 
 
 #

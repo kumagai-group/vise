@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 from pathlib import Path
 from typing import Optional
 
@@ -6,7 +7,7 @@ import numpy as np
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp import Kpoints
 from vise.input_set.make_kpoints import MakeKpoints
-from vise.input_set.task import Task, PLOT_TASK
+from vise.input_set.task import Task, SPECTRA_TASK
 from vise.util.logger import get_logger
 from vise.util.structure_handler import find_spglib_primitive, get_symbol_list
 
@@ -45,14 +46,15 @@ class TaskStructureKpoints:
                      factor: Optional[int],
                      symprec: float,
                      angle_tolerance: float):
-        """ Construct Structure and Kpoints from task and some options.
+        """Construct Structure and Kpoints from task and some options.
 
-        Note: When task and kpt_mode are not consistent e.g., task=Task.band,
-              kpt_mode="manual", task is prioritized.
+        When task and kpt_mode are not consistent e.g., task=Task.band,
+        kpt_mode="manual", task is prioritized.
 
         Args: See ViseInputSet docstrings
 
-        Return: TaskStructureKpoints class object
+        Returns:
+            TaskStructureKpoints instance object
         """
         if sort_structure:
             structure = original_structure.get_sorted_structure()
@@ -60,20 +62,19 @@ class TaskStructureKpoints:
             orig_symbol_list = get_symbol_list(original_structure)
             if symbol_list != orig_symbol_list:
                 logger.warning(
-                    "CAUTION: The sequence of the species is changed."
-                    f"Symbol set in the original structure " 
-                    f"{symbol_list} "
-                    f"Symbol set in the generated structure "
-                    f"{orig_symbol_list}")
+                    "CAUTION: The sequence of the species is changed. \n"
+                    f"Symbol set in the original structure {symbol_list} \n"
+                    f"Symbol set in the generated structure {orig_symbol_list}")
         else:
             structure = original_structure.copy()
 
         is_structure_changed = False
+        manual_kpts = None
         if task == Task.defect:
             kpt_mode = "manual_set"
         elif task == Task.cluster_opt:
             kpt_mode = "manual_set"
-            kpt_density = 1e-5
+            manual_kpts = [1, 1, 1]
             only_even = False
             kpt_shift = [0, 0, 0]
         elif task == Task.band:
@@ -111,7 +112,7 @@ class TaskStructureKpoints:
         # Gamma-center mesh is a must for GW calculations due to vasp
         # implementation and tetrahedron method, while is a strong recommend for
         # dos and dielectric function to sample the band edges.
-        if task in PLOT_TASK and kpt_shift != [0, 0, 0]:
+        if task in SPECTRA_TASK and kpt_shift != [0, 0, 0]:
             logger.warning("Gamma centering is forced for k-point sampling.")
             kpt_shift = [0, 0, 0]
 
@@ -128,6 +129,7 @@ class TaskStructureKpoints:
                               structure=structure,
                               kpt_density=kpt_density,
                               only_even=only_even,
+                              manual_kpts=manual_kpts,
                               ref_distance=band_ref_dist,
                               kpt_shift=kpt_shift,
                               factor=factor,
