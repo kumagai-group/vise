@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import os
 from pymatgen.electronic_structure.core import Spin
 from pathlib import Path
 
@@ -28,6 +29,7 @@ class ViseDosPlotterTest(ViseTest):
                                     show_spg=False,
                                     )
         nan3_dos_mod.savefig("nan3_dos.pdf")
+        os.remove("nan3_dos.pdf")
 
 
 class MaxDensityTest(ViseTest):
