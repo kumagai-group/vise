@@ -141,7 +141,7 @@ class FreeEnergyEntrySet(EntrySet, MSONable):
         for d in directory_paths:
             logger.info(f"Parsing data in {d} ...")
             v: Vasprun = parse_file(Vasprun, Path(d) / vasprun)
-            composition = v.final_structure.composition.reduced_formula
+            composition = v.final_structure.composition.formula
 
             kwargs = {}
             mol_dir = re.match(r"^mol_", str(d))
