@@ -4,6 +4,7 @@ log
 *.pyc
 *.pyd
 *.swp
+coverage_reports
 
 ### https://raw.github.com/github/gitignore/f2bd62d680e2c17027525caf5fd67aa1b3e8ae03/Python.gitignore
 
