@@ -44,7 +44,7 @@ class VaspSymprecSettingsFromArgsTest(ViseTest):
         self.args = Namespace(**vasp, **prec)
 
     def test(self):
-        user_incar_settings, vis_base_kwargs, task, xc = \
+        user_incar_settings, vis_base_kwargs, prec_kwargs, task, xc = \
             vasp_symprec_settings_from_args(self.args)
 
         expected = {"POTIM": 0.4, "ALGO": "Fast"}
@@ -55,10 +55,12 @@ class VaspSymprecSettingsFromArgsTest(ViseTest):
                     "only_even": True,
                     "override_potcar_set": {"Mn": "Mn_pv"},
                     "potcar_set_name": "normal",
-                    "charge": 1,
-                    "symprec": 0.1,
-                    "angle_tolerance": 5}
+                    "charge": 1}
         self.assertEqual(expected, vis_base_kwargs)
+
+        expected = {"symprec": 0.1, "angle_tolerance": 5}
+        self.assertEqual(expected, prec_kwargs)
+
         self.assertEqual(task, Task.band)
         self.assertEqual(xc, Xc.hse)
 

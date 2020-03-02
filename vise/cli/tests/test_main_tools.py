@@ -2,7 +2,6 @@
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
 from pathlib import Path
-import shutil
 import tempfile
 
 from vise.cli.main_tools import (

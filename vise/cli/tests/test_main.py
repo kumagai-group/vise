@@ -2,24 +2,15 @@
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
 from argparse import Namespace
-import unittest
-import numpy as np
 import os
 import shutil
 from pathlib import Path
-from unittest.mock import patch
 
-from pymatgen.core.composition import Composition
-from pymatgen.core.sites import Element
-from pymatgen.analysis.phase_diagram import (
-    PDEntry, PhaseDiagram, CompoundPhaseDiagram, PDPlotter)
-
-from vise.chempotdiag.chem_pot_diag import ChemPotDiag, sort_coords
 from vise.util.testing import ViseTest
 from vise.custodian_extension.jobs import ViseVaspJob
 from vise.cli.main import (
     simple_override, parse_args)
-from vise.util.main_tools import get_default_args
+from vise.cli.main_tools import get_default_args
 from vise.util.mp_tools import make_poscars_from_mp
 from vise.input_set.input_set import ViseInputSet
 from vise.config import (

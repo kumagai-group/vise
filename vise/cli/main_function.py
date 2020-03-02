@@ -6,19 +6,14 @@ from argparse import Namespace
 from copy import deepcopy
 from itertools import chain
 from pathlib import Path
-import shutil
 from typing import Tuple
 
 from custodian.custodian import Custodian
-from pymatgen import Lattice, Element, Structure
 
 from pymatgen.analysis.phase_diagram import PhaseDiagram, PDPlotter
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure
 from pymatgen.ext.matproj import MPRester
-from pymatgen.io.vasp import Poscar
-from pymatgen.io.vasp.inputs import VaspInput
-from pymatgen.io.vasp.sets import MPStaticSet
 
 from vise.analyzer.band_gap import band_gap_properties
 from vise.analyzer.band_plotter import PrettyBSPlotter
@@ -28,9 +23,8 @@ from vise.chempotdiag.free_energy_entries import FreeEnergyEntrySet
 from vise.custodian_extension.handler_groups import handler_group
 from vise.custodian_extension.jobs import (
     ViseVaspJob, KptConvResult, StructureOptResult)
-from vise.input_set.incar import incar_flags, ViseIncar
+from vise.input_set.incar import incar_flags
 from vise.input_set.input_set import ViseInputSet
-from vise.input_set.make_kpoints import MakeKpoints
 from vise.input_set.prior_info import PriorInfo
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc
@@ -43,7 +37,7 @@ logger = get_logger(__name__)
 
 
 def vasp_symprec_settings_from_args(args: Namespace
-                                    ) -> Tuple[dict, dict, Task, Xc]:
+                                    ) -> Tuple[dict, dict, dict, Task, Xc]:
     """Generate vasp input settings from the given args.
 
     """
@@ -69,12 +63,12 @@ def vasp_symprec_settings_from_args(args: Namespace
                             "ldauu": ldauu,
                             "ldaul": ldaul,
                             "charge": args.charge})
-
+    prec_kwargs = {}
     if hasattr(args, "symprec"):
-        vis_base_kwargs.update({"symprec": args.symprec,
-                                "angle_tolerance": args.angle_tolerance})
+        prec_kwargs.update({"symprec": args.symprec,
+                            "angle_tolerance": args.angle_tolerance})
 
-    return user_incar_settings, vis_base_kwargs, task, xc
+    return user_incar_settings, vis_base_kwargs, prec_kwargs, task, xc
 
 
 def get_poscar_from_mp(args: Namespace) -> None:
@@ -96,12 +90,13 @@ def vasp_set(args: Namespace) -> None:
         return
 
     # user_incar_settings and base_vis_kwargs can be modified by prior_info.json
-    base_user_incar_settings, base_vis_kwargs, task, xc = \
+    base_user_incar_settings, base_vis_kwargs, prec_kwargs, task, xc = \
         vasp_symprec_settings_from_args(args)
 
     base_vis_kwargs.update(
         {"kpt_density": args.kpt_density,
          "standardize_structure": args.standardize_structure})
+    base_vis_kwargs.update(prec_kwargs)
 
     started_dir = os.getcwd()
     dirs = getattr(args, "dirs", ".")
@@ -171,7 +166,7 @@ def vasp_run(args) -> None:
     else:
         raise NoVaspCommandError("Vasp command must be specified properly.")
 
-    user_incar_settings, vis_kwargs, task, xc = \
+    user_incar_settings, vis_kwargs, prec_kwargs, task, xc = \
         vasp_symprec_settings_from_args(args)
 
     handlers = handler_group(args.handler_name, timeout=args.timeout)
@@ -180,9 +175,7 @@ def vasp_run(args) -> None:
                          "max_relax_num": args.max_relax_num,
                          "removes_wavecar": args.remove_wavecar,
                          "left_files": args.left_files,
-                         "removed_files": ["PCDAT", "vasprun.xml"],
-                         "symprec": args.symprec,
-                         "angle_tolerance": args.angle_tolerance}
+                         "removed_files": ["PCDAT", "vasprun.xml"]}
 
     custodian_args = {"handlers": handlers,
                       "polling_time_step": 5,
@@ -197,10 +190,10 @@ def vasp_run(args) -> None:
             convergence_criterion=args.convergence_criterion,
             initial_kpt_density=args.initial_kpt_density,
             user_incar_settings=user_incar_settings,
-            **optimization_args, **vis_kwargs)
+            **optimization_args, **vis_kwargs, **prec_kwargs)
     else:
         custodian_args["jobs"] = ViseVaspJob.structure_optimization_run(
-            **optimization_args)
+            **optimization_args, **prec_kwargs)
 
     c = Custodian(**custodian_args)
     c.run()
