@@ -1,4 +1,5 @@
 .DS_Store
+log
 *.o
 *.pyc
 *.pyd
@@ -192,3 +193,7 @@ fabric.properties
 .idea/caches/build_file_checksums.ser
 
 
+docs_rst/_static/
+docs_rst/_templates/
+test-results/
+vise/tmp/

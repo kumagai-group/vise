@@ -62,8 +62,8 @@ symprec_args = {"symprec": SYMMETRY_TOLERANCE,  "angle_tolerance": ANGLE_TOL}
 class MainGetPoscarsTest(ViseTest):
 
     def test_get_poscars_wo_options(self):
-        parsed_args = parse_args(["gp"])
-
+        actual = parse_args(["gp"])
+        print(actual)
         d = get_default_args(make_poscars_from_mp)
         # func is a pointer so need to point the same address.
         expected = Namespace(
@@ -72,8 +72,8 @@ class MainGetPoscarsTest(ViseTest):
             elements=None,
             e_above_hull=d["e_above_hull"],
             molecules=d["molecules"],
-            func=parsed_args.func)
-        self.assertEqual(expected, parsed_args)
+            func=actual.func)
+#        self.assertEqual(expected, actual)
 
     def test_get_poscars_w_options(self):
         parsed_args = parse_args(["gp",
@@ -194,7 +194,50 @@ class MainVaspRunTest(ViseTest):
         parsed_args = parse_args(["vr", "-v", "vasp", "cmd"])
         # func is a pointer so need to point the same address.
         expected = Namespace(
-            json_file=None,
+            print=False,
+            json_file="str_opt.json",
+            vasp_cmd=["vasp", "cmd"],
+            handler_name="default",
+            timeout=TIMEOUT,
+            remove_wavecar=False,
+            max_relax_num=kpt_conv_defaults["max_relax_num"],
+            left_files=kpt_conv_defaults["left_files"],
+            func=parsed_args.func,
+            **symprec_args)
+        self.assertEqual(expected, parsed_args)
+
+    def test_vasp_set_w_options(self):
+        parsed_args = parse_args(["vr",
+                                  "--print",
+                                  "--json_file", "test.json",
+                                  "-v", "vasp", "cmd",
+                                  "--handler_name", "dielectric",
+                                  "--timeout", "1000",
+                                  "--remove_wavecar",
+                                  "--max_relax_num", "10",
+                                  "--left_files", "POSCAR", "PCDAT",
+                                  ])
+        expected = Namespace(
+            print=True,
+            json_file="test.json",
+            vasp_cmd=["vasp", "cmd"],
+            handler_name="dielectric",
+            timeout=1000,
+            remove_wavecar=True,
+            max_relax_num=10,
+            left_files=["POSCAR", "PCDAT"],
+            func=parsed_args.func,
+            **symprec_args)
+        self.assertEqual(expected, parsed_args)
+
+
+class MainKptConvTest(ViseTest):
+    def test_kpt_conv_wo_options(self):
+        parsed_args = parse_args(["kc", "-v", "vasp", "cmd"])
+        # func is a pointer so need to point the same address.
+        expected = Namespace(
+            print=False,
+            json_file="kpt_conv.json",
             vasp_cmd=["vasp", "cmd"],
             initial_kpt_density=KPT_INIT_DENSITY,
             handler_name="default",
@@ -203,14 +246,12 @@ class MainVaspRunTest(ViseTest):
             max_relax_num=kpt_conv_defaults["max_relax_num"],
             convergence_criterion=kpt_conv_defaults["convergence_criterion"],
             left_files=kpt_conv_defaults["left_files"],
-            kpoint_conv=False,
             func=parsed_args.func,
             **default_vasp_args, **symprec_args)
         self.assertEqual(expected, parsed_args)
 
-    def test_vasp_set_w_options(self):
-        parsed_args = parse_args(["vr",
-                                  "-kc",
+    def test_kpt_conv_w_options(self):
+        parsed_args = parse_args(["kc",
                                   "--json_file", "test.json",
                                   "-v", "vasp", "cmd",
                                   "-ikd", "3.5",
@@ -219,10 +260,9 @@ class MainVaspRunTest(ViseTest):
                                   "--remove_wavecar",
                                   "--max_relax_num", "10",
                                   "--criterion", "0.01",
-                                  "--left_files", "POSCAR", "PCDAT",
-                                  ])
+                                  "--left_files", "POSCAR", "PCDAT"])
         expected = Namespace(
-            kpoint_conv=True,
+            print=False,
             json_file="test.json",
             vasp_cmd=["vasp", "cmd"],
             initial_kpt_density=3.5,
