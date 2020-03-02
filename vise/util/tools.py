@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from distutils.util import strtobool
-from typing import Callable, Any
+from typing import Callable
 from xml.etree.ElementTree import ParseError
 
 from vise.util.logger import get_logger
@@ -9,7 +9,7 @@ from vise.util.logger import get_logger
 logger = get_logger(__name__)
 
 
-def parse_file(class_method_name: Callable, parsed_filename: str) -> Any:
+def parse_file(class_method_name: Callable, parsed_filename: str) -> object:
     """Check filename and parse and return cls via __init__ or class method.
 
     Args:

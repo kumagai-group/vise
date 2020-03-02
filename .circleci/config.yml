@@ -25,9 +25,16 @@ jobs:
             cat $HOME/.pmgrc.yaml
       - run:
           command: |
+            sudo pip install --upgrade pip
             sudo pip install -r requirements.txt
             sudo pip install --quiet pytest pytest-cov
             pytest vise --cov=vise --cov-report html:coverage_reports vise
+
+# write deploy to the pypi using circle-build-package.sh.
+#      - type: deploy
+#        name: Build Package
+#        command: ./circle-build-package.sh
+
 
 #
 #workflows:

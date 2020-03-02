@@ -1,1 +1,2 @@
 include vise/input_set/datasets/*
+recursive-include vise/chempotdiag/molecules *

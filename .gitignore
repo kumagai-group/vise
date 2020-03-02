@@ -1,16 +1,10 @@
 .DS_Store
-*.egg
-*.egg-info
 .idea/* # PyCharm Setting Directory
 .idea/workspace.xml # PyCharm Setting Directory
 *.o
-*.so
 *.pyc
 *.pyd
 *.swp
-#POTCAR*
-obadb/vasp/pos_examples
-obadb/vasp/prev_calc_test
 
 ### https://raw.github.com/github/gitignore/f2bd62d680e2c17027525caf5fd67aa1b3e8ae03/Python.gitignore
 
