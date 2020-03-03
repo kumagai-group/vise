@@ -84,14 +84,13 @@ We also use integrated testing on Github via [circleCI]().
 
 Contributors
 --------------------------------------------------------
-Yu Kumagai
+Yu Kumagai<br>
 Akira Takahashi
 
 Contact info
 ---------------------------------------------------------
-Yu Kumagai
-<br>yuuukuma@gmail.co.jp
+Yu Kumagai<br>
+yuuukuma@gmail.co.jp
 
-Tokyo Institute of Technology
-<br>Tokyo (Japan)
+Tokyo Institute of Technology (Japan)
 
