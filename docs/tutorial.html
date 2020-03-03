@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Tutorial pydefect &#8212; pydefect beta documentation</title>
+    <title>Tutorial pydefect &#8212; vise beta documentation</title>
     <link rel="stylesheet" href="_static/corlab.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -25,7 +25,7 @@
         <li class="right" >
           <a href="change_log.html" title="# Change log"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pydefect beta documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">vise beta documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -163,22 +163,23 @@ Therefore, when <code class="docutils literal notranslate"><span class="pre">vis
 the parameters are always used for the <code class="docutils literal notranslate"><span class="pre">pydefect</span></code> commands.
 The keys for <code class="docutils literal notranslate"><span class="pre">vise.yaml</span></code> are</p>
 <ul class="simple">
-<li><p>“vasp_cmd”</p></li>
-<li><p>“symprec”</p></li>
-<li><p>“angle_tolerance”</p></li>
-<li><p>“xc”</p></li>
-<li><p>“kpt_density”</p></li>
-<li><p>“initial_kpt_density”</p></li>
-<li><p>“vise_opts”</p></li>
-<li><p>“user_incar_setting”</p></li>
-<li><p>“ldauu”</p></li>
-<li><p>“ldaul”</p></li>
+<li><p>“vasp_cmd” (str)</p></li>
+<li><p>“symprec” (float)</p></li>
+<li><p>“angle_tolerance” (float)</p></li>
+<li><p>“xc” (str)</p></li>
+<li><p>“kpt_density” (float)</p></li>
+<li><p>“initial_kpt_density” (float)</p></li>
+<li><p>“vise_opts” (dict):</p></li>
+<li><p>“user_incar_setting” (dict)</p></li>
+<li><p>“ldauu” (dict)</p></li>
+<li><p>“ldaul” (dict)</p></li>
 <li><p>“potcar_set”</p></li>
-<li><p>“potcar_set_name”</p></li>
-<li><p>“relax_iter_num”</p></li>
-<li><p>“removed_files”</p></li>
+<li><p>“potcar_set_name” (str)</p></li>
+<li><p>“relax_iter_num” (int)</p></li>
+<li><p>“removed_files” (list)</p></li>
 </ul>
-<p>, which is written at the top of the <code class="docutils literal notranslate"><span class="pre">main.py</span></code> file.
+<p>For vise_opts corresponds to the Options written in ViseInputSet class in vise.input_set/input_set.py</p>
+<p>Same info is written at the top of the <code class="docutils literal notranslate"><span class="pre">main.py</span></code> file.
 For example, one can write in <code class="docutils literal notranslate"><span class="pre">vise.yaml</span></code></p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">xc</span><span class="p">:</span> <span class="n">hse</span>
 </pre></div>
@@ -239,7 +240,7 @@ For example, one can write in <code class="docutils literal notranslate"><span c
         <li class="right" >
           <a href="change_log.html" title="# Change log"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pydefect beta documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">vise beta documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

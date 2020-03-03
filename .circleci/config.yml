@@ -29,30 +29,30 @@ jobs:
             sudo pip install -r requirements.txt
             sudo pip install --quiet pytest pytest-cov
             pytest vise --cov=vise --cov-report html:coverage_reports vise
-      - deploy:
-          name: pypi deploy
-          command: |
-            if [[ $CIRCLE_BRANCH == "master" ]]; then
-                echo "Deploy to the pypi and its test"
-                sudo pip install wheel twine
+#      - deploy:
+#          name: pypi deploy
+#          command: |
+#            if [[ $CIRCLE_BRANCH == "master" ]]; then
+#                echo "Deploy to the pypi and its test"
+#                sudo pip install wheel twine
 
-                sudo touch ~/.pypirc
-                sudo echo "[distutils]" >> ~/.pypirc
-                sudo echo "index-servers = pypi pypi-test" >> ~/.pypirc
+#                sudo touch ~/.pypirc
+#                sudo echo "[distutils]" >> ~/.pypirc
+#                sudo echo "index-servers = pypi pypi-test" >> ~/.pypirc
 
-                sudo echo "[pypi]" >> ~/.pypirc
-                sudo echo "username: ${PYPI_USERNAME}" >> ~/.pypirc
-                sudo echo "password: ${PYPI_PASSWORD}" >> ~/.pypirc
+#                sudo echo "[pypi]" >> ~/.pypirc
+#                sudo echo "username: ${PYPI_USERNAME}" >> ~/.pypirc
+#                sudo echo "password: ${PYPI_PASSWORD}" >> ~/.pypirc
 
-                sudo echo "[pypi-test]" >> ~/.pypirc
-                sudo echo "repository: https://test.pypi.org/legacy/" >> ~/.pypirc
-                sudo echo "username: ${PYPI_USERNAME}" >> ~/.pypirc
-                sudo echo "password: ${PYPI_PASSWORD}" >> ~/.pypirc
+#                sudo echo "[pypi-test]" >> ~/.pypirc
+#                sudo echo "repository: https://test.pypi.org/legacy/" >> ~/.pypirc
+#                sudo echo "username: ${PYPI_USERNAME}" >> ~/.pypirc
+#                sudo echo "password: ${PYPI_PASSWORD}" >> ~/.pypirc
 
-                sudo python setup.py sdist bdist_wheel
-                sudo twine upload --repository pypi-test dist/*
-                sudo twine upload --repository pypi dist/*
-            fi
+#                sudo python setup.py sdist bdist_wheel
+#                sudo twine upload --repository pypi-test dist/*
+#                sudo twine upload --repository pypi dist/*
+#            fi
 
 
 #            pytest vise --cov=vise --cov-report=xml --cov=vise tests/
