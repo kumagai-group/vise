@@ -1,14 +1,13 @@
-version: 2.1
-
-orbs:
-  codecov: codecov/codecov@1.0.5
+version: 2
 
 jobs:
   build:
-#    branches:
-#      only:
-#        - master
-#        - develop
+    branches:
+      only:
+        - master
+        - develop
+    orbs:
+      codecov: codecov/codecov@1.0.5
     working_directory: ~/vise
     docker:
       - image: circleci/python:3.6.9
@@ -31,9 +30,10 @@ jobs:
             sudo pip install --upgrade pip
             sudo pip install -r requirements.txt
             sudo pip install --quiet pytest pytest-cov
-            pytest vise --cov=vise --cov-report=xml --cov=vise tests/
-      - codecov/upload:
-          file: ./coverage.out
+#            pytest vise --cov=vise --cov-report=xml --cov=vise tests/
+            pytest vise --cov=vise --cov-report html:coverage_reports vise
+#       - codecov/upload:
+#          file: ./coverage.out
       - deploy:
           name: pypi deploy
           command: |
@@ -59,14 +59,4 @@ jobs:
                 sudo twine upload --repository pypi dist/*
             fi
 
-workflows:
-  version: 2
-  test_deploy:
-    jobs:
-      - build:
-          filters:
-            branches:
-              only:
-                - master
-                - develop
 
