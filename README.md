@@ -1,8 +1,7 @@
 
-![License](https://img.shields.io/apm/l/vise)](https://img.shields.io/apm/l/vise)
+![PyPI - License](https://img.shields.io/pypi/l/vise)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/vise)
-
-[![CircleCI](https://circleci.com/gh/kumagai-group/vise/tree/master.svg?style=svg)](https://circleci.com/gh/kumagai-group/vise/tree/master)
+[![CircleCI](https://circleci.com/gh/kumagai-group/vise/tree/master.svg?style=shield)](https://circleci.com/gh/kumagai-group/vise/tree/master)
 [![Coverage Status]()]()
 
 vise
