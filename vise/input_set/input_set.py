@@ -411,7 +411,9 @@ class ViseInputSet(VaspInputSet):
                             make_dir_if_not_present=make_dir_if_not_present,
                             include_cif=include_cif)
 
-        filenames = [f.name for f in os.scandir() if f.is_file()]
+        # Overwrite only POSCAR to increase the digit for frac coords.
+        poscar_file = Path(output_dir) / "POSCAR"
+        self.poscar.write_file(str(poscar_file), significant_figures=10)
 
         out_dir = Path(output_dir).absolute()
         for key, value in self.files_to_transfer.items():
