@@ -28,10 +28,7 @@ jobs:
             sudo pip install --upgrade pip
             sudo pip install -r requirements.txt
             sudo pip install --quiet pytest pytest-cov
-#            pytest vise --cov=vise --cov-report=xml --cov=vise tests/
             pytest vise --cov=vise --cov-report html:coverage_reports vise
-#       - codecov/upload:
-#          file: ./coverage.out
       - deploy:
           name: pypi deploy
           command: |
@@ -58,3 +55,6 @@ jobs:
             fi
 
 
+#            pytest vise --cov=vise --cov-report=xml --cov=vise tests/
+#       - codecov/upload:
+#          file: ./coverage.out
