@@ -1,0 +1,13 @@
+=====================
+Introduction of VISE.
+=====================
+
+
+First-principles calculations are becoming increasingly prevalent in materials science.
+However, preparing input files for the calculations, handling calculations, and analyzing results are 
+still not an easy task for researchers other than experienced ones.
+To overcome the situation, we have developed VISE, meaning the vasp integrate simulation environment.
+This VISE package supports VASP users to generate VASP input files for several tasks with suitable defaults.
+
+**Note: Units used in pydefect are eV for energy and angstrom for length following the vasp convention.**
+
