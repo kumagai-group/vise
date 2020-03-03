@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
-
+#import os
+#import sys
 
 # -- Project information -----------------------------------------------------
 
@@ -12,9 +10,9 @@ copyright = '2020, Yu Kumagai'
 author = 'Yu Kumagai'
 
 # The short X.Y version
-version = '0.0.1'
+version = "0.1.5"
 # The full version, including alpha/beta/rc tags
-release = 'beta'
+# release = 'beta'
 
 
 # -- General configuration ---------------------------------------------------
@@ -45,7 +43,6 @@ source_parsers = {
 }
 
 source_suffix = ['.rst', '.md']
-
 
 
 # The master toctree document.

@@ -1,2 +1,2 @@
-# Installation of VISE.
+Installation of VISE.
 -----------------------

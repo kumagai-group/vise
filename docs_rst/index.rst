@@ -3,17 +3,16 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to vise's documentation!
-================================
+Welcome to documentation of vise!
+=================================
 
 .. toctree::
 
    introduction
    installation
+   tutorial_input_set
+   tutorial_vasp_run
    change_log
-   tutorial
-
-    
 
 
 Indices and tables

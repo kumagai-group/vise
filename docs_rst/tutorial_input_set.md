@@ -30,7 +30,7 @@ See [pymatgen web page 1](https://pymatgen.org/usage.html) or [2](https://pymatg
 When we ckeck the Materials Project web page, we can know the id for ScN is mp-2857.
 Therefore, by typing as follows,
 ```
-python $PATH_TO_VISE/vise/vise/main.py gp -n 2857 
+vise  -n 2857 
 ```
 we can get the crystal structure of ScN.
 
