@@ -6,8 +6,6 @@ jobs:
       only:
         - master
         - develop
-    orbs:
-      codecov: codecov/codecov@1.0.5
     working_directory: ~/vise
     docker:
       - image: circleci/python:3.6.9
