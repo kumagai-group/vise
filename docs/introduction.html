@@ -1,11 +1,13 @@
 
-<!DOCTYPE html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta charset="utf-8" />
-    <title>Introduction of VISE. &#8212; vise beta documentation</title>
-    <link rel="stylesheet" href="_static/corlab.css" type="text/css" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>vise &#8212; vise beta documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
@@ -14,91 +16,199 @@
     <script type="text/javascript" src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="# Installation of VISE." href="installation.html" />
-    <link rel="prev" title="Welcome to vise’s documentation!" href="index.html" /> 
+    <link rel="next" title="Installation of VISE." href="installation.html" />
+    <link rel="prev" title="Welcome to vise’s documentation!" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="installation.html" title="# Installation of VISE."
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="index.html" title="Welcome to vise’s documentation!"
-             accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">vise beta documentation</a> &#187;</li> 
-      </ul>
-    </div>  
+  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
-  <div class="section" id="introduction-of-vise">
-<h1>Introduction of VISE.<a class="headerlink" href="#introduction-of-vise" title="Permalink to this headline">¶</a></h1>
-<p>First-principles calculations are becoming increasingly prevalent in materials science.
-However, preparing input files for the calculations, handling calculations, and analyzing results are
-still not an easy task for researchers other than experienced ones.
-To overcome the situation, we have developed VISE, meaning the vasp integrate simulation environment.
-This VISE package supports VASP users to generate VASP input files for several tasks with suitable defaults.</p>
+  <p><img alt="PyPI - License" src="https://img.shields.io/pypi/l/vise?color=blue" />
+<img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/vise" />
+<a class="reference external" href="https://circleci.com/gh/kumagai-group/vise/tree/master"><img alt="CircleCI" src="https://circleci.com/gh/kumagai-group/vise/tree/master.svg?style=shield" /></a></p>
+<div class="section" id="vise">
+<span id="vise"></span><h1>vise<a class="headerlink" href="#vise" title="Permalink to this headline">¶</a></h1>
+<p>Vasp Integrated Simulation Environment (vise) is a collection of tools that
+supports VASP users to prepare input files for the VASP calculations, handle its calculation errors, and analyze its results.</p>
 <p><strong>Note: Units used in pydefect are eV for energy and angstrom for length following the vasp convention.</strong></p>
+<div class="section" id="installation-instructions">
+<span id="installation-instructions"></span><h2>Installation instructions<a class="headerlink" href="#installation-instructions" title="Permalink to this headline">¶</a></h2>
+<ol class="simple">
+<li>Requirements</li>
+</ol>
+<ul class="simple">
+<li>Python 3.6 or higher</li>
+<li>pymatgen</li>
+<li>matplotlib</li>
+<li>spglib</li>
+<li>seekpath</li>
+<li>custodian</li>
+<li>PyYAML</li>
+<li>monty</li>
+<li>numpy</li>
+<li>scipy</li>
+<li>tabulate</li>
+<li>palettable</li>
+</ul>
+<ol class="simple">
+<li>Latest stable version is released at PyPI repository, so one can download
+it using <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">vise</span></code>.</li>
+</ol>
+</div>
+<div class="section" id="executing-this-software">
+<span id="executing-this-software"></span><h2>Executing this software<a class="headerlink" href="#executing-this-software" title="Permalink to this headline">¶</a></h2>
+<ol class="simple">
+<li>Command line method</li>
+</ol>
+<ul class="simple">
+<li>execute <strong><em>vise -h</em></strong> for detailed description of available options</li>
+</ul>
+<ol class="simple">
+<li>Usage as a module</li>
+</ol>
+<ul class="simple">
+<li>vise can be imported as a python module</li>
+</ul>
+<!--
+Input files for several materials can be found in the same example/inputs directory.
+More information in the online manual at: http://xxxx
+-->
+Files and directories included in vise distribution
+--------------------------------------------------------
+~~~
+  README                    : introduction
+  LICENSE                   : the MIT license 
+  setup.py                  : installation script
+  requirements.txt          : list of required packages<p>/vise/analyzer            : tools for VASP analysis especially for band figure and density of states
+/vise/chempotdiag         : tools for drawing the chemical potential diagram
+/vise/cli                 : command line interfaces
+/vise/custodian_extension : original custodian exention
+/vise/input_set           : tools for generating VASP input files
+/vise/test_files          : test files used mainly for unitests
+/vise/util                : useful tools</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>
+License
+-----------------------
+Python code is licensed under the MIT License.
+
+Development notes
+-----------------
+### Bugs, requests and questions
+Please use the [Issue Tracker](https://github.com/kumagai-group/vise/issues) to report bugs, request features.
+
+### Code contributions
+We are always welcome people who want to make vise better.
+Please use the [&quot;Fork and Pull&quot;](https://guides.github.com/activities/forking/) workflow to make contributions and stick as closely as possible to the following:
+
+- Code style follows [PEP8](http://www.python.org/dev/peps/pep-0008) and [Google&#39;s writing style](https://google.github.io/styleguide/pyguide.html).
+- Add unittests wherever possible including scripts for command line interfaces.
+
+### Tests
+Run the tests using `pytest vise`.
+We also use integrated testing on Github via [circleCI]().
+
+Contributors
+--------------------------------------------------------
+Yu Kumagai&lt;br&gt;
+Akira Takahashi
+
+Contact info
+---------------------------------------------------------
+Yu Kumagai&lt;br&gt;
+yuuukuma@gmail.co.jp
+
+Tokyo Institute of Technology (Japan)
+</pre></div>
+</div>
+</div>
 </div>
 
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="index.html"
-                        title="previous chapter">Welcome to vise’s documentation!</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="installation.html"
-                        title="next chapter"># Installation of VISE.</a></p>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/introduction.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
+<h1 class="logo"><a href="index.html">vise</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">vise</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#installation-instructions">Installation instructions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#executing-this-software">Executing this software</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation of VISE.</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_input_set.html">Tutorial – input set</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Welcome to vise’s documentation!</a></li>
+      <li>Next: <a href="installation.html" title="next chapter">Installation of VISE.</a></li>
+  </ul></li>
+</ul>
+</div>
 <div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
+  <h3>Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="installation.html" title="# Installation of VISE."
-             >next</a> |</li>
-        <li class="right" >
-          <a href="index.html" title="Welcome to vise’s documentation!"
-             >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">vise beta documentation</a> &#187;</li> 
-      </ul>
+    <div class="footer">
+      &copy;2020, Yu Kumagai.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/introduction.md.txt"
+          rel="nofollow">Page source</a>
     </div>
-    <div class="footer" role="contentinfo">
-        &#169; Copyright 2020, Yu Kumagai.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
-    </div>
+
+    
+
+    
   </body>
 </html>

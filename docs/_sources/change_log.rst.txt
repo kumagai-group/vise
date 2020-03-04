@@ -1,2 +1,2 @@
-# Change log
+Change log
 -----------------------

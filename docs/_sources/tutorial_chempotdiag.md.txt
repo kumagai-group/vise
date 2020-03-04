@@ -1,4 +1,4 @@
-# Tutorial  pydefect
+Tutorial -- input set
 -----------------------
 
 ### 1. Preparation of the unit cell
