@@ -469,9 +469,14 @@ class ViseInputSet(VaspInputSet):
             return False
 
     def __repr__(self):
-        out = [f"version: {self.task}",
+        kwargs = "\n".join(
+            [f"  {str(k):26s}: {str(v):26s}" for k, v in self.kwargs.items()])
+        out = [f"Vise version: {self._version}",
                f"task: {self.task}",
-               f"xc: {self.xc}"]
+               f"xc: {self.xc}",
+               f"potcar: {self.potcar.symbols}",
+               f"kwargs: ", f"{kwargs}"]
+
         return "\n".join(out)
 
     def __str__(self):
@@ -557,7 +562,7 @@ class ViseInputSet(VaspInputSet):
             kwargs:
                 Other OPTION arguments.
 
-        Return:
+        Returns:
             ViseInputSet class object.
         """
         kwargs = kwargs or {}
@@ -578,7 +583,12 @@ class ViseInputSet(VaspInputSet):
             structure = get_structure_from_prev_run(vasprun, outcar)
 
             gap_properties = band_gap_properties(vasprun, outcar)
-            if gap_properties:
+
+            # For metall,
+            # gap_properties = ({'energy': 0.0,
+            #                    'direct': False,
+            #                    'transition': None}, None, None)
+            if gap_properties[2]:
                 _, vbm, cbm = gap_properties
                 kwargs["vbm_cbm"] = [vbm["energy"], cbm["energy"]]
 

@@ -498,7 +498,10 @@ class ViseVaspJob(VaspJob):
 
         left_files = set(left_files) if left_files else set()
         left_files.update(VASP_INPUT_FILES |
-                          {"WAVECAR", "vise.json", "structure_opt.json"})
+                          {"WAVECAR",
+                           "vise.json",
+                           "structure_opt.json",
+                           "prior_info.json"})
 
         for f in VASP_SAVED_FILES | {std_out}:
             finish_name = f"{f}.finish"

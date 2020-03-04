@@ -113,19 +113,18 @@ class ViseDosPlotter(DosPlotter):
         for i, gk in enumerate(grouped_keys):
             all_pts = []
             for j, key in enumerate(grouped_keys[gk]):
-                x = []
-                y = []
-
                 for spin in [Spin.up, Spin.down]:
+                    x = []
+                    y = []
                     if spin in all_densities[n]:
                         densities = list(int(spin) * all_densities[n][spin])
                         energies = list(all_energies[n])
                         x.extend(energies)
                         y.extend(densities)
 
-                all_pts.extend(list(zip(x, y)))
-                axs[i].plot(x, y, color=colors[j % ncolors], label=str(key),
-                            linewidth=2)
+#                    all_pts.extend(list(zip(x, y)))
+                    axs[i].plot(x, y, color=colors[j % ncolors], label=str(key),
+                                linewidth=2)
                 n += 1
 
             # plot vertical lines for band edges or Fermi level
@@ -382,7 +381,13 @@ def get_dos_plot(vasprun: str,
         else:
             ylims.append([0, pdos_max])
 
-        logger.info(f"Dos plot, y-range {ylims}")
+    x_str = f"{xlim[0]:7.2f} ~{xlim[1]:6.2f}"
+    y_str = f"total: {ylims[0][0]:7.2f} ~{ylims[0][1]:6.2f}"
+    if len(ylims) == 2:
+        y_str += f", pdos: {ylims[1][0]:7.2f} ~{ylims[1][1]:6.2f}"
+
+    logger.info(f"Dos plot, x-range (energy) {x_str}")
+    logger.info(f"Dos plot, y-range (dos) {y_str}")
 
     comp = latexify(structure.composition.get_reduced_formula_and_factor()[0])
     if show_spg:

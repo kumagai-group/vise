@@ -25,7 +25,7 @@ TASK_REQUIRED_FLAGS = {"LREAL", "ISPIN", "ISIF", "EDIFF", "IBRION", "ISMEAR",
                        "PREC"}
 TASK_OPTIONAL_FLAGS = {"NSW", "EDIFFG", "POTIM", "ADDGRID", "KPAR", "NPAR",
                        "ENCUT", "NBANDS", "LEPSILON", "LCALCEPS", "LOPTICS",
-                       "CSHIFT", "EMIN", "EMAX", "NEDOS"}
+                       "CSHIFT", "EMIN", "EMAX", "NEDOS", "MAGMOM"}
 TASK_FLAGS = TASK_REQUIRED_FLAGS | TASK_OPTIONAL_FLAGS
 
 XC_REQUIRED_FLAGS = {"ALGO", "LWAVE"}
@@ -100,8 +100,10 @@ class TaskIncarSettings:
         if task == Task.defect or is_magnetization:
             settings["ISPIN"] = 2
             if hasattr(structure, "site_properties"):
-                if "magmom" in structure.site_properties:
-                    settings["MAGMOM"] = structure.site_properties["magmom"]
+                logger.critical("MAGMOM is not inherited in the current "
+                                "implementation.")
+#                if "magmom" in structure.site_properties:
+#                    settings["MAGMOM"] = structure.site_properties["magmom"]
 
         if npar_kpar:
             kpar, npar = calc_npar_kpar(num_kpoints, num_nodes)

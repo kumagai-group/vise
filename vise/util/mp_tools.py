@@ -94,7 +94,7 @@ def make_poscars_from_mp(elements,
         if only_unary and len(comp) == 1:
             continue
 
-        m_path = path / f"{m['task_id']}_{formula}"
+        m_path = path / f"{formula}_{m['task_id']}"
         m_path.mkdir()
         m.pop("structure").to(filename=m_path / "POSCAR")
         yaml_path = m_path / "prior_info.yaml"

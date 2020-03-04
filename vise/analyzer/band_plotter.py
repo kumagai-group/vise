@@ -38,8 +38,6 @@ class PrettyBSPlotter:
                  angle_tolerance: float = ANGLE_TOL) -> None:
         """
 
-        Note:
-
         Args:
             band (BandStructureSymmLine):
                 A BandStructureSymmLine object.
@@ -98,8 +96,6 @@ class PrettyBSPlotter:
                       vasprun_filenames: Union[List[str], str]
                       ) -> "VaspBandStructureSymmLine":
         """Create VaspBandStructureSymmLine from vasp files.
-
-
         """
 
         if isinstance(kpoints_filenames, list):

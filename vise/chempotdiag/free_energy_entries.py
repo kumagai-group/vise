@@ -116,7 +116,8 @@ class FreeEnergyEntrySet(EntrySet, MSONable):
                         vasprun: str = "vasprun.xml",
                         parse_gas: bool = True,
                         temperature: float = 0.0,
-                        partial_pressures: Dict[str, float] = None
+                        partial_pressures: Dict[str, float] = None,
+                        ignore_file_not_found: bool = True,
                         ) -> "FreeEnergyEntrySet":
         """ Constructs class object from vasp output files.
 
@@ -133,6 +134,7 @@ class FreeEnergyEntrySet(EntrySet, MSONable):
             partial_pressures (dict):
                 Dict of species as keys (str) and pressures in Pa as values.
                 Example: {"O2": 2e5, "N2": 70000}
+            ignore_file_not_found (bool):
 
         Returns:
             FreeEnergyEntrySet class object.
@@ -140,7 +142,15 @@ class FreeEnergyEntrySet(EntrySet, MSONable):
         energy_entries = []
         for d in directory_paths:
             logger.info(f"Parsing data in {d} ...")
-            v: Vasprun = parse_file(Vasprun, Path(d) / vasprun)
+            try:
+                v: Vasprun = parse_file(Vasprun, Path(d) / vasprun)
+            except FileNotFoundError:
+                if ignore_file_not_found:
+                    logger.critical(f"{d} is not parsed as vasprun.xml does "
+                                    f"not exist in it.")
+                    continue
+                else:
+                    raise
             composition = v.final_structure.composition.formula
 
             kwargs = {}

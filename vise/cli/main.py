@@ -183,7 +183,7 @@ def parse_args(args):
         "--ldaul", type=str, default=vasp_set_defaults["ldaul"], nargs="+",
         help="Dict of LDAUL values.")
     vasp_set_parser.add_argument(
-        "-c", "--charge", type=float, help="Charge state.")
+        "-c", "--charge", type=float, default=0.0, help="Charge state.")
 
     # -- get_poscars -----------------------------------------------------------
     parser_get_poscar = subparsers.add_parser(
@@ -195,7 +195,7 @@ def parse_args(args):
     gp_defaults = get_default_args(make_poscars_from_mp)
 
     parser_get_poscar.add_argument(
-        "-p", "--poscar", type=str,
+        "-p", "--poscar", type=str, default="POSCAR",
         help="POSCAR-type file name.", metavar="FILE")
     parser_get_poscar.add_argument(
         "-n", "--number", type=int,
@@ -205,7 +205,7 @@ def parse_args(args):
         help="Create directories with POSCARs containing the input elements.")
     parser_get_poscar.add_argument(
         "--e_above_hull", type=float, default=gp_defaults["e_above_hull"],
-        help="Collect materials with this hull energy in eV/atom.")
+        help="Collect materials with this hull energy or lower in eV/atom.")
     parser_get_poscar.add_argument(
         "--molecules", type=str2bool, default=gp_defaults["molecules"],
         help="Whether one doesn't want to replace pmg structures to molecules.")
@@ -224,7 +224,10 @@ def parse_args(args):
     simple_override(vs_defaults, ["kpt_density"])
 
     parser_vasp_set.add_argument(
-        "--json", type=str,
+        "--print", action="store_true",
+        help="Whether to print vise.json.")
+    parser_vasp_set.add_argument(
+        "--json", type=str, default="vise.json",
         help="Json file name for printing the ViseInputSet info.")
     parser_vasp_set.add_argument(
         "-p", "--poscar", default="POSCAR", type=str,
@@ -240,7 +243,7 @@ def parse_args(args):
         "-pi", "--prior_info", type=str2bool, default=True,
         help="Whether to use prior_info.json when it exists.")
     parser_vasp_set.add_argument(
-        "--dirs", nargs="+", type=str,
+        "--dirs", nargs="+", type=str, default=["."],
         help="Make vasp set for the directories in the same condition.")
     parser_vasp_set.add_argument(
         "-d", "--prev_dir", type=str,
@@ -259,7 +262,7 @@ def parse_args(args):
         aliases=['vr'])
 
     parser_vasp_run.add_argument(
-        "-p", "--print", action="store_true",
+        "--print", action="store_true",
         help="Whether to print str_opt.json.")
     parser_vasp_run.add_argument(
         "--json_file", default="str_opt.json", type=str,
@@ -283,7 +286,7 @@ def parse_args(args):
                                   "convergence_criterion"])
 
     parser_kpt_conv.add_argument(
-        "-p", "--print", action="store_true",
+        "--print", action="store_true",
         help="Whether to print str_opt.json.")
     parser_kpt_conv.add_argument(
         "--json_file", default="kpt_conv.json", type=str,

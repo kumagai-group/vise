@@ -38,9 +38,7 @@ logger = get_logger(__name__)
 
 def vasp_settings_from_args(args: Namespace
                             ) -> Tuple[dict, dict]:
-    """Generate vasp input settings from the given args.
-
-    """
+    """Generate vasp input settings from the given args. """
 
     flags = [str(s) for s in list(Element)]
     ldauu = list2dict(args.ldauu, flags)
@@ -67,7 +65,7 @@ def vasp_settings_from_args(args: Namespace
 def get_poscar_from_mp(args: Namespace) -> None:
     if getattr(args, "number", None):
         s = MPRester().get_structure_by_material_id(f"mp-{args.number}")
-        s.to(filename=args.poscar)
+        s.to(fmt="poscar", filename=args.poscar)
     elif getattr(args, "elements", None):
         make_poscars_from_mp(elements=args.elements,
                              e_above_hull=args.e_above_hull,
@@ -77,7 +75,7 @@ def get_poscar_from_mp(args: Namespace) -> None:
 
 
 def vasp_set(args: Namespace) -> None:
-    if args.json:
+    if args.print:
         vis = ViseInputSet.load_json(args.json)
         print(vis)
         return
@@ -93,10 +91,10 @@ def vasp_set(args: Namespace) -> None:
          "standardize_structure": args.standardize_structure})
 
     started_dir = os.getcwd()
-    dirs = getattr(args, "dirs", ".")
+    cwd = Path.cwd()
 
-    for d in dirs:
-        d = Path.cwd() / d
+    for d in args.dirs:
+        d = cwd / d
         os.chdir(d)
         logger.info(f"Constructing vasp set in {d}")
         user_incar_settings = deepcopy(base_user_incar_settings)

@@ -54,7 +54,7 @@ default_vasp_args = {
     "additional_user_incar_settings": None,
     "ldauu": vis_defaults["ldauu"],
     "ldaul": vis_defaults["ldaul"],
-    "charge": None}
+    "charge": 0.0}
 
 symprec_args = {"symprec": SYMMETRY_TOLERANCE,  "angle_tolerance": ANGLE_TOL}
 
