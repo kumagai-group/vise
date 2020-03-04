@@ -177,13 +177,13 @@ class ViseDosPlotter(DosPlotter):
         for i in range(1, len(axs)):
             axs[i].set_ylabel("DOS (1/eV)")
 
-        plt.tight_layout()
         plt.subplots_adjust(left=None, bottom=None, right=None, top=None,
                             wspace=0, hspace=0.1)
 
         if title:
             axs[0].title.set_text(title)
 
+        plt.tight_layout()  # Must be at the last.
         return plt
 
 

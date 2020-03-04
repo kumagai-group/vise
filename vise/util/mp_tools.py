@@ -3,7 +3,7 @@
 import json
 import shutil
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 import yaml
 
 from pymatgen import Element, MPRester, Composition
@@ -17,8 +17,21 @@ logger = get_logger(__name__)
 def get_mp_materials(elements: List[str],
                      properties: List[str],
                      e_above_hull: float = 1e-4,
-                     api_key=None):
-    """
+                     api_key: str = None) -> list:
+    """Get Materials Project materials as list
+
+    Args:
+        elements (list):
+            Element list like ["Cu", "O"]
+        properties:
+            Returned properties.
+        e_above_hull:
+            Energy criterion in eV/atom.
+        api_key:
+            Materials Project REST api key.
+
+    Returns:
+        List of materials composed of properties.
     """
     exclude_z = list(i for i in range(1, 100))
     excluded_elements = [str(Element.from_Z(z)) for z in exclude_z]
@@ -34,23 +47,27 @@ def get_mp_materials(elements: List[str],
     return materials
 
 
-def make_poscars_from_mp(elements,
+def make_poscars_from_mp(elements: list,
                          path: Path = Path.cwd(),
-                         e_above_hull=0.01,
-                         api_key=None,
-                         molecules=True,
-                         only_molecules=True,
+                         e_above_hull: float = 0.01,
+                         api_key: str = None,
+                         molecules: bool = True,
+                         properties: Optional[list] = None,
                          only_unary=False) -> None:
     """
 
     Args:
-        elements(list): like ["Cu", "O"]
-        path(str):
+        elements(list):
         e_above_hull(float):
         api_key(str):
+        properties (list):
+            See docstrings of get_mp_materials above.
+        path(str):
+            Path to create directories.
         molecules(bool):
-        only_molecules:
+            Whether to replace molecular entries to molecules in a large box.
         only_unary:
+            Create only unary simple substances.
 
     Returns:
         None
@@ -76,22 +93,22 @@ def make_poscars_from_mp(elements,
                     shutil.copyfile(mol_dir / str(comp) / "prior_info.yaml",
                                     dirname / "prior_info.yaml")
 
-    properties = ["task_id",
-                  "full_formula",
-                  "final_energy",
-                  "structure",
-                  "spacegroup",
-                  "band_gap",
-                  "total_magnetization",
-                  "magnetic_type"]
+    properties = properties or ["task_id",
+                                "full_formula",
+                                "final_energy",
+                                "structure",
+                                "spacegroup",
+                                "band_gap",
+                                "total_magnetization",
+                                "magnetic_type"]
     materials = get_mp_materials(elements, properties, e_above_hull, api_key)
 
     for m in materials:
         comp = Composition(m.pop("full_formula"))
         formula = comp.reduced_formula
-        if only_molecules and formula in molecules_formula_list:
+        if molecules and formula in molecules_formula_list:
             continue
-        if only_unary and len(comp) == 1:
+        if only_unary and len(comp) > 1:
             continue
 
         m_path = path / f"{formula}_{m['task_id']}"

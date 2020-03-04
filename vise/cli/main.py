@@ -375,7 +375,7 @@ def parse_args(args):
         "-a", dest="absolute", action="store_true",
         help="Show in the absolute energy scale.")
     parser_plot_band.add_argument(
-        "-l", dest="legend", action="store_false",
+        "--legend", type=str2bool, default=True,
         help="Not show the legend.")
 
     parser_plot_band.set_defaults(func=plot_band)

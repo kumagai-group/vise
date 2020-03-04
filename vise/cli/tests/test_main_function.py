@@ -5,8 +5,8 @@ import os
 from copy import deepcopy
 
 from argparse import Namespace
-from shutil import rmtree
-from unittest.mock import patch, Mock, MagicMock
+
+from unittest.mock import patch
 
 from pymatgen.core.structure import IStructure
 

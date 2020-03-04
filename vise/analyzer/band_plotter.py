@@ -252,8 +252,6 @@ class ModBSPlotter(BSPlotter):
                                          label='bs 1')]
             plt.legend(handles=handles)
 
-        plt.tight_layout()
-
         # plot the band gap with an arrow.
         if self._bs.is_metal() is False:
             band_gap = self._bs.get_band_gap()["energy"]
@@ -264,6 +262,7 @@ class ModBSPlotter(BSPlotter):
         if title:
             plt.title(title, size=20)
 
+        plt.tight_layout()
         return plt
 
     @staticmethod
@@ -361,6 +360,7 @@ class ModBSPlotter(BSPlotter):
         if title:
             plt.title(title, size=20)
 
+        plt.tight_layout()
         return plt
 
 

@@ -1,11 +1,13 @@
 
-<!DOCTYPE html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta charset="utf-8" />
-    <title>Tutorial pydefect &#8212; vise beta documentation</title>
-    <link rel="stylesheet" href="_static/corlab.css" type="text/css" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Tutorial – input set &#8212; vise beta documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
@@ -14,31 +16,26 @@
     <script type="text/javascript" src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="# Change log" href="change_log.html" /> 
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="change_log.html" title="# Change log"
-             accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">vise beta documentation</a> &#187;</li> 
-      </ul>
-    </div>  
+  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
-  <div class="section" id="tutorial-pydefect">
-<h1>Tutorial  pydefect<a class="headerlink" href="#tutorial-pydefect" title="Permalink to this headline">¶</a></h1>
-<hr class="docutils" />
+  <div class="section" id="tutorial-input-set">
+<span id="tutorial-input-set"></span><h1>Tutorial – input set<a class="headerlink" href="#tutorial-input-set" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="preparation-of-the-unit-cell">
-<h2>1. Preparation of the unit cell<a class="headerlink" href="#preparation-of-the-unit-cell" title="Permalink to this headline">¶</a></h2>
+<span id="preparation-of-the-unit-cell"></span><h2>1. Preparation of the unit cell<a class="headerlink" href="#preparation-of-the-unit-cell" title="Permalink to this headline">¶</a></h2>
 <p>Here, we show how to use vise using an example of ScN.</p>
 <p>Please create ScN directory and unitcell subdirectory in it, and enter there.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>ScN
@@ -69,7 +66,7 @@ Therefore, by typing as follows,</p>
 <p>we can get the crystal structure of ScN.</p>
 </div>
 <div class="section" id="preparation-of-the-input-files-for-the-unit-cell-relaxation">
-<h2>2. Preparation of the input files for the unit cell relaxation.<a class="headerlink" href="#preparation-of-the-input-files-for-the-unit-cell-relaxation" title="Permalink to this headline">¶</a></h2>
+<span id="preparation-of-the-input-files-for-the-unit-cell-relaxation"></span><h2>2. Preparation of the input files for the unit cell relaxation.<a class="headerlink" href="#preparation-of-the-input-files-for-the-unit-cell-relaxation" title="Permalink to this headline">¶</a></h2>
 <p>We next relax the unit cell using VASP.
 Please create <code class="docutils literal notranslate"><span class="pre">structure_opt</span></code></p>
 <p>For this purpose, we need to prepare INCAR, POTCAR, KPOINTS files.
@@ -85,7 +82,7 @@ Conversely, the latter is set only via this option.
 Please use both the options as the situation demands.</p>
 </div>
 <div class="section" id="calculation-of-the-unit-cell-relaxation">
-<h2>3. Calculation of the unit cell relaxation.<a class="headerlink" href="#calculation-of-the-unit-cell-relaxation" title="Permalink to this headline">¶</a></h2>
+<span id="calculation-of-the-unit-cell-relaxation"></span><h2>3. Calculation of the unit cell relaxation.<a class="headerlink" href="#calculation-of-the-unit-cell-relaxation" title="Permalink to this headline">¶</a></h2>
 <p>We then run the vasp.
 For this purpose, vise provides an extension utility of <code class="docutils literal notranslate"><span class="pre">custodian</span></code>.</p>
 <p><code class="docutils literal notranslate"><span class="pre">vr</span></code>(=<code class="docutils literal notranslate"><span class="pre">vasp_run</span></code>)</p>
@@ -117,7 +114,7 @@ In such cases, we can set various options such as -criteria.</p>
 </div>
 </div>
 <div class="section" id="calculation-of-the-band-structure-and-the-density-of-states">
-<h2>4. Calculation of the band structure and the density of states<a class="headerlink" href="#calculation-of-the-band-structure-and-the-density-of-states" title="Permalink to this headline">¶</a></h2>
+<span id="calculation-of-the-band-structure-and-the-density-of-states"></span><h2>4. Calculation of the band structure and the density of states<a class="headerlink" href="#calculation-of-the-band-structure-and-the-density-of-states" title="Permalink to this headline">¶</a></h2>
 <p>We then run the Calculation of the band structure and density of states.
 Please create band and dos directories at the unitcell, and type</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>python $PATH_TO_VISE/vise/vise/main.py vs -t band
@@ -130,8 +127,8 @@ Please create band and dos directories at the unitcell, and type</p>
 <p>Here, the band path is determined based upon the <a class="reference external" href="https://www.materialscloud.org/work/tools/seekpath">seekpath code</a>,
 so if one uses the plot for publication or presentation, please cite the following paper.</p>
 <ul class="simple">
-<li><p><a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S0927025616305110?via%3Dihub">Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, Band structure diagram paths based on crystallography, Comp. Mat. Sci. 128, 140 (2017).</a>
-DOI: 10.1016/j.commatsci.2016.10.015 (the “HPKOT” paper; arXiv version: arXiv:1602.06402).</p></li>
+<li><a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S0927025616305110?via%3Dihub">Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, Band structure diagram paths based on crystallography, Comp. Mat. Sci. 128, 140 (2017).</a>
+DOI: 10.1016/j.commatsci.2016.10.015 (the “HPKOT” paper; arXiv version: arXiv:1602.06402).</li>
 </ul>
 <p><code class="docutils literal notranslate"><span class="pre">VISE</span></code> also provides the plotters of BS and DOS based on with <code class="docutils literal notranslate"><span class="pre">plot_band</span></code> (=<code class="docutils literal notranslate"><span class="pre">pb</span></code>) and <code class="docutils literal notranslate"><span class="pre">plot_dos</span></code> (=<code class="docutils literal notranslate"><span class="pre">pd</span></code>) sub-commands.
 Type the following commands in <code class="docutils literal notranslate"><span class="pre">band/</span></code> and  <code class="docutils literal notranslate"><span class="pre">dos/</span></code>, respectively.</p>
@@ -147,10 +144,10 @@ Type the following commands in <code class="docutils literal notranslate"><span 
 </div>
 </div>
 <div class="section" id="calculation-of-the-dielectric-constant">
-<h2>5. Calculation of the dielectric constant<a class="headerlink" href="#calculation-of-the-dielectric-constant" title="Permalink to this headline">¶</a></h2>
+<span id="calculation-of-the-dielectric-constant"></span><h2>5. Calculation of the dielectric constant<a class="headerlink" href="#calculation-of-the-dielectric-constant" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="setting-for-the-vise-yaml">
-<h2>Setting for the vise.yaml<a class="headerlink" href="#setting-for-the-vise-yaml" title="Permalink to this headline">¶</a></h2>
+<span id="setting-for-the-vise-yaml"></span><h2>Setting for the vise.yaml<a class="headerlink" href="#setting-for-the-vise-yaml" title="Permalink to this headline">¶</a></h2>
 <p>In <code class="docutils literal notranslate"><span class="pre">VISE</span></code>, users can control various types of parameters using <code class="docutils literal notranslate"><span class="pre">vise.yaml</span></code> files.
 For example, we provide the default <code class="docutils literal notranslate"><span class="pre">POTCAR</span></code> set regularly we use, but users can adopt their favorite <code class="docutils literal notranslate"><span class="pre">POTCAR</span></code> set,
 by setting <code class="docutils literal notranslate"><span class="pre">potcar_set</span></code> key as follows</p>
@@ -163,20 +160,20 @@ Therefore, when <code class="docutils literal notranslate"><span class="pre">vis
 the parameters are always used for the <code class="docutils literal notranslate"><span class="pre">pydefect</span></code> commands.
 The keys for <code class="docutils literal notranslate"><span class="pre">vise.yaml</span></code> are</p>
 <ul class="simple">
-<li><p>“vasp_cmd” (str)</p></li>
-<li><p>“symprec” (float)</p></li>
-<li><p>“angle_tolerance” (float)</p></li>
-<li><p>“xc” (str)</p></li>
-<li><p>“kpt_density” (float)</p></li>
-<li><p>“initial_kpt_density” (float)</p></li>
-<li><p>“vise_opts” (dict):</p></li>
-<li><p>“user_incar_setting” (dict)</p></li>
-<li><p>“ldauu” (dict)</p></li>
-<li><p>“ldaul” (dict)</p></li>
-<li><p>“potcar_set”</p></li>
-<li><p>“potcar_set_name” (str)</p></li>
-<li><p>“relax_iter_num” (int)</p></li>
-<li><p>“removed_files” (list)</p></li>
+<li>“vasp_cmd” (str)</li>
+<li>“symprec” (float)</li>
+<li>“angle_tolerance” (float)</li>
+<li>“xc” (str)</li>
+<li>“kpt_density” (float)</li>
+<li>“initial_kpt_density” (float)</li>
+<li>“vise_opts” (dict):</li>
+<li>“user_incar_setting” (dict)</li>
+<li>“ldauu” (dict)</li>
+<li>“ldaul” (dict)</li>
+<li>“potcar_set”</li>
+<li>“potcar_set_name” (str)</li>
+<li>“relax_iter_num” (int)</li>
+<li>“removed_files” (list)</li>
 </ul>
 <p>For vise_opts corresponds to the Options written in ViseInputSet class in vise.input_set/input_set.py</p>
 <p>Same info is written at the top of the <code class="docutils literal notranslate"><span class="pre">main.py</span></code> file.
@@ -190,62 +187,73 @@ For example, one can write in <code class="docutils literal notranslate"><span c
 
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Tutorial  pydefect</a><ul>
-<li><a class="reference internal" href="#preparation-of-the-unit-cell">1. Preparation of the unit cell</a></li>
-<li><a class="reference internal" href="#preparation-of-the-input-files-for-the-unit-cell-relaxation">2. Preparation of the input files for the unit cell relaxation.</a></li>
-<li><a class="reference internal" href="#calculation-of-the-unit-cell-relaxation">3. Calculation of the unit cell relaxation.</a></li>
-<li><a class="reference internal" href="#calculation-of-the-band-structure-and-the-density-of-states">4. Calculation of the band structure and the density of states</a></li>
-<li><a class="reference internal" href="#calculation-of-the-dielectric-constant">5. Calculation of the dielectric constant</a></li>
-<li><a class="reference internal" href="#setting-for-the-vise-yaml">Setting for the vise.yaml</a></li>
-</ul>
-</li>
+<h1 class="logo"><a href="index.html">vise</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">vise</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation of VISE.</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_input_set.html">Tutorial – input set</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="change_log.html"
-                        title="previous chapter"># Change log</a></p>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/tutorial.md.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
 <div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
+  <h3>Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="change_log.html" title="# Change log"
-             >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">vise beta documentation</a> &#187;</li> 
-      </ul>
+    <div class="footer">
+      &copy;2020, Yu Kumagai.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/tutorial_custodian_extension.md.txt"
+          rel="nofollow">Page source</a>
     </div>
-    <div class="footer" role="contentinfo">
-        &#169; Copyright 2020, Yu Kumagai.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
-    </div>
+
+    
+
+    
   </body>
 </html>

@@ -15,7 +15,7 @@ class ViseDosPlotterTest(ViseTest):
     # Must split pyplot constructors. Otherwise, mgo_dos.pdf shows NaN3 results.
     def test_normal(self):
         mgo_dos = get_dos_plot(vasprun=parent_dir / "MgO_dos_vasprun.xml")
-        mgo_dos.savefig(str(parent_dir / "mgo_dos.pdf"))
+        mgo_dos.savefig("mgo_dos.pdf")
         os.remove("mgo_dos.pdf")
 
     def test_w_args(self):
