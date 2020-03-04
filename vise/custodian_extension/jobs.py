@@ -103,6 +103,7 @@ class StructureOptResult(MSONable):
     @classmethod
     def from_dir(cls,
                  dir_name: str,
+                 json_filename: Optional[str] = "vise.json",
                  kpoints: Optional[str] = "KPOINTS",
                  poscar: Optional[str] = "POSCAR.orig",
                  contcar: Optional[str] = "CONTCAR.finish",
@@ -119,6 +120,7 @@ class StructureOptResult(MSONable):
         Args:
             dir_name (str):
                 Dirname
+            json_filename (str):
             kpoints (str):
             poscar (str):
             contcar (str):
@@ -140,7 +142,7 @@ class StructureOptResult(MSONable):
         num_kpt = k.kpts[0]
 
         try:
-            vise = ViseInputSet.load_json(d_path / "vise.json")
+            vise = ViseInputSet.load_json(d_path / json_filename)
             kpt_density = vise.kwargs["kpt_density"]
         except FileNotFoundError:
             print("vise.json does not exist")

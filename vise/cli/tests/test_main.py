@@ -98,12 +98,13 @@ class MainVaspSetTest(ViseTest):
         parsed_args = parse_args(["vs"])
         # func is a pointer so need to point the same address.
         expected = Namespace(
-            json=None,
+            print=False,
+            json="vise.json",
             poscar="POSCAR",
             kpt_density=KPT_DENSITY,
             standardize_structure=True,
             prior_info=True,
-            dirs=None,
+            dirs=["."],
             prev_dir=None,
             func=parsed_args.func,
             **default_vasp_args, **symprec_args)
@@ -117,6 +118,7 @@ class MainVaspSetTest(ViseTest):
                                   "-d", "c"])
         os.remove("vise.yaml")
         expected = Namespace(
+            print=False,
             potcar_set=default_vasp_args["potcar_set"],
             potcar_set_name="gw",
             xc="hse",
@@ -130,12 +132,12 @@ class MainVaspSetTest(ViseTest):
             charge=default_vasp_args["charge"],
             symprec=2,
             angle_tolerance=symprec_args["angle_tolerance"],
-            json=None,
+            json="vise.json",
             poscar="POSCAR",
             kpt_density=KPT_DENSITY,
             standardize_structure=True,
             prior_info=True,
-            dirs=None,
+            dirs=["."],
             prev_dir="c",
             func=parsed_args.func)
 
@@ -144,6 +146,7 @@ class MainVaspSetTest(ViseTest):
     # Here, test vasp_parser and symprec_parser as well.
     def test_vasp_set_w_options(self):
         parsed_args = parse_args(["vs",
+                                  "--print",
                                   "--potcar", "Mg_pv", "O_h",
                                   "--potcar_set_name", "gw",
                                   "-x", "pbesol",
@@ -165,6 +168,7 @@ class MainVaspSetTest(ViseTest):
                                   "-d", "c"])
 
         expected = Namespace(
+            print=True,
             potcar_set=["Mg_pv", "O_h"],
             potcar_set_name="gw",
             xc="pbesol",

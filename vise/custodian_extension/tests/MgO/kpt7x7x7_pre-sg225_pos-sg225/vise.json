@@ -1,6 +1,7 @@
 {
   "@module": "vise.input_set.input_set",
   "@class": "ViseInputSet",
+  "version": "0.1.6",
   "structure": {
     "@module": "pymatgen.core.structure",
     "@class": "Structure",

@@ -16,6 +16,7 @@ class ViseDosPlotterTest(ViseTest):
     def test_normal(self):
         mgo_dos = get_dos_plot(vasprun=parent_dir / "MgO_dos_vasprun.xml")
         mgo_dos.savefig(str(parent_dir / "mgo_dos.pdf"))
+        os.remove("mgo_dos.pdf")
 
     def test_w_args(self):
         nan3_dos_mod = get_dos_plot(vasprun=parent_dir / "NaN3_dos_vasprun.xml",

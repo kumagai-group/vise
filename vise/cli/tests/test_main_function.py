@@ -100,19 +100,22 @@ class VaspSetTest(ViseTest):
                                    "kpt_density": KPT_DENSITY,
                                    "standardize_structure": True,
                                    "prior_info": True,
+                                   "dirs": ["."],
                                    }
-        self.args_print = Namespace(json="vasp_input_set.json",
+        self.args_print = Namespace(print=True,
+                                    json="vasp_input_set.json",
                                     **self.min_default_kwargs,
                                     **vasp_args, **symprec_args)
         self.prev_dir = "a"
-        self.args_prev = Namespace(json=None,
+        self.args_prev = Namespace(print=False,
+                                   json=None,
                                    prev_dir=self.prev_dir,
                                    **self.min_default_kwargs,
                                    **vasp_args, **symprec_args)
 
-        self.args_normal = Namespace(json=None,
+        self.args_normal = Namespace(print=False,
+                                     json=None,
                                      **self.min_default_kwargs,
-                                     dirs=["."],
                                      prev_dir=None,
                                      **vasp_args, **symprec_args)
 

@@ -17,5 +17,5 @@ class TestMakePoscarsFromMp(ViseTest):
     # uncomment these if one wants to check the created directories.
     def tearDown(self) -> None:
         shutil.rmtree("mol_O2")
-        shutil.rmtree("mp-1265_MgO")
-        shutil.rmtree("mp-1094122_Mg")
+        shutil.rmtree("MgO_mp-1265")
+        shutil.rmtree("Mg_mp-1094122")

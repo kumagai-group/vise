@@ -111,7 +111,7 @@ class ViseDosPlotter(DosPlotter):
 
         n = 0
         for i, gk in enumerate(grouped_keys):
-            all_pts = []
+#            all_pts = []
             for j, key in enumerate(grouped_keys[gk]):
                 for spin in [Spin.up, Spin.down]:
                     x = []
