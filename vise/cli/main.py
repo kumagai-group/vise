@@ -4,7 +4,7 @@
 
 import argparse
 import sys
-from typing import Union
+from typing import Union, List, Dict
 
 from vise.cli.main_function import (
     get_poscar_from_mp, vasp_set, chempotdiag, plot_band, plot_dos, vasp_run,
@@ -59,6 +59,96 @@ def simple_override(d: dict, keys: Union[list, str]) -> None:
             if isinstance(v, dict):
                 v = dict2list(v)
             d[key] = v
+
+
+def vasp_set_args() -> List[List]:
+    """List of args and kwargs used for creating vasp set argparse.
+
+    Note1: This function can be used for creating vasp set argparse in other
+           packages such as pydefect.
+    Note2: This must be a function as we want to generate this when called.
+
+    Usages:
+        for l, d in vasp_set_args():
+            vasp_set_parser.add_argument(*l, **d)
+
+    Args:
+
+    Returns:
+        List of args and kwargs.
+    """
+    vasp_set_defaults = get_default_args(ViseInputSet.make_input)
+    vasp_set_defaults.update(ViseInputSet.TASK_OPTIONS)
+    vasp_set_defaults.update(ViseInputSet.XC_OPTIONS)
+    vasp_set_defaults["potcar_set"] = None
+    vasp_set_defaults["vise_opts"] = None
+    vasp_set_defaults["user_incar_settings"] = None
+
+    simple_override(vasp_set_defaults, ["xc",
+                                        "task",
+                                        "vise_opts",
+                                        "user_incar_settings",
+                                        "potcar_set",
+                                        "potcar_set_name",
+                                        "ldauu",
+                                        "ldaul"])
+
+    d = [[["--potcar"],
+          {"dest": "potcar_set",
+           "default": vasp_set_defaults["potcar_set"],
+           "type": str,
+           "nargs": "+",
+           "help": "User specifying POTCAR set. E.g., Mg_pv O_h"}],
+          [["--potcar_set_name"],
+           {"default": vasp_set_defaults["potcar_set_name"],
+            "type": str,
+            "help": "User specifying POTCAR set, "
+                    "i.e. normal ,gw, or mp_relax_set."}],
+          [["-x", "--xc"],
+           {"default": str(vasp_set_defaults["xc"]),
+            "type": str,
+            "help": "Exchange-correlation (XC) interaction treatment."}],
+          [["-t", "--task"],
+           {"default": str(vasp_set_defaults["task"]),
+            "type": str,
+            "help": "The task name. See document of vise."}],
+          [["--vise_opts"],
+           {"type": str,
+            "nargs": "+",
+            "default": vasp_set_defaults["vise_opts"],
+            "help": "Keyword args for options in make_input classmethod of "
+                    "ViseInputSet in vise. See document in vise for details."}],
+          [["-uis", "--user_incar_settings"],
+           {"type": str,
+            "nargs": "+",
+            "default": vasp_set_defaults["user_incar_settings"],
+            "help":
+                "user_incar_settings in make_input classmethod of ViseInputSet "
+                "in vise. The default of this flag is set by the vise.yaml, "
+                "so if one does not want to override the default, use "
+                "additional_user_incar_setting instead. See also document in "
+                "vise input_set for details."}],
+          [["-auis", "--additional_user_incar_settings"],
+           {"type": str,
+            "nargs": "+",
+            "default": None,
+            "help": "Use this if one does not want to override "
+                    "user_incar_settings written in the yaml file"}],
+          [["--ldauu"],
+           {"type": str,
+            "default": vasp_set_defaults["ldauu"],
+            "nargs": "+",
+            "help": "Dict of LDAUU values"}],
+          [["--ldaul"],
+           {"type": str,
+            "default": vasp_set_defaults["ldaul"],
+            "nargs": "+",
+            "help": "Dict of LDAUL values."}],
+          [["-c", "--charge"],
+           {"type": float,
+            "default": 0.0,
+            "help": "Charge state."}]]
+    return d
 
 
 def parse_args(args):
@@ -124,66 +214,12 @@ def parse_args(args):
         help="Remove WAVECAR file after the calculation is finished.")
 
     # -- parent parser:  vasp set
-    vasp_set_defaults = get_default_args(ViseInputSet.make_input)
-    vasp_set_defaults.update(ViseInputSet.TASK_OPTIONS)
-    vasp_set_defaults.update(ViseInputSet.XC_OPTIONS)
-    vasp_set_defaults["potcar_set"] = None
-    vasp_set_defaults["vise_opts"] = None
-    vasp_set_defaults["user_incar_settings"] = None
-
-    simple_override(vasp_set_defaults, ["xc",
-                                        "task",
-                                        "vise_opts",
-                                        "user_incar_settings",
-                                        "potcar_set",
-                                        "potcar_set_name",
-                                        "ldauu",
-                                        "ldaul"])
-
     vasp_set_parser = argparse.ArgumentParser(
         description="Vasp set-related parser",
         add_help=False)
 
-    vasp_set_parser.add_argument(
-        "--potcar", dest="potcar_set", default=vasp_set_defaults["potcar_set"],
-        type=str, nargs="+",
-        help="User specifying POTCAR set. E.g., Mg_pv O_h")
-    vasp_set_parser.add_argument(
-        "--potcar_set_name", default=vasp_set_defaults["potcar_set_name"],
-        type=str,
-        help="User specifying POTCAR set, i ie. normal ,gw, or mp_relax_set.")
-    vasp_set_parser.add_argument(
-        "-x", "--xc", default=str(vasp_set_defaults["xc"]), type=str,
-        help="Exchange-correlation (XC) interaction treatment.")
-    vasp_set_parser.add_argument(
-        "-t", "--task", default=str(vasp_set_defaults["task"]), type=str,
-        help="The task name. See document of vise.")
-    vasp_set_parser.add_argument(
-        "--vise_opts", type=str, nargs="+",
-        default=vasp_set_defaults["vise_opts"],
-        help="Keyword arguments for options in make_input classmethod of "
-             "ViseInputSet in vise. See document in vise for details.")
-    vasp_set_parser.add_argument(
-        "-uis", "--user_incar_settings", type=str, nargs="+",
-        default=vasp_set_defaults["user_incar_settings"],
-        help="user_incar_settings in make_input classmethod of ViseInputSet in "
-             "vise. The default of this flag is set by the vise.yaml, so if one"
-             "does not want to override the default, use "
-             "additional_user_incar_setting instead. See also document in "
-             "vise input_set for details.")
-    vasp_set_parser.add_argument(
-        "-auis", "--additional_user_incar_settings", type=str, nargs="+",
-        default=None,
-        help="Use this if one does not want to override user_incar_settings "
-             "written in the yaml file")
-    vasp_set_parser.add_argument(
-        "--ldauu", type=str, default=vasp_set_defaults["ldauu"], nargs="+",
-        help="Dict of LDAUU values")
-    vasp_set_parser.add_argument(
-        "--ldaul", type=str, default=vasp_set_defaults["ldaul"], nargs="+",
-        help="Dict of LDAUL values.")
-    vasp_set_parser.add_argument(
-        "-c", "--charge", type=float, default=0.0, help="Charge state.")
+    for l, d in vasp_set_args():
+        vasp_set_parser.add_argument(*l, **d)
 
     # -- get_poscars -----------------------------------------------------------
     parser_get_poscar = subparsers.add_parser(

@@ -8,8 +8,7 @@ from pathlib import Path
 
 from vise.util.testing import ViseTest
 from vise.custodian_extension.jobs import ViseVaspJob
-from vise.cli.main import (
-    simple_override, parse_args)
+from vise.cli.main import simple_override, parse_args
 from vise.cli.main_tools import get_default_args
 from vise.util.mp_tools import make_poscars_from_mp
 from vise.input_set.input_set import ViseInputSet
@@ -67,13 +66,13 @@ class MainGetPoscarsTest(ViseTest):
         d = get_default_args(make_poscars_from_mp)
         # func is a pointer so need to point the same address.
         expected = Namespace(
-            poscar=None,
+            poscar="POSCAR",
             number=None,
             elements=None,
             e_above_hull=d["e_above_hull"],
             molecules=d["molecules"],
             func=actual.func)
-#        self.assertEqual(expected, actual)
+        self.assertEqual(expected, actual)
 
     def test_get_poscars_w_options(self):
         parsed_args = parse_args(["gp",

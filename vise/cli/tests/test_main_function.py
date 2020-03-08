@@ -17,11 +17,7 @@ from vise.cli.main_function import (
 from vise.cli.tests.test_main import default_vasp_args, symprec_args
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc
-from vise.util.logger import get_logger
 from vise.config import KPT_DENSITY
-
-
-logger = get_logger(__name__)
 
 
 vasp_args = default_vasp_args

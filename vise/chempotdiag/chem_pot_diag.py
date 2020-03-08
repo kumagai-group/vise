@@ -54,7 +54,7 @@ class ChemPotDiag(MSONable):
                and name are obtained via qhull_entries.
             target_comp (Composition):
                 Target Composition.
-            target_comp_chempot (Dict[str, Dict[Element, float]]):
+            target_comp_chempot (Dict[str, List[float]]):
                 Chemical potentials at the vertices of the target composition.
                 The keys are alphabets.
         """
