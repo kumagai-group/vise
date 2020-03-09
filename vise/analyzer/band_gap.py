@@ -20,7 +20,7 @@ def band_gap_properties(vasprun: Union[Vasprun, str],
         outcar (Outcar/ str):
            OUTCAR file.
         int_m_threshold:
-            The threshold to judge if the magnetization is not integer.
+            Threshold to judge if the magnetization is not integer.
 
     Return:
         Tuple of band_gap, vbm, and cbm-related info. For metals,

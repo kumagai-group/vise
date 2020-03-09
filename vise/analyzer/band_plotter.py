@@ -95,8 +95,7 @@ class PrettyBSPlotter:
     def make_sym_line(kpoints_filenames: Union[List[str], str],
                       vasprun_filenames: Union[List[str], str]
                       ) -> "VaspBandStructureSymmLine":
-        """Create VaspBandStructureSymmLine from vasp files.
-        """
+        """Create VaspBandStructureSymmLine from vasp files. """
 
         if isinstance(kpoints_filenames, list):
             band = [VaspBandStructureSymmLine(k, v)

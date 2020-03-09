@@ -16,7 +16,8 @@ logger = get_logger(__name__)
 
 def handler_group(name: str = "default",
                   nionic_steps: int = 1,
-                  timeout: int = 518400) -> list:
+                  timeout: int = 518400,
+                  return_keys: bool = False) -> list:
 
     handlers = {
         "minimum":    [orig_handlers.MeshSymmetryErrorHandler(),
@@ -53,6 +54,9 @@ def handler_group(name: str = "default",
                        ],
         "no_handler": []
     }
+
+    if return_keys:
+        return list(handlers.keys())
 
     try:
         return handlers[name]

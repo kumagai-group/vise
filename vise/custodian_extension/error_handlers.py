@@ -15,9 +15,6 @@ from pymatgen.io.vasp.outputs import Oszicar
 from pymatgen.transformations.standard_transformations import \
     SupercellTransformation
 
-__author__ = "Yu Kumagai"
-__maintainer__ = "Yu Kumagai"
-
 # Monkey patch
 orig_handlers.Incar = ViseIncar
 orig_handlers.VaspModder = ViseVaspModder

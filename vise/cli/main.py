@@ -11,7 +11,10 @@ from vise.cli.main_function import (
     kpt_conv, band_gap)
 from vise.config import SYMMETRY_TOLERANCE, ANGLE_TOL, KPT_DENSITY, TIMEOUT
 from vise.custodian_extension.jobs import ViseVaspJob
+from vise.custodian_extension.handler_groups import handler_group
 from vise.input_set.input_set import ViseInputSet
+from vise.input_set.xc import Xc
+from vise.input_set.task import Task
 from vise.util.logger import get_logger
 from vise.cli.main_tools import dict2list, get_user_settings, get_default_args
 from vise.util.mp_tools import make_poscars_from_mp
@@ -107,10 +110,12 @@ def vasp_set_args() -> List[List]:
           [["-x", "--xc"],
            {"default": str(vasp_set_defaults["xc"]),
             "type": str,
+            "choices": [e.value for e in Xc],
             "help": "Exchange-correlation (XC) interaction treatment."}],
           [["-t", "--task"],
            {"default": str(vasp_set_defaults["task"]),
             "type": str,
+            "choices": [t.value for t in Task],
             "help": "The task name. See document of vise."}],
           [["--vise_opts"],
            {"type": str,
@@ -197,6 +202,7 @@ def parse_args(args):
              "like \"mpirun pvasp\".",)
     custodian_parser.add_argument(
         "--handler_name", type=str, default="default",
+        choices=handler_group(return_keys=True),
         help="Custodian error handler name listed in error_handlers.")
     custodian_parser.add_argument(
         "--max_relax_num", default=custodian_defaults["max_relax_num"],
