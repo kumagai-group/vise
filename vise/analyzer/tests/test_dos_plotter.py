@@ -10,29 +10,62 @@ from vise.util.testing import ViseTest
 parent_dir = Path(__file__).parent
 
 
-class ViseDosPlotterTest(ViseTest):
+class ViseDosPlotterNormalTest(ViseTest):
 
-    # Must split pyplot constructors. Otherwise, mgo_dos.pdf shows NaN3 results.
-    def test_normal(self):
-        mgo_dos = get_dos_plot(vasprun=parent_dir / "MgO_dos_vasprun.xml")
-        mgo_dos.show()
-        mgo_dos.savefig("mgo_dos.pdf")
-        os.remove("mgo_dos.pdf")
+    def setUp(self) -> None:
+        self.mgo_dos = get_dos_plot(vasprun=parent_dir / "MgO_dos_vasprun.xml")
 
-    def test_w_args(self):
-        nan3_dos_mod = get_dos_plot(vasprun=parent_dir / "NaN3_dos_vasprun.xml",
-                                    pdos_type="none",
-                                    orbital=False,
-                                    xlim=[-3, 5],
-                                    ymaxs=[10, 5],
-                                    zero_at_efermi=False,
-                                    specific=["1"],
-                                    crop_first_value=False,
-                                    show_spg=False,
-                                    )
-        nan3_dos_mod.show()
-        nan3_dos_mod.savefig("nan3_dos.pdf")
-        os.remove("nan3_dos.pdf")
+    def test(self):
+        self.mgo_dos.show()
+        self.mgo_dos.savefig(parent_dir / "MgO_dos.pdf")
+
+    def tearDown(self) -> None:
+        try:
+            os.remove(parent_dir / "MgO_dos.pdf")
+        except OSError:
+            pass
+
+
+class ViseDosPlotterWithArgsTest(ViseTest):
+
+    def setUp(self) -> None:
+        self.nan3_dos_mod = \
+            get_dos_plot(vasprun=parent_dir / "NaN3_dos_vasprun.xml",
+                         pdos_type="none",
+                         orbital=False,
+                         xlim=[-3, 5],
+                         ymaxs=[10, 5],
+                         zero_at_efermi=False,
+                         specific=["1"],
+                         crop_first_value=False,
+                         show_spg=False)
+
+    def test(self):
+        self.nan3_dos_mod.show()
+        self.nan3_dos_mod.savefig(parent_dir / "NaN3_dos.pdf")
+
+    def tearDown(self) -> None:
+        try:
+            os.remove(parent_dir / "NaN3_dos.pdf")
+        except OSError:
+            pass
+
+
+class ViseDosPlotterFerromagneticTest(ViseTest):
+
+    def setUp(self) -> None:
+        self.mno_dos = \
+            get_dos_plot(vasprun=parent_dir / "MnO_uniform_vasprun.xml")
+
+    def test(self):
+        self.mno_dos.show()
+        self.mno_dos.savefig(parent_dir / "MnO_dos.pdf")
+
+    def tearDown(self) -> None:
+        try:
+            os.remove(parent_dir / "MnO_dos.pdf")
+        except OSError:
+            pass
 
 
 class MaxDensityTest(ViseTest):
