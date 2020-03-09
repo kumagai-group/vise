@@ -57,8 +57,9 @@ def vasp_settings_from_args(args: Namespace
     vis_base_kwargs.update({"potcar_set_name": args.potcar_set_name,
                             "override_potcar_set": potcar_set,
                             "ldauu": ldauu,
-                            "ldaul": ldaul,
-                            "charge": args.charge})
+                            "ldaul": ldaul})
+    if hasattr(args, "charge"):
+        vis_base_kwargs["charge"] = args.charge
     return user_incar_settings, vis_base_kwargs
 
 

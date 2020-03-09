@@ -37,6 +37,10 @@ setting_keys = ["vasp_cmd",
                 "user_incar_settings",
                 "ldauu",
                 "ldaul",
+                "outcar",
+                "contcar",
+                "vasprun",
+                "procar",
                 "potcar_set",
                 "potcar_set_name",
                 "max_relax_num",
@@ -352,6 +356,8 @@ def parse_args(args):
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         aliases=['cpd'])
 
+    cpd_defaults = {"vasprun": "vasprun.xml"}
+    simple_override(cpd_defaults, ["vasprun"])
     # input
     # from file
     # parser_cpd.add_argument(
@@ -364,7 +370,8 @@ def parse_args(args):
         "-d", "--vasp_dirs", type=str, nargs='+',
         help="Drawing diagram from specified directories of vasp calculations")
     parser_cpd.add_argument(
-        "-v", "--vasprun", default="vasprun.xml", type=str)
+        "-v", "--vasprun", type=str, default=cpd_defaults["vasprun"],
+        help="vasprun.xml file name.")
     parser_cpd.add_argument(
         "-e", "--elements", type=str, nargs="+",
         help="Element names. Obtain the total energies from the MP.")
@@ -392,6 +399,8 @@ def parse_args(args):
     #                     default=False,
     #                     help="Dumps yaml of remarked_compound")
 
+    del cpd_defaults
+
     parser_cpd.set_defaults(func=chempotdiag)
 
     # -- plot_band -----------------------------------------------------------
@@ -402,8 +411,12 @@ def parse_args(args):
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         aliases=['pb'])
 
+    pb_defaults = {"vasprun": "vasprun.xml"}
+    simple_override(pb_defaults, ["vasprun"])
+
     parser_plot_band.add_argument(
-        "-v", dest="vasprun", default="vasprun.xml", type=str)
+        "-v", "--vasprun", type=str, default=pb_defaults["vasprun"],
+        help="vasprun.xml file name.")
     parser_plot_band.add_argument(
         "-v2", dest="vasprun2", type=str)
     parser_plot_band.add_argument(
@@ -420,6 +433,8 @@ def parse_args(args):
         "--legend", type=str2bool, default=True,
         help="Not show the legend.")
 
+    del pb_defaults
+
     parser_plot_band.set_defaults(func=plot_band)
 
     # -- plot_dos -----------------------------------------------------------
@@ -430,8 +445,12 @@ def parse_args(args):
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         aliases=['pd'])
 
+    pd_defaults = {"vasprun": "vasprun.xml"}
+    simple_override(pd_defaults, ["vasprun"])
+
     parser_plot_dos.add_argument(
-        "-v", dest="vasprun", type=str, default="vasprun.xml")
+        "-v", "--vasprun", type=str, default=pd_defaults["vasprun"],
+        help="vasprun.xml file name.")
     parser_plot_dos.add_argument(
         "-cv", dest="cbm_vbm", type=float, nargs="+",
         help="Set CBM and VBM.")
@@ -473,6 +492,8 @@ def parse_args(args):
         "-c", "--crop_first_value", type=str2bool, default=True,
         help="Whether to crop the first value in DOS.")
 
+    del pd_defaults
+
     parser_plot_dos.set_defaults(func=plot_dos)
 
     # -- band_gap --------------------------------------------------------------
@@ -482,11 +503,19 @@ def parse_args(args):
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         aliases=['bg'])
 
+    bg_defaults = {"vasprun": "vasprun.xml",
+                   "outcar": "OUTCAR"}
+    simple_override(bg_defaults, ["vasprun", "outcar"])
+
     parser_band_gap.add_argument(
-        "-v", "--vasprun", type=str, default="vasprun.xml", metavar="FILE")
+        "-v", "--vasprun", type=str, default=bg_defaults["vasprun"],
+        help="vasprun.xml file name.")
     parser_band_gap.add_argument(
-        "-o", "--outcar", type=str, default="OUTCAR", metavar="FILE")
+        "-o", "--outcar", type=str, default=bg_defaults["outcar"],
+        help="OUTCAR file name.")
     parser_band_gap.set_defaults(func=band_gap)
+
+    del bg_defaults
 
     # try:
     #     import argcomplete

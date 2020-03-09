@@ -31,8 +31,7 @@ class VaspSettingsFromArgsTest(ViseTest):
                 "user_incar_settings": ["POTIM", "0.4"],
                 "additional_user_incar_settings": ["ALGO", "Fast"],
                 "potcar_set": ["Mn_pv"],
-                "potcar_set_name": "normal",
-                "charge": 1}
+                "potcar_set_name": "normal"}
         self.args = Namespace(**vasp)
 
     def test(self):
@@ -46,8 +45,7 @@ class VaspSettingsFromArgsTest(ViseTest):
                     "ldaul": {"Mn": 3, "O": 2},
                     "only_even": True,
                     "override_potcar_set": {"Mn": "Mn_pv"},
-                    "potcar_set_name": "normal",
-                    "charge": 1}
+                    "potcar_set_name": "normal"}
         self.assertEqual(expected, vis_base_kwargs)
 
 
