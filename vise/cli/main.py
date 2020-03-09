@@ -437,9 +437,18 @@ def parse_args(args):
         help="Set CBM and VBM.")
     parser_plot_dos.add_argument(
         "-t", dest="pdos_type", type=str, default="element",
-        help=".")
+        choices=["element", "site", "none"],
+        help="How to group atoms for pdos.")
     parser_plot_dos.add_argument(
-        "-s", dest="specific", type=str, nargs="+", default=None, help=".")
+        "-s", dest="specific", type=str, nargs="+", default=None,
+        help="""
+        Show specific PDOS. If list elements are integers, PDOS at particular 
+        sites are shown. If elements are shown, PDOS of particular elements are 
+        shown. E.g.,
+        ["1", "2"] --> At site 1 and 2 compatible with pdos_type = "none"
+        ["Mg", "O"] --> Summed at Mg and O sites compatible with pdos_type 
+                        = "element"
+        """)
     parser_plot_dos.add_argument(
         "-o", dest="orbital", type=str2bool, default=True,
         help="Whether to decompose orbital components.")

@@ -54,12 +54,11 @@ class ViseDosPlotter(DosPlotter):
             Matplotlib pyplot
         """
 
-        ncolors = max(3, len(self._doses))
-        ncolors = min(9, ncolors)
+        ncolors = min(9, max(3, len(self._doses)))
         import palettable
         colors = palettable.colorbrewer.qualitative.Set1_9.mpl_colors
 
-        y = None
+#        y = None
         all_densities = []
         all_energies = []
 
@@ -78,15 +77,15 @@ class ViseDosPlotter(DosPlotter):
 
         i = 1 if crop_first_value else 0
 
+        densities = {}
         for key, dos in self._doses.items():
             energies = dos['energies'][i:]
             densities = {Spin(k): v[i:] for k, v in dos['densities'].items()}
-            if not y:
-                y = {Spin.up: np.zeros(energies.shape),
-                     Spin.down: np.zeros(energies.shape)}
+            # if not y:
+            #     y = {Spin.up: np.zeros(energies.shape),
+            #          Spin.down: np.zeros(energies.shape)}
             all_energies.append(energies)
             all_densities.append(densities)
-
         # Make groups to be shown in the same figure.
         # Example, ZrTiSe4
         # keys = ['Total', 'Site:1 Zr-s', 'Site:1 Zr-p', 'Site:1 Zr-d',
@@ -111,19 +110,19 @@ class ViseDosPlotter(DosPlotter):
 
         n = 0
         for i, gk in enumerate(grouped_keys):
-#            all_pts = []
             for j, key in enumerate(grouped_keys[gk]):
-                for spin in [Spin.up, Spin.down]:
+                for spin in list(densities.keys()):
                     x = []
                     y = []
                     if spin in all_densities[n]:
-                        densities = list(int(spin) * all_densities[n][spin])
+                        density_list = list(int(spin) * all_densities[n][spin])
                         energies = list(all_energies[n])
                         x.extend(energies)
-                        y.extend(densities)
+                        y.extend(density_list)
 
-#                    all_pts.extend(list(zip(x, y)))
-                    axs[i].plot(x, y, color=colors[j % ncolors], label=str(key),
+                    # Show legend only for spin up.
+                    label = str(key) if spin == Spin.up else None
+                    axs[i].plot(x, y, color=colors[j % ncolors], label=label,
                                 linewidth=2)
                 n += 1
 
