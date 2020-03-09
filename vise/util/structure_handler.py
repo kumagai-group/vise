@@ -10,8 +10,6 @@ import spglib
 from pymatgen import Structure
 from pymatgen.core.periodic_table import Element
 
-from pydefect.core.error_classes import StructureError
-
 from vise.config import ANGLE_TOL, SYMMETRY_TOLERANCE, BAND_REF_DIST
 from vise.util.logger import get_logger
 
@@ -123,8 +121,8 @@ def find_spglib_primitive(structure: Structure,
                                            symprec=symprec,
                                            angle_tolerance=angle_tolerance)
     if primitive_cell is None:
-        raise StructureError("spglib couldn't find the primitive cell."
-                             "Chenge the symprec and/or angle_tolerance.")
+        raise SpglibError("spglib couldn't find the primitive cell."
+                          "Chenge the symprec and/or angle_tolerance.")
 
     primitive_structure = spglib_cell_to_structure(primitive_cell)
     is_structure_changed = structure.lattice != primitive_structure.lattice
@@ -226,3 +224,8 @@ def get_symbol_list(structure: Structure):
     # unique_justseen https://docs.python.org/ja/3/library/itertools.html
     # ["H", "H", "O", "O", "H"] -> ['H', 'O', 'H']
     return list(map(next, map(operator.itemgetter(1), groupby(species, None))))
+
+
+class SpglibError(Exception):
+    """Raised when the spglib return is inadequate."""
+    pass
