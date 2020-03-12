@@ -27,8 +27,8 @@ jobs:
           command: |
             sudo pip install --upgrade pip
             sudo pip install -r requirements.txt
-            sudo pip install --quiet pytest pytest-cov
-            pytest vise --cov=vise --cov-report html:coverage_reports vise
+            sudo pip install --quiet pytest
+            pytest vise
 
 
       - deploy:
@@ -60,3 +60,5 @@ jobs:
 #            pytest vise --cov=vise --cov-report=xml --cov=vise tests/
 #       - codecov/upload:
 #          file: ./coverage.out
+#            echo "PMG_MAPI_KEY: ${PMG_MAPI_KEY}" >> $HOME/.pmgrc.yaml
+#                     pytest vise --cov=vise --cov-report html:coverage_reports vise
