@@ -100,7 +100,7 @@ class TaskIncarSettings:
         if task == Task.defect or is_magnetization:
             settings["ISPIN"] = 2
             if hasattr(structure, "site_properties"):
-                logger.critical("MAGMOM is not inherited in the current "
+                logger.error("MAGMOM is not inherited in the current "
                                 "implementation.")
 #                if "magmom" in structure.site_properties:
 #                    settings["MAGMOM"] = structure.site_properties["magmom"]

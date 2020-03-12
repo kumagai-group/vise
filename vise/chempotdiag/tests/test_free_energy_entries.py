@@ -2,7 +2,6 @@
 
 import os
 from pathlib import Path
-import shutil
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.sites import Element

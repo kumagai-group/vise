@@ -146,8 +146,8 @@ class FreeEnergyEntrySet(EntrySet, MSONable):
                 v: Vasprun = parse_file(Vasprun, Path(d) / vasprun)
             except FileNotFoundError:
                 if ignore_file_not_found:
-                    logger.critical(f"{d} is not parsed as vasprun.xml does "
-                                    f"not exist in it.")
+                    logger.error(f"{d} is not parsed as vasprun.xml does "
+                                 f"not exist in it.")
                     continue
                 else:
                     raise
@@ -157,9 +157,9 @@ class FreeEnergyEntrySet(EntrySet, MSONable):
             mol_dir = re.match(r"^mol_", str(d))
             if parse_gas and mol_dir:
                 if composition not in Gas.name_list():
-                    logger.critical(f"{d} does not exist in Gas.name_list, so "
-                                    f"skipp to generate the zero point vib "
-                                    f"and free energies.")
+                    logger.error(f"{d} does not exist in Gas.name_list, so "
+                                 f"skipp to generate the zero point vib "
+                                 f"and free energies.")
 
                 if partial_pressures is None:
                     logger.info(f"Pressure of {composition} is set to "

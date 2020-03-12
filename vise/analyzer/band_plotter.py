@@ -390,7 +390,7 @@ class VaspBandStructureSymmLine(BandStructureSymmLine):
                           parse_projected_eigen=is_projection)
 
         if vasprun.converged_electronic is False:
-            logger.critical("SCF is not attained!!!!!")
+            logger.error("SCF is not attained!!!!!")
 
         eigenvalues = vasprun.eigenvalues
         reciprocal_lattice = vasprun.final_structure.lattice.reciprocal_lattice

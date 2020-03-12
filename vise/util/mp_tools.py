@@ -85,7 +85,7 @@ def make_poscars_from_mp(elements: list,
                 molecules_formula_list.append(comp.reduced_formula)
                 dirname = path / f"mol_{str(comp)}"
                 if dirname.exists():
-                    logger.critical(f"{dirname} exists! So, skip creating it.")
+                    logger.error(f"{dirname} exists! So, skip creating it.")
                 else:
                     dirname.mkdir()
                     shutil.copyfile(mol_dir / str(comp) / "POSCAR",

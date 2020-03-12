@@ -140,7 +140,6 @@ def vasp_set_args() -> List[List]:
           [["-auis", "--additional_user_incar_settings"],
            {"type": str,
             "nargs": "+",
-            "default": None,
             "help": "Use this if one does not want to override "
                     "user_incar_settings written in the yaml file"}],
           [["--ldauu"],
@@ -425,7 +424,7 @@ def parse_args(args):
         "-y", dest="y_range", nargs="+", type=float,
         help="Energy range, requiring two values.")
     parser_plot_band.add_argument(
-        "-f", dest="filename", type=str, default=None, help="pdf file name.")
+        "-f", dest="filename", type=str, help="pdf file name.")
     parser_plot_band.add_argument(
         "-a", dest="absolute", action="store_true",
         help="Show in the absolute energy scale.")
@@ -459,7 +458,7 @@ def parse_args(args):
         choices=["element", "site", "none"],
         help="How to group atoms for pdos.")
     parser_plot_dos.add_argument(
-        "-s", dest="specific", type=str, nargs="+", default=None,
+        "-s", dest="specific", type=str, nargs="+",
         help="""
         Show specific PDOS. If list elements are integers, PDOS at particular 
         sites are shown. If elements are shown, PDOS of particular elements are 
@@ -472,10 +471,10 @@ def parse_args(args):
         "-o", dest="orbital", type=str2bool, default=True,
         help="Whether to decompose orbital components.")
     parser_plot_dos.add_argument(
-        "-x", "--x_range", nargs="+", type=float, default=None,
+        "-x", "--x_range", nargs="+", type=float,
         help="Set energy minimum and maximum.")
     parser_plot_dos.add_argument(
-        "-y", "--ymaxs", nargs="+", type=float, default=None,
+        "-y", "--ymaxs", nargs="+", type=float,
         help="Set max values of y ranges. Support two ways."
              "1st: total_max, all_the_atoms" 
              "2nd: total_max, 1st_atom, 2nd_atom, ...")

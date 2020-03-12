@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import os
 import unittest
 import numpy as np
 from unittest.mock import patch
@@ -13,7 +14,9 @@ from vise.chempotdiag.chem_pot_diag import ChemPotDiag, sort_coords
 from vise.util.testing import ViseTest
 
 
-DISABLE_DISPLAY_DIAGRAM = False
+DISPLAY_DIAGRAM = os.environ.get("VISE_TEST_DISPLAY", True)
+
+no_display_reason = "Set not to display diagram"
 
 
 class TestChemPotDiag(ViseTest):
@@ -88,21 +91,19 @@ class TestChemPotDiag(ViseTest):
         self.assertEqual({'A': [-2.0, -6.0], 'B': [-7.0, -1.0]},
                          self.cpd_2d.target_comp_abs_chempot)
 
-    @unittest.skipIf(DISABLE_DISPLAY_DIAGRAM, "not display chempotdiag")
+    @unittest.skipIf(not DISPLAY_DIAGRAM, no_display_reason)
     def test_cpd_2d_draw(self):
         self.cpd_2d.draw_diagram()
 
-    def test_cpd_2d_draw_show(self):
-        path = "vise.chempotdiag.chem_pot_diag.plt.show"
-        with patch(path) as show_patch:
-            self.cpd_2d.draw_diagram()
-            assert show_patch.called
+    @patch("vise.chempotdiag.chem_pot_diag.plt.show")
+    def test_cpd_2d_draw_mock(self, mock):
+        self.cpd_2d.draw_diagram()
+        mock.assert_called_once_with()
 
-    def test_cpd_2d_draw_savefig(self):
-        path = "vise.chempotdiag.chem_pot_diag.plt.savefig"
-        with patch(path) as show_patch:
-            self.cpd_2d.draw_diagram(filename="a.pdf")
-            show_patch.assert_called_once_with("a.pdf")
+    @patch("vise.chempotdiag.chem_pot_diag.plt.savefig")
+    def test_cpd_2d_draw_savefig_mock(self, mock):
+        self.cpd_2d.draw_diagram(filename="a.pdf")
+        mock.assert_called_once_with("a.pdf")
 
     def test_cpd_3d(self):
         self.assertEqual([Element.Ca, Element.Mg, Element.O],
@@ -116,30 +117,51 @@ class TestChemPotDiag(ViseTest):
                           'C': [0.0, -10.0, 0.0], 'D': [0.0, -5.0, -5.0]},
                          self.cpd_3d.target_comp_chempot)
 
-    @unittest.skipIf(DISABLE_DISPLAY_DIAGRAM, "not display chempotdiag")
+    @unittest.skipIf(not DISPLAY_DIAGRAM, no_display_reason)
     def test_cpd_3d_draw(self):
         self.cpd_3d.draw_diagram()
+
+    @patch("vise.chempotdiag.chem_pot_diag.plt.show")
+    def test_cpd_3d_draw_mock(self, mock):
+        self.cpd_3d.draw_diagram()
+        mock.assert_called_once_with()
 
     def test_cpd_3d_unstable(self):
         self.assertEqual({'A': [-10.0, 0.0, 0.0], 'B': [0.0, -10.0, 0.0]},
                          self.cpd_3d_unstable.target_comp_chempot)
 
-    @unittest.skipIf(DISABLE_DISPLAY_DIAGRAM, "not display chempotdiag")
+    @unittest.skipIf(not DISPLAY_DIAGRAM, no_display_reason)
     def test_cpd_3d_unstable_draw(self):
         self.cpd_3d_unstable.draw_diagram()
+
+    @patch("vise.chempotdiag.chem_pot_diag.plt.show")
+    def test_cpd_3d_unstable_draw_mock(self, mock):
+        self.cpd_3d_unstable.draw_diagram()
+        mock.assert_called_once_with()
 
     def test_cpd_4d(self):
         self.assertEqual([Element.Sr, Element.Ca, Element.Mg, Element.O],
                          self.cpd_4d.elements)
-        self.assertEqual([[0.0, -10.0, 0.0, 0.0], [0.0, 0.0, -10.0, 0.0],
-                          [0.0, -5.0, 0.0, -5.0], [0.0, 0.0, -5.0, -5.0]],
-                         self.cpd_4d.vertices)
+        for i in self.cpd_4d.vertices:
+            self.assertTrue(i in [[0.0, -10.0, 0.0, 0.0],
+                                  [0.0, 0.0, -10.0, 0.0],
+                                  [0.0, -5.0, 0.0, -5.0],
+                                  [0.0, 0.0, -5.0, -5.0]])
+            self.cpd_4d.vertices.remove(i)
 
+    @unittest.skipIf(not DISPLAY_DIAGRAM, no_display_reason)
     def test_pd_4d_plot(self):
         pdp = PDPlotter(self.pd_4d)
         pdp.show()
 
-    def test_cpd_4d(self):
+    @patch("pymatgen.analysis.phase_diagram.PDPlotter.show")
+    def test_pd_4d_plot_mock(self, mock):
+        pdp = PDPlotter(self.pd_4d)
+        pdp.show()
+        mock.assert_called_once_with()
+
+    @unittest.skipIf(not DISPLAY_DIAGRAM, no_display_reason)
+    def test_comp_pd(self):
         # print(self.comp_cpd.elements)
         # print(self.comp_cpd.el_ref_list)
         # print(self.comp_cpd.dim)
@@ -150,10 +172,21 @@ class TestChemPotDiag(ViseTest):
         pdp = PDPlotter(self.comp_pd)
         pdp.show()
 
-    def test_comp_cpd_4d(self):
-#        self.comp_pd.draw_diagram()
+    @patch("pymatgen.analysis.phase_diagram.PDPlotter.show")
+    def test_comp_pd_mock(self, mock):
+        pdp = PDPlotter(self.comp_pd)
+        pdp.show()
+        mock.assert_called_once_with()
+
+    @unittest.skipIf(not DISPLAY_DIAGRAM, no_display_reason)
+    def test_comp_cpd(self):
         print(self.comp_cpd.target_comp_abs_chempot)
         self.comp_cpd.draw_diagram()
+
+    @patch("vise.chempotdiag.chem_pot_diag.plt.show")
+    def test_comp_cpd(self, mock):
+        self.comp_cpd.draw_diagram()
+        mock.assert_called_once_with()
 
 
 class TestSortCoords(ViseTest):
@@ -163,6 +196,5 @@ class TestSortCoords(ViseTest):
             np.array([[3, 2, -1], [-1, 2, 0], [-6, -1, 4], [1, -3, 3]])
 
     def test_sort_coords(self):
-#        print(self.coords)
         print(sort_coords(self.coords))
 

@@ -9,14 +9,17 @@ from importlib import import_module
 from pathlib import Path
 from typing import Optional, Union
 
+
 import numpy as np
 from monty.io import zopen
 from monty.json import MontyEncoder
 from monty.serialization import loadfn
+
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.sets import VaspInputSet, Poscar, Potcar, Kpoints
 from pymatgen.io.vasp.sets import (
     get_vasprun_outcar, get_structure_from_prev_run)
+from pymatgen.util.serialization import pmg_serialize
 from vise.analyzer.band_gap import band_gap_properties
 from vise.config import (
     DOS_STEP_SIZE, KPT_DENSITY, ENCUT_FACTOR_STR_OPT, ANGLE_TOL,
@@ -444,13 +447,11 @@ class ViseInputSet(VaspInputSet):
         if to_json_file:
             self.to_json_file(json_filename)
 
+    @pmg_serialize
     def as_dict(self, **kwargs):
-
         # Xc and Task objects must be converted to string for to_json_file as
         # Enum is not compatible with MSONable.
-        d = {"@module":             self.__class__.__module__,
-             "@class":              self.__class__.__name__,
-             "structure":           self.structure,
+        d = {"structure":           self.structure,
              "xc":                  str(self.xc),
              "task":                str(self.task),
              "kpoints":             self.kpoints,
