@@ -3,7 +3,7 @@
 import json
 import shutil
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Union
 import yaml
 
 from pymatgen import Element, MPRester, Composition
@@ -18,7 +18,7 @@ def get_mp_materials(elements: List[str],
                      properties: List[str],
                      e_above_hull: float = 1e-4,
                      api_key: str = None) -> list:
-    """Get Materials Project materials as list
+    """Get Materials Project materials composed of given elements as list
 
     Args:
         elements (list):
@@ -48,7 +48,7 @@ def get_mp_materials(elements: List[str],
 
 
 def make_poscars_from_mp(elements: list,
-                         path: Path = Path.cwd(),
+                         path: Union[Path, str] = Path.cwd(),
                          e_above_hull: float = 0.01,
                          api_key: str = None,
                          molecules: bool = True,
@@ -72,6 +72,7 @@ def make_poscars_from_mp(elements: list,
     Returns:
         None
     """
+    path = Path(path)
     if not path.is_dir:
         raise NotADirectoryError(f"{path} is not directory.")
 
@@ -101,14 +102,21 @@ def make_poscars_from_mp(elements: list,
                                 "band_gap",
                                 "total_magnetization",
                                 "magnetic_type"]
-    materials = get_mp_materials(elements, properties, e_above_hull, api_key)
+    if only_unary:
+        with MPRester(api_key) as m:
+            materials = \
+                m.query(criteria={"elements": {"$in": elements},
+                                  "nelements": 1,
+                                  "e_above_hull": {"$lte": e_above_hull}},
+                        properties=properties)
+    else:
+        materials = \
+            get_mp_materials(elements, properties, e_above_hull, api_key)
 
     for m in materials:
         comp = Composition(m.pop("full_formula"))
         formula = comp.reduced_formula
         if molecules and formula in molecules_formula_list:
-            continue
-        if only_unary and len(comp) > 1:
             continue
 
         m_path = path / f"{formula}_{m['task_id']}"

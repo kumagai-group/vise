@@ -14,11 +14,6 @@ from vise.chempotdiag.chem_pot_diag import ChemPotDiag, sort_coords
 from vise.util.testing import ViseTest
 
 
-DISPLAY_DIAGRAM = os.environ.get("VISE_TEST_DISPLAY", True)
-
-no_display_reason = "Set not to display diagram"
-
-
 class TestChemPotDiag(ViseTest):
 
     def setUp(self) -> None:
@@ -91,7 +86,7 @@ class TestChemPotDiag(ViseTest):
         self.assertEqual({'A': [-2.0, -6.0], 'B': [-7.0, -1.0]},
                          self.cpd_2d.target_comp_abs_chempot)
 
-    @unittest.skipIf(not DISPLAY_DIAGRAM, no_display_reason)
+    @unittest.skipIf(not ViseTest.DISPLAY_DIAGRAM, ViseTest.no_display_reason)
     def test_cpd_2d_draw(self):
         self.cpd_2d.draw_diagram()
 
@@ -117,7 +112,7 @@ class TestChemPotDiag(ViseTest):
                           'C': [0.0, -10.0, 0.0], 'D': [0.0, -5.0, -5.0]},
                          self.cpd_3d.target_comp_chempot)
 
-    @unittest.skipIf(not DISPLAY_DIAGRAM, no_display_reason)
+    @unittest.skipIf(not ViseTest.DISPLAY_DIAGRAM, ViseTest.no_display_reason)
     def test_cpd_3d_draw(self):
         self.cpd_3d.draw_diagram()
 
@@ -130,7 +125,7 @@ class TestChemPotDiag(ViseTest):
         self.assertEqual({'A': [-10.0, 0.0, 0.0], 'B': [0.0, -10.0, 0.0]},
                          self.cpd_3d_unstable.target_comp_chempot)
 
-    @unittest.skipIf(not DISPLAY_DIAGRAM, no_display_reason)
+    @unittest.skipIf(not ViseTest.DISPLAY_DIAGRAM, ViseTest.no_display_reason)
     def test_cpd_3d_unstable_draw(self):
         self.cpd_3d_unstable.draw_diagram()
 
@@ -149,7 +144,7 @@ class TestChemPotDiag(ViseTest):
                                   [0.0, 0.0, -5.0, -5.0]])
             self.cpd_4d.vertices.remove(i)
 
-    @unittest.skipIf(not DISPLAY_DIAGRAM, no_display_reason)
+    @unittest.skipIf(not ViseTest.DISPLAY_DIAGRAM, ViseTest.no_display_reason)
     def test_pd_4d_plot(self):
         pdp = PDPlotter(self.pd_4d)
         pdp.show()
@@ -160,7 +155,7 @@ class TestChemPotDiag(ViseTest):
         pdp.show()
         mock.assert_called_once_with()
 
-    @unittest.skipIf(not DISPLAY_DIAGRAM, no_display_reason)
+    @unittest.skipIf(not ViseTest.DISPLAY_DIAGRAM, ViseTest.no_display_reason)
     def test_comp_pd(self):
         # print(self.comp_cpd.elements)
         # print(self.comp_cpd.el_ref_list)
@@ -178,7 +173,7 @@ class TestChemPotDiag(ViseTest):
         pdp.show()
         mock.assert_called_once_with()
 
-    @unittest.skipIf(not DISPLAY_DIAGRAM, no_display_reason)
+    @unittest.skipIf(not ViseTest.DISPLAY_DIAGRAM, ViseTest.no_display_reason)
     def test_comp_cpd(self):
         print(self.comp_cpd.target_comp_abs_chempot)
         self.comp_cpd.draw_diagram()

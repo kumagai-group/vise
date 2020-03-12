@@ -6,6 +6,7 @@ from copy import deepcopy
 
 from argparse import Namespace
 
+import unittest
 from unittest.mock import patch
 
 from pymatgen.core.structure import IStructure
@@ -18,7 +19,6 @@ from vise.cli.tests.test_main import default_vasp_args, symprec_args
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc
 from vise.config import KPT_DENSITY
-
 
 vasp_args = default_vasp_args
 
@@ -58,6 +58,7 @@ class GetPoscarFromMpTest(ViseTest):
         self.args_elements = Namespace(**self.kwargs)
         self.args_none = Namespace()
 
+    @unittest.skipIf(not ViseTest.PMG_MAPI_KEY, ViseTest.no_mapi_key)
     def test_number(self):
         get_poscar_from_mp(self.args_num)
         expected = IStructure.from_str("""Mg1

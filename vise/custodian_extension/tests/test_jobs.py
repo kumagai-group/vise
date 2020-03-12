@@ -2,6 +2,7 @@
 import shutil
 import tempfile
 from pathlib import Path
+import os
 
 from pymatgen.core.structure import Structure
 
@@ -15,15 +16,6 @@ parent_dir = Path(__file__).parent
 
 class RmWavecarTest(ViseTest):
 
-    def setUp(self) -> None:
-        # Create a temporary directory
-        self.test_dir = parent_dir / "tmp"
-        self.test_dir.mkdir()
-
-    def tearDown(self):
-        # Remove the directory after the test
-        shutil.rmtree(self.test_dir)
-
     def test_remove_wavecar_at_current_dir(self):
         # Whether WAVECAR at the current directory exists or not.
         Path('WAVECAR').touch()
@@ -32,20 +24,19 @@ class RmWavecarTest(ViseTest):
 
     def test_remove_wavecar_at_subdir(self):
         # Create a file in the temporary directory
-        f = self.test_dir / 'WAVECAR'
-        f.touch()
-
-        rm_wavecar(remove_current=False, remove_subdirectories=True)
-        self.assertFalse(f.is_file())
+        with tempfile.TemporaryDirectory() as tmp_dirname:
+            os.chdir(tmp_dirname)
+            tmp = Path("tmp")
+            tmp.mkdir()
+            f = tmp / 'WAVECAR'
+            f.touch()
+            rm_wavecar(remove_current=False, remove_subdirectories=True)
+            self.assertFalse(f.is_file())
 
 
 class StructureOptResultTest(ViseTest):
 
     def setUp(self) -> None:
-        # Create a temporary directory
-        self.test_dir = parent_dir / "tmp"
-        self.test_dir.mkdir()
-
         p = parent_dir / "MgO" / "kpt7x7x7_pre-sg225_pos-sg225" / "files"
         poscar = p / "POSCAR.orig"
         contcar = p / "CONTCAR"
@@ -60,10 +51,6 @@ class StructureOptResultTest(ViseTest):
                                          initial_structure=initial_structure,
                                          initial_sg=225)
 
-    def tearDown(self):
-        # Remove the directory after the test
-        shutil.rmtree(self.test_dir)
-
     def test_json(self):
         """ round trip test of to_json and from_json """
         tmp_file = tempfile.NamedTemporaryFile()
@@ -76,25 +63,28 @@ class StructureOptResultTest(ViseTest):
 
     def test_from_dir(self):
         from_dir = parent_dir / "MgO" / "kpt7x7x7_pre-sg225_pos-sg225"
-        for f in ["KPOINTS.orig", "POSCAR.orig", "CONTCAR", "vasprun.xml"]:
-            shutil.copy(str(from_dir / "files" / f), str(self.test_dir / f))
+        with tempfile.TemporaryDirectory() as tmp_dirname:
 
-        with self.assertRaises(FileNotFoundError):
-            StructureOptResult.from_dir(dir_name=parent_dir / "tmp",
-                                        kpoints="KPOINTS.orig",
-                                        poscar="POSCAR.orig",
-                                        contcar="CONTCAR",
-                                        vasprun="vasprun.xml")
+            for f in ["KPOINTS.orig", "POSCAR.orig", "CONTCAR", "vasprun.xml"]:
+                shutil.copy(str(from_dir / "files" / f),
+                            "/".join([tmp_dirname, f]))
 
-        shutil.copy(str(from_dir / "vise.json"), str(self.test_dir))
+            with self.assertRaises(FileNotFoundError):
+                StructureOptResult.from_dir(dir_name=parent_dir / tmp_dirname,
+                                            kpoints="KPOINTS.orig",
+                                            poscar="POSCAR.orig",
+                                            contcar="CONTCAR",
+                                            vasprun="vasprun.xml")
 
-        r = StructureOptResult.from_dir(dir_name=parent_dir / "tmp",
-                                        kpoints="KPOINTS.orig",
-                                        poscar="POSCAR.orig",
-                                        contcar="CONTCAR",
-                                        vasprun="vasprun.xml")
-        r.uuid = 1234
-        self.assertEqual(r.as_dict(), self.result.as_dict())
+            shutil.copy(str(from_dir / "vise.json"), tmp_dirname)
+
+            r = StructureOptResult.from_dir(dir_name=parent_dir / tmp_dirname,
+                                            kpoints="KPOINTS.orig",
+                                            poscar="POSCAR.orig",
+                                            contcar="CONTCAR",
+                                            vasprun="vasprun.xml")
+            r.uuid = 1234
+            self.assertEqual(r.as_dict(), self.result.as_dict())
 
     def test_is_sg_changed(self):
         self.assertFalse(self.result.is_sg_changed)
