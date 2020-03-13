@@ -1,8 +1,5 @@
 .DS_Store
-log
 *.o
-*.pyc
-*.pyd
 *.swp
 coverage_reports
 
@@ -198,4 +195,3 @@ fabric.properties
 docs_rst/_static/
 docs_rst/_templates/
 test-results/
-vise/tmp/
