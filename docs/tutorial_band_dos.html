@@ -1,0 +1,161 @@
+
+
+<!doctype html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Tutorial – band figure and density of states &mdash; vise  documentation</title>
+    
+    <link rel="stylesheet" href="_static/bizstyle.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/bizstyle.js"></script>
+    <link rel="top" title="vise  documentation" href="index.html" />
+    <link rel="next" title="Tutorial – vise.yaml" href="tutorial_vise_yaml.html" />
+    <link rel="prev" title="Tutorial – custodian extension" href="tutorial_custodian_extension.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="tutorial_vise_yaml.html" title="Tutorial – vise.yaml"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="tutorial_custodian_extension.html" title="Tutorial – custodian extension"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">vise  documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Tutorial &#8211; band figure and density of states</a><ul>
+<li><a class="reference internal" href="#calculation-of-the-band-structure-and-the-density-of-states">Calculation of the band structure and the density of states</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="tutorial_custodian_extension.html"
+                        title="previous chapter">Tutorial &#8211; custodian extension</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="tutorial_vise_yaml.html"
+                        title="next chapter">Tutorial &#8211; vise.yaml</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/tutorial_band_dos.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="tutorial-band-figure-and-density-of-states">
+<h1>Tutorial &#8211; band figure and density of states<a class="headerlink" href="#tutorial-band-figure-and-density-of-states" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="calculation-of-the-band-structure-and-the-density-of-states">
+<h2>Calculation of the band structure and the density of states<a class="headerlink" href="#calculation-of-the-band-structure-and-the-density-of-states" title="Permalink to this headline">¶</a></h2>
+<p>We can create the input files for the calculations of the band structure and the density of states by typing
+.. code-block:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>vise vs -t band
+</pre></div>
+</div>
+<p>and
+.. code-block:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>vise vs -t dos
+</pre></div>
+</div>
+<p>in each directory, we run the vasp calculations as mentioned using custodian wrapper.</p>
+<p>Here, the band path is determined based upon the [seekpath code](<a class="reference external" href="https://www.materialscloud.org/work/tools/seekpath">https://www.materialscloud.org/work/tools/seekpath</a>),
+so if one uses the plot for publication or presentation, please cite the following paper.</p>
+<ul class="simple">
+<li><a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S0927025616305110?via%3Dihub">Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, Band structure diagram paths based on crystallography, Comp. Mat. Sci. 128, 140 (2017).</a> DOI: 10.1016/j.commatsci.2016.10.015 (arXiv version: arXiv:1602.06402).</li>
+</ul>
+<p><code class="code docutils literal"><span class="pre">vise</span></code> also provides the plotters of BS and DOS based on with <code class="code docutils literal"><span class="pre">plot_band</span></code> (=:code:<cite>pb</cite>) and <code class="code docutils literal"><span class="pre">plot_dos</span></code> (=:code:<cite>pd</cite>) sub-commands.
+Type the following commands in <code class="code docutils literal"><span class="pre">band/</span></code> and  <code class="code docutils literal"><span class="pre">dos/</span></code>, respectively.
+.. code-block:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>vise pb -f band.pdf
+</pre></div>
+</div>
+<p>and
+.. code-block:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>vise pd -f dos.pdf
+</pre></div>
+</div>
+<p>The band gap is also evaluated using <code class="code docutils literal"><span class="pre">bg`(=:code:`band_gap</span></code>) sub command.
+.. code-block:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>vise bg -v vasprun.xml.finish -o OUTCAR.finish
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="tutorial_vise_yaml.html" title="Tutorial – vise.yaml"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="tutorial_custodian_extension.html" title="Tutorial – custodian extension"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">vise  documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2020, Yu Kumagai.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.6.
+    </div>
+  </body>
+</html>

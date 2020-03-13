@@ -1,144 +1,223 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<!doctype html>
+
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Tutorial – Setting for the vise.yaml &#8212; vise beta documentation</title>
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    
+    <title>Tutorial – vise.yaml &mdash; vise  documentation</title>
+    
+    <link rel="stylesheet" href="_static/bizstyle.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-   
-  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-  
-  
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
-
-  </head><body>
-  
-
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          
-
-          <div class="body" role="main">
-            
-  <div class="section" id="tutorial-setting-for-the-vise-yaml">
-<span id="tutorial-setting-for-the-vise-yaml"></span><h1>Tutorial – Setting for the vise.yaml<a class="headerlink" href="#tutorial-setting-for-the-vise-yaml" title="Permalink to this headline">¶</a></h1>
-<p>In <code class="docutils literal notranslate"><span class="pre">VISE</span></code>, users can control various types of parameters using <code class="docutils literal notranslate"><span class="pre">vise.yaml</span></code> files.
-For example, we provide the default <code class="docutils literal notranslate"><span class="pre">POTCAR</span></code> set regularly we use, but users can adopt their favorite <code class="docutils literal notranslate"><span class="pre">POTCAR</span></code> set,
-by setting <code class="docutils literal notranslate"><span class="pre">potcar_set</span></code> key as follows</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">potcar_set</span><span class="p">:</span> <span class="n">Mg_pv</span> <span class="n">O_h</span>
-</pre></div>
-</div>
-<p>Then, the Mg_pv and O_h <code class="docutils literal notranslate"><span class="pre">POTCAR</span></code> files are used instead of the normal Mg and O <code class="docutils literal notranslate"><span class="pre">POTCAR</span></code> files.</p>
-<p>Note that <code class="docutils literal notranslate"><span class="pre">VISE</span></code> try to find the <code class="docutils literal notranslate"><span class="pre">vise.yaml</span></code> file from the current working directory to the parent directly up to the home or root directory.
-Therefore, when <code class="docutils literal notranslate"><span class="pre">vise.yaml</span></code> is located at the top directory of the project as shown above directory tree,
-the parameters are always used for the <code class="docutils literal notranslate"><span class="pre">pydefect</span></code> commands.
-The keys for <code class="docutils literal notranslate"><span class="pre">vise.yaml</span></code> are</p>
-<ul class="simple">
-<li>“vasp_cmd” (str)</li>
-<li>“symprec” (float)</li>
-<li>“angle_tolerance” (float)</li>
-<li>“xc” (str)</li>
-<li>“kpt_density” (float)</li>
-<li>“initial_kpt_density” (float)</li>
-<li>“vise_opts” (dict):</li>
-<li>“user_incar_setting” (dict)</li>
-<li>“ldauu” (dict)</li>
-<li>“ldaul” (dict)</li>
-<li>“potcar_set”</li>
-<li>“potcar_set_name” (str)</li>
-<li>“relax_iter_num” (int)</li>
-<li>“removed_files” (list)</li>
-</ul>
-<p>For vise_opts corresponds to the Options written in ViseInputSet class in vise.input_set/input_set.py</p>
-<p>Same info is written at the top of the <code class="docutils literal notranslate"><span class="pre">main.py</span></code> file.
-For example, one can write in <code class="docutils literal notranslate"><span class="pre">vise.yaml</span></code></p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">xc</span><span class="p">:</span> <span class="n">hse</span>
-</pre></div>
-</div>
-<p>for XC functional.</p>
-</div>
-
-
-          </div>
-          
-        </div>
-      </div>
+    <script type="text/javascript" src="_static/bizstyle.js"></script>
+    <link rel="top" title="vise  documentation" href="index.html" />
+    <link rel="prev" title="Tutorial – band figure and density of states" href="tutorial_band_dos.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="tutorial_band_dos.html" title="Tutorial – band figure and density of states"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">vise  documentation</a> &raquo;</li> 
+      </ul>
+    </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="index.html">vise</a></h1>
-
-
-
-
-
-
-
-
-<h3>Navigation</h3>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="introduction.html">vise</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation of VISE.</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial_input_set.html">Tutorial – input set</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Tutorial &#8211; vise.yaml</a><ul>
+<li><a class="reference internal" href="#setting-for-the-vise-yaml">Setting for the vise.yaml</a></li>
+</ul>
+</li>
 </ul>
 
-<div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-  </ul></li>
-</ul>
-</div>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="tutorial_band_dos.html"
+                        title="previous chapter">Tutorial &#8211; band figure and density of states</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/tutorial_vise_yaml.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
-    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    </div>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="tutorial-vise-yaml">
+<h1>Tutorial &#8211; vise.yaml<a class="headerlink" href="#tutorial-vise-yaml" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="setting-for-the-vise-yaml">
+<h2>Setting for the vise.yaml<a class="headerlink" href="#setting-for-the-vise-yaml" title="Permalink to this headline">¶</a></h2>
+<p>In <code class="code docutils literal"><span class="pre">vise</span></code>, users can control various types of parameters using <code class="code docutils literal"><span class="pre">vise.yaml</span></code> file.
+For example, we provide the default <code class="code docutils literal"><span class="pre">POTCAR</span></code> set regularly we use, but users can adopt their favorite <code class="code docutils literal"><span class="pre">POTCAR</span></code> set,
+by setting <code class="code docutils literal"><span class="pre">potcar_set</span></code> key as follows</p>
+<p>Then, the Mg_pv and O_h <code class="code docutils literal"><span class="pre">POTCAR</span></code> files are used instead of the normal Mg and O <code class="code docutils literal"><span class="pre">POTCAR</span></code> files in vise.</p>
+<p>Note that vise try to find the <code class="code docutils literal"><span class="pre">vise.yaml</span></code> file from the current working directory to the parent directly up to the home or root directory.
+And once it is found only the file is read and others locating in the parent directories are ignored.
+Therefore, when <code class="code docutils literal"><span class="pre">vise.yaml</span></code> is located only at the top directory of the project, the parameters are always used.</p>
+<p>The keys for <code class="code docutils literal"><span class="pre">vise.yaml</span></code> are</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="5%" />
+<col width="82%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">name</th>
+<th class="head">type</th>
+<th class="head">explanation</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>vasp_cmd</td>
+<td>str/list</td>
+<td>Vasp commands</td>
+</tr>
+<tr class="row-odd"><td>symprec</td>
+<td>float</td>
+<td>Distance precision in angstrom used for symmetry analysis.</td>
+</tr>
+<tr class="row-even"><td>angle_tolerance</td>
+<td>float</td>
+<td>Angle tolerance in angstrom used for symmetry analysis.</td>
+</tr>
+<tr class="row-odd"><td>xc</td>
+<td>str</td>
+<td>Exchange-correlation functional. Supported functions are seen in the help of <code class="code docutils literal"><span class="pre">vasp_set</span></code>.</td>
+</tr>
+<tr class="row-even"><td>kpt_density</td>
+<td>float</td>
+<td>K-point density in inverse of angstrom.</td>
+</tr>
+<tr class="row-odd"><td>initial_kpt_density</td>
+<td>float</td>
+<td>Initial k-point density in inverse of angstrom used for k-point convergence calculations.</td>
+</tr>
+<tr class="row-even"><td>vise_opts</td>
+<td>dict</td>
+<td>Options used for the ViseInputSet in vise. See docstrings of ViseInputSet for detailed options.</td>
+</tr>
+<tr class="row-odd"><td>user_incar_setting</td>
+<td>dict</td>
+<td>User-specific INCAR settings.</td>
+</tr>
+<tr class="row-even"><td>ldauu</td>
+<td>dict</td>
+<td>LDAUU values in INCAR for each elements.</td>
+</tr>
+<tr class="row-odd"><td>ldaul</td>
+<td>dict</td>
+<td>LDAUL values in INCAR for each elements.</td>
+</tr>
+<tr class="row-even"><td>outcar</td>
+<td>str</td>
+<td>OUTCAR file name, which should be OUTCAR.finish when using <code class="code docutils literal"><span class="pre">vasp_run</span></code> or <code class="code docutils literal"><span class="pre">kpt_conv</span></code>.</td>
+</tr>
+<tr class="row-odd"><td>contcar</td>
+<td>str</td>
+<td>CONTCAR file name, which should be CONTCAR.finish when using <code class="code docutils literal"><span class="pre">vasp_run</span></code> or <code class="code docutils literal"><span class="pre">kpt_conv</span></code>.</td>
+</tr>
+<tr class="row-even"><td>vasprun</td>
+<td>str</td>
+<td>vasprun.xml file name, which should be vasprun.xml.finish when using <code class="code docutils literal"><span class="pre">vasp_run</span></code> or <code class="code docutils literal"><span class="pre">kpt_conv</span></code>.</td>
+</tr>
+<tr class="row-odd"><td>procar</td>
+<td>str</td>
+<td>PROCAR file name, which should be PROCAR.finish when using <code class="code docutils literal"><span class="pre">vasp_run</span></code> or <code class="code docutils literal"><span class="pre">kpt_conv</span></code>.</td>
+</tr>
+<tr class="row-even"><td>potcar_set</td>
+<td>dict</td>
+<td>POTCAR names such as O_h and Mg_pv for each elements.</td>
+</tr>
+<tr class="row-odd"><td>potcar_set_name</td>
+<td>str</td>
+<td>Default POTCAR set name. Supported sets are found in the help of <code class="code docutils literal"><span class="pre">vasp_set</span></code>.</td>
+</tr>
+<tr class="row-even"><td>max_relax_num</td>
+<td>int</td>
+<td>Max relaxation number for <code class="code docutils literal"><span class="pre">vasp_run</span></code> or <code class="code docutils literal"><span class="pre">kpt_conv</span></code> (see help of <code class="code docutils literal"><span class="pre">vasp_run</span></code>).</td>
+</tr>
+<tr class="row-odd"><td>removed_files</td>
+<td>list</td>
+<td>Removed files for <code class="code docutils literal"><span class="pre">vasp_run</span></code> or <code class="code docutils literal"><span class="pre">kpt_conv</span></code> (see help of <code class="code docutils literal"><span class="pre">vasp_run</span></code>)..</td>
+</tr>
+<tr class="row-even"><td>left_files</td>
+<td>list</td>
+<td>Left files at the calculation directory for <code class="code docutils literal"><span class="pre">vasp_run</span></code> or <code class="code docutils literal"><span class="pre">kpt_conv</span></code> (see help of <code class="code docutils literal"><span class="pre">vasp_run</span></code>)..</td>
+</tr>
+<tr class="row-odd"><td>timeout</td>
+<td>int</td>
+<td>Timeout for <code class="code docutils literal"><span class="pre">vasp_run</span></code> or <code class="code docutils literal"><span class="pre">kpt_conv</span></code> (see help of <code class="code docutils literal"><span class="pre">vasp_run</span></code>)..</td>
+</tr>
+</tbody>
+</table>
+<p>For example, one can write in <code class="code docutils literal"><span class="pre">vise.yaml</span></code> as</p>
+</div>
+</div>
 
 
-
-
-
-
-
-
+          </div>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="footer">
-      &copy;2020, Yu Kumagai.
-      
-      |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
-      
-      |
-      <a href="_sources/tutorial_vise_yaml.md.txt"
-          rel="nofollow">Page source</a>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="tutorial_band_dos.html" title="Tutorial – band figure and density of states"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">vise  documentation</a> &raquo;</li> 
+      </ul>
     </div>
-
-    
-
-    
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2020, Yu Kumagai.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.6.
+    </div>
   </body>
 </html>
