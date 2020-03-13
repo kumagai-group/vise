@@ -24,7 +24,7 @@ copyright = '2020, Yu Kumagai'
 author = 'Yu Kumagai'
 version = __version__
 # The full version, including alpha/beta/rc tags
-release = 'beta'
+#release = 'beta'
 
 
 # -- General configuration ---------------------------------------------------
@@ -35,11 +35,11 @@ release = 'beta'
 extensions = [
 ]
 
-from recommonmark.parser import CommonMarkParser
-source_parsers = {
-    '.md': CommonMarkParser,
-}
-source_suffix = ['.rst', '.md']
+# from recommonmark.parser import CommonMarkParser
+# source_parsers = {
+#     '.md': CommonMarkParser,
+# }
+source_suffix = ['.rst']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -57,7 +57,7 @@ master_doc = 'index'
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'alabaster'
+html_theme = 'bizstyle'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,

@@ -27,6 +27,7 @@ if errorlevel 9009 (
 
 :html
 %SPHINXBUILD% -b html %SOURCEDIR% "docs" %SPHINXOPTS% %O%
+
 goto end
 
 %SPHINXBUILD% -M %1 %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%

@@ -9,12 +9,13 @@ Welcome to vise's documentation!
 .. toctree::
    :maxdepth: 2
 
-   introduction
-   installation
    tutorial_input_set
-   tutorial_vasp_run
-   change_log
-   modules
+   tutorial_custodian_extension
+   tutorial_band_dos
+   tutorial_vise_yaml
+
+..   change_log
+..   modules
 
 Indices and tables
 ==================

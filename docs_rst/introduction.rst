@@ -13,7 +13,18 @@ Installation instructions
 ---------------------------------------------------------
 1. Requirements
   - Python 3.6 or higher
-  - see requirements.txt
+  - pymatgen
+  - matplotlib
+  - spglib
+  - seekpath
+  - custodian
+  - PyYAML
+  - monty
+  - numpy
+  - scipy
+  - tabulate
+  - palettable
+
 
 2. Latest stable version is released at PyPI repository, so one can download 
 it using `pip install vise`.
@@ -25,11 +36,12 @@ Executing this software
 1. Command line method
   - execute ***vise -h*** for detailed description of available options
 
-2. Usage as a module
+3. Usage as a module
   - vise can be imported as a python module
-
-More information in the online manual at: https://kumagai-group.github.io/vise/
-
+<!--
+Input files for several materials can be found in the same example/inputs directory.
+More information in the online manual at: http://xxxx
+-->
 Files and directories included in vise distribution
 --------------------------------------------------------
 ~~~
