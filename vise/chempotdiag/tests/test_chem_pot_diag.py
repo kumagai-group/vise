@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import os
 import unittest
 import numpy as np
 from unittest.mock import patch
@@ -46,7 +45,6 @@ class TestChemPotDiag(ViseTest):
                                            allow_unstable_target_chempot=True)
         self.cpd_4d = ChemPotDiag.from_phase_diagram(pd=self.pd_4d,
                                                      target_comp="SrCaMgO4")
-#        target_comp="CaMgSrO4")
 
         self.comp_pd = CompoundPhaseDiagram(
             entries=[mg, ca, o, camg, camgo, camgo2],

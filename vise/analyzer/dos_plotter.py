@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from collections import OrderedDict, defaultdict
+import matplotlib.pyplot as plt
 from typing import Dict, List
 
 import numpy as np
@@ -101,7 +102,6 @@ class ViseDosPlotter(DosPlotter):
             else:
                 grouped_keys[first_word] = [k]
 
-        import matplotlib.pyplot as plt
         num_figs = len(grouped_keys)
         fig, axs = plt.subplots(num_figs, 1, sharex=True)
 
@@ -122,8 +122,8 @@ class ViseDosPlotter(DosPlotter):
 
                     # Show legend only for spin up.
                     label = str(key) if spin == Spin.up else None
-                    axs[i].plot(x, y, color=colors[j % ncolors], label=label,
-                                linewidth=2)
+                    color = "black" if key == "Total" else colors[j % ncolors]
+                    axs[i].plot(x, y, color=color, label=label, linewidth=2)
                 n += 1
 
             # plot vertical lines for band edges or Fermi level
@@ -182,8 +182,7 @@ class ViseDosPlotter(DosPlotter):
         if title:
             axs[0].title.set_text(title)
 
-        plt.tight_layout()  # Must be at the last.
-        return plt
+        return fig
 
 
 def get_dos_plot(vasprun: str,

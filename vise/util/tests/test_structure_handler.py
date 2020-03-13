@@ -9,7 +9,6 @@ from vise.util.structure_handler import (
     get_symmetry_dataset, structure_to_spglib_cell, spglib_cell_to_structure,
     find_hpkot_primitive, structure_to_seekpath)
 from vise.util.testing import ViseTest
-from vise.util.error_classes import InvalidStructureError
 
 
 class GetSymmetryDatasetTest(ViseTest):

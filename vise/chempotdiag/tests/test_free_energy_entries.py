@@ -2,6 +2,8 @@
 
 import os
 from pathlib import Path
+import unittest
+import warnings
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.sites import Element
@@ -11,7 +13,6 @@ from vise.chempotdiag.free_energy_entries import (
 from vise.util.testing import ViseTest
 
 
-DISABLE_DISPLAY_DIAGRAM = False
 parent_dir = Path(__file__).parent
 
 
@@ -40,6 +41,14 @@ class TestFreeEnergyEntry(ViseTest):
 
 
 class TestFreeEnergyEntrySet(ViseTest):
+    @classmethod
+    def setUpClass(cls):
+        warnings.simplefilter("ignore")
+
+    @classmethod
+    def tearDownClass(cls):
+        warnings.simplefilter("default")
+
     def setUp(self) -> None:
         mgo = FreeEnergyEntry("MgO", total_energy=-10)
         self.mg = FreeEnergyEntry("Mg", total_energy=-10)
@@ -86,9 +95,18 @@ O2,0,2.0,-112
         self.assertEqual(expected, actual)
         expected = {-5.18827492, -12.51242284, -9.20808429}
         actual = {e.energy for e in entry_set}
-        self.assertEqual(expected, actual)
-        print(entry_set)
 
+        self.assertEqual(expected, actual)
+
+        # Order is not kept fixed for PDEntries
+#         expected = """pressure None
+# temperature 200
+# PDEntry : Mg with composition Mg3. Energy: -5.188. Zero point vib energy: none. Free energy contribution: none. Data: None
+# PDEntry : O2 with composition O2. Energy: -9.208. Zero point vib energy: none. Free energy contribution: none. Data: None
+# PDEntry : MgO with composition Mg1 O1. Energy: -12.512. Zero point vib energy: none. Free energy contribution: none. Data: None"""
+#         self.assertEqual(expected, str(entry_set))
+
+    @unittest.skipIf(not ViseTest.PMG_MAPI_KEY, ViseTest.no_mapi_key)
     def test_from_mp(self):
         entry_set = FreeEnergyEntrySet.from_mp(["Mg", "O"])
         expected = {"Mg", "MgO", "O2"}
@@ -98,7 +116,13 @@ O2,0,2.0,-112
         expected = {-39.42964153, -14.43901464, -11.96804153}
         actual = {e.energy for e in entry_set}
         self.assertEqual(expected, actual)
-        print(entry_set)
+
+#         expected = """pressure None
+# temperature None
+# PDEntry : Mg with composition Mg9. Energy: -14.439. Zero point vib energy: none. Free energy contribution: none. Data: {'mp_id': 'mp-1094122'}
+# PDEntry : O2 with composition O8. Energy: -39.430. Zero point vib energy: none. Free energy contribution: none. Data: {'mp_id': 'mp-1091399'}
+# PDEntry : MgO with composition Mg1 O1. Energy: -11.968. Zero point vib energy: none. Free energy contribution: none. Data: {'mp_id': 'mp-1265'}"""
+#         self.assertEqual(expected, str(entry_set))
 
     def test_dict(self):
         expected = self.o2.as_dict()
@@ -108,8 +132,12 @@ O2,0,2.0,-112
     def test_msonable(self):
         self.assertMSONable(self.entry_set)
 
-    def test_print(self):
-        print(self.entry_set)
+#     def test_print(self):
+#         expected = """pressure None
+# temperature None
+# PDEntry : MgO with composition Mg1 O1. Energy: -10.000. Zero point vib energy: none. Free energy contribution: none. Data: None
+# PDEntry : O2 with composition O2. Energy: -112.000. Zero point vib energy: -10.000. Free energy contribution: -100.000. Data: {'id': 10}"""
+#         self.assertEqual(expected, str(self.entry_set))
 
 
 class TestConstrainedFreeEnergyEntrySet(ViseTest):

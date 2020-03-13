@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
+#  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
 from pathlib import Path
 import unittest
+import warnings
 
 from vise.util.testing import ViseTest
 from vise.analyzer.band_plotter import (
@@ -11,6 +13,14 @@ parent_dir = Path(__file__).parent
 
 
 class PlotTwoBandStructureTest(ViseTest):
+    @classmethod
+    def setUpClass(cls):
+        warnings.simplefilter("ignore")
+
+    @classmethod
+    def tearDownClass(cls):
+        warnings.simplefilter("default")
+
     @unittest.skipIf(not ViseTest.DISPLAY_DIAGRAM, ViseTest.no_display_reason)
     def test(self):
         mgo_band = VaspBandStructureSymmLine(
@@ -25,6 +35,14 @@ class PlotTwoBandStructureTest(ViseTest):
 
 
 class PlotFerromagneticBandStructureTest(ViseTest):
+    @classmethod
+    def setUpClass(cls):
+        warnings.simplefilter("ignore")
+
+    @classmethod
+    def tearDownClass(cls):
+        warnings.simplefilter("default")
+
     @unittest.skipIf(not ViseTest.DISPLAY_DIAGRAM, ViseTest.no_display_reason)
     def test(self):
         ko2_band = VaspBandStructureSymmLine(

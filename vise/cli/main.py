@@ -253,7 +253,7 @@ def parse_args(args):
         help="Collect materials with this hull energy or lower in eV/atom.")
     parser_get_poscar.add_argument(
         "--molecules", type=str2bool, default=gp_defaults["molecules"],
-        help="Whether one doesn't want to replace pmg structures to molecules.")
+        help="Whether to generate molecules models instead of pmg structures.")
 
     parser_get_poscar.set_defaults(func=get_poscar_from_mp)
 

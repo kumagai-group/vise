@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
+#  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
-import os
 from pymatgen.electronic_structure.core import Spin
 from pathlib import Path
 import tempfile

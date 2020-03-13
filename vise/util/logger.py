@@ -2,9 +2,6 @@
 import logging
 import sys
 
-__author__ = "Yu Kumagai"
-__maintainer__ = "Yu Kumagai"
-
 
 def get_logger(name: str,
                level=logging.DEBUG,

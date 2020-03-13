@@ -5,7 +5,6 @@ import os
 import re
 import shutil
 from copy import deepcopy
-from importlib import import_module
 from pathlib import Path
 from typing import Optional, Union
 
@@ -20,6 +19,7 @@ from pymatgen.io.vasp.sets import VaspInputSet, Poscar, Potcar, Kpoints
 from pymatgen.io.vasp.sets import (
     get_vasprun_outcar, get_structure_from_prev_run)
 from pymatgen.util.serialization import pmg_serialize
+
 from vise.analyzer.band_gap import band_gap_properties
 from vise.config import (
     DOS_STEP_SIZE, KPT_DENSITY, ENCUT_FACTOR_STR_OPT, ANGLE_TOL,
@@ -38,9 +38,6 @@ from vise import __version__
 
 
 logger = get_logger(__name__)
-
-__author__ = "Yu Kumagai"
-__maintainer__ = "Yu Kumagai"
 
 
 class ViseInputSet(VaspInputSet):

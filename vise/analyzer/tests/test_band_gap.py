@@ -3,6 +3,8 @@
 
 import numpy as np
 from pathlib import Path
+import warnings
+
 from pymatgen.io.vasp.outputs import Vasprun, Outcar
 from pymatgen.electronic_structure.core import Spin
 
@@ -14,6 +16,14 @@ parent_dir = Path(__file__).parent
 
 
 class BandGapPropertiesTest(ViseTest):
+    @classmethod
+    def setUpClass(cls):
+        warnings.simplefilter("ignore")
+
+    @classmethod
+    def tearDownClass(cls):
+        warnings.simplefilter("default")
+
     def test_mgo(self):
         vasprun = Vasprun(parent_dir / "MgO_band_vasprun.xml")
         outcar = Outcar(parent_dir / "MgO_band_OUTCAR")

@@ -5,8 +5,6 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from pymatgen import SETTINGS
-
 from vise.util.mp_tools import get_mp_materials, make_poscars_from_mp
 from vise.util.testing import ViseTest
 
