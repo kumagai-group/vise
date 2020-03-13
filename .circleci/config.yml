@@ -34,7 +34,7 @@ jobs:
       - deploy:
           name: pypi deploy
           command: |
-            if [[ $CIRCLE_BRANCH == "master" ]]; then
+            if [[ $CIRCLE_BRANCH == "master" && ${DEPLOY} == "true" ]]; then
                 echo "Deploy to the pypi and its test"
                 sudo pip install wheel twine
 
