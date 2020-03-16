@@ -8,7 +8,7 @@ import yaml
 from pymatgen import Element, MPRester, Composition
 
 from vise.util.logger import get_logger
-from vise.chempotdiag.gas import Gas
+from vise.chempotdiag.gas import MOLECULE_DATA
 
 logger = get_logger(__name__)
 
@@ -82,7 +82,7 @@ def make_poscars_from_mp(elements: list,
 
     molecules_formula_list = []
     if molecules:
-        for g in Gas:
+        for g in MOLECULE_DATA.keys():
             comp = Composition(str(g))
             if set([str(e) for e in comp.elements]) < set(elements):
                 molecules_formula_list.append(comp.reduced_formula)

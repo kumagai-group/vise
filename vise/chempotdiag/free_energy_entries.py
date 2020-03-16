@@ -14,7 +14,7 @@ from pymatgen.entries.entry_tools import EntrySet
 from pymatgen.io.vasp import Vasprun
 
 from vise.util.mp_tools import get_mp_materials
-from vise.chempotdiag.gas import Gas
+from vise.chempotdiag.gas import MOLECULE_DATA, Gas
 from vise.config import REFERENCE_PRESSURE
 from vise.util.logger import get_logger
 from vise.util.tools import parse_file
@@ -156,7 +156,7 @@ class FreeEnergyEntrySet(EntrySet, MSONable):
             kwargs = {}
             mol_dir = re.match(r"^mol_", str(d))
             if parse_gas and mol_dir:
-                if composition not in Gas.name_list():
+                if composition not in MOLECULE_DATA.keys():
                     logger.error(f"{d} does not exist in Gas.name_list, so "
                                  f"skipp to generate the zero point vib "
                                  f"and free energies.")
@@ -172,17 +172,17 @@ class FreeEnergyEntrySet(EntrySet, MSONable):
                         msg = f"Partial pressure for {composition} is not set."
                         raise Exception(msg) from e
                         
-                gas = Gas[composition]
+                gas = Gas(composition, temperature, pressure)
                 zpve = gas.zero_point_vibrational_energy
-                free_e = gas.free_e_shift(temperature, pressure)
+                chempot_shift = gas.chem_pot_shift
                 logger.warning(
                     f"{composition} is parsed as gas. "
                     f"Pressure: {pressure}, "
                     f"temperature: {temperature}, "
                     f"zero point vib energy: {zpve}, "
-                    f"free energy: {free_e}")
+                    f"free energy: {chempot_shift}")
 
-                kwargs = {"zero_point_vib": zpve, "free_e_shift": free_e}
+                kwargs = {"zero_point_vib": zpve, "free_e_shift": chempot_shift}
 
             energy_entries.append(
                 FreeEnergyEntry(composition=composition,
