@@ -65,12 +65,7 @@ Please use the ["Fork and Pull"](https://guides.github.com/activities/forking/) 
 
 ### Tests
 Run the tests using `pytest vise`.
-We also use integrated testing on Github via [circleCI]().
-
-Contributors
---------------------------------------------------------
-Yu Kumagai<br>
-Akira Takahashi
+We also use integrated testing on Github via circleCI.
 
 Contact info
 ---------------------------------------------------------

@@ -283,312 +283,67 @@ Example: {“O2”: 2e5, “N2”: 70000}</dd>
 <div class="section" id="module-vise.chempotdiag.gas">
 <span id="vise-chempotdiag-gas-module"></span><h2>vise.chempotdiag.gas module<a class="headerlink" href="#module-vise.chempotdiag.gas" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="vise.chempotdiag.gas.AbstractThermodynamicsFunction">
-<em class="property">class </em><code class="descclassname">vise.chempotdiag.gas.</code><code class="descname">AbstractThermodynamicsFunction</code><a class="headerlink" href="#vise.chempotdiag.gas.AbstractThermodynamicsFunction" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<dl class="method">
-<dt id="vise.chempotdiag.gas.AbstractThermodynamicsFunction.heat_capacity">
-<code class="descname">heat_capacity</code><span class="sig-paren">(</span><em>temperature: float</em><span class="sig-paren">)</span> &#x2192; float<a class="headerlink" href="#vise.chempotdiag.gas.AbstractThermodynamicsFunction.heat_capacity" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="vise.chempotdiag.gas.AbstractThermodynamicsFunction.r_ln_p_p0">
-<code class="descname">r_ln_p_p0</code><span class="sig-paren">(</span><em>pressure: float</em><span class="sig-paren">)</span> &#x2192; float<a class="headerlink" href="#vise.chempotdiag.gas.AbstractThermodynamicsFunction.r_ln_p_p0" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="vise.chempotdiag.gas.AbstractThermodynamicsFunction.standard_enthalpy">
-<code class="descname">standard_enthalpy</code><span class="sig-paren">(</span><em>temperature: float</em><span class="sig-paren">)</span> &#x2192; float<a class="headerlink" href="#vise.chempotdiag.gas.AbstractThermodynamicsFunction.standard_enthalpy" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="vise.chempotdiag.gas.AbstractThermodynamicsFunction.standard_entropy">
-<code class="descname">standard_entropy</code><span class="sig-paren">(</span><em>temperature: float</em><span class="sig-paren">)</span> &#x2192; float<a class="headerlink" href="#vise.chempotdiag.gas.AbstractThermodynamicsFunction.standard_entropy" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="vise.chempotdiag.gas.FundamentalFrequencies">
-<em class="property">class </em><code class="descclassname">vise.chempotdiag.gas.</code><code class="descname">FundamentalFrequencies</code><span class="sig-paren">(</span><em>frequencies: List[vise.chempotdiag.gas.FundamentalFrequency], reference: str</em><span class="sig-paren">)</span><a class="headerlink" href="#vise.chempotdiag.gas.FundamentalFrequencies" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<dl class="classmethod">
-<dt id="vise.chempotdiag.gas.FundamentalFrequencies.from_yaml">
-<em class="property">classmethod </em><code class="descname">from_yaml</code><span class="sig-paren">(</span><em>file_path: str</em><span class="sig-paren">)</span> &#x2192; vise.chempotdiag.gas.FundamentalFrequencies<a class="headerlink" href="#vise.chempotdiag.gas.FundamentalFrequencies.from_yaml" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>Args:</dt>
-<dd>file_path (str):</dd>
-</dl>
-<p>Returns (FundamentalFrequencies):</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="vise.chempotdiag.gas.FundamentalFrequencies.zero_point_vibrational_energy">
-<code class="descname">zero_point_vibrational_energy</code><a class="headerlink" href="#vise.chempotdiag.gas.FundamentalFrequencies.zero_point_vibrational_energy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns (float): E_ZPVE (eV)</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="vise.chempotdiag.gas.FundamentalFrequency">
-<em class="property">class </em><code class="descclassname">vise.chempotdiag.gas.</code><code class="descname">FundamentalFrequency</code><span class="sig-paren">(</span><em>wave_number: float</em>, <em>degeneration: int</em><span class="sig-paren">)</span><a class="headerlink" href="#vise.chempotdiag.gas.FundamentalFrequency" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
-<dl class="attribute">
-<dt id="vise.chempotdiag.gas.FundamentalFrequency.zero_point_vibrational_energy">
-<code class="descname">zero_point_vibrational_energy</code><a class="headerlink" href="#vise.chempotdiag.gas.FundamentalFrequency.zero_point_vibrational_energy" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="class">
 <dt id="vise.chempotdiag.gas.Gas">
-<em class="property">class </em><code class="descclassname">vise.chempotdiag.gas.</code><code class="descname">Gas</code><span class="sig-paren">(</span><em>formula: Union[str, pymatgen.core.composition.Composition]</em><span class="sig-paren">)</span><a class="headerlink" href="#vise.chempotdiag.gas.Gas" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
-<p>An enumeration.</p>
+<em class="property">class </em><code class="descclassname">vise.chempotdiag.gas.</code><code class="descname">Gas</code><span class="sig-paren">(</span><em>formula: Union[str, pymatgen.core.composition.Composition], temperature: float = 298.15, pressure: float = 100000.0</em><span class="sig-paren">)</span><a class="headerlink" href="#vise.chempotdiag.gas.Gas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="attribute">
-<dt id="vise.chempotdiag.gas.Gas.F2">
-<code class="descname">F2</code><em class="property"> = 'F2'</em><a class="headerlink" href="#vise.chempotdiag.gas.Gas.F2" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="vise.chempotdiag.gas.Gas.H2">
-<code class="descname">H2</code><em class="property"> = 'H2'</em><a class="headerlink" href="#vise.chempotdiag.gas.Gas.H2" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="vise.chempotdiag.gas.Gas.H2O">
-<code class="descname">H2O</code><em class="property"> = 'H2O'</em><a class="headerlink" href="#vise.chempotdiag.gas.Gas.H2O" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="vise.chempotdiag.gas.Gas.N2">
-<code class="descname">N2</code><em class="property"> = 'N2'</em><a class="headerlink" href="#vise.chempotdiag.gas.Gas.N2" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="vise.chempotdiag.gas.Gas.NH3">
-<code class="descname">NH3</code><em class="property"> = 'NH3'</em><a class="headerlink" href="#vise.chempotdiag.gas.Gas.NH3" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="vise.chempotdiag.gas.Gas.NO2">
-<code class="descname">NO2</code><em class="property"> = 'NO2'</em><a class="headerlink" href="#vise.chempotdiag.gas.Gas.NO2" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="vise.chempotdiag.gas.Gas.O2">
-<code class="descname">O2</code><em class="property"> = 'O2'</em><a class="headerlink" href="#vise.chempotdiag.gas.Gas.O2" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="vise.chempotdiag.gas.Gas.P4">
-<code class="descname">P4</code><em class="property"> = 'P4'</em><a class="headerlink" href="#vise.chempotdiag.gas.Gas.P4" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="vise.chempotdiag.gas.Gas.energy_shift">
-<code class="descname">energy_shift</code><span class="sig-paren">(</span><em>temperature: float = 0</em>, <em>pressure: float = 100000.0</em><span class="sig-paren">)</span> &#x2192; float<a class="headerlink" href="#vise.chempotdiag.gas.Gas.energy_shift" title="Permalink to this definition">¶</a></dt>
-<dd><p>Free energy shift including zero point vibration (eV/atom)</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="vise.chempotdiag.gas.Gas.free_e_shift">
-<code class="descname">free_e_shift</code><span class="sig-paren">(</span><em>temperature: float = 0</em>, <em>pressure: float = 100000.0</em><span class="sig-paren">)</span> &#x2192; float<a class="headerlink" href="#vise.chempotdiag.gas.Gas.free_e_shift" title="Permalink to this definition">¶</a></dt>
+<dt id="vise.chempotdiag.gas.Gas.chem_pot_shift">
+<code class="descname">chem_pot_shift</code><a class="headerlink" href="#vise.chempotdiag.gas.Gas.chem_pot_shift" title="Permalink to this definition">¶</a></dt>
 <dd><p>Free energy shift (eV/atom)</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="vise.chempotdiag.gas.Gas.heat_capacity">
-<code class="descname">heat_capacity</code><span class="sig-paren">(</span><em>temperature: float</em><span class="sig-paren">)</span> &#x2192; float<a class="headerlink" href="#vise.chempotdiag.gas.Gas.heat_capacity" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns (float): Heat capacity C_p (J/mol*K).</p>
+<dl class="attribute">
+<dt id="vise.chempotdiag.gas.Gas.energy_shift">
+<code class="descname">energy_shift</code><a class="headerlink" href="#vise.chempotdiag.gas.Gas.energy_shift" title="Permalink to this definition">¶</a></dt>
+<dd><p>Free energy shift including zero point vibration (eV/atom)</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="vise.chempotdiag.gas.Gas.max_temperature">
-<code class="descname">max_temperature</code><a class="headerlink" href="#vise.chempotdiag.gas.Gas.max_temperature" title="Permalink to this definition">¶</a></dt>
-<dd><p>Maximum temperature that can be applied.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="vise.chempotdiag.gas.Gas.min_temperature">
-<code class="descname">min_temperature</code><a class="headerlink" href="#vise.chempotdiag.gas.Gas.min_temperature" title="Permalink to this definition">¶</a></dt>
-<dd><p>Minimum temperature that can be applied.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="vise.chempotdiag.gas.Gas.n_atom">
-<code class="descname">n_atom</code><a class="headerlink" href="#vise.chempotdiag.gas.Gas.n_atom" title="Permalink to this definition">¶</a></dt>
+<dt id="vise.chempotdiag.gas.Gas.kt">
+<code class="descname">kt</code><a class="headerlink" href="#vise.chempotdiag.gas.Gas.kt" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="vise.chempotdiag.gas.Gas.name_list">
-<code class="descname">name_list</code><em class="property"> = &lt;bound method Gas.name_list of &lt;enum 'Gas'&gt;&gt;</em><a class="headerlink" href="#vise.chempotdiag.gas.Gas.name_list" title="Permalink to this definition">¶</a></dt>
+<dt id="vise.chempotdiag.gas.Gas.kt_in_ev">
+<code class="descname">kt_in_ev</code><a class="headerlink" href="#vise.chempotdiag.gas.Gas.kt_in_ev" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="vise.chempotdiag.gas.Gas.n_atoms">
+<code class="descname">n_atoms</code><a class="headerlink" href="#vise.chempotdiag.gas.Gas.n_atoms" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="vise.chempotdiag.gas.Gas.r_ln_p_p0_ev_per_atom">
-<code class="descname">r_ln_p_p0_ev_per_atom</code><span class="sig-paren">(</span><em>pressure: float</em><span class="sig-paren">)</span> &#x2192; float<a class="headerlink" href="#vise.chempotdiag.gas.Gas.r_ln_p_p0_ev_per_atom" title="Permalink to this definition">¶</a></dt>
-<dd><p>Rln(p/p0), (eV / atom)</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="vise.chempotdiag.gas.Gas.r_ln_p_p0_j_mol">
-<code class="descname">r_ln_p_p0_j_mol</code><span class="sig-paren">(</span><em>pressure: float</em><span class="sig-paren">)</span> &#x2192; float<a class="headerlink" href="#vise.chempotdiag.gas.Gas.r_ln_p_p0_j_mol" title="Permalink to this definition">¶</a></dt>
-<dd><p>Rln(p/p0), (J / (mol K))</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="vise.chempotdiag.gas.Gas.standard_enthalpy">
-<code class="descname">standard_enthalpy</code><span class="sig-paren">(</span><em>temperature: float</em><span class="sig-paren">)</span> &#x2192; float<a class="headerlink" href="#vise.chempotdiag.gas.Gas.standard_enthalpy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Standard enthalpy (kJ/mol) from room temperature (T=298.15(K))</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="vise.chempotdiag.gas.Gas.standard_entropy">
-<code class="descname">standard_entropy</code><span class="sig-paren">(</span><em>temperature: float</em><span class="sig-paren">)</span> &#x2192; float<a class="headerlink" href="#vise.chempotdiag.gas.Gas.standard_entropy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Standard entropy (J/mol*K).</p>
-</dd></dl>
+<dt id="vise.chempotdiag.gas.Gas.rot_free_energy">
+<code class="descname">rot_free_energy</code><span class="sig-paren">(</span><em>high_t_limit_factor: float = 20.0</em><span class="sig-paren">)</span> &#x2192; float<a class="headerlink" href="#vise.chempotdiag.gas.Gas.rot_free_energy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="attribute">
-<dt id="vise.chempotdiag.gas.Gas.temperature_range">
-<code class="descname">temperature_range</code><a class="headerlink" href="#vise.chempotdiag.gas.Gas.temperature_range" title="Permalink to this definition">¶</a></dt>
-<dd><p>Temperature range that can be applied.</p>
-</dd></dl>
+<dt id="vise.chempotdiag.gas.Gas.spin_free_energy">
+<code class="descname">spin_free_energy</code><a class="headerlink" href="#vise.chempotdiag.gas.Gas.spin_free_energy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
-<dl class="method">
-<dt id="vise.chempotdiag.gas.Gas.vib_rot_term">
-<code class="descname">vib_rot_term</code><span class="sig-paren">(</span><em>temperature: float</em><span class="sig-paren">)</span> &#x2192; float<a class="headerlink" href="#vise.chempotdiag.gas.Gas.vib_rot_term" title="Permalink to this definition">¶</a></dt>
-<dd><p>G(T, P0) - H(T=0K, P0) (eV/mol)</p>
-</dd></dl>
+<dl class="attribute">
+<dt id="vise.chempotdiag.gas.Gas.trans_free_energy">
+<code class="descname">trans_free_energy</code><a class="headerlink" href="#vise.chempotdiag.gas.Gas.trans_free_energy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="vise.chempotdiag.gas.Gas.vib_free_energy">
+<code class="descname">vib_free_energy</code><a class="headerlink" href="#vise.chempotdiag.gas.Gas.vib_free_energy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="attribute">
 <dt id="vise.chempotdiag.gas.Gas.zero_point_vibrational_energy">
 <code class="descname">zero_point_vibrational_energy</code><a class="headerlink" href="#vise.chempotdiag.gas.Gas.zero_point_vibrational_energy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Energy of vibrational energy at zero point (eV/atom)</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="vise.chempotdiag.gas.ShomateParameters">
-<em class="property">class </em><code class="descclassname">vise.chempotdiag.gas.</code><code class="descname">ShomateParameters</code><span class="sig-paren">(</span><em>temperature_range: Tuple[float, float], a: float, b: float, c: float, d: float, e: float, f: float, g: float, h: float</em><span class="sig-paren">)</span><a class="headerlink" href="#vise.chempotdiag.gas.ShomateParameters" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Parameters of Shomate Equations.
-Contains range of temperature like (100, 700).</p>
-<dl class="method">
-<dt id="vise.chempotdiag.gas.ShomateParameters.can_apply">
-<code class="descname">can_apply</code><span class="sig-paren">(</span><em>temp: float</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#vise.chempotdiag.gas.ShomateParameters.can_apply" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="vise.chempotdiag.gas.ShomateParameters.max_temperature">
-<code class="descname">max_temperature</code><a class="headerlink" href="#vise.chempotdiag.gas.ShomateParameters.max_temperature" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="vise.chempotdiag.gas.ShomateParameters.min_temperature">
-<code class="descname">min_temperature</code><a class="headerlink" href="#vise.chempotdiag.gas.ShomateParameters.min_temperature" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
-<dl class="class">
-<dt id="vise.chempotdiag.gas.ShomateThermodynamicsFunction">
-<em class="property">class </em><code class="descclassname">vise.chempotdiag.gas.</code><code class="descname">ShomateThermodynamicsFunction</code><span class="sig-paren">(</span><em>func_param_list: List[vise.chempotdiag.gas.ShomateParameters], enthalpy_zero: float, reference_pressure: float = 100000.0</em><span class="sig-paren">)</span><a class="headerlink" href="#vise.chempotdiag.gas.ShomateThermodynamicsFunction" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#vise.chempotdiag.gas.AbstractThermodynamicsFunction" title="vise.chempotdiag.gas.AbstractThermodynamicsFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">vise.chempotdiag.gas.AbstractThermodynamicsFunction</span></code></a></p>
-<p>Shomate thermodynamics Function.</p>
-<dl class="classmethod">
-<dt id="vise.chempotdiag.gas.ShomateThermodynamicsFunction.from_nist_table">
-<em class="property">classmethod </em><code class="descname">from_nist_table</code><span class="sig-paren">(</span><em>file_path: str</em><span class="sig-paren">)</span> &#x2192; vise.chempotdiag.gas.ShomateThermodynamicsFunction<a class="headerlink" href="#vise.chempotdiag.gas.ShomateThermodynamicsFunction.from_nist_table" title="Permalink to this definition">¶</a></dt>
-<dd><p>shomate_nist.dat is written e.g.
-Enthalpy_zero   -8.825
-Temperature (K) 298. - 6000.
-A       31.44510
-B       8.413831
-C       -2.778850
-D       0.218104
-E       -0.211175
-F       -10.43260
-G       237.2770
-H       0.000000
-Reference       Chase, 1998
-Comment Data last reviewed in June, 1982</p>
-<p>where Enthalpy_zero is kJ/mol</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>file_path (str):</dd>
-<dt>Returns:</dt>
-<dd>ShomateThermodynamicsFunction object</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="vise.chempotdiag.gas.ShomateThermodynamicsFunction.heat_capacity">
-<code class="descname">heat_capacity</code><span class="sig-paren">(</span><em>temperature: float</em><span class="sig-paren">)</span> &#x2192; float<a class="headerlink" href="#vise.chempotdiag.gas.ShomateThermodynamicsFunction.heat_capacity" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>Args:</dt>
-<dd>temperature (float): (K)</dd>
-</dl>
-<p>Returns (float): J/(K mol)</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="vise.chempotdiag.gas.ShomateThermodynamicsFunction.max_temperature">
-<code class="descname">max_temperature</code><a class="headerlink" href="#vise.chempotdiag.gas.ShomateThermodynamicsFunction.max_temperature" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="vise.chempotdiag.gas.ShomateThermodynamicsFunction.min_temperature">
-<code class="descname">min_temperature</code><a class="headerlink" href="#vise.chempotdiag.gas.ShomateThermodynamicsFunction.min_temperature" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="vise.chempotdiag.gas.ShomateThermodynamicsFunction.params">
-<code class="descname">params</code><span class="sig-paren">(</span><em>temperature: float</em><span class="sig-paren">)</span> &#x2192; vise.chempotdiag.gas.ShomateParameters<a class="headerlink" href="#vise.chempotdiag.gas.ShomateThermodynamicsFunction.params" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return parameters of function at temperature like {a:1.1, b:2.2, …}</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>temperature:</dd>
-</dl>
-<p>Returns:</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="vise.chempotdiag.gas.ShomateThermodynamicsFunction.r_ln_p_p0">
-<code class="descname">r_ln_p_p0</code><span class="sig-paren">(</span><em>pressure: float</em><span class="sig-paren">)</span> &#x2192; float<a class="headerlink" href="#vise.chempotdiag.gas.ShomateThermodynamicsFunction.r_ln_p_p0" title="Permalink to this definition">¶</a></dt>
-<dd><p>R ln(p/p0)
-Args:</p>
-<blockquote>
-<div>pressure (float): Pa</div></blockquote>
-<p>Returns (float): Rln(p/p0), (J / (mol K))</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="vise.chempotdiag.gas.ShomateThermodynamicsFunction.standard_enthalpy">
-<code class="descname">standard_enthalpy</code><span class="sig-paren">(</span><em>temperature: float</em><span class="sig-paren">)</span> &#x2192; float<a class="headerlink" href="#vise.chempotdiag.gas.ShomateThermodynamicsFunction.standard_enthalpy" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>Args:</dt>
-<dd>temperature (float): (K)</dd>
-</dl>
-<p>Returns (float): J/mol</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="vise.chempotdiag.gas.ShomateThermodynamicsFunction.standard_entropy">
-<code class="descname">standard_entropy</code><span class="sig-paren">(</span><em>temperature: float</em><span class="sig-paren">)</span> &#x2192; float<a class="headerlink" href="#vise.chempotdiag.gas.ShomateThermodynamicsFunction.standard_entropy" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>Args:</dt>
-<dd>temperature (float): (K)</dd>
-</dl>
-<p>Returns (float): J/(mol K)</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="vise.chempotdiag.gas.ShomateThermodynamicsFunction.temperature_range">
-<code class="descname">temperature_range</code><a class="headerlink" href="#vise.chempotdiag.gas.ShomateThermodynamicsFunction.temperature_range" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
+<dl class="exception">
+<dt id="vise.chempotdiag.gas.NotRegisteredError">
+<em class="property">exception </em><code class="descclassname">vise.chempotdiag.gas.</code><code class="descname">NotRegisteredError</code><a class="headerlink" href="#vise.chempotdiag.gas.NotRegisteredError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 </dd></dl>
 
 </div>
