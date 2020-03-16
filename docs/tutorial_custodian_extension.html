@@ -95,9 +95,8 @@
 To generate these input files, please refer to tutorial of vise input set.</p>
 <p>Here, We explain how to run VASP calculations with custodian.
 For this purpose, vise provides an extension utility of <code class="code docutils literal notranslate"><span class="pre">custodian</span></code>.
-One can run the typical structure optimization using the <code class="code docutils literal notranslate"><span class="pre">vr`(=:code:`vasp_run</span></code>) sub-option.
-An example is shown as
-.. code-block:</p>
+One can run the typical structure optimization using the <code class="code docutils literal notranslate"><span class="pre">vr</span></code> (= <code class="code docutils literal notranslate"><span class="pre">vasp_run</span></code>) sub-option.
+An example is shown as</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">vise</span> <span class="n">vr</span> <span class="o">-</span><span class="n">v</span> <span class="n">mpirun</span> <span class="o">-</span><span class="n">np</span> <span class="mi">16</span> <span class="n">vasp_std</span>
 </pre></div>
 </div>
@@ -106,8 +105,7 @@ Note that the original error handlers are slightly modified and some handlers ar
 If you do not want to use custodian error handler, please set no_handler to -handler_name option.
 To know the details, please look into the custodian_extension directory in vise.</p>
 <p>In most cases, we run VASP with cluster nodes via submitting runshell script.
-An example of runshell script is shown below.
-.. code-block:</p>
+An example of runshell script is shown below.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/zsh</span>
 <span class="c1">#$ -S /bin/zsh</span>
 <span class="c1">#$ -cwd</span>
@@ -122,9 +120,8 @@ An example of runshell script is shown below.
 </pre></div>
 </div>
 <p>The <code class="code docutils literal notranslate"><span class="pre">vr</span></code> sub-option is used also for static calculations such as band structure and dielectric constant.</p>
-<p>In order to check the k-point convergence, one can use <code class="code docutils literal notranslate"><span class="pre">kc(=kpt_conv)</span></code> options.
-In such cases, we can set various options such as -criteria.
-.. code-block:</p>
+<p>In order to check the k-point convergence, one can use <code class="code docutils literal notranslate"><span class="pre">kc</span></code> (= <code class="code docutils literal notranslate"><span class="pre">kpt_conv</span></code>) options.
+In such cases, we can set various options such as -criteria.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">vise</span> <span class="n">vr</span> <span class="o">--</span><span class="nb">print</span>
 </pre></div>
 </div>

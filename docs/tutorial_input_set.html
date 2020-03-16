@@ -100,9 +100,8 @@ When we use the Materials Project REST API,
 we need to set the PMG_MAPI_KEY in the .pmgrc.yaml file at the home directory, e.g.,
 See <a class="reference external" href="https://pymatgen.org/usage.html">pymatgen web page 1</a>, for more details.</p>
 <p>When we check the Materials Project web page, we know the id for ScN is mp-2857.
-vise automatically retrieve the POSCAR files using the <code class="code docutils literal notranslate"><span class="pre">gp`(=</span> <span class="pre">:code:`get_poscar</span></code>) sub-command.
-For example, we can get the crystal structure of ScN. by typing as follows,
-.. code-block:</p>
+vise automatically retrieve the POSCAR files using the <code class="code docutils literal notranslate"><span class="pre">gp</span></code> (= <code class="code docutils literal notranslate"><span class="pre">get_poscar</span></code>) sub-command.
+For example, we can get the crystal structure of ScN. by typing as follows,</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">vise</span> <span class="n">gp</span> <span class="o">-</span><span class="n">n</span> <span class="mi">2857</span>
 </pre></div>
 </div>
@@ -111,12 +110,11 @@ For example, we can get the crystal structure of ScN. by typing as follows,
 <h2>Input files for the cell relaxation<a class="headerlink" href="#input-files-for-the-cell-relaxation" title="Permalink to this headline">¶</a></h2>
 <p>Let’s begin with the relaxation of the unit cell using VASP.
 For this purpose, we need to prepare INCAR, POTCAR, and KPOINTS files.
-In vise, <code class="code docutils literal notranslate"><span class="pre">vs`(=</span> <span class="pre">:code:`vasp_set</span></code>) sub-option automatically generates these files.
+In vise, <code class="code docutils literal notranslate"><span class="pre">vs</span></code> (= <code class="code docutils literal notranslate"><span class="pre">vasp_set</span></code>) sub-option automatically generates these files.
 <code class="code docutils literal notranslate"><span class="pre">vs</span></code> includes various arguments, and the most important ones are <code class="code docutils literal notranslate"><span class="pre">--task</span></code> and <code class="code docutils literal notranslate"><span class="pre">--xc</span></code>,
 determining the task and exchange-correlation (XC) functional.
 The defaults are structure optimization (structure_opt) for task and PBEsol functional (pbesol) for XC functional.
-So we can generate INCAR, POTCAR, and KPOINTS files, by typing as follows at the directory where POSCAR exists,
-.. code-block:</p>
+So we can generate INCAR, POTCAR, and KPOINTS files, by typing as follows at the directory where POSCAR exists,</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">vise</span> <span class="n">vs</span>
 </pre></div>
 </div>

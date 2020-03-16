@@ -7,7 +7,8 @@ Setting for the vise.yaml
 In :code:`vise`, users can control various types of parameters using :code:`vise.yaml` file.
 For example, we provide the default :code:`POTCAR` set regularly we use, but users can adopt their favorite :code:`POTCAR` set,
 by setting :code:`potcar_set` key as follows
-.. code-block::
+
+::
 
     potcar_set: Mg_pv O_h
 
@@ -45,7 +46,8 @@ timeout             int       Timeout for :code:`vasp_run` or :code:`kpt_conv` (
 =================== ======== =========================================================================================================================
 
 For example, one can write in :code:`vise.yaml` as
-.. code-block::
+
+::
 
     xc: hse
     user_incar_setting:

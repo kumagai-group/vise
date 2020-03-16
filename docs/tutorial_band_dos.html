@@ -90,13 +90,11 @@
 <h1>Tutorial – band figure and density of states<a class="headerlink" href="#tutorial-band-figure-and-density-of-states" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="calculation-of-the-band-structure-and-the-density-of-states">
 <h2>Calculation of the band structure and the density of states<a class="headerlink" href="#calculation-of-the-band-structure-and-the-density-of-states" title="Permalink to this headline">¶</a></h2>
-<p>We can create the input files for the calculations of the band structure and the density of states by typing
-.. code-block:</p>
+<p>We can create the input files for the calculations of the band structure and the density of states by typing</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">vise</span> <span class="n">vs</span> <span class="o">-</span><span class="n">t</span> <span class="n">band</span>
 </pre></div>
 </div>
-<p>and
-.. code-block:</p>
+<p>and</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">vise</span> <span class="n">vs</span> <span class="o">-</span><span class="n">t</span> <span class="n">dos</span>
 </pre></div>
 </div>
@@ -106,19 +104,16 @@ so if one uses the plot for publication or presentation, please cite the followi
 <ul class="simple">
 <li><a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S0927025616305110?via%3Dihub">Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, Band structure diagram paths based on crystallography, Comp. Mat. Sci. 128, 140 (2017).</a> DOI: 10.1016/j.commatsci.2016.10.015 (arXiv version: arXiv:1602.06402).</li>
 </ul>
-<p><code class="code docutils literal notranslate"><span class="pre">vise</span></code> also provides the plotters of BS and DOS based on with <code class="code docutils literal notranslate"><span class="pre">plot_band</span></code> (=:code:<cite>pb</cite>) and <code class="code docutils literal notranslate"><span class="pre">plot_dos</span></code> (=:code:<cite>pd</cite>) sub-commands.
-Type the following commands in <code class="code docutils literal notranslate"><span class="pre">band/</span></code> and  <code class="code docutils literal notranslate"><span class="pre">dos/</span></code>, respectively.
-.. code-block:</p>
+<p><code class="code docutils literal notranslate"><span class="pre">vise</span></code> also provides the plotters of BS and DOS based on with <code class="code docutils literal notranslate"><span class="pre">plot_band</span></code> (= <code class="code docutils literal notranslate"><span class="pre">pb</span></code>) and <code class="code docutils literal notranslate"><span class="pre">plot_dos</span></code> (= <code class="code docutils literal notranslate"><span class="pre">pd</span></code>) sub-commands.
+Type the following commands in <code class="code docutils literal notranslate"><span class="pre">band/</span></code> and  <code class="code docutils literal notranslate"><span class="pre">dos/</span></code>, respectively.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">vise</span> <span class="n">pb</span> <span class="o">-</span><span class="n">f</span> <span class="n">band</span><span class="o">.</span><span class="n">pdf</span>
 </pre></div>
 </div>
-<p>and
-.. code-block:</p>
+<p>and</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">vise</span> <span class="n">pd</span> <span class="o">-</span><span class="n">f</span> <span class="n">dos</span><span class="o">.</span><span class="n">pdf</span>
 </pre></div>
 </div>
-<p>The band gap is also evaluated using <code class="code docutils literal notranslate"><span class="pre">bg`(=:code:`band_gap</span></code>) sub command.
-.. code-block:</p>
+<p>The band gap is also evaluated using <code class="code docutils literal notranslate"><span class="pre">bg`(=:code:`band_gap</span></code>) sub command.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">vise</span> <span class="n">bg</span> <span class="o">-</span><span class="n">v</span> <span class="n">vasprun</span><span class="o">.</span><span class="n">xml</span><span class="o">.</span><span class="n">finish</span> <span class="o">-</span><span class="n">o</span> <span class="n">OUTCAR</span><span class="o">.</span><span class="n">finish</span>
 </pre></div>
 </div>

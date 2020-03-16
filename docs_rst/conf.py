@@ -12,9 +12,11 @@
 #
 import os
 import sys
+
+from vise import __version__
+
 sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.dirname('..'))
-from vise import __version__
 
 
 # -- Project information -----------------------------------------------------

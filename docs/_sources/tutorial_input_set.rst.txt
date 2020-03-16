@@ -14,9 +14,10 @@ we need to set the PMG_MAPI_KEY in the .pmgrc.yaml file at the home directory, e
 See `pymatgen web page 1 <https://pymatgen.org/usage.html>`_, for more details.
 
 When we check the Materials Project web page, we know the id for ScN is mp-2857.
-vise automatically retrieve the POSCAR files using the :code:`gp`(= :code:`get_poscar`) sub-command.
+vise automatically retrieve the POSCAR files using the :code:`gp` (= :code:`get_poscar`) sub-command.
 For example, we can get the crystal structure of ScN. by typing as follows,
-.. code-block::
+
+::
 
     vise gp -n 2857
 
@@ -25,12 +26,13 @@ Input files for the cell relaxation
 ===================================
 Let's begin with the relaxation of the unit cell using VASP.
 For this purpose, we need to prepare INCAR, POTCAR, and KPOINTS files.
-In vise, :code:`vs`(= :code:`vasp_set`) sub-option automatically generates these files.
+In vise, :code:`vs` (= :code:`vasp_set`) sub-option automatically generates these files.
 :code:`vs` includes various arguments, and the most important ones are :code:`--task` and :code:`--xc`,
 determining the task and exchange-correlation (XC) functional.
 The defaults are structure optimization (structure_opt) for task and PBEsol functional (pbesol) for XC functional.
 So we can generate INCAR, POTCAR, and KPOINTS files, by typing as follows at the directory where POSCAR exists,
-.. code-block::
+
+::
 
     vise vs
 
