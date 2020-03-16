@@ -26,13 +26,20 @@ class Gas:
     def __init__(self,
                  formula: Union[str, Composition],
                  temperature: float = ROOM_TEMPERATURE,
-                 pressure: float = REFERENCE_PRESSURE):
+                 pressure: float = REFERENCE_PRESSURE,
+                 high_t_limit_factor: float = 20.0):
         """
         Args:
-            formula (list):
-            temperature (float): enthalpy (J/mol) at T=0K,
-                                   p=reference_pressure
-            pressure (float): reference_pressure (Pa)
+            formula (str/Composition):
+                Formula of molecule such as O2 and Composition(O2).
+            temperature (float):
+                Temperature in K.
+            pressure (float):
+                Pressure in Pa.
+            high_t_limit_factor (float):
+                Factor to judge if the given temperature is higher enough than
+                the characteristic rotational temperatures. Used whether we
+                can use the high-temperature limit approximation.
         """
         self.formula = str(formula)
         if formula not in MOLECULE_DATA:
@@ -44,12 +51,19 @@ class Gas:
         self.char_rot_temp = MOLECULE_DATA[formula]["rot"]
         self.mag_degeneracy = MOLECULE_DATA[formula]["mag_degeneracy"]
         self.sym_num = MOLECULE_DATA[formula]["sym_num"]
-        if len(self.char_rot_temp) == 1:
-            self.is_linear = True
-        else:
-            self.is_linear = False
+        self.is_linear = True if len(self.char_rot_temp) == 1 else False
+
         self.t = temperature
         self.pressure = pressure
+
+        high_temp_lim_criterion = max(self.char_rot_temp) * high_t_limit_factor
+        self.high_temp_lim = high_temp_lim_criterion < self.t
+
+        if self.is_linear is False and self.high_temp_lim is False:
+            raise ValueError(
+                "Rotational free energy for non-linear molecule is estimated "
+                "only at the high-temperature limit. Set more than "
+                f"{high_temp_lim_criterion}K")
 
     @property
     def zero_point_vibrational_energy(self) -> float:
@@ -70,21 +84,19 @@ class Gas:
         dist_func = self.kt / (self.pressure * quantum_volume)  # -
         return - self.kt_in_ev * log(dist_func)  # eV
 
-    def rot_free_energy(self, high_t_limit_factor: float = 20.0) -> float:
+    @property
+    def rot_free_energy(self) -> float:
+        max_sum = 50
         if self.is_linear:
             # high-temperature limit
-            if self.char_rot_temp[0] * high_t_limit_factor < self.t:
+            if self.high_temp_lim:
                 q = self.t / self.char_rot_temp[0]
             else:
                 factor = self.char_rot_temp[0] / self.t
                 q = sum([(2 * j + 1) * exp(-j * (j + 1) * factor)
-                         for j in range(0, int(high_t_limit_factor * 5))])
+                         for j in range(0, max_sum)])
         else:
-            if max(self.char_rot_temp) * high_t_limit_factor > self.t:
-                raise ValueError(
-                    "Now, rotational free energy for non-linear molecule is "
-                    "estimated only at the high-temperature limit. Set more"
-                    f"than {max(self.char_rot_temp) * high_t_limit_factor }K")
+            # high-temperature limit
             char_temp_mul = reduce(lambda x, y: x*y, self.char_rot_temp)
             q = sqrt(pi * self.t ** 3) / sqrt(char_temp_mul)
 
@@ -106,7 +118,7 @@ class Gas:
     @property
     def chem_pot_shift(self) -> float:
         """Free energy shift (eV/atom) """
-        return (self.trans_free_energy + self.rot_free_energy() +
+        return (self.trans_free_energy + self.rot_free_energy +
                 self.vib_free_energy + self.spin_free_energy) / self.n_atoms
 
     @property
