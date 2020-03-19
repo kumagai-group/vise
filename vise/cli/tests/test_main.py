@@ -292,7 +292,7 @@ class MainChemPotDiagTest(ViseTest):
             filename=None,
             parse_gas=True,
             partial_pressures=None,
-            temperature=0.0,
+            temperature=300.0,
             func=parsed_args.func)
         self.assertEqual(expected, parsed_args)
 

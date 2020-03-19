@@ -388,7 +388,7 @@ def parse_args(args):
         help="partial pressure of system in Pa. "
              "Example: -pp O2 1e+5 N2 20000 -> O2: 1e+5(Pa), N2: 20000(Pa)")
     parser_cpd.add_argument(
-        "-t", "--temperature", type=float, default=0.0,
+        "-t", "--temperature", type=float, default=300.0,
         help="temperature of system in K.")
 
     # thermodynamic status (P and T) input
