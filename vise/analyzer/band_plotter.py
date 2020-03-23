@@ -125,7 +125,6 @@ def greek_to_unicode(label):
     for k, v in d.items():
         label = label.replace(k, v)
     label = re.sub(r"([A-Z])_", r"{\\rm \1}_", label)  # itallic to roman
-    print(label)
     return label
 
 
@@ -170,8 +169,6 @@ def make_sym_line(kpoints_filenames: Union[List[str], str],
     bsl_dict = labels_to_unicode(bsl.as_dict())
     bsl = BandStructureSymmLine.from_dict(bsl_dict)
     bsl.structure = st  # structure is removed during dict round trip.
-
-    print(bsl.labels_dict)
 
     return bsl
 
