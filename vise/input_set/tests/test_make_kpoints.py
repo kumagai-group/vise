@@ -10,9 +10,6 @@ from vise.input_set.make_kpoints import (
     KpointsMode, MakeKpoints, irreducible_kpoints, num_irreducible_kpoints)
 from vise.util.testing import ViseTest
 
-__author__ = "Yu Kumagai"
-__maintainer__ = "Yu Kumagai"
-
 
 class KpointsModeTest(ViseTest):
     def test(self):

@@ -44,7 +44,7 @@ class ChemPotDiag(MSONable):
                 List of PDEntry for each Element.
             dim (int):
                 Dimension of chemical potential diagram, or number of elements.
-            vertices (List[Dict[Element, float]]):
+            vertices (List[List[float]]):
                 Vertices in the CPD surrounded by compounds.
             qhull_entries (List[PDEntry]):
                 Entries comprising convex hull.
@@ -173,6 +173,13 @@ class ChemPotDiag(MSONable):
             abs_chempot[point] = [round(e.energy_per_atom + c, 10)
                                   for e, c in zip(self.el_ref_list, chempot)]
         return abs_chempot
+
+    def __str__(self):
+        lines = ["     " + "-".join([str(e) for e in self.elements])]
+        for comp, chem_pot in self.target_comp_chempot.items():
+            lines.append(f"{comp}: {chem_pot}")
+
+        return "\n".join(lines)
 
     def draw_diagram(self,
                      title: str = None,

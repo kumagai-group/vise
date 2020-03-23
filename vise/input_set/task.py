@@ -29,12 +29,19 @@ class Task(Enum):
         raise AttributeError(f"Task: {s} is not proper.\n"
                              f"Supported Task:\n {cls.name_list()}")
 
+    @property
+    def kpt_factor(self):
+        factor_3 = self.dielectric_dfpt,
+        factor_2 = self.dos, self.dielectric_dfpt, self.dielectric_finite_field
+        return 3 if self in factor_3 else 2 if self in factor_2 else 1
+
     @classmethod
     def name_list(cls):
         return ', '.join([e.value for e in cls])
 
 
-LATTICE_RELAX_TASK = (Task.structure_opt, Task.structure_opt_rough,
+LATTICE_RELAX_TASK = (Task.structure_opt,
+                      Task.structure_opt_rough,
                       Task.structure_opt_tight)
 PLOT_TASK = (Task.band, Task.dos, Task.dielectric_function)
 SPECTRA_TASK = (Task.dos, Task.dielectric_function)

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+#  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
 from pathlib import Path
 from typing import Optional
@@ -9,7 +10,8 @@ from pymatgen.io.vasp import Kpoints
 from vise.input_set.make_kpoints import MakeKpoints
 from vise.input_set.task import Task, SPECTRA_TASK
 from vise.util.logger import get_logger
-from vise.util.structure_handler import find_spglib_primitive, get_symbol_list
+from vise.util.structure_handler import get_symbol_list
+from vise.util.structure_symmetrizer import StructureSymmetrizer
 
 logger = get_logger(__name__)
 SET_DIR = Path(__file__).parent / "datasets"
@@ -63,8 +65,8 @@ class TaskStructureKpoints:
             if symbol_list != orig_symbol_list:
                 logger.warning(
                     "CAUTION: The sequence of the species is changed. \n"
-                    f"Symbol set in the original structure {symbol_list} \n"
-                    f"Symbol set in the generated structure {orig_symbol_list}")
+                    f"Symbol set in the original structure {orig_symbol_list}\n"
+                    f"Symbol set in the generated structure {symbol_list}")
         else:
             structure = original_structure.copy()
 
@@ -82,23 +84,22 @@ class TaskStructureKpoints:
         elif task == Task.phonon_force:
             kpt_mode = "manual_set"
             if kpt_shift != [0, 0, 0]:
-                logger.warning("For phonon force calculations, Gamma centering "
+                logger.warning("For phonon force calculations, Γ centering "
                                "is forced for k-point sampling.")
             kpt_shift = [0, 0, 0]
         else:
-            primitive_structure, is_structure_changed = \
-                find_spglib_primitive(structure, symprec, angle_tolerance)
+            s = StructureSymmetrizer(structure, symprec, angle_tolerance)
 
             if standardize_structure:
-                org = original_structure.lattice.matrix
-                primitive = primitive_structure.lattice.matrix
-                if is_structure_changed:
+                org_lat = original_structure.lattice.matrix
+                primitive_lat = s.primitive.lattice.matrix
+                if s.is_lattice_changed:
                     with np.printoptions(precision=3, suppress=True):
                         logger.warning(
-                            "CAUTION: The structure is changed.\n"
-                            f"Original lattice\n {org} \n"
-                            f"Generated lattice\n {primitive} \n")
-                structure = primitive_structure
+                            "The structure is changed.\n"
+                            f"Original lattice\n {org_lat} \n"
+                            f"Generated lattice\n {primitive_lat} \n")
+                structure = s.primitive
             else:
                 if is_structure_changed and kpt_mode != "manual_set":
                     logger.warning(
@@ -117,13 +118,7 @@ class TaskStructureKpoints:
             kpt_shift = [0, 0, 0]
 
         if factor is None:
-            if task == Task.dielectric_function:
-                factor = 3
-            elif task in (Task.dos, Task.dielectric_dfpt,
-                          Task.dielectric_finite_field):
-                factor = 2
-            else:
-                factor = 1
+            factor = task.kpt_factor
 
         kpoints = MakeKpoints(mode=kpt_mode,
                               structure=structure,
@@ -140,7 +135,7 @@ class TaskStructureKpoints:
 
         return cls(structure=structure,
                    kpoints=kpoints.kpoints,
-                   is_structure_changed=kpoints.is_structure_changed,
+                   is_structure_changed=kpoints.is_lattice_changed,
                    sg=kpoints.sg,
                    num_kpts=kpoints.num_kpts,
                    factor=factor)

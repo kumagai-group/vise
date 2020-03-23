@@ -84,6 +84,12 @@ class TestChemPotDiag(ViseTest):
         self.assertEqual({'A': [-2.0, -6.0], 'B': [-7.0, -1.0]},
                          self.cpd_2d.target_comp_abs_chempot)
 
+    def test_print(self):
+        expected = """     Ca-Mg
+A: [0.0, -5.0]
+B: [-5.0, 0.0]"""
+        self.assertEqual(expected, str(self.cpd_2d))
+
     @unittest.skipIf(not ViseTest.DISPLAY_DIAGRAM, ViseTest.no_display_reason)
     def test_cpd_2d_draw(self):
         self.cpd_2d.draw_diagram()

@@ -9,12 +9,11 @@ from pymatgen import Structure
 from pymatgen.core.periodic_table import Element
 from pymatgen.io.vasp.inputs import Kpoints
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from vise.config import BAND_REF_DIST, KPT_DENSITY
+from vise.config import BAND_MESH_DISTANCE, KPT_DENSITY
 from vise.config import SYMMETRY_TOLERANCE, ANGLE_TOL
 from vise.input_set.datasets.kpt_centering import kpt_centering
 from vise.util.logger import get_logger
-from vise.util.structure_handler import (
-    structure_to_seekpath, find_spglib_primitive, get_symmetry_dataset)
+from vise.util.structure_symmetrizer import StructureSymmetrizer
 
 logger = get_logger(__name__)
 
@@ -98,7 +97,7 @@ class MakeKpoints:
                  kpt_density: float = KPT_DENSITY,
                  only_even: bool = False,
                  manual_kpts: list = None,
-                 ref_distance: float = BAND_REF_DIST,
+                 ref_distance: float = BAND_MESH_DISTANCE,
                  kpt_shift: list = None,
                  factor: int = 1,
                  symprec: float = SYMMETRY_TOLERANCE,
@@ -153,16 +152,19 @@ class MakeKpoints:
         self.corresponding_structure = None
         self.sg = None
         self.sg_symbol = None
-
+        self.symmetrizer = StructureSymmetrizer(structure,
+                                                symprec,
+                                                angle_tolerance)
         if self.mode == KpointsMode.band:
-            self.seekpath_info = \
-                structure_to_seekpath(structure=structure,
-                                      ref_distance=ref_distance,
-                                      time_reversal=(not self.is_magnetization),
-                                      symprec=symprec,
-                                      angle_tolerance=angle_tolerance)
+            #  Now, time reversal symmetry is determined from the magnetization.
+            self.symmetrizer.find_seekpath_data(
+                ref_distance=ref_distance,
+                time_reversal=(not self.is_magnetization))
+            self.seekpath_data = self.symmetrizer.seekpath_data
+            self.band_primitive = self.symmetrizer.band_primitive
         else:
-            self.seekpath_info = None
+            self.seekpath_data = None
+            self.band_primitive = None
 
     def make_kpoints(self):
         self._set_structure()
@@ -198,30 +200,18 @@ class MakeKpoints:
             self.num_kpts = len(self.kpoints.kpts)
 
     def _set_structure(self):
-
         if self.mode == KpointsMode.manual_set:
             self.corresponding_structure = self.initial_structure
 
         elif self.mode == KpointsMode.primitive_uniform:
-            d = {"structure": self.initial_structure,
-                 "symprec": self.symprec,
-                 "angle_tolerance": self.angle_tolerance}
-
-            self.corresponding_structure, _ = find_spglib_primitive(**d)
-            sym_dataset = get_symmetry_dataset(**d)
-            self.sg = sym_dataset["number"]
-            self.sg_symbol = sym_dataset["international"]
+            self.corresponding_structure = self.symmetrizer.primitive
+            self.sg = self.symmetrizer.spglib_sym_data["number"]
+            self.sg_symbol = self.symmetrizer.spglib_sym_data["international"]
 
         elif self.mode == KpointsMode.band:
-            lattice = self.seekpath_info["primitive_lattice"]
-            element_types = self.seekpath_info["primitive_types"]
-            species = [Element.from_Z(i) for i in element_types]
-            positions = self.seekpath_info["primitive_positions"]
-
-            self.corresponding_structure = \
-                Structure(lattice, species, positions)
-            self.sg = self.seekpath_info["spacegroup_number"]
-            self.sg_symbol = self.seekpath_info["spacegroup_international"]
+            self.corresponding_structure = self.band_primitive
+            self.sg = self.seekpath_data["spacegroup_number"]
+            self.sg_symbol = self.seekpath_data["spacegroup_international"]
 
         else:
             raise ValueError(f"{self.mode} mode is not supported yet.")
@@ -236,6 +226,7 @@ class MakeKpoints:
             reciprocal_lat = \
                 self.corresponding_structure.lattice.reciprocal_lattice
             reciprocal_abc = reciprocal_lat.abc
+
             if self.mode in (KpointsMode.band, KpointsMode.primitive_uniform):
 
                 body_centered_ortho = {23, 24, 44, 45, 46, 71, 72, 73, 74}
@@ -259,9 +250,9 @@ class MakeKpoints:
 
             self.kpt_mesh = [i * self.factor for i in self.kpt_mesh]
 
-            self.comment += f"Mode: {self.mode}, " \
-                            f"kpt density: {self.kpt_density}, " \
-                            f"factor: {self.factor}. "
+            self.comment += ", ".join([f"Mode: {self.mode}",
+                                       f"kpt density: {self.kpt_density}",
+                                       f"factor: {self.factor}."])
 
     def _set_centering(self):
         self.kpt_shift = []
@@ -284,8 +275,8 @@ class MakeKpoints:
                 self.kpt_shift[i] = 0.0
 
     def _add_band_kpts(self):
-        k_path = self.seekpath_info["explicit_kpoints_rel"]
-        k_path_label = self.seekpath_info["explicit_kpoints_labels"]
+        k_path = self.seekpath_data["explicit_kpoints_rel"]
+        k_path_label = self.seekpath_data["explicit_kpoints_labels"]
 
         formula = self.corresponding_structure.composition.reduced_formula
         self.kpoints.comment += \
@@ -296,10 +287,9 @@ class MakeKpoints:
         self.kpoints.kpts_weights += [0] * len(k_path)
 
     @property
-    def is_structure_changed(self):
-        return not np.allclose(self.initial_structure.lattice.matrix,
-                               self.corresponding_structure.lattice.matrix,
-                               atol=self.symprec)
+    def is_lattice_changed(self):
+        return not(self.initial_structure.lattice ==
+                   self.corresponding_structure.lattice)
 
 
 def irreducible_kpoints(structure: Structure,

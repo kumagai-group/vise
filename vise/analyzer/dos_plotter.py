@@ -52,7 +52,7 @@ class ViseDosPlotter(DosPlotter):
                 Title of the figure
 
         Returns:
-            Matplotlib pyplot
+            Matplotlib pyplot.
         """
 
         ncolors = min(9, max(3, len(self._doses)))
@@ -63,7 +63,7 @@ class ViseDosPlotter(DosPlotter):
         all_densities = []
         all_energies = []
 
-        # The DOS calculated using VASP holds a spuriously large value at the
+        # The DOS calculated using VASP may hold a spuriously large value at the
         # first mesh to keep the consistency with the integrated DOS in DOSCAR
         # file. An example is shown below.
         # ------------- DOSCAR --------------------
@@ -182,7 +182,7 @@ class ViseDosPlotter(DosPlotter):
         if title:
             axs[0].title.set_text(title)
 
-        return fig
+        return plt
 
 
 def get_dos_plot(vasprun: str,
@@ -198,7 +198,7 @@ def get_dos_plot(vasprun: str,
                  show_spg: bool = True,
                  symprec: float = SYMMETRY_TOLERANCE,
                  angle_tolerance: float = ANGLE_TOL):
-    """
+    """Get
 
     Args:
         vasprun (str):
@@ -416,6 +416,7 @@ def divide_densities(density: dict,
             Density of states as a function of Spin.
         denominator:
             Denominator.
+
     Returns:
         Density of states with the format of {spin: np.array(density)}.
     """
@@ -443,7 +444,7 @@ def max_density(density: dict,
         crop_first_value (bool):
             Whether to crop the first value or not.
 
-    Return (float):
+    Returns:
         Max value in the density within the given x-range.
     """
     values = []

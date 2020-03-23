@@ -23,6 +23,8 @@ from vise.chempotdiag.free_energy_entries import FreeEnergyEntrySet
 from vise.custodian_extension.handler_groups import handler_group
 from vise.custodian_extension.jobs import (
     ViseVaspJob, KptConvResult, StructureOptResult)
+from vise.custodian_extension.validators import (
+    VasprunXMLValidator, VaspFilesValidator)
 from vise.input_set.incar import incar_flags
 from vise.input_set.input_set import ViseInputSet
 from vise.input_set.prior_info import PriorInfo
@@ -138,7 +140,7 @@ def vasp_set(args: Namespace) -> None:
     os.chdir(started_dir)
 
 
-def vasp_run_parser(args) -> tuple:
+def vasp_run_parser(args: Namespace) -> tuple:
     if isinstance(args.vasp_cmd, str):
         vasp_cmd = args.vasp_cmd.split()
     elif isinstance(args.vasp_cmd, list):
@@ -165,7 +167,9 @@ def vasp_run_parser(args) -> tuple:
                       "polling_time_step": 5,
                       "monitor_freq": 1,
                       "max_errors": 10,
-                      "gzipped_output": False}
+                      "gzipped_output": False,
+                      "validators": [VasprunXMLValidator(),
+                                     VaspFilesValidator()]}
 
     return optimization_args, custodian_args
 
@@ -207,6 +211,10 @@ def kpt_conv(args) -> None:
 
 
 def chempotdiag(args: Namespace) -> None:
+    if args.print:
+        print(ChemPotDiag.load_json(args.json_file))
+        return
+
     if args.elements:
         entry_set = FreeEnergyEntrySet.from_mp(args.elements)
     else:
@@ -244,8 +252,8 @@ def plot_band(args) -> None:
                                         legend=args.legend,
                                         symprec=args.symprec,
                                         angle_tolerance=args.angle_tolerance)
-
-    p.show(args.filename, format_type="pdf")
+    p.bs_plotter.plot_brillouin()
+#    p.show(args.filename, format_type="pdf")
 
 
 def plot_dos(args) -> None:

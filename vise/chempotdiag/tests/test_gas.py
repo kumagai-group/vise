@@ -18,7 +18,8 @@ class TestGas(ViseTest):
     def test_o2 (self):
         self.assertAlmostEqual(self.o2.trans_free_energy, -0.40862436734991214)
         self.assertAlmostEqual(self.o2.rot_free_energy, -0.1107263561129291)
-        self.assertAlmostEqual(self.o2.zero_point_vibrational_energy, 0.09720351919699763)
+        self.assertAlmostEqual(self.o2.zero_point_vibrational_energy,
+                               0.09720351919699763)
         self.assertAlmostEqual(self.o2.vib_free_energy, -1.401901140122062e-05)
         self.assertAlmostEqual(self.o2.spin_free_energy, -0.02840132465202343)
         self.assertAlmostEqual(self.o2.energy_shift, -0.2252812739646341)

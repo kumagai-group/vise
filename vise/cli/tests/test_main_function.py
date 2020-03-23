@@ -178,7 +178,12 @@ class VaspRunTest(ViseTest):
 
 class TestChemPotDiag(ViseTest):
     def setUp(self) -> None:
+        self.args_print = Namespace(print=True,
+                                    json_file="cpd.json")
+
         self.kwargs_1 = {
+            "print": False,
+            "json_file": "cpd.json",
             "draw_phase_diagram": True,
             "vasp_dirs": None,
             "vasprun": None,
@@ -192,6 +197,8 @@ class TestChemPotDiag(ViseTest):
         self.from_mp_pd_filename = Namespace(**self.kwargs_1)
 
         self.kwargs_2 = {
+            "print": False,
+            "json_file": "cpd.json",
             "draw_phase_diagram": False,
             "vasp_dirs": ["a_dir", "b_dir"],
             "vasprun": "vasprun.xml.finish",
@@ -203,6 +210,11 @@ class TestChemPotDiag(ViseTest):
             "temperature": 0.0}
 
         self.from_dir_cpd = Namespace(**self.kwargs_2)
+
+    @patch('vise.cli.main_function.ChemPotDiag.load_json')
+    def test_print(self, mock):
+        chempotdiag(self.args_print)
+        mock.assert_called_with("cpd.json")
 
     @patch('vise.cli.main_function.PDPlotter')
     @patch('vise.cli.main_function.PhaseDiagram')

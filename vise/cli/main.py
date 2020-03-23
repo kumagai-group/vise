@@ -363,6 +363,12 @@ def parse_args(args):
     #     "-e", "--energy", dest="energy_csv", type=str, default=None,
     #     help="Name of csv file of energies of compounds")
     parser_cpd.add_argument(
+        "--print", action="store_true",
+        help="Whether to print cpd.json.")
+    parser_cpd.add_argument(
+        "--json_file", default="cpd.json", type=str,
+        help="cpd.json filename.")
+    parser_cpd.add_argument(
         "-dpd", "--draw_phase_diagram", action="store_true",
         help="set when drawing the phase diagram.")
     parser_cpd.add_argument(

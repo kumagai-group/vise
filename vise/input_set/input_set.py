@@ -23,7 +23,7 @@ from pymatgen.util.serialization import pmg_serialize
 from vise.analyzer.band_gap import band_gap_properties
 from vise.config import (
     DOS_STEP_SIZE, KPT_DENSITY, ENCUT_FACTOR_STR_OPT, ANGLE_TOL,
-    SYMMETRY_TOLERANCE, BAND_REF_DIST, DEFAULT_NUM_NODES)
+    SYMMETRY_TOLERANCE, BAND_MESH_DISTANCE, DEFAULT_NUM_NODES)
 from vise.input_set.incar import ViseIncar
 from vise.input_set.settings_incar import (
     TaskIncarSettings, XcIncarSettings, XcTaskIncarSettings,
@@ -135,7 +135,7 @@ class ViseInputSet(VaspInputSet):
                     "kpt_density": KPT_DENSITY,
                     "kpt_shift": None,
                     "only_even": False,
-                    "band_ref_dist": BAND_REF_DIST,
+                    "band_ref_dist": BAND_MESH_DISTANCE,
                     "factor": None,
                     "symprec": SYMMETRY_TOLERANCE,
                     "angle_tolerance": ANGLE_TOL,
@@ -582,11 +582,7 @@ class ViseInputSet(VaspInputSet):
 
             gap_properties = band_gap_properties(vasprun, outcar)
 
-            # For metall,
-            # gap_properties = ({'energy': 0.0,
-            #                    'direct': False,
-            #                    'transition': None}, None, None)
-            if gap_properties[2]:
+            if gap_properties[1]:
                 _, vbm, cbm = gap_properties
                 kwargs["vbm_cbm"] = [vbm["energy"], cbm["energy"]]
 

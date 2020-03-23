@@ -255,6 +255,7 @@ class MainKptConvTest(ViseTest):
 
     def test_kpt_conv_w_options(self):
         parsed_args = parse_args(["kc",
+                                  "--print",
                                   "--json_file", "test.json",
                                   "-v", "vasp", "cmd",
                                   "-ikd", "3.5",
@@ -265,7 +266,7 @@ class MainKptConvTest(ViseTest):
                                   "--criterion", "0.01",
                                   "--left_files", "POSCAR", "PCDAT"])
         expected = Namespace(
-            print=False,
+            print=True,
             json_file="test.json",
             vasp_cmd=["vasp", "cmd"],
             initial_kpt_density=3.5,
@@ -284,6 +285,8 @@ class MainChemPotDiagTest(ViseTest):
     def test_vasp_run_wo_options(self):
         parsed_args = parse_args(["cpd"])
         expected = Namespace(
+            print=False,
+            json_file="cpd.json",
             draw_phase_diagram=False,
             vasp_dirs=None,
             vasprun="vasprun.xml",
@@ -298,6 +301,8 @@ class MainChemPotDiagTest(ViseTest):
 
     def test_vasp_run_w_options(self):
         parsed_args = parse_args(["cpd",
+                                  "--print",
+                                  "--json_file", "test.json",
                                   "-dpd",
                                   "-d", "a_dir", "b_dir",
                                   "-v", "vasprun.xml.finish",
@@ -309,6 +314,8 @@ class MainChemPotDiagTest(ViseTest):
                                   "-t", "1000"])
 
         expected = Namespace(
+            print=True,
+            json_file="test.json",
             draw_phase_diagram=True,
             vasp_dirs=["a_dir", "b_dir"],
             vasprun="vasprun.xml.finish",

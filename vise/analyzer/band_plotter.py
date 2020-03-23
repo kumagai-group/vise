@@ -4,7 +4,7 @@
 from typing import List, Union
 
 import numpy as np
-
+import re
 import scipy.interpolate as scint
 
 from matplotlib import pyplot
@@ -13,7 +13,7 @@ from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.electronic_structure.bandstructure import (
     get_reconstructed_band_structure)
 from pymatgen.electronic_structure.core import Spin
-from pymatgen.electronic_structure.plotter import BSPlotter
+from pymatgen.electronic_structure.plotter import BSPlotter, plot_brillouin_zone
 from pymatgen.io.vasp import Kpoints, Vasprun
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.plotting import pretty_plot
@@ -21,6 +21,7 @@ from pymatgen.util.string import latexify_spacegroup, latexify
 
 from vise.config import SYMMETRY_TOLERANCE, ANGLE_TOL
 from vise.util.logger import get_logger
+from vise.util.matplotlib import formatter
 
 
 logger = get_logger(__name__)
@@ -36,7 +37,9 @@ class PrettyBSPlotter:
                  legend: bool = False,
                  symprec: float = SYMMETRY_TOLERANCE,
                  angle_tolerance: float = ANGLE_TOL) -> None:
-        """
+        """Band structure plotter class
+
+        Two bands are plotted in the same figure.
 
         Args:
             band (BandStructureSymmLine):
@@ -54,8 +57,8 @@ class PrettyBSPlotter:
             angle_tolerance (float):
                 Angle tolerance used for determining the space group.
         """
+        self.bs_plotter = ModBSPlotter(band)
 
-        bs_plotter = ModBSPlotter(band)
         comp = band.structure.composition.get_reduced_formula_and_factor()[0]
         sga = SpacegroupAnalyzer(structure=band.structure,
                                  symprec=symprec,
@@ -71,10 +74,10 @@ class PrettyBSPlotter:
                   "title": f"{comp}, SG: {sg_symbol} ({sg_num})"}
 
         if not band2:
-            self.plotter = bs_plotter.get_plot(**kwargs)
+            self.plotter = self.bs_plotter.get_plot(**kwargs)
         else:
             bs_plotter2 = ModBSPlotter(band2)
-            self.plotter = bs_plotter2.plot_compare(bs_plotter, **kwargs)
+            self.plotter = bs_plotter2.plot_compare(self.bs_plotter, **kwargs)
 
     @classmethod
     def from_vasp_files(cls,
@@ -82,34 +85,95 @@ class PrettyBSPlotter:
                         vasprun_filenames: Union[List[str], str],
                         vasprun2_filenames: Union[List[str], str] = None,
                         **kwargs) -> "PrettyBSPlotter":
+        """Construct instance from vasp files.
 
-        band = cls.make_sym_line(kpoints_filenames, vasprun_filenames)
+        Compatible with the split multiple vasp calculations.
+
+        Args:
+            kpoints_filenames:
+                List of KPOINTS file names.
+            vasprun_filenames:
+                List of vasprun.xml file names for the first band structure.
+            vasprun2_filenames:
+                List of vasprun.xml file names for the second band structure.
+            **kwargs:
+                Passed to the constructor. See __int__ docstrings.
+
+        Returns:
+            PrettyBSPlotter instance.
+        """
+        band = make_sym_line(kpoints_filenames, vasprun_filenames)
+
         if vasprun2_filenames:
-            band2 = cls.make_sym_line(kpoints_filenames, vasprun2_filenames)
+            band2 = make_sym_line(kpoints_filenames, vasprun2_filenames)
         else:
             band2 = None
 
         return cls(band=band, band2=band2, **kwargs)
-
-    @staticmethod
-    def make_sym_line(kpoints_filenames: Union[List[str], str],
-                      vasprun_filenames: Union[List[str], str]
-                      ) -> "VaspBandStructureSymmLine":
-        """Create VaspBandStructureSymmLine from vasp files. """
-
-        if isinstance(kpoints_filenames, list):
-            band = [VaspBandStructureSymmLine(k, v)
-                    for k, v in zip(kpoints_filenames, vasprun_filenames)]
-            return get_reconstructed_band_structure(band)
-        else:
-            return VaspBandStructureSymmLine(kpoints_filenames,
-                                             vasprun_filenames)
 
     def show(self, filename: str = None, format_type: str = "pdf") -> None:
         if filename:
             self.plotter.savefig(filename, format=format_type)
         else:
             self.plotter.show()
+
+
+def greek_to_unicode(label):
+    d = {"GAMMA": "Γ",
+         "SIGMA": "Σ",
+         "DELTA": "Δ"}
+    for k, v in d.items():
+        label = label.replace(k, v)
+    label = re.sub(r"([A-Z])_", r"{\\rm \1}_", label)  # itallic to roman
+    print(label)
+    return label
+
+
+def labels_to_unicode(d: dict):
+    new_d = {}
+    for k, v in d.items():
+        if isinstance(k, str):
+            k = greek_to_unicode(k)
+        if isinstance(v, str):
+            v = greek_to_unicode(v)
+        elif isinstance(v, dict):
+            v = labels_to_unicode(v)
+        new_d[k] = v
+
+    return new_d
+
+
+def make_sym_line(kpoints_filenames: Union[List[str], str],
+                  vasprun_filenames: Union[List[str], str]
+                  ) -> "BandStructureSymmLine":
+    """Create VaspBandStructureSymmLine from vasp files.
+
+    Args:
+        kpoints_filenames:
+            List of KPOINTS file names.
+        vasprun_filenames:
+            List of vasprun.xml file names for the first band structure.
+
+    Returns:
+        PrettyBSPlotter instance.
+    """
+
+    if isinstance(kpoints_filenames, list):
+        band = [Vasprun(v).get_band_structure(k, line_mode=True)
+                for k, v in zip(kpoints_filenames, vasprun_filenames)]
+        bsl = get_reconstructed_band_structure(band)
+    else:
+        v = Vasprun(vasprun_filenames)
+        bsl = v.get_band_structure(kpoints_filenames, line_mode=True)
+
+    st = bsl.structure
+    bsl_dict = labels_to_unicode(bsl.as_dict())
+    bsl = BandStructureSymmLine.from_dict(bsl_dict)
+    bsl.structure = st  # structure is removed during dict round trip.
+
+    print(bsl.labels_dict)
+
+    return bsl
 
 
 class ModBSPlotter(BSPlotter):
@@ -261,6 +325,9 @@ class ModBSPlotter(BSPlotter):
         if title:
             plt.title(title, size=20)
 
+        ax = plt.gca()
+        ax.yaxis.set_major_formatter(formatter)
+
         plt.tight_layout()
         return plt
 
@@ -362,90 +429,12 @@ class ModBSPlotter(BSPlotter):
         plt.tight_layout()
         return plt
 
+    def plot_brillouin(self):
+        """ plot the Brillouin zone """
+        # get labels and lines
+        labels = {}
+        for k in self._bs.kpoints:
+            if k.label:
+                labels[k.label] = k.frac_coords
 
-class VaspBandStructureSymmLine(BandStructureSymmLine):
-
-    def __init__(self,
-                 kpoints_filename: str,
-                 vasprun_filename: str,
-                 is_projection=False):
-        """Create BandStructureSymmLine from KPOINTS and vasprun.xml.
-
-        Notes: KPOINTS file includes finite weight part and zero weight part;
-               the former is used for constructing the Hamiltonian while the
-               latter for band structure symmetry line.
-
-        Args:
-            kpoints_filename (str):
-                KPOINTS file name parsed.
-            vasprun_filename (str):
-                vasprun.xml file name parsed.
-            is_projection (bool):
-                Whether to calculate the projection values.
-        """
-        kpoints = Kpoints.from_file(kpoints_filename)
-
-        # BSVasprun cannot be used when the electronic convergence is checked.
-        vasprun = Vasprun(filename=vasprun_filename,
-                          parse_projected_eigen=is_projection)
-
-        if vasprun.converged_electronic is False:
-            logger.error("SCF is not attained!!!!!")
-
-        eigenvalues = vasprun.eigenvalues
-        reciprocal_lattice = vasprun.final_structure.lattice.reciprocal_lattice
-        efermi = vasprun.efermi
-
-        # K-points with weight for Hamiltonian are omitted from the plot.
-        first_index_wo_weight = sum(w > 0 for w in kpoints.kpts_weights)
-        kpts_wo_weight = kpoints.kpts[first_index_wo_weight:]
-
-        eigenvalues_wo_weight = {}
-        for s in eigenvalues:
-            # transpose is essential
-            # When parsing vasprun.xml using BSVasprun,
-            # eigenvalues[kpt-index][band-index] = [energy, occupation]
-            # For BSPlotter
-            # eigenvalues[band-index][kpt-index] = energy
-            eigenvalues_wo_weight[Spin(s)] = \
-                eigenvalues[Spin(s)][first_index_wo_weight:, :, 0].transpose()
-
-        # Store label except for "None".
-        labels_dict = {}
-        for i, label in enumerate(kpoints.labels):
-            if label != "None" and label is not None:
-                if label == "GAMMA":
-                    labels_dict["\u0393"] = kpoints.kpts[i]
-                elif label == "SIGMA_0":
-                    labels_dict["\u03A3" + "_0"] = kpoints.kpts[i]
-                elif label == "DELTA_0":
-                    labels_dict["\u0394" + "_0"] = kpoints.kpts[i]
-                else:
-                    labels_dict[label] = kpoints.kpts[i]
-
-        structure = vasprun.final_structure
-
-        # TODO: Write unittest for the projection.
-        # TODO: Use projections for the plot.
-        projections = None
-        if is_projection:
-            v = vasprun.projected_eigenvalues
-            projections = {}
-            for s in eigenvalues:
-                # swapaxes is essential
-                # When parsing vasprun.xml using BSVasprun,
-                #  Vasprun.projected_eigenvalues[spin][kpoint index][band index]
-                #                               [atom index][orbital_index]
-                # For BSPlotter
-                # projections: dict of orbital projections as {spin: ndarray}.
-                # The indices of the ndarray are [band_index, kpoint_index,
-                #                                 orbital_index, ion_index].
-                projections[Spin(s)] = v[Spin(s)].swapaxes(0, 1).swapaxes(2, 3)
-
-        super().__init__(kpoints=kpts_wo_weight,
-                         eigenvals=eigenvalues_wo_weight,
-                         lattice=reciprocal_lattice,
-                         efermi=efermi,
-                         labels_dict=labels_dict,
-                         structure=structure,
-                         projections=projections)
+        plot_brillouin_zone(self._bs.lattice_rec, labels=labels)

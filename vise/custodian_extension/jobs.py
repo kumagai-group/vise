@@ -12,9 +12,11 @@ from uuid import uuid4
 
 import numpy as np
 from custodian.vasp.jobs import VaspJob
+
 from monty.json import MSONable
 from monty.json import MontyEncoder
 from monty.serialization import loadfn
+
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp import Kpoints, Vasprun
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -563,8 +565,8 @@ class ViseVaspJob(VaspJob):
                      initial_kpt_density: Optional[float] = KPT_INIT_DENSITY,
                      gamma_vasp_cmd: Optional[list] = None,
                      max_relax_num: int = 10,
-                     max_kpt_num: int = 10,
-                     convergence_criterion: float = 0.003,
+                     max_kpt_num: int = 12,
+                     convergence_criterion: float = 0.005,
                      num_kpt_check: int = 2,
                      removes_wavecar: bool = False,
                      left_files: Optional[list] = None,
@@ -654,8 +656,8 @@ class ViseVaspJob(VaspJob):
                         **vis_kwargs)
                     # ex kpoints.kpts = [[5, 5, 4]], so we need [0].
                     kpt = vis.kpoints.kpts[0]
-                    if (not kpt == prev_kpt
-                            and all([i >= j for i, j in zip(kpt, prev_kpt)])):
+                    no_kpt_reduce = all([i >= j for i, j in zip(kpt, prev_kpt)])
+                    if kpt != prev_kpt and no_kpt_reduce:
                         break
             else:
                 if is_sg_changed is True:

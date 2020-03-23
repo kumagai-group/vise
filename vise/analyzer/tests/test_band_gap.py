@@ -8,7 +8,7 @@ import warnings
 from pymatgen.io.vasp.outputs import Vasprun, Outcar
 from pymatgen.electronic_structure.core import Spin
 
-from vise.analyzer.band_gap import band_gap_properties, edge_info
+from vise.analyzer.band_gap import band_gap_properties, get_band_edge
 from vise.util.testing import ViseTest
 
 
@@ -16,12 +16,11 @@ parent_dir = Path(__file__).parent
 
 
 class BandGapPropertiesTest(ViseTest):
-    @classmethod
-    def setUpClass(cls):
+
+    def setUp(self):
         warnings.simplefilter("ignore")
 
-    @classmethod
-    def tearDownClass(cls):
+    def tearDown(self):
         warnings.simplefilter("default")
 
     def test_mgo(self):
@@ -81,9 +80,9 @@ class EdgeInfoTest(ViseTest):
         self.eigenvalues = {Spin.up: values}
 
     def test(self):
-        actual = edge_info(self.eigenvalues,
-                           hob_index=0,
-                           spin=Spin.up)
+        actual = get_band_edge(self.eigenvalues,
+                               hob_band_index=0,
+                               spin=Spin.up)
         expected = 5.0, 1, 3.0, 0
         self.assertEqual(expected, actual)
 

@@ -13,6 +13,8 @@ from pymatgen.electronic_structure.core import Magmom
 from pymatgen.io.vasp import Incar
 from pymatgen.util.io_utils import clean_lines
 
+from vise.util.logger import get_logger
+
 from tabulate import tabulate
 
 
@@ -20,6 +22,9 @@ MODULE_DIR = Path(os.path.dirname(os.path.abspath(__file__)))
 # This incar_flags should be OrderedDict, but from python 3.6, dict uses
 # order-preserving semantics. Furthermore, it does not affect vasp result.
 incar_flags = loadfn(MODULE_DIR / "datasets" / "incar_flags.yaml")
+
+
+logger = get_logger(__name__)
 
 
 class ViseIncar(Incar):
@@ -88,7 +93,7 @@ class ViseIncar(Incar):
                 params[k] = v
         return ViseIncar(params)
 
-    def get_string(self, **kwargs) -> str:
+    def get_string(self, raise_error: bool = False, **kwargs) -> str:
         """Override for the pretty printing. """
         lines = []
         check_incar_keys = deepcopy(self)
@@ -147,7 +152,9 @@ class ViseIncar(Incar):
                 check_incar_keys.pop(mson_key)
 
         if check_incar_keys:
-            raise ValueError(f"{check_incar_keys.keys()} are invalid in INCAR.")
+            logger.error(f"{check_incar_keys.keys()} are invalid in INCAR.")
+            if raise_error:
+                raise ValueError
 
         return "".join(lines)
 
