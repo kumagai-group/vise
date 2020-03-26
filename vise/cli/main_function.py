@@ -30,7 +30,6 @@ from vise.input_set.input_set import ViseInputSet
 from vise.input_set.prior_info import PriorInfo
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc
-from vise.util.error_classes import NoVaspCommandError
 from vise.util.logger import get_logger
 from vise.cli.main_tools import potcar_str2dict, list2dict
 from vise.util.mp_tools import make_poscars_from_mp
@@ -149,7 +148,7 @@ def vasp_run_parser(args: Namespace) -> tuple:
         else:
             vasp_cmd = args.vasp_cmd
     else:
-        raise NoVaspCommandError("Vasp command must be specified properly.")
+        raise ValueError("Vasp command must be specified properly.")
 
     handlers = handler_group(args.handler_name, timeout=args.timeout)
 

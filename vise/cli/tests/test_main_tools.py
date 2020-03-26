@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
+import os
 from pathlib import Path
 import tempfile
+from unittest.mock import patch
 
 from vise.cli.main_tools import (
     potcar_str2dict, list2dict, dict2list, get_user_settings, get_default_args)
@@ -61,60 +63,60 @@ class Dict2ListTest(ViseTest):
 
 
 class GetUserSettingsTest(ViseTest):
-    def setUp(self) -> None:
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml") as tmp_file:
-            tmp_file.write("""# This file is needed for the unittest.
-symprec: 0.01
-user_incar_settings:
-  ALGO: False
-ldauu:
-  Mn: 5
-  O: 3
-xc: hse
-potcar_set: Mg_pv O_h
-dir: ./path""")
-            # This is needed to actually write down the string.
-            tmp_file.flush()
-            self.setting_keys = ["symprec", "user_incar_settings", "ldauu",
-                                 "xc", "potcar_set", "test_key", "dir"]
-            self.user_setting, path = \
-                get_user_settings(tmp_file.name, self.setting_keys)
 
-    def test_dict(self):
-        actual = self.user_setting['ldauu']
-        expected = {'Mn': 5, 'O': 3}
-        self.assertEqual(expected, actual)
+    @patch("pathlib.Path.home")
+    def test(self, mock_home) -> None:
+        with tempfile.TemporaryDirectory() as dirname:
+            mock_home.return_value = Path(dirname)
+            os.chdir(dirname)
+            os.mkdir(".home_hidden_dir")
+            with open('.home_hidden_dir/test_vise.yaml', mode="w") as f:
+                f.write("""# This file is needed for the unittest.
+a_float: 0.01
+settings:
+  b: False
+c_dict:
+  d: 5
+  e: 3
+f_str: g h
+i_dir: ~/j""")
 
-    def test_bool(self):
-        actual = self.user_setting['user_incar_settings']['ALGO']
-        self.assertEqual(False, actual)
+            with self.assertRaises(KeyError):
+                get_user_settings(yaml_filename="test_vise.yaml",
+                                  setting_keys=["nokey"],
+                                  home_hidden_directory=".home_hidden_dir")
 
-    def test_float(self):
-        actual = self.user_setting['symprec']
-        self.assertEqual(0.01, actual)
+            setting_keys = ["a_float", "settings", "c_dict", "f_str", "i_dir"]
 
-    def test_string(self):
-        actual = self.user_setting['xc']
-        self.assertEqual("hse", actual)
+            user_setting, _ = \
+                get_user_settings(yaml_filename="test_vise.yaml",
+                                  setting_keys=setting_keys,
+                                  home_hidden_directory=".home_hidden_dir")
 
-    def test_string_list(self):
-        actual = self.user_setting['potcar_set']
-        self.assertEqual("Mg_pv O_h", actual)
+            self.assertEqual(0.01, user_setting["a_float"])
+            self.assertEqual({'b': False}, user_setting["settings"])
+            self.assertEqual({'d': 5, 'e': 3}, user_setting["c_dict"])
+            self.assertEqual("g h", user_setting["f_str"])
+            expected = str(mock_home.return_value / ".home_hidden_dir" / "~/j")
+            self.assertEqual(expected, user_setting["i_dir"])
 
-    def test_full_path(self):
-        actual = self.user_setting['dir']
-        cwd = Path.cwd()
-        expected = cwd / "path"
-        self.assertEqual(str(expected), actual)
+            with open('test_vise.yaml', mode="w") as f:
+                f.write("""a_float: 0.02,
+f_str: x y
+""")
 
-    def test_fail(self):
-        with self.assertRaises(ValueError):
-            with tempfile.NamedTemporaryFile(mode="w",
-                                             suffix=".yaml") as tmp_file:
-                tmp_file.write("incorrect_key: 0.01")
-                # This is needed to actually write down the string.
-                tmp_file.flush()
-                get_user_settings(tmp_file.name, self.setting_keys)
+            os.makedirs("dir_a/dir_b")
+
+            with open('dir_a/dir_b/test_vise.yaml', mode="w") as f:
+                f.write("""a_float: 0.03""")
+
+            os.chdir("dir_a/dir_b")
+            user_setting, yaml_files = \
+                get_user_settings(yaml_filename="test_vise.yaml",
+                                  setting_keys=setting_keys,
+                                  home_hidden_directory=".home_hidden_dir")
+            self.assertEqual(0.03, user_setting["a_float"])
+            self.assertEqual("x y", user_setting["f_str"])
 
 
 class GetDefaultArgsTest(ViseTest):

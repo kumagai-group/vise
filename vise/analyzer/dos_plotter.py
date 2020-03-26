@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 
 from collections import OrderedDict, defaultdict
+from itertools import groupby
 import matplotlib.pyplot as plt
 from typing import Dict, List
 
 import numpy as np
+
+import palettable
 
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.dos import Dos
@@ -16,7 +19,6 @@ from pymatgen.util.string import latexify_spacegroup, latexify
 
 from vise.config import SYMMETRY_TOLERANCE, ANGLE_TOL
 from vise.util.logger import get_logger
-from vise.util.error_classes import InvalidStructureError
 
 
 logger = get_logger(__name__)
@@ -54,14 +56,9 @@ class ViseDosPlotter(DosPlotter):
         Returns:
             Matplotlib pyplot.
         """
-
+        # From 3 to 9
         ncolors = min(9, max(3, len(self._doses)))
-        import palettable
         colors = palettable.colorbrewer.qualitative.Set1_9.mpl_colors
-
-#        y = None
-        all_densities = []
-        all_energies = []
 
         # The DOS calculated using VASP may hold a spuriously large value at the
         # first mesh to keep the consistency with the integrated DOS in DOSCAR
@@ -75,27 +72,28 @@ class ViseDosPlotter(DosPlotter):
         #     23.00000000 - 9.00000000 3201 6.62000004 1.00000000
         #     -9.000 0.6000E+03 0.6000E+03 0.6000E+01 0.6000E+01 <-- large DOS
         #     -8.990 0.0000E+00 0.0000E+00 0.6000E+01 0.6000E+01
-
         i = 1 if crop_first_value else 0
 
-        densities = {}
+        all_densities = []
+        all_energies = []
         for key, dos in self._doses.items():
             energies = dos['energies'][i:]
             densities = {Spin(k): v[i:] for k, v in dos['densities'].items()}
-            # if not y:
-            #     y = {Spin.up: np.zeros(energies.shape),
-            #          Spin.down: np.zeros(energies.shape)}
             all_energies.append(energies)
             all_densities.append(densities)
+
         # Make groups to be shown in the same figure.
         # Example, ZrTiSe4
         # keys = ['Total', 'Site:1 Zr-s', 'Site:1 Zr-p', 'Site:1 Zr-d',
         #         'Site:2 Ti-s', 'Site:2 Ti-p', 'Site:2 Ti-d', 'Site:3 Se-s',
         #         'Site:3 Se-p', 'Site:3 Se-d', 'Site:5 Se-s', 'Site:5 Se-p',
         #         'Site:5 Se-d']
-        keys = list(self._doses.keys())
+        # grouped_keys =
+        #           {"Total"; "Total",
+        #            "Site:1": ["Site:1 Zr-s', 'Site:1 Zr-p', 'Site:1 Zr-d'],
+        #            ...
         grouped_keys = OrderedDict()
-        for k in keys:
+        for k in self._doses.keys():
             first_word = k.split()[0]
             if first_word in grouped_keys:
                 grouped_keys[first_word].append(k)
@@ -115,8 +113,8 @@ class ViseDosPlotter(DosPlotter):
                     x = []
                     y = []
                     if spin in all_densities[n]:
-                        density_list = list(int(spin) * all_densities[n][spin])
-                        energies = list(all_energies[n])
+                        density_list = int(spin) * all_densities[n][spin]
+                        energies = all_energies[n]
                         x.extend(energies)
                         y.extend(density_list)
 
@@ -142,34 +140,24 @@ class ViseDosPlotter(DosPlotter):
 
             if legend:
                 axs[i].legend(loc="best", markerscale=0.1)
-                #                axs[i].legend(bbox_to_anchor=(1.1, 0.8), loc="best")
                 leg = axs[i].get_legend()
                 for legobj in leg.legendHandles:
-                    legobj.set_linewidth(1.2)
+                    legobj.set_linewidth(1.2)  # legend line width
                 ltext = leg.get_texts()
-                plt.setp(ltext, fontsize=7)
+                plt.setp(ltext, fontsize=7)  # legend font size
 
             axs[i].axhline(0, color="black", linewidth=0.5)
-
-        if ylims and len(ylims) not in (num_figs, 2):
-            raise ValueError("The number of y-ranges is not proper.")
 
         if ylims and len(ylims) == 2:
             if ylims[0][1] > 1.0:
                 axs[0].set_ylim(ylims[0])
             for i in range(1, len(axs)):
                 axs[i].set_ylim(ylims[1])
-
-        elif ylims:
+        elif ylims and len(ylims) == num_figs:
             for i in range(len(axs)):
                 axs[i].set_ylim(ylims[i])
-        # else:
-        #     for i in range(len(axs)):
-        #         ylim = axs[i].get_ylim()
-        #         print(ylim)
-        #         relevanty = [p[1] for p in all_pts
-        #                      if ylim[0] < p[0] < ylim[1]]
-        #         axs[i].set_ylim((min(relevanty), max(relevanty)))e
+        elif ylims:
+            raise ValueError("The number of y-ranges is not proper.")
 
         axs[-1].set_xlabel('Energy (eV)')
         axs[0].set_ylabel("Total DOS (1/eV)")
@@ -206,11 +194,13 @@ def get_dos_plot(vasprun: str,
         cbm_vbm (list):
             List of [cbm, vbm]. This is used when band edge is determined from
             the band structure calculation.
-        pdos_type (str): Plot type of PDOS.
+        pdos_type (str):
+            Plot type of PDOS.
             "element": PDOS grouped by element type
             "site": PDOS grouped by equivalent sites
-            "none": PDOS are not grouped.
-        specific (list): Show specific PDOS. If list elements are integers,
+            "none": PDOS are not grouped, so all dos are shown individually.
+        specific (list):
+            Show specific PDOS. If list elements are integers,
             PDOS at particular sites are shown. If elements are shown,
             PDOS of particular elements are shown.
             ["1", "2"] --> At site 1 and 2 compatible with pdos_type = "none"
@@ -236,23 +226,19 @@ def get_dos_plot(vasprun: str,
         angle_tolerance (float):
             Angle tolerance for symmetry analysis in degree.
     """
-
     v = Vasprun(vasprun, ionic_step_skip=True, parse_eigen=False)
     if v.converged_electronic is False:
-        logger.warning("SCF is not attained in the vasp calculation.")
-
-    complete_dos = v.complete_dos
-
-    # check cbm
-    if cbm_vbm is None:
-        if complete_dos.get_gap() > 0.1:
-            cbm_vbm = complete_dos.get_cbm_vbm()
+        logger.warning("Be aware SCF is not attained in the vasp calculation.")
 
     structure = v.final_structure
+    complete_dos = v.complete_dos
+    # check cbm
+    if cbm_vbm is None:
+        if v.complete_dos.get_gap() > 0.1:
+            cbm_vbm = complete_dos.get_cbm_vbm()
 
     dos = OrderedDict()
-    # The CompleteDos behaves as DOS for total dos.
-    dos["Total"] = complete_dos
+    dos["Total"] = complete_dos  # CompleteDos has same format as Dos.
 
     if specific and specific[0].isdigit():
         if pdos_type is not "none":
@@ -264,9 +250,8 @@ def get_dos_plot(vasprun: str,
             logger.warning(f"pdos_type is changed from {pdos_type} to element")
         pdos_type = "element"
 
-    sga = None
     grouped_indices = defaultdict(list)
-
+    sga = None
     if pdos_type == "element":
         for indices, s in enumerate(structure):
             grouped_indices[str(s.specie)].append(indices)
@@ -293,8 +278,9 @@ def get_dos_plot(vasprun: str,
                     else:
                         break
                 else:
-                    raise InvalidStructureError(
-                        "More than 9 same Wyckoff sites are not supported.")
+                    raise ValueError(
+                        "The situation where more than 9 same Wyckoff sites "
+                        "exist is not supported.")
             grouped_indices[name] = l
             logger.info({f"Atoms {grouped_indices[name]} grouped to {name}."})
 

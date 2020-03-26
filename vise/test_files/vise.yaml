@@ -1,7 +1,6 @@
 # for unittest
 vasp_cmd: "test command"
 potcar_set_name: gw
-symprec: 2
 
 ldauu:
   Mn: 5
@@ -10,3 +9,5 @@ ldaul:
   Mn: 2
   O: 1
 xc: hse
+
+SYMMETRY_TOLERANCE: 2

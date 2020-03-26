@@ -10,7 +10,10 @@ import yaml
 from pymatgen.core.periodic_table import Element
 
 from vise.util.tools import is_str_int, is_str_digit, str2bool
-from distutils.util import strtobool
+from vise.util.logger import get_logger
+
+
+logger = get_logger(__name__)
 
 
 def potcar_str2dict(potcar_list: Union[str, List[str], None]) -> dict:
@@ -144,7 +147,9 @@ def dict2list(d: dict) -> list:
 
 
 def get_user_settings(yaml_filename: str,
-                      setting_keys: list) -> Tuple[dict, Optional[Path]]:
+                      setting_keys: list,
+                      home_hidden_directory: str = None
+                      ) -> Tuple[dict, List[Path]]:
     """Get the user specifying settings written in yaml_filename
 
     Note1: The yaml_filename is explored in the parent folders up to home
@@ -152,8 +157,8 @@ def get_user_settings(yaml_filename: str,
            dictionary is returned.
     Note2: When the key includes "/", the absolute path is added as a prefix.
            E.g., unitcell/unitcell.json -> /something/../unitcell/unitcell.json
-    Note3: The value of "potcar_set: Mg_pv O_h" is string of  "Mg_pv O_h", which
-           is suited for main default value.
+    Note3: The value of "potcar_set: Mg_pv O_h" is a single string of
+           "Mg_pv O_h", which is suited for main default value.
 
     Args:
         yaml_filename (str):
@@ -161,38 +166,50 @@ def get_user_settings(yaml_filename: str,
         setting_keys (list):
             Only setting_keys are valid as input keys, otherwise raise
             ValueError.
+        home_hidden_directory (str):
+            Hidden directory name, e.g., .vies where yaml_filename may exist.
 
     Returns:
         Tuple of dictionary of configs and Path to the config file.
     """
-
     config_path = Path.cwd()
     home = Path.home()
+    yaml_files = []
 
     while True:
-        if config_path == home or config_path == Path("/"):
-            return {}, None
-
         f = config_path / yaml_filename
         if f.exists():
-            with open(f, "r") as fin:
-                user_settings = yaml.load(fin, Loader=yaml.FullLoader)
-            break
+            yaml_files.append(f)
 
+        if config_path == home or config_path == Path("/"):
+            break
         else:
             config_path = config_path.parent
 
-    user_settings = user_settings or {}
+    if home_hidden_directory:
+        f = home / home_hidden_directory / yaml_filename
+        if f.exists():
+            yaml_files.append(f)
 
-    # Add full path
-    for k, v in user_settings.items():
-        if k not in setting_keys:
-            raise ValueError(f"Key {k} in {yaml_filename} is invalid."
-                             f"The candidate keys are {setting_keys}")
-        if isinstance(v, str) and re.match(r'\S*/\S*', v):
-            user_settings[k] = str(config_path / v)
+    yaml_files = list(reversed(yaml_files))  # reverse yaml files here.
+    user_settings = {}
+    for f in yaml_files:
+        try:
+            with open(f, "r") as fin:
+                tmp_user_settings = yaml.load(fin, Loader=yaml.FullLoader)
+            for k, v in tmp_user_settings.items():
+                if k not in setting_keys:
+                    raise KeyError(f"Key {k} in {yaml_filename} is invalid."
+                                   f"The candidate keys are {setting_keys}")
+                if isinstance(v, str) and re.match(r'\S*/\S*', v):
+                    user_settings[k] = str(f.parent / v)
+                else:
+                    user_settings[k] = v
+        except AttributeError or KeyError:
+            logger.error(f"Parsing file {f} failed.")
+            raise
 
-    return user_settings, f
+    return user_settings, yaml_files
 
 
 def get_default_args(function: Callable) -> dict:

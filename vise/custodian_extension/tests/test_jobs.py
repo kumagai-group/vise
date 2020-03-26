@@ -18,9 +18,11 @@ class RmWavecarTest(ViseTest):
 
     def test_remove_wavecar_at_current_dir(self):
         # Whether WAVECAR at the current directory exists or not.
-        Path('WAVECAR').touch()
-        rm_wavecar(remove_current=True)
-        self.assertFalse(Path("WAVECAR").is_file())
+        with tempfile.TemporaryDirectory() as tmp_dirname:
+            os.chdir(tmp_dirname)
+            Path('WAVECAR').touch()
+            rm_wavecar(remove_current=True)
+            self.assertFalse(Path("WAVECAR").is_file())
 
     def test_remove_wavecar_at_subdir(self):
         # Create a file in the temporary directory

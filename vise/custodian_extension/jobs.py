@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+#  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
 import json
 import os
@@ -27,10 +28,9 @@ from vise.input_set.incar import Incar
 from vise.input_set.input_set import ViseInputSet
 from vise.input_set.task import Task, LATTICE_RELAX_TASK
 from vise.input_set.xc import Xc
-from vise.util.error_classes import VaspNotConvergedError, KptNotConvergedError
 from vise.util.logger import get_logger
 
-""" Provides structure optimization and kpt convergence jobs for VASP runs. """
+"""Provides structure optimization and kpt convergence jobs for VASP runs. """
 
 logger = get_logger(__name__)
 
@@ -42,7 +42,7 @@ VASP_FINISHED_FILES = {i + ".finish" for i in VASP_SAVED_FILES}
 
 def rm_wavecar(remove_current: bool,
                remove_subdirectories: Optional[bool] = False) -> None:
-    """Remove WAVECARs at the current directory and subdirectories."""
+    """Remove WAVECARs in the current directory and subdirectories."""
     logger.info(f"Remove WAVECAR in current directory: {remove_current}")
     logger.info(f"Remove WAVECAR in   sub directories: {remove_subdirectories}")
 
@@ -714,3 +714,11 @@ class ViseVaspJob(VaspJob):
                 "Energy was not converged as function of k-points numbers.")
 
 
+class VaspNotConvergedError(Exception):
+    """Raised when the vasp calculation is not converged."""
+    pass
+
+
+class KptNotConvergedError(Exception):
+    """Raised when the k-point set is not converged."""
+    pass

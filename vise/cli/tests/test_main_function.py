@@ -73,10 +73,10 @@ direct
         actual = IStructure.from_file("POSCAR")
         self.assertEqual(expected, actual)
 
-    @patch('vise.cli.main_function.make_poscars_from_mp')
+    @patch('vise.cli.main_function.make_poscars_from_mp', autospec=True)
     def test_mp_poscars(self, mock_make_poscars):
         get_poscar_from_mp(self.args_elements)
-        mock_make_poscars.assert_called_with(**self.kwargs)
+        mock_make_poscars.assert_called_once_with(**self.kwargs)
 
     def test_warning(self):
         expected = ['WARNING:vise.cli.main_function:Set mp number or elements']
@@ -117,7 +117,7 @@ class VaspSetTest(ViseTest):
     @patch('vise.cli.main_function.ViseInputSet.load_json')
     def test_print(self, mock):
         vasp_set(self.args_print)
-        mock.assert_called_with("vasp_input_set.json")
+        mock.assert_called_once_with("vasp_input_set.json")
 
     @patch('vise.cli.main_function.ViseInputSet.from_prev_calc')
     def test_prev_dir(self, mock):
@@ -137,7 +137,7 @@ class VaspSetTest(ViseTest):
                   "task": Task.from_string(vasp_args["task"]),
                   "xc": Xc.from_string(vasp_args["xc"])}
 
-        mock.assert_called_with("a", **kwargs)
+        mock.assert_called_once_with("a", **kwargs)
 
     @patch('vise.cli.main_function.Structure.from_file')
     @patch('vise.cli.main_function.ViseInputSet.make_input')
@@ -161,7 +161,7 @@ class VaspSetTest(ViseTest):
                   "xc": Xc.from_string(vasp_args["xc"]),
                   "user_incar_settings": user_incar_settings}
 
-        mock.assert_called_with(**kwargs)
+        mock.assert_called_once_with(**kwargs)
 
 
 class VaspRunTest(ViseTest):
@@ -214,31 +214,32 @@ class TestChemPotDiag(ViseTest):
     @patch('vise.cli.main_function.ChemPotDiag.load_json')
     def test_print(self, mock):
         chempotdiag(self.args_print)
-        mock.assert_called_with("cpd.json")
+        mock.assert_called_once_with("cpd.json")
 
     @patch('vise.cli.main_function.PDPlotter')
     @patch('vise.cli.main_function.PhaseDiagram')
     @patch('vise.cli.main_function.FreeEnergyEntrySet.from_mp')
     def test_from_mp_pd_filename(self, mock_entry_set, mock_pd, mock_pd_plot):
         chempotdiag(self.from_mp_pd_filename)
-        mock_entry_set.assert_called_with(self.kwargs_1["elements"])
-        mock_pd.assert_called_with(entries=mock_entry_set().entries)
-        mock_pd_plot.assert_called_with(mock_pd())
+        mock_entry_set.assert_called_once_with(self.kwargs_1["elements"])
+        mock_pd.assert_called_once_with(entries=mock_entry_set().entries)
+        mock_pd_plot.assert_called_once_with(mock_pd())
 
     @patch('vise.cli.main_function.ChemPotDiag.from_phase_diagram')
     @patch('vise.cli.main_function.PhaseDiagram')
     @patch('vise.cli.main_function.FreeEnergyEntrySet.from_vasp_files')
     def test_from_dir_cpd(self, mock_entry_set, mock_pd, mock_cpd):
         chempotdiag(self.from_dir_cpd)
-        mock_entry_set.assert_called_with(
+        mock_entry_set.assert_called_once_with(
             directory_paths=self.kwargs_2["vasp_dirs"],
             vasprun=self.kwargs_2["vasprun"],
             parse_gas=self.kwargs_2["parse_gas"],
             temperature=self.kwargs_2["temperature"],
             partial_pressures=self.kwargs_2["partial_pressures"])
-        mock_pd.assert_called_with(entries=mock_entry_set().entries)
-        mock_cpd.assert_called_with(mock_pd(),
-                                    target_comp=self.kwargs_2["target_comp"])
+        mock_pd.assert_called_once_with(entries=mock_entry_set().entries)
+        mock_cpd.assert_called_once_with(
+            mock_pd(),
+            target_comp=self.kwargs_2["target_comp"])
 
 
 class TestPlotBand(ViseTest):
@@ -249,7 +250,8 @@ class TestPlotBand(ViseTest):
                        "absolute": True,
                        "y_range": False,
                        "legend": False}
-        self.args = Namespace(filename="band.pdf", **self.kwargs, **symprec_args)
+        self.args = Namespace(
+            filename="band.pdf", **self.kwargs, **symprec_args)
 
     @patch('vise.cli.main_function.PrettyBSPlotter.from_vasp_files')
     def test_get_band_plot(self, mock):
@@ -258,7 +260,7 @@ class TestPlotBand(ViseTest):
         kwargs["kpoints_filenames"] = kwargs.pop("kpoints")
         kwargs["vasprun_filenames"] = kwargs.pop("vasprun")
         kwargs["vasprun2_filenames"] = kwargs.pop("vasprun2")
-        mock.assert_called_with(**kwargs, **symprec_args)
+        mock.assert_called_once_with(**kwargs, **symprec_args)
 
 
 class TestGetDosPlotter(ViseTest):
@@ -275,13 +277,13 @@ class TestGetDosPlotter(ViseTest):
                        "crop_first_value": True}
         self.args = Namespace(filename="dos.pdf", **self.kwargs, **symprec_args)
 
-    @patch('vise.cli.main_function.get_dos_plot')
+    @patch('vise.cli.main_function.get_dos_plot', autospec=True)
     def test_get_dos_plot(self, mock):
         plot_dos(self.args)
         kwargs = deepcopy(self.kwargs)
         kwargs["zero_at_efermi"] = not kwargs.pop("absolute")
         kwargs["xlim"] = kwargs.pop("x_range")
-        mock.assert_called_with(**kwargs, **symprec_args)
+        mock.assert_called_once_with(**kwargs, **symprec_args)
 
 
 class TestBandGap(ViseTest):
@@ -289,9 +291,9 @@ class TestBandGap(ViseTest):
         self.kwargs = {"vasprun": "vasprun.xml", "outcar": "OUTCAR"}
         self.args = Namespace(**self.kwargs)
 
-    @patch('vise.cli.main_function.band_gap_properties',
+    @patch('vise.cli.main_function.band_gap_properties', autospec=True,
            return_value=({"a": 1}, {"b": 2}, {"c": 3}))
     def test_succeed(self, mock):
         band_gap(self.args)
-        mock.assert_called_with(**self.kwargs)
+        mock.assert_called_once_with(**self.kwargs)
 

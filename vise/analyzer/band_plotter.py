@@ -36,7 +36,8 @@ class PrettyBSPlotter:
                  y_range: List[float] = None,
                  legend: bool = False,
                  symprec: float = SYMMETRY_TOLERANCE,
-                 angle_tolerance: float = ANGLE_TOL) -> None:
+                 angle_tolerance: float = ANGLE_TOL,
+                 smooth: bool = False) -> None:
         """Band structure plotter class
 
         Two bands are plotted in the same figure.
@@ -71,7 +72,8 @@ class PrettyBSPlotter:
         kwargs = {"ylim": y_range,
                   "legend": legend,
                   "zero_to_efermi": not absolute,
-                  "title": f"{comp}, SG: {sg_symbol} ({sg_num})"}
+                  "title": f"{comp}, SG: {sg_symbol} ({sg_num})",
+                  "smooth": smooth}
 
         if not band2:
             self.plotter = self.bs_plotter.get_plot(**kwargs)
@@ -124,11 +126,12 @@ def greek_to_unicode(label):
          "DELTA": "Δ"}
     for k, v in d.items():
         label = label.replace(k, v)
-    label = re.sub(r"([A-Z])_", r"{\\rm \1}_", label)  # itallic to roman
+    label = re.sub(r"([A-Z])_", r"{\\rm \1}_", label)  # italic to roman
     return label
 
 
 def labels_to_unicode(d: dict):
+    """Recursively change the Greek label to unicode counterpart."""
     new_d = {}
     for k, v in d.items():
         if isinstance(k, str):
@@ -185,7 +188,7 @@ class ModBSPlotter(BSPlotter):
                  title: str = None) -> pyplot:
         """Get a matplotlib object for the band structure plot.
 
-        Original function is copied from PYMATGEN.2018.5.22.
+        Original function is copied from pymatgen ver.2018.5.22.
 
         Args:
             ylim (list):
@@ -237,6 +240,8 @@ class ModBSPlotter(BSPlotter):
             # number of branches (high symmetry lines) defined in the
             # BandStructureSymmLine object (see BandStructureSymmLine._branches)
 
+            logger.info("Smoothing wth spline fitting has been performed.")
+
             warning = "WARNING! Distance / branch {d}, band {i} cannot be " \
                       "interpolated.\n See full warning in source.\n " \
                       "If this is not a mistake, try increasing smooth_tol.\n"\
@@ -269,11 +274,15 @@ class ModBSPlotter(BSPlotter):
                         plt.plot(xs, ys, line_style[s],
                                  linewidth=band_line_width)
 
-        self._maketicks(plt)
+        # change the label size.
+        ax = plt.gca()
+        ax.tick_params(axis='both', which='major', labelsize=20)
+        # add vertical tics
+        self._maketicks(plt)  # use superclass method.
 
         # Main X and Y Labels
-        plt.xlabel(r'$\mathrm{Wave\ vector}$', fontsize=30)
-        plt.ylabel(r'$\mathrm{Energy\ (eV)}$', fontsize=30)
+        plt.xlabel(r'$\mathrm{Wave\ vector}$', fontsize=25)
+        plt.ylabel(r'$\mathrm{Energy\ (eV)}$', fontsize=25)
 
         # Draw Fermi energy, only if not zero and metal
         if not zero_to_efermi and self._bs.is_metal():
@@ -320,13 +329,14 @@ class ModBSPlotter(BSPlotter):
             plt = self.add_band_gap(plt, vbm, band_gap, x_position)
 
         if title:
-            plt.title(title, size=20)
+            plt.title(title, size=23)
 
-        ax = plt.gca()
+        # Modify 3.0 -> 3 in the axes.
         ax.yaxis.set_major_formatter(formatter)
 
         plt.tight_layout()
         return plt
+
 
     @staticmethod
     def add_band_gap(plt: pyplot,
@@ -352,7 +362,9 @@ class ModBSPlotter(BSPlotter):
                      ylim: List[float] = None,
                      legend: bool = True,
                      zero_to_efermi: bool = True,
-                     title: str = None) -> pyplot:
+                     title: str = None,
+                     smooth: bool = False,
+                     ) -> pyplot:
         """Generate pyplot for comparing two band structures.
 
         Note: x- and y-ranges are determined based on the original data.
@@ -373,7 +385,9 @@ class ModBSPlotter(BSPlotter):
             Matplotlib pyplot.
         """
 
-        plt = self.get_plot(ylim=ylim, zero_to_efermi=zero_to_efermi)
+        plt = self.get_plot(ylim=ylim,
+                            zero_to_efermi=zero_to_efermi,
+                            smooth=smooth)
         data_orig = self.bs_plot_data(zero_to_efermi=zero_to_efermi)
         data = another_plotter.bs_plot_data(zero_to_efermi=zero_to_efermi)
 
@@ -426,12 +440,21 @@ class ModBSPlotter(BSPlotter):
         plt.tight_layout()
         return plt
 
-    def plot_brillouin(self):
-        """ plot the Brillouin zone """
+    def show_brillouin(self, filename: str = None):
+        """Show the Brillouin zone """
         # get labels and lines
         labels = {}
         for k in self._bs.kpoints:
             if k.label:
-                labels[k.label] = k.frac_coords
+                labels[k.label + str(k.frac_coords)] = k.frac_coords
 
-        plot_brillouin_zone(self._bs.lattice_rec, labels=labels)
+        plot_brillouin_zone(self._bs.lattice_rec,
+                            labels=labels,
+                            tight_layout=True,
+                            title="Brillouin zone",
+                            show=False if filename else True,
+                            savefig=filename)
+
+    def plot_brillouin(self):
+        """Plot the Brillouin zone """
+        self.show_brillouin()

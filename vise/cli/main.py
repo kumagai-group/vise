@@ -9,44 +9,22 @@ from typing import Union, List, Dict
 from vise.cli.main_function import (
     get_poscar_from_mp, vasp_set, chempotdiag, plot_band, plot_dos, vasp_run,
     kpt_conv, band_gap)
-from vise.config import SYMMETRY_TOLERANCE, ANGLE_TOL, KPT_DENSITY, TIMEOUT
+from vise.config import (
+    SYMMETRY_TOLERANCE, ANGLE_TOL, KPT_DENSITY, TIMEOUT, MAIN_SETTINGS,
+    VISE_YAML_FILES)
 from vise.custodian_extension.jobs import ViseVaspJob
 from vise.custodian_extension.handler_groups import handler_group
 from vise.input_set.input_set import ViseInputSet
 from vise.input_set.xc import Xc
 from vise.input_set.task import Task
 from vise.util.logger import get_logger
-from vise.cli.main_tools import dict2list, get_user_settings, get_default_args
+from vise.cli.main_tools import dict2list, get_default_args
 from vise.util.mp_tools import make_poscars_from_mp
 from vise.util.tools import str2bool
 from vise import __version__
 
-__author__ = "Yu Kumagai"
-__maintainer__ = "Yu Kumagai"
 
 logger = get_logger(__name__)
-
-# The following keys are set by vise.yaml
-setting_keys = ["vasp_cmd",
-                "symprec",
-                "angle_tolerance",
-                "xc",
-                "kpt_density",
-                "initial_kpt_density",
-                "vise_opts",
-                "user_incar_settings",
-                "ldauu",
-                "ldaul",
-                "outcar",
-                "contcar",
-                "vasprun",
-                "procar",
-                "potcar_set",
-                "potcar_set_name",
-                "max_relax_num",
-                "removed_files",
-                "left_files",
-                "timeout"]
 
 
 def simple_override(d: dict, keys: Union[list, str]) -> None:
@@ -55,14 +33,12 @@ def simple_override(d: dict, keys: Union[list, str]) -> None:
     When the value in the user_settings is a dict, it will be changed to
     list using dict2list.
     """
-    user_settings, yaml_path = get_user_settings(yaml_filename="vise.yaml",
-                                                 setting_keys=setting_keys)
     if isinstance(keys, str):
         keys = [keys]
 
     for key in keys:
-        if key in user_settings:
-            v = user_settings[key]
+        if key in MAIN_SETTINGS:
+            v = MAIN_SETTINGS[key]
             if isinstance(v, dict):
                 v = dict2list(v)
             d[key] = v
@@ -78,8 +54,6 @@ def vasp_set_args() -> List[List]:
     Usages:
         for l, d in vasp_set_args():
             vasp_set_parser.add_argument(*l, **d)
-
-    Args:
 
     Returns:
         List of args and kwargs.
@@ -160,22 +134,23 @@ def vasp_set_args() -> List[List]:
 
 
 def parse_args(args):
-
+    vise_yaml_files = '\n'.join(["* " + str(f) for f in VISE_YAML_FILES])
     parser = argparse.ArgumentParser(
-        description="""                            
-    Vise is a package that helps researchers to do first-principles calculations 
-    with the VASP code.""",
-        epilog=f"""                                 
-    Author: Yu Kumagai \n
-    Version: {__version__}""",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+        description=f"""                            
+Vise is a package that helps researchers to do first-principles calculations 
+with the VASP code.
+
+Author: Yu Kumagai 
+Version: {__version__} 
+    """,
+        epilog=f"The parsed vise.yaml files are:\n{vise_yaml_files}",
+        formatter_class=argparse.RawTextHelpFormatter)
 
     subparsers = parser.add_subparsers()
 
     # -- parent parser: prec
     prec = {"symprec": SYMMETRY_TOLERANCE,
             "angle_tolerance": ANGLE_TOL}
-    simple_override(prec, ["symprec", "angle_tolerance"])
 
     prec_parser = argparse.ArgumentParser(description="Prec-related parser",
                                           add_help=False)
@@ -192,7 +167,6 @@ def parse_args(args):
     custodian_defaults["timeout"] = TIMEOUT
     simple_override(custodian_defaults, ["vasp_cmd",
                                          "max_relax_num",
-                                         "timeout",
                                          "left_files"])
     custodian_parser = argparse.ArgumentParser(
         description="Vasp custodian-related parser",
@@ -266,7 +240,6 @@ def parse_args(args):
         aliases=['vs'])
 
     vs_defaults = {"kpt_density": KPT_DENSITY}
-    simple_override(vs_defaults, ["kpt_density"])
 
     parser_vasp_set.add_argument(
         "--print", action="store_true",
@@ -327,7 +300,6 @@ def parse_args(args):
     kc_defaults["vasp_cmd"] = None
 
     simple_override(kc_defaults, ["vasp_cmd",
-                                  "initial_kpt_density"
                                   "convergence_criterion"])
 
     parser_kpt_conv.add_argument(

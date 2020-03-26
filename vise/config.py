@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
+#  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
-__author__ = "Yu Kumagai"
-__maintainer__ = "Yu Kumagai"
-
+from vise.cli.main_tools import get_user_settings
 
 SYMMETRY_TOLERANCE = 0.01
 ANGLE_TOL = 5
@@ -26,4 +25,40 @@ TIMEOUT = 518400
 # chempotdiag
 ROOM_TEMPERATURE = 298.15
 REFERENCE_PRESSURE = 1e5
-MOLECULE_SUFFIX = "molecule_chempotdiag"
+
+
+MAIN_SETTINGS = {}
+# The following keys are set by vise.yaml
+main_setting_keys = ["vasp_cmd",
+                     "xc",
+                     "vise_opts",
+                     "user_incar_settings",
+                     "ldauu",
+                     "ldaul",
+                     "outcar",
+                     "convergence_criterion",  # kpt convergence
+                     "contcar",
+                     "vasprun",
+                     "procar",
+                     "potcar_set",
+                     "potcar_set_name",
+                     "max_relax_num",
+                     "removed_files",
+                     "left_files"]
+
+var_keys = [i for i in globals().keys() if i[0].isupper()]
+all_keys = var_keys + main_setting_keys
+
+user_settings, VISE_YAML_FILES = \
+    get_user_settings(yaml_filename="vise.yaml",
+                      setting_keys=all_keys,
+                      home_hidden_directory=".vise")
+
+for k, v in user_settings.items():
+    if k in globals():
+        globals()[k] = v
+    else:
+        MAIN_SETTINGS[k] = v
+
+
+

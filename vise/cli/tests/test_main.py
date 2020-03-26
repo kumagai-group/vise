@@ -5,6 +5,9 @@ from argparse import Namespace
 import os
 import shutil
 from pathlib import Path
+import tempfile
+from unittest.mock import patch
+from unittest import mock
 
 from vise.util.testing import ViseTest
 from vise.custodian_extension.jobs import ViseVaspJob
@@ -15,24 +18,18 @@ from vise.input_set.input_set import ViseInputSet
 from vise.config import (
     SYMMETRY_TOLERANCE, ANGLE_TOL, KPT_DENSITY, KPT_INIT_DENSITY, TIMEOUT)
 
-
 parent_dir = Path(__file__).parent
 
 
+@patch("vise.cli.main.MAIN_SETTINGS", {"a": "x", "b": 10})
 class SimpleOverrideTest(ViseTest):
-    def setUp(self) -> None:
-        vise_yaml = parent_dir / ".." / ".." / "test_files" / "vise.yaml"
-        shutil.copy(str(vise_yaml), "vise.yaml")
 
     def test(self):
-        d = {"xc": "pbesol", "symprec": 1}
-        simple_override(d, ["xc"])
-        expected = {'xc': 'hse', 'symprec': 1}
+        d = {"a": "y", "c": 1}
+        simple_override(d, "a")
+        expected = {'a': 'x', 'c': 1}
 
         self.assertEqual(expected, d)
-
-    def tearDown(self) -> None:
-        os.remove("vise.yaml")
 
 
 vis_defaults = get_default_args(ViseInputSet.make_input)
@@ -92,6 +89,43 @@ class MainGetPoscarsTest(ViseTest):
         self.assertEqual(expected, parsed_args)
 
 
+#class VaspSetArgsTest(ViseTest):
+
+    # def test_vasp_set_yaml(self):
+    #     vise_yaml = parent_dir / ".." / ".." / "test_files" / "vise.yaml"
+    #     shutil.copy(str(vise_yaml), "vise.yaml")
+    #     parsed_args = parse_args(["vs",
+    #                               "--ldauu", "Mg", "5",
+    #                               "-d", "c"])
+    #     os.remove("vise.yaml")
+    #     expected = Namespace(
+    #         print=False,
+    #         potcar_set=default_vasp_args["potcar_set"],
+    #         potcar_set_name="gw",
+    #         xc="hse",
+    #         task=default_vasp_args["task"],
+    #         vise_opts=default_vasp_args["vise_opts"],
+    #         user_incar_settings=default_vasp_args["user_incar_settings"],
+    #         additional_user_incar_settings=
+    #         default_vasp_args["additional_user_incar_settings"],
+    #         ldauu=["Mg", "5"],
+    #         ldaul=["Mn", "2", "O", "1"],
+    #         charge=default_vasp_args["charge"],
+    #         symprec=2,
+    #         angle_tolerance=symprec_args["angle_tolerance"],
+    #         json="vise.json",
+    #         poscar="POSCAR",
+    #         kpt_density=KPT_DENSITY,
+    #         standardize_structure=True,
+    #         prior_info=True,
+    #         dirs=["."],
+    #         prev_dir="c",
+    #         func=parsed_args.func)
+
+        # self.assertEqual(expected, parsed_args)
+
+
+
 class MainVaspSetTest(ViseTest):
     def test_vasp_set_wo_options(self):
         parsed_args = parse_args(["vs"])
@@ -109,38 +143,38 @@ class MainVaspSetTest(ViseTest):
             **default_vasp_args, **symprec_args)
         self.assertEqual(expected, parsed_args)
 
-    def test_vasp_set_yaml(self):
-        vise_yaml = parent_dir / ".." / ".." / "test_files" / "vise.yaml"
-        shutil.copy(str(vise_yaml), str("vise.yaml"))
-        parsed_args = parse_args(["vs",
-                                  "--ldauu", "Mg", "5",
-                                  "-d", "c"])
-        os.remove("vise.yaml")
-        expected = Namespace(
-            print=False,
-            potcar_set=default_vasp_args["potcar_set"],
-            potcar_set_name="gw",
-            xc="hse",
-            task=default_vasp_args["task"],
-            vise_opts=default_vasp_args["vise_opts"],
-            user_incar_settings=default_vasp_args["user_incar_settings"],
-            additional_user_incar_settings=
-            default_vasp_args["additional_user_incar_settings"],
-            ldauu=["Mg", "5"],
-            ldaul=["Mn", "2", "O", "1"],
-            charge=default_vasp_args["charge"],
-            symprec=2,
-            angle_tolerance=symprec_args["angle_tolerance"],
-            json="vise.json",
-            poscar="POSCAR",
-            kpt_density=KPT_DENSITY,
-            standardize_structure=True,
-            prior_info=True,
-            dirs=["."],
-            prev_dir="c",
-            func=parsed_args.func)
+    # def test_vasp_set_yaml(self):
+    #     vise_yaml = parent_dir / ".." / ".." / "test_files" / "vise.yaml"
+    #     shutil.copy(str(vise_yaml), "vise.yaml")
+    #     parsed_args = parse_args(["vs",
+    #                               "--ldauu", "Mg", "5",
+    #                               "-d", "c"])
+    #     os.remove("vise.yaml")
+    #     expected = Namespace(
+    #         print=False,
+    #         potcar_set=default_vasp_args["potcar_set"],
+    #         potcar_set_name="gw",
+    #         xc="hse",
+    #         task=default_vasp_args["task"],
+    #         vise_opts=default_vasp_args["vise_opts"],
+    #         user_incar_settings=default_vasp_args["user_incar_settings"],
+    #         additional_user_incar_settings=
+    #         default_vasp_args["additional_user_incar_settings"],
+    #         ldauu=["Mg", "5"],
+    #         ldaul=["Mn", "2", "O", "1"],
+    #         charge=default_vasp_args["charge"],
+    #         symprec=2,
+    #         angle_tolerance=symprec_args["angle_tolerance"],
+    #         json="vise.json",
+    #         poscar="POSCAR",
+    #         kpt_density=KPT_DENSITY,
+    #         standardize_structure=True,
+    #         prior_info=True,
+    #         dirs=["."],
+    #         prev_dir="c",
+    #         func=parsed_args.func)
 
-        self.assertEqual(expected, parsed_args)
+        # self.assertEqual(expected, parsed_args)
 
     # Here, test vasp_parser and symprec_parser as well.
     def test_vasp_set_w_options(self):
