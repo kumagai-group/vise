@@ -43,6 +43,12 @@ To avoid such circumstance, user can use the :code:`vise.yaml` file.
 See vise.yaml section for details.
 
 
+Note that the structure optimization must be generally iterated with 1.3 times larger cutoff energy
+until the forces and stresses converge at the first ionic step so as to reduce the errors caused by the Pulay Stress to an acceptable accuracy.
+See [vasp manual](https://cms.mpi.univie.ac.at/vasp/vasp/Volume_vs_energy_volume_relaxations_Pulay_Stress.html) or [wikipedia](https://cms.mpi.univie.ac.at/vasp/vasp/Volume_vs_energy_volume_relaxations_Pulay_Stress.html) for details.
+Such iteration of the vasp calculations is performed using the custodian wrapper in :code:`vise`.
+See :doc:`tutorial_custodian_extension` for more details.
+
 ==============================
 Advanced usage of the vasp_set
 ==============================
