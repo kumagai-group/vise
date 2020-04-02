@@ -1,5 +1,0 @@
-is_cluster: True
-incar:
-  ISPIN: 2
-  NUPDOWN: 2
-
