@@ -4,11 +4,19 @@ from vise.util.testing import ViseTest
 from vise.input_set.incar import incar_flags
 
 
-class IncarFlagsTest(ViseTest):
+def test_incar_flags():
+    expected = {'ADDGRID': 'task_optional',
+                'EDIFF': 'task_required',
+                'ENAUG': None,
+                'ENCUT': 'task_optional',
+                'LASPH': 'common_required',
+                'LREAL': 'task_required',
+                'NELM': 'common_required',
+                'NELMDL': None,
+                'NELMIN': None,
+                'PREC': 'task_required'}
+    actual = incar_flags["accuracy"]
+    assert expected == actual
 
-    def test(self) -> None:
-        expected = {"NBLOCK": None, "SMASS": None}
-        actual = incar_flags["md"]
-        self.assertEqual(expected, actual)
 
 
