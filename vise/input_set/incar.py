@@ -72,7 +72,6 @@ class ViseIncar(Incar):
                     key = m.group(1).strip()
                     val = m.group(2).strip()
                     params[key] = ViseIncar.proc_val(key, val)
-
         return cls(params)
 
     def __add__(self, other: Incar) -> "ViseIncar":
@@ -97,7 +96,9 @@ class ViseIncar(Incar):
             for v in val.keys():
                 if v in check_incar_keys:
                     if comment is False:
-                        lines.append(f"# {key} \n")
+                        category = "\n" if lines else ""
+                        category += f"# {key}"
+                        lines.append(category)
                         comment = True
                     if v == "MAGMOM" and isinstance(self[v], list):
                         value = []
@@ -131,24 +132,17 @@ class ViseIncar(Incar):
                     blank_line = True
                     check_incar_keys.remove(v)
             if blank_line:
-                # if not disable_numparse, LOPTICS = True becomes 1.
+                # if not disable_numparse, e.g., LOPTICS = True becomes 1.
                 lines.append(str(tabulate([[l[0], "=", l[1]] for l in ll],
                                           tablefmt="plain",
-                                          disable_numparse=True)) + "\n")
-                lines.append("\n")  # blank space
-
-        for mson_key in ["@module", "@class"]:
-            try:
-                check_incar_keys.remove(mson_key)
-            except ValueError:
-                pass
+                                          disable_numparse=True)))
 
         if check_incar_keys:
             logger.error(f"{check_incar_keys} are invalid in INCAR.")
             if raise_error:
                 raise ValueError
 
-        return "".join(lines)
+        return "\n".join(lines)
 
     @property
     def is_ncl_calc(self) -> bool:
