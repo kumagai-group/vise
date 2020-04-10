@@ -81,7 +81,7 @@ class MakeKpoints:
                  symprec: float = SYMMETRY_TOLERANCE,
                  angle_tolerance: float = ANGLE_TOL,
                  is_magnetization: bool = False):
-        """Kpoint object based on default settings depending on the task.
+        """Kpoints object based on default settings depending on the task.
 
         Note that it does not check if primitive cell is standardized or not.
 
@@ -123,13 +123,6 @@ class MakeKpoints:
         self.angle_tolerance = angle_tolerance
         self.is_magnetization = is_magnetization
 
-        self.comment = None
-        self.kpt_mesh = None
-        self.kpoints = None
-        self.num_kpts = None
-        self.corresponding_structure = None
-        self.sg = None
-        self.sg_symbol = None
         self.symmetrizer = StructureSymmetrizer(structure,
                                                 symprec,
                                                 angle_tolerance)
@@ -143,6 +136,8 @@ class MakeKpoints:
         else:
             self.seekpath_data = None
             self.band_primitive = None
+
+        self.make_kpoints()
 
     def make_kpoints(self):
         self._set_structure()

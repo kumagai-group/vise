@@ -38,7 +38,6 @@ class MakeKpointsTest(ViseTest):
         k = MakeKpoints(mode="band",
                         only_even=True,
                         structure=self.sg1)
-        k.make_kpoints()
         expected_kpt_mesh = [2, 4, 4]
         expected_lattice = Lattice([[1.702429, 1.411278, - 11.284670],
                                     [1.502067, -6.074800, 0.000000],
@@ -53,7 +52,6 @@ class MakeKpointsTest(ViseTest):
         k = MakeKpoints(mode="band",
                         only_even=True,
                         structure=self.sg23)
-        k.make_kpoints()
         expected_kpt_mesh = [4, 4, 4]
         expected_lattice = Lattice([
             [-3.5435465044428671, 3.7004010644681178, 4.1207036549338687],
@@ -68,7 +66,6 @@ class MakeKpointsTest(ViseTest):
     def test_primitive_uniform_sg1(self):
         k = MakeKpoints(mode="primitive_uniform",
                         structure=self.sg1)
-        k.make_kpoints()
         expected_kpt_mesh = [3, 3, 2]
         expected_lattice = Lattice([[6.169335, 0.000000, 0.000000],
                                     [-1.502067, 6.074800, 0.000000],
@@ -83,7 +80,6 @@ class MakeKpointsTest(ViseTest):
     def test_manual_set_sg1(self):
         k = MakeKpoints(mode="manual_set",
                         structure=self.sg1)
-        k.make_kpoints()
         expected_kpt_mesh = [3, 3, 2]
         expected_lattice = Lattice([[6.16933470, 0.00090247, -0.00277192],
                                     [-1.5029601, 6.07456979, -0.01071425],
