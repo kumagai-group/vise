@@ -64,7 +64,7 @@ class MakeKpointsTest(ViseTest):
         self.assertEqual(224, k.num_kpts)
 
     def test_primitive_uniform_sg1(self):
-        k = MakeKpoints(mode="primitive_uniform",
+        k = MakeKpoints(mode="primitive",
                         structure=self.sg1)
         expected_kpt_mesh = [3, 3, 2]
         expected_lattice = Lattice([[6.169335, 0.000000, 0.000000],
@@ -78,7 +78,7 @@ class MakeKpointsTest(ViseTest):
         self.assertEqual(9, k.num_kpts)
 
     def test_manual_set_sg1(self):
-        k = MakeKpoints(mode="manual_set",
+        k = MakeKpoints(mode="uniform",
                         structure=self.sg1)
         expected_kpt_mesh = [3, 3, 2]
         expected_lattice = Lattice([[6.16933470, 0.00090247, -0.00277192],

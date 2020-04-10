@@ -29,11 +29,11 @@ class KpointsMode(ExtendedEnum):
            seekpath program. The space group is analyzed and primitive
            unitcell that must be used for the band structure calculation is
            returned as well.
-       "primitive_uniform":
+       "primitive":
            Kpoints with uniform k-point sampling. The k-point sampling mesh
            and centering are determined based on the standardized primitive
            unitcell. Structure is also changed if not primitive.
-       "manual_set":
+       "uniform":
            Kpoints with uniform k-point sampling. The k-point sampling mesh
            and centering are determined based on the given lattice. Note
            that only when the angles are 90 degrees, the centering is
@@ -41,8 +41,8 @@ class KpointsMode(ExtendedEnum):
            This mode is useful when calculating the supercells.
     """
     band = "band"
-    primitive_uniform = "primitive_uniform"
-    manual_set = "manual_set"
+    primitive = "primitive"
+    uniform = "uniform"
 
 
 class MakeKpoints:
@@ -123,6 +123,13 @@ class MakeKpoints:
         self.angle_tolerance = angle_tolerance
         self.is_magnetization = is_magnetization
 
+        self.comment = None
+        self.kpt_mesh = None
+        self.kpoints = None
+        self.num_kpts = None
+        self.corresponding_structure = None
+        self.sg = None
+        self.sg_symbol = None
         self.symmetrizer = StructureSymmetrizer(structure,
                                                 symprec,
                                                 angle_tolerance)
@@ -148,7 +155,7 @@ class MakeKpoints:
         self.kpoints = Kpoints(comment=self.comment,
                                kpts=(self.kpt_mesh,),
                                kpts_shift=self.kpt_shift)
-        if self.mode in (KpointsMode.primitive_uniform, KpointsMode.manual_set):
+        if self.mode in (KpointsMode.primitive, KpointsMode.uniform):
             self.num_kpts = \
                 num_irreducible_kpoints(kpoints=self.kpoints,
                                         structure=self.corresponding_structure,
@@ -173,10 +180,10 @@ class MakeKpoints:
             self.num_kpts = len(self.kpoints.kpts)
 
     def _set_structure(self):
-        if self.mode == KpointsMode.manual_set:
+        if self.mode == KpointsMode.uniform:
             self.corresponding_structure = self.initial_structure
 
-        elif self.mode == KpointsMode.primitive_uniform:
+        elif self.mode == KpointsMode.primitive:
             self.corresponding_structure = self.symmetrizer.primitive
             self.sg = self.symmetrizer.spglib_sym_data["number"]
             self.sg_symbol = self.symmetrizer.spglib_sym_data["international"]
@@ -200,7 +207,7 @@ class MakeKpoints:
                 self.corresponding_structure.lattice.reciprocal_lattice
             reciprocal_abc = reciprocal_lat.abc
 
-            if self.mode in (KpointsMode.band, KpointsMode.primitive_uniform):
+            if self.mode in (KpointsMode.band, KpointsMode.primitive):
 
                 body_centered_ortho = {23, 24, 44, 45, 46, 71, 72, 73, 74}
                 body_centered_tetra = {79, 80, 81, 82, 87, 88, 97, 98, 107, 108,
@@ -214,22 +221,24 @@ class MakeKpoints:
                     average_abc = pow(np.prod(reciprocal_lat.abc), 1 / 3)
                     reciprocal_abc = (average_abc, average_abc, average_abc)
 
-            if self.only_even:
-                self.kpt_mesh = [int(ceil(self.kpt_density * r / 2) * 2)
-                                 for r in reciprocal_abc]
-            else:
-                self.kpt_mesh = [int(ceil(self.kpt_density * r))
-                                 for r in reciprocal_abc]
-
-            self.kpt_mesh = [i * self.factor for i in self.kpt_mesh]
+            self.set_kpt_mesh(reciprocal_abc)
 
             self.comment += ", ".join([f"Mode: {self.mode}",
                                        f"kpt density: {self.kpt_density}",
                                        f"factor: {self.factor}."])
 
+    def set_kpt_mesh(self, reciprocal_abc):
+        if self.only_even:
+            self.kpt_mesh = [int(ceil(self.kpt_density * r / 2) * 2)
+                             for r in reciprocal_abc]
+        else:
+            self.kpt_mesh = [int(ceil(self.kpt_density * r))
+                             for r in reciprocal_abc]
+        self.kpt_mesh = [i * self.factor for i in self.kpt_mesh]
+
     def _set_centering(self):
         self.kpt_shift = []
-        if self.mode is KpointsMode.manual_set:
+        if self.mode is KpointsMode.uniform:
             angle = self.corresponding_structure.lattice.angles
 
             for i in range(3):
