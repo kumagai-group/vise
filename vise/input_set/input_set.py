@@ -6,20 +6,19 @@ import re
 import shutil
 from copy import deepcopy
 from pathlib import Path
-from typing import Optional, Union
-
+from typing import Optional
 
 import numpy as np
 from monty.io import zopen
 from monty.json import MontyEncoder
 from monty.serialization import loadfn
-
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.sets import VaspInputSet, Poscar, Potcar, Kpoints
 from pymatgen.io.vasp.sets import (
     get_vasprun_outcar, get_structure_from_prev_run)
 from pymatgen.util.serialization import pmg_serialize
 
+from vise import __version__
 from vise.analyzer.band_gap import band_gap_properties
 from vise.config import (
     DOS_STEP_SIZE, INSULATOR_KPT_DENSITY, ENCUT_FACTOR_STR_OPT, ANGLE_TOL,
@@ -34,8 +33,6 @@ from vise.input_set.task import Task
 from vise.input_set.xc import Xc
 from vise.util.logger import get_logger
 from vise.util.structure_handler import get_symbol_list
-from vise import __version__
-
 
 logger = get_logger(__name__)
 

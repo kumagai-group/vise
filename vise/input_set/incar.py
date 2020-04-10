@@ -1,22 +1,21 @@
 # -*- coding: utf-8 -*-
+#  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
-import itertools
-import os
-import re
 from collections import OrderedDict
 from copy import deepcopy
+import os
 from pathlib import Path
+import re
 
 from monty.io import zopen
 from monty.serialization import loadfn
 
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.io.vasp import Incar
-from pymatgen.util.io_utils import clean_lines
-
-from vise.util.logger import get_logger
 
 from tabulate import tabulate
+
+from vise.util.logger import get_logger
 
 
 MODULE_DIR = Path(os.path.dirname(os.path.abspath(__file__)))
