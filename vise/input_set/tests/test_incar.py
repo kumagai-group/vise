@@ -47,3 +47,8 @@ ISYM  =  0"""
     assert actual == expected
 
 
+def test_is_ncs_calc():
+    incar = ViseIncar.from_dict({"LNONCOLLINEAR": "True"})
+    assert incar.is_ncl_calc
+    incar = ViseIncar.from_dict({})
+    assert incar.is_ncl_calc is False
