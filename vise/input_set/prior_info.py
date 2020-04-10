@@ -3,54 +3,42 @@
 import json
 from typing import Optional
 import yaml
+from dataclasses import dataclass
 
 from monty.json import MSONable
 from monty.serialization import loadfn
 
-__author__ = "Yu Kumagai"
-__maintainer__ = "Yu Kumagai"
 
-
+@dataclass()
 class PriorInfo(MSONable):
-    """ Prior information for controlling parameters in DFT calculations """
-    def __init__(self,
-                 energy_per_atom: float = None,
-                 band_gap: float = None,
-                 total_magnetization: float = None,
-                 data_source: str = None,
-                 is_cluster: bool = None,
-                 mag_threshold: float = 0.05,
-                 band_gap_threshold: float = 0.1,
-                 incar: dict = None,
-                 **kwargs):
-        """
-            Args:
-                energy_per_atom (float):
-                    Energy per atom calculated in the data_source.
-                band_gap (float):
-                    Band gap calculated in the data_source.
-                total_magnetization (float):
-                    Total total_magnetization in the data_source.
-                data_source (str):
-                    The data source
-                is_cluster (bool):
-                    Whether the system is molecule or not.
-                mag_threshold (float):
-                    Threshold to judge if the system is magnetic.
-                band_gap_threshold (float):
-                    Threshold to judge if the system is metal.
-                incar (dict):
-                    Dict of INCAR flags to be set.
-        """
-        self.energy_per_atom = energy_per_atom
-        self.band_gap = band_gap
-        self.total_magnetization = total_magnetization
-        self.data_source = data_source
-        self.is_cluster = is_cluster
-        self.mag_threshold = mag_threshold
-        self.band_gap_threshold = band_gap_threshold
-        self.incar = incar
-        self.kwargs = kwargs
+    """ Prior information for controlling parameters in DFT calculations
+
+    Attributes:
+        energy_per_atom (float):
+            Energy per atom calculated in the data_source.
+        band_gap (float):
+            Band gap calculated in the data_source.
+        total_magnetization (float):
+            Total total_magnetization in the data_source.
+        data_source (str):
+            The data source
+        is_cluster (bool):
+            Whether the system is molecule or not.
+        mag_threshold (float):
+            Threshold to judge if the system is magnetic.
+        band_gap_threshold (float):
+            Threshold to judge if the system is metal.
+        incar (dict):
+            Dict of INCAR flags to be set.
+    """
+    energy_per_atom: float = None
+    band_gap: float = None
+    total_magnetization: float = None
+    data_source: str = None
+    is_cluster: bool = None
+    mag_threshold: float = 0.05
+    band_gap_threshold: float = 0.1
+    incar: dict = None
 
     def __repr__(self):
         outs = [f"energy_per_atom: {self.energy_per_atom}",
