@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from vise.util.testing import ViseTest
-from vise.input_set.incar import incar_flags, ViseIncar
+from vise.input_set.incar import incar_tags, ViseIncar
 
+from pymatgen.electronic_structure.core import Magmom
 
 def test_incar_flags():
     expected = {'ADDGRID': 'task_optional',
@@ -15,7 +16,7 @@ def test_incar_flags():
                 'NELMDL': None,
                 'NELMIN': None,
                 'PREC': 'task_required'}
-    actual = incar_flags["accuracy"]
+    actual = incar_tags["accuracy"]
     assert actual == expected
 
 
@@ -35,7 +36,8 @@ def test_get_string():
     incar = ViseIncar.from_dict({"PREC": "Normal",
                                  "LREAL": False,
                                  "EDIFF": 1.0,
-                                 "ISYM": 0})
+                                 "ISYM": 0,
+                                 "MAGMOM": [3, 3, 3]})
     actual = incar.get_string()
     expected = """# accuracy
 PREC   =  Normal
@@ -43,7 +45,10 @@ LREAL  =  False
 EDIFF  =  1.0
 
 # symmetry
-ISYM  =  0"""
+ISYM  =  0
+
+# spin
+MAGMOM  =  3 3 3"""
     assert actual == expected
 
 
