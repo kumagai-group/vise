@@ -119,7 +119,7 @@ class ViseIncar(Incar):
         if isinstance(self[incar_tag], list):
             return " ".join([str(i) for i in self[incar_tag]])
         else:
-            return self[incar_tag]
+            return str(self[incar_tag])
 
     @property
     def is_ncl_calc(self) -> bool:
