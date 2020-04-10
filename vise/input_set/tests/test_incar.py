@@ -52,6 +52,13 @@ MAGMOM  =  3 3 3"""
     assert actual == expected
 
 
+def test_str_value():
+    incar = ViseIncar.from_dict({"EDIFF": 1.0,
+                                 "MAGMOM": [3, 3, 3]})
+    assert incar.str_value("EDIFF") == str(1.0)
+    assert incar.str_value("MAGMOM") == "3 3 3"
+
+
 def test_is_ncs_calc():
     incar = ViseIncar.from_dict({"LNONCOLLINEAR": "True"})
     assert incar.is_ncl_calc
