@@ -63,12 +63,11 @@ class ViseIncar(Incar):
         Returns:
             ViseIncar object
         """
-        lines = list(clean_lines(string.splitlines()))
         params = {}
-        for line in lines:
+        for line in string.splitlines():
             # Support ";" semantic for split of tags in INCAR file
             for sub_line in line.split(";"):
-                m = re.match(r'(\w+)\s*=\s*(.*)', sub_line)
+                m = re.match(r"\s*(\w+)\s*=\s*(.*)\s*", sub_line)
                 if m:
                     key = m.group(1).strip()
                     val = m.group(2).strip()
