@@ -22,7 +22,7 @@ from pymatgen.util.serialization import pmg_serialize
 
 from vise.analyzer.band_gap import band_gap_properties
 from vise.config import (
-    DOS_STEP_SIZE, KPT_DENSITY, ENCUT_FACTOR_STR_OPT, ANGLE_TOL,
+    DOS_STEP_SIZE, INSULATOR_KPT_DENSITY, ENCUT_FACTOR_STR_OPT, ANGLE_TOL,
     SYMMETRY_TOLERANCE, BAND_MESH_DISTANCE, DEFAULT_NUM_NODES)
 from vise.input_set.incar import ViseIncar
 from vise.input_set.settings_incar import (
@@ -40,6 +40,7 @@ from vise import __version__
 logger = get_logger(__name__)
 
 
+# TODO: remove VaspInputSet
 class ViseInputSet(VaspInputSet):
     """Vise version of VaspInputSet
 
@@ -132,7 +133,7 @@ class ViseInputSet(VaspInputSet):
                        "standardize_structure": True}
 
     TASK_OPTIONS = {"kpt_mode": "primitive_uniform",
-                    "kpt_density": KPT_DENSITY,
+                    "kpt_density": INSULATOR_KPT_DENSITY,
                     "kpt_shift": None,
                     "only_even": False,
                     "band_ref_dist": BAND_MESH_DISTANCE,
@@ -197,8 +198,8 @@ class ViseInputSet(VaspInputSet):
     @classmethod
     def make_input(cls,
                    structure: Structure,
-                   task: Union[str, Task] = "structure_opt",
-                   xc: Union[str, Xc] = "pbe",
+                   task: Task = Task.structure_opt,
+                   xc: Xc = Xc.pbe,
                    prev_set: "ViseInputSet" = None,
                    abs_files_to_transfer: Optional[dict] = None,
                    user_incar_settings: Optional[dict] = None,
@@ -222,7 +223,7 @@ class ViseInputSet(VaspInputSet):
 
         Other notes are as follows.
 
-        Note1: Charge set to structure is ignored when determining NELECT. For
+        Note1: Charge set in structure is ignored when determining NELECT. For
                this purpose, charge option needs to be used.
         Note2: When the structure is changed via find_spglib_standard_primitive,
                all the site properties are removed.
@@ -264,11 +265,6 @@ class ViseInputSet(VaspInputSet):
         abs_files_to_transfer = abs_files_to_transfer or {}
         user_incar_settings = user_incar_settings or {}
 
-        if isinstance(task, str):
-            task = Task.from_string(task)
-        if isinstance(xc, str):
-            xc = Xc.from_string(xc)
-
         # First, set default.
         opts = deepcopy(cls.ALL_OPTIONS)
 
@@ -308,13 +304,13 @@ class ViseInputSet(VaspInputSet):
 
         orig_matrix = structure.lattice.matrix
         matrix = task_str_kpt.structure.lattice.matrix
-        structure_changed = \
+        lattice_changed = \
             not np.allclose(orig_matrix, matrix, atol=opts["symprec"])
 
-        if structure_changed and opts["charge"] != 0.0:
-            raise ValueError("Structure is changed but charge is set.")
+        if lattice_changed and opts["charge"] != 0.0:
+            raise ValueError("Structure is changed although charge is set.")
 
-        if structure_changed:
+        if lattice_changed:
             # The following files are useless when lattice is changed.
             pattern = \
                 re.compile("|".join([r"CHGCAR$", r"WAVECAR$", r"WAVEDER"]))
@@ -322,8 +318,6 @@ class ViseInputSet(VaspInputSet):
                 if pattern.match(f):
                     abs_files_to_transfer.pop(f, None)
 
-        # unique_justseen https://docs.python.org/ja/3/library/itertools.html
-        # ["H", "H", "O", "O", "H"] -> ['H', 'O', 'H']
         symbol_list = get_symbol_list(task_str_kpt.structure)
 
         xc_task_potcar = XcTaskPotcar.from_options(
@@ -367,7 +361,7 @@ class ViseInputSet(VaspInputSet):
             {**task_settings.settings, **xc_settings.settings,
              **xc_task_settings.settings, **common_settings.settings}
 
-        # user_incar_settings is the top prioritized.
+        # user_incar_settings is top prioritized.
         incar_settings.update(user_incar_settings)
 
         # TODO: tweak the unfavorable combination of the input set.
@@ -418,7 +412,7 @@ class ViseInputSet(VaspInputSet):
                             make_dir_if_not_present=make_dir_if_not_present,
                             include_cif=include_cif)
 
-        # Overwrite only POSCAR to increase the digit for frac coords.
+        # Overwrite POSCAR to increase the digit for frac coords.
         poscar_file = Path(output_dir) / "POSCAR"
         self.poscar.write_file(str(poscar_file), significant_figures=10)
 
@@ -563,7 +557,7 @@ class ViseInputSet(VaspInputSet):
         Returns:
             ViseInputSet class object.
         """
-        kwargs = kwargs or {}
+        kwargs = deepcopy(kwargs) if kwargs else {}
         kwargs["sort_structure"] = sort_structure
         kwargs["standardize_structure"] = standardize_structure
 
@@ -591,6 +585,7 @@ class ViseInputSet(VaspInputSet):
                                       key=abs))
             else:
                 abs_max_mag = 0
+
             if vasprun.is_spin and abs_max_mag > 0.05:
                 kwargs["is_magnetization"] = True
 
@@ -604,7 +599,7 @@ class ViseInputSet(VaspInputSet):
                 logger.warning(f"{poscar} is parsed for structure.")
                 structure = Structure.from_file(poscar)
             else:
-                raise FileNotFoundError("CONTCAR or POSCAR does not exist.")
+                raise FileNotFoundError("Both CONTCAR and POSCAR do not exist.")
 
         if parse_incar:
             input_set.incar_settings = ViseIncar.from_file(path / "INCAR")

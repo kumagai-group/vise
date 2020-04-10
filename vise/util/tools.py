@@ -24,27 +24,26 @@ def parse_file(class_method_name: Callable, parsed_filename: str) -> Any:
     try:
         logger.info(f"Parsing {parsed_filename}...")
         return class_method_name(parsed_filename)
+
     except ParseError:
         logger.warning(f"Parsing {parsed_filename} failed.")
-        raise ParseError
+        raise
+
     except FileNotFoundError:
         logger.warning(f"File {parsed_filename} not found.")
         raise
 
 
 def str2bool(string: str) -> bool:
+    """Convert string to bool using strtobool.
+
+    Note that strtobool returns 0 or 1.
+    """
     return bool(strtobool(string))
 
 
 def is_str_digit(n: str) -> bool:
-    """Check whether the given string is a digit or not.
-
-    Args:
-        n (str): The checked string.
-
-    Returns:
-        Bool.
-    """
+    """Check whether the given string is a digit or not. """
     try:
         float(n)
         return True
@@ -52,17 +51,10 @@ def is_str_digit(n: str) -> bool:
         return False
 
 
-def is_str_int(n: str) -> bool:
-    """Check whether the given string is an integer or not.
-
-    Args:
-        n (str): The checked string.
-
-    Returns:
-        Bool.
-    """
+def is_str_int(n: str, rounding_error=1e-7) -> bool:
+    """Check whether the given string is an integer or not. """
     try:
-        if int(n) - float(n) < 1e-5:
+        if int(n) - float(n) < rounding_error:
             return True
         else:
             return False

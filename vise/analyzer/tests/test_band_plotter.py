@@ -7,7 +7,7 @@ import warnings
 
 from vise.util.testing import ViseTest
 from vise.analyzer.band_plotter import (
-    labels_to_unicode, PrettyBSPlotter, ModBSPlotter, make_sym_line)
+    labels_to_unicode, PrettyBSPlotter, ModBSPlotter, make_bs_sym_lines)
 
 parent_dir = Path(__file__).parent
 
@@ -46,11 +46,11 @@ class PlotTwoBandStructureTest(ViseTest):
         plotter.show()
 
     def test2(self):
-        mgo_band = make_sym_line(
+        mgo_band = make_bs_sym_lines(
             parent_dir / "MgO_band_KPOINTS",
             parent_dir / "MgO_band_vasprun.xml")
         plotter = PrettyBSPlotter(band=mgo_band, absolute=False)
-        plotter.bs_plotter.plot_brillouin()
+        plotter.bsp.plot_brillouin()
 
 
 class PlotFerromagneticBandStructureTest(ViseTest):
@@ -64,9 +64,9 @@ class PlotFerromagneticBandStructureTest(ViseTest):
 
     @unittest.skipIf(not ViseTest.DISPLAY_DIAGRAM, ViseTest.no_display_reason)
     def test(self):
-        ko2_band = make_sym_line(
-            kpoints_filenames=(parent_dir / "KO2_band_KPOINTS"),
-            vasprun_filenames=(parent_dir / "KO2_band_vasprun.xml"))
+        ko2_band = make_bs_sym_lines(
+            kpoints=(parent_dir / "KO2_band_KPOINTS"),
+            vasprun=(parent_dir / "KO2_band_vasprun.xml"))
         plotter = PrettyBSPlotter(band=ko2_band, absolute=False)
         plotter.show()
 

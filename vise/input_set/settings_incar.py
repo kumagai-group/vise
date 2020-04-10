@@ -2,7 +2,10 @@
 
 from math import ceil
 from pathlib import Path
+import sys
 from typing import Optional
+from abc import abstractmethod, ABC
+from collections import defaultdict
 
 from monty.serialization import loadfn
 
@@ -12,9 +15,8 @@ from pymatgen.io.vasp import Potcar
 from vise.config import BAND_GAP_CRITERION
 from vise.input_set.settings_util import (
     load_default_incar_settings, check_keys, nelect, nbands, calc_npar_kpar)
-from vise.input_set.task import (
-    LATTICE_RELAX_TASK, PLOT_TASK, SPECTRA_TASK, Task)
-from vise.input_set.xc import Xc, LDA_OR_GGA, HYBRID_FUNCTIONAL
+from vise.input_set.task import Task
+from vise.input_set.xc import Xc
 from vise.util.logger import get_logger
 
 logger = get_logger(__name__)
@@ -42,18 +44,60 @@ COMMON_REQUIRED_FLAGS = {"NELM", "LASPH", "LORBIT", "LCHARG", "SIGMA"}
 COMMON_OPTIONAL_FLAGS = {"NELECT"}
 COMMON_FLAGS = COMMON_REQUIRED_FLAGS | COMMON_OPTIONAL_FLAGS
 
-ALL_FLAGS = set(sum(loadfn(SET_DIR / "incar_flags.yaml").values(), []))
+incar_flag_list = sum(
+    [list(i.keys()) for i in loadfn(SET_DIR / "incar_flags.yaml").values()], [])
+
+ALL_FLAGS = set(incar_flag_list)
 
 OTHER_FLAGS = ALL_FLAGS - (TASK_FLAGS | XC_FLAGS | XC_TASK_FLAGS | COMMON_FLAGS)
 
 
-class TaskIncarSettings:
+# incar_flags = defaultdict(list)
+
+# task_required = set()
+# task_optional = set()
+# xc_required = set()
+# xc_optional = set()
+# common_required = set()
+# common_optional = set()
+# other_optional = set()
+
+# for flag_type, flags in loadfn(SET_DIR / "incar_flags.yaml").items():
+#     for flag, category in flags.items():
+#         incar_flags[flag_type].append(flag)
+#         if category is None:
+#             other_optional.add(flag)
+#         else:
+#             try:
+#                 getattr(sys.modules[__name__], category).add(flag)
+#             except AttributeError:
+#                 logger.error(f"{category} is not proper type.")
+#                 raise
+
+
+class IncarSettings(ABC):
 
     def __init__(self,
                  settings: dict):
 
-        check_keys(settings, TASK_REQUIRED_FLAGS, TASK_OPTIONAL_FLAGS)
+        check_keys(settings, self.required_flags, self.optional_flags)
         self.settings = settings
+
+    @property
+    @abstractmethod
+    def required_flags(self):
+        pass
+
+    @property
+    @abstractmethod
+    def optional_flags(self):
+        pass
+
+
+class TaskIncarSettings(IncarSettings):
+
+    required_flags = TASK_REQUIRED_FLAGS
+    optional_flags = TASK_OPTIONAL_FLAGS
 
     @classmethod
     def from_options(cls,
@@ -89,19 +133,20 @@ class TaskIncarSettings:
                                         optional_flags=TASK_OPTIONAL_FLAGS,
                                         key_name=str(task))
 
-        settings["LREAL"] = "A" if task == Task.defect else False
+        if task == Task.defect:
+            settings["LREAL"] = "A"
+        else:
+            settings["LREAL"] = False
 
-        # -5 is acceptable for num_kpt >= 4 and is_band_gap = True
+        # ISMEAR = -5 is acceptable when num_kpt >= 4 and the band gap exists.
         if is_band_gap is not True or num_kpoints < 4:
             settings["ISMEAR"] = 0
 
-        if task == Task.defect or is_magnetization:
+        if is_magnetization or task == Task.defect:
             settings["ISPIN"] = 2
             if hasattr(structure, "site_properties"):
-                logger.error("MAGMOM is not inherited in the current "
-                                "implementation.")
-#                if "magmom" in structure.site_properties:
-#                    settings["MAGMOM"] = structure.site_properties["magmom"]
+                logger.error("Site properties are not inherited in the current "
+                             "implementation.")
 
         if npar_kpar:
             kpar, npar = calc_npar_kpar(num_kpoints, num_nodes)
@@ -110,16 +155,16 @@ class TaskIncarSettings:
 #            settings["NPAR"] = npar
 
         if not encut:
-            if task in LATTICE_RELAX_TASK:
+            if task.is_lattice_relax:
                 encut = round(max_enmax * structure_opt_encut_factor, 3)
             else:
                 encut = max_enmax
         settings["ENCUT"] = encut
 
-        if task in PLOT_TASK:
+        if task.is_plot_task:
             settings["NBANDS"] = nbands(structure.composition, potcar)
 
-        if task in SPECTRA_TASK:
+        if task.is_spectrum_task:
             if vbm_cbm:
                 emin = ceil(vbm_cbm[0]) - 15 - dos_step_size
                 emax = ceil(vbm_cbm[1]) + 15
@@ -142,11 +187,10 @@ class TaskIncarSettings:
         return cls(settings=settings)
 
 
-class XcIncarSettings:
+class XcIncarSettings(IncarSettings):
 
-    def __init__(self, settings: dict):
-        check_keys(settings, XC_REQUIRED_FLAGS, XC_OPTIONAL_FLAGS)
-        self.settings = settings
+    required_flags = XC_REQUIRED_FLAGS
+    optional_flags = XC_OPTIONAL_FLAGS
 
     @classmethod
     def from_options(cls,
@@ -175,7 +219,7 @@ class XcIncarSettings:
         if ldauu:
             hubbard_u = True
         # By default Hubbard U is set for LDA or GGA.
-        hubbard_u = xc in LDA_OR_GGA if hubbard_u is None else hubbard_u
+        hubbard_u = xc.is_lda_or_gga if hubbard_u is None else hubbard_u
         ldauu = ldauu or {}
         ldaul = ldaul or {}
 
@@ -200,7 +244,7 @@ class XcIncarSettings:
                 settings["LMAXMIX"] = \
                     6 if any([Element(el).Z > 56 for el in symbol_list]) else 4
 
-        if xc in HYBRID_FUNCTIONAL:
+        if xc.is_hybrid_functional:
             settings["AEXX"] = aexx
             if factor > 1:
                 settings["NKRED"] = factor
@@ -208,11 +252,10 @@ class XcIncarSettings:
         return cls(settings=settings)
 
 
-class XcTaskIncarSettings:
+class XcTaskIncarSettings(IncarSettings):
 
-    def __init__(self, settings: dict):
-        check_keys(settings, XC_TASK_REQUIRED_FLAGS, XC_TASK_OPTIONAL_FLAGS)
-        self.settings = settings
+    required_flags = XC_TASK_REQUIRED_FLAGS
+    optional_flags = XC_TASK_OPTIONAL_FLAGS
 
     @classmethod
     def from_options(cls) -> "XcTaskIncarSettings":
@@ -230,10 +273,10 @@ class XcTaskIncarSettings:
         return cls(settings)
 
 
-class CommonIncarSettings:
-    def __init__(self, settings: dict):
-        check_keys(settings, COMMON_REQUIRED_FLAGS, COMMON_OPTIONAL_FLAGS)
-        self.settings = settings
+class CommonIncarSettings(IncarSettings):
+
+    required_flags = COMMON_REQUIRED_FLAGS
+    optional_flags = COMMON_OPTIONAL_FLAGS
 
     @classmethod
     def from_options(cls,

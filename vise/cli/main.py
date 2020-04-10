@@ -7,19 +7,15 @@ import sys
 from typing import Union, List, Dict
 
 from vise.cli.main_function import (
-    get_poscar_from_mp, vasp_set, chempotdiag, plot_band, plot_dos, vasp_run,
-    kpt_conv, band_gap)
+    get_poscar_from_mp, vasp_set, chempotdiag, plot_band, plot_dos, band_gap)
 from vise.config import (
-    SYMMETRY_TOLERANCE, ANGLE_TOL, KPT_DENSITY, TIMEOUT, MAIN_SETTINGS,
+    SYMMETRY_TOLERANCE, ANGLE_TOL, INSULATOR_KPT_DENSITY, MAIN_SETTINGS,
     VISE_YAML_FILES)
-from vise.custodian_extension.jobs import ViseVaspJob
-from vise.custodian_extension.handler_groups import handler_group
 from vise.input_set.input_set import ViseInputSet
 from vise.input_set.xc import Xc
 from vise.input_set.task import Task
 from vise.util.logger import get_logger
 from vise.cli.main_tools import dict2list, get_default_args
-from vise.util.mp_tools import make_poscars_from_mp
 from vise.util.tools import str2bool
 from vise import __version__
 
@@ -27,15 +23,12 @@ from vise import __version__
 logger = get_logger(__name__)
 
 
-def simple_override(d: dict, keys: Union[list, str]) -> None:
+def simple_override(d: dict, keys: List[str]) -> None:
     """Override dict if keys exist in vise.yaml.
 
     When the value in the user_settings is a dict, it will be changed to
     list using dict2list.
     """
-    if isinstance(keys, str):
-        keys = [keys]
-
     for key in keys:
         if key in MAIN_SETTINGS:
             v = MAIN_SETTINGS[key]
@@ -161,41 +154,6 @@ Version: {__version__}
         "--angle_tolerance", type=float, default=prec["angle_tolerance"],
         help="Set angle precision used for symmetry analysis.")
 
-    # -- parent parser:  custodian
-    custodian_defaults = get_default_args(ViseVaspJob.kpt_converge)
-    custodian_defaults["vasp_cmd"] = None
-    custodian_defaults["timeout"] = TIMEOUT
-    simple_override(custodian_defaults, ["vasp_cmd",
-                                         "max_relax_num",
-                                         "left_files"])
-    custodian_parser = argparse.ArgumentParser(
-        description="Vasp custodian-related parser",
-        add_help=False)
-
-    custodian_parser.add_argument(
-        "-v", "--vasp_cmd", nargs="+", type=str,
-        default=custodian_defaults["vasp_cmd"],
-        help="VASP command. If you are using mpirun, set this to something "
-             "like \"mpirun pvasp\".",)
-    custodian_parser.add_argument(
-        "--handler_name", type=str, default="default",
-        choices=handler_group(return_keys=True),
-        help="Custodian error handler name listed in error_handlers.")
-    custodian_parser.add_argument(
-        "--max_relax_num", default=custodian_defaults["max_relax_num"],
-        type=int,
-        help="Maximum number of relaxations.")
-    custodian_parser.add_argument(
-        "--left_files", type=str, nargs="+",
-        default=custodian_defaults["left_files"],
-        help="Filenames that are left at the calculation directory.")
-    custodian_parser.add_argument(
-        "--timeout", type=int, default=custodian_defaults["timeout"],
-        help="Timeout used in TooLongTimeCalcErrorHandler.")
-    custodian_parser.add_argument(
-        "--remove_wavecar", action="store_true",
-        help="Remove WAVECAR file after the calculation is finished.")
-
     # -- parent parser:  vasp set
     vasp_set_parser = argparse.ArgumentParser(
         description="Vasp set-related parser",
@@ -239,7 +197,7 @@ Version: {__version__}
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         aliases=['vs'])
 
-    vs_defaults = {"kpt_density": KPT_DENSITY}
+    vs_defaults = {"kpt_density": INSULATOR_KPT_DENSITY}
 
     parser_vasp_set.add_argument(
         "--print", action="store_true",
@@ -270,55 +228,6 @@ Version: {__version__}
     del vs_defaults
 
     parser_vasp_set.set_defaults(func=vasp_set)
-
-    # -- vasp_run --------------------------------------------------------------
-    parser_vasp_run = subparsers.add_parser(
-        name="vasp_run",
-        parents=[custodian_parser, prec_parser],
-        description="Tools for vasp run",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-        aliases=['vr'])
-
-    parser_vasp_run.add_argument(
-        "--print", action="store_true",
-        help="Whether to print str_opt.json.")
-    parser_vasp_run.add_argument(
-        "--json_file", default="str_opt.json", type=str,
-        help="str_opt.json filename.")
-
-    parser_vasp_run.set_defaults(func=vasp_run)
-
-    # -- kpt_conv --------------------------------------------------------------
-    parser_kpt_conv = subparsers.add_parser(
-        name="kpt_conv",
-        parents=[vasp_set_parser, custodian_parser, prec_parser],
-        description="Tools for vasp run for k-point convergence",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-        aliases=['kc'])
-
-    kc_defaults = get_default_args(ViseVaspJob.kpt_converge)
-    kc_defaults["vasp_cmd"] = None
-
-    simple_override(kc_defaults, ["vasp_cmd",
-                                  "convergence_criterion"])
-
-    parser_kpt_conv.add_argument(
-        "--print", action="store_true",
-        help="Whether to print str_opt.json.")
-    parser_kpt_conv.add_argument(
-        "--json_file", default="kpt_conv.json", type=str,
-        help="kpt_conv.json filename.")
-    parser_kpt_conv.add_argument(
-        "-ikd", "--initial_kpt_density", type=float,
-        default=kc_defaults["initial_kpt_density"],
-        help="Initial k-point density in 1/A.")
-    parser_kpt_conv.add_argument(
-        "--criterion", dest="convergence_criterion",
-        default=kc_defaults["convergence_criterion"], type=float,
-        help="Convergence criterion of kpoints in eV/atom.")
-
-    del kc_defaults
-    parser_kpt_conv.set_defaults(func=kpt_conv)
 
     # -- chempotdiag -----------------------------------------------------------
     parser_cpd = subparsers.add_parser(
@@ -487,9 +396,6 @@ Version: {__version__}
     parser_band_gap.add_argument(
         "-v", "--vasprun", type=str, default=bg_defaults["vasprun"],
         help="vasprun.xml file name.")
-    parser_band_gap.add_argument(
-        "-o", "--outcar", type=str, default=bg_defaults["outcar"],
-        help="OUTCAR file name.")
     parser_band_gap.set_defaults(func=band_gap)
 
     del bg_defaults

@@ -1,15 +1,17 @@
 # -*- coding: utf-8 -*-
+#  Copyright (c) 2020. Distributed under the terms of the MIT License.
+
 import numpy as np
 from numpy.linalg import inv
 
 
 def num_symmetry_operation(point_group: str) -> int:
-    """ Return number of symmetry operations from Hermann–Mauguin notation.
+    """Number of point-group symmetry operations from Hermann–Mauguin notation.
 
+    "." will be removed, e.g., ..6 -> 6.
     Args:
          point_group (str):
             Point group in Hermann–Mauguin notation.
-            "." will be removed, e.g., ..6 -> 6.
 
     Returns:
          Number of symmetry operation.
@@ -58,29 +60,21 @@ def num_symmetry_operation(point_group: str) -> int:
 
 
 def transmat_standard2primitive(centering: str) -> np.ndarray:
-    """Transformation matrix from standardized cell to primitive cell
-
-    Args:
-        centering (str):
-            Centering in one character.
-    Return:
-        Transformation matrix in numpy.ndarray.
-     """
-
+    """Transformation matrix from standardized cell to primitive cell """
     if centering == "P":
         matrix = np.eye(3)
     elif centering == "A":
-        matrix = np.array([[   1,    0,    0],
-                           [   0,  1/2, -1/2],
-                           [   0,  1/2,  1/2]])
+        matrix = np.array([[1,   0,    0],
+                           [0, 1/2, -1/2],
+                           [0, 1/2,  1/2]])
     elif centering == "C":
-        matrix = np.array([[ 1/2,  1/2,    0],
-                           [-1/2,  1/2,    0],
-                           [   0,    0,    1]])
+        matrix = np.array([[1/2, 1/2,  0],
+                           [1/2, 1/2,  0],
+                           [  0,   0,  1]])
     elif centering == "R":
-        matrix = np.array([[ 2/3,  1/3,  1/3],
-                           [-1/3,  1/3,  1/3],
-                           [-1/3, -2/3,  1/3]])
+        matrix = np.array([[ 2/3,  1/3, 1/3],
+                           [-1/3,  1/3, 1/3],
+                           [-1/3, -2/3, 1/3]])
 #        matrix = np.array([[ 2/3, -1/3, -1/3],
 #                           [ 1/3,  1/3, -2/3],
 #                           [ 1/3,  1/3,  1/3]])
@@ -89,9 +83,9 @@ def transmat_standard2primitive(centering: str) -> np.ndarray:
                            [ 1/2, -1/2,  1/2],
                            [ 1/2,  1/2, -1/2]])
     elif centering == "F":
-        matrix = np.array([[   0,  1/2,  1/2],
-                           [ 1/2,    0,  1/2],
-                           [ 1/2,  1/2,    0]])
+        matrix = np.array([[  0,  1/2, 1/2],
+                           [1/2,    0, 1/2],
+                           [1/2,  1/2,   0]])
     else:
         raise ValueError(f"Centering {centering} is invalid")
 
@@ -99,15 +93,7 @@ def transmat_standard2primitive(centering: str) -> np.ndarray:
 
 
 def transmat_primitive2standard(centering: str) -> np.ndarray:
-    """Transformation matrix from primitive cell to standardized cell
-
-    Args:
-        centering (str):
-            Centering in one character.
-    Return:
-        Transformation matrix in numpy.ndarray.
-    """
-    matrix = inv(transmat_standard2primitive(centering))
-    return matrix.astype(int)
+    """Transformation matrix from primitive cell to standardized cell """
+    return inv(transmat_standard2primitive(centering)).astype(int)
 
 

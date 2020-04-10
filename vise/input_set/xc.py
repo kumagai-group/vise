@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from enum import unique, Enum
+from vise.util.enum import ExtendedEnum
 
 
-@unique
-class Xc(Enum):
-    """ Supported exchange-correlation treatment. """
+class Xc(ExtendedEnum):
+    """Supported exchange-correlation treatment. """
     pbe = "pbe"
     pbesol = "pbesol"
     lda = "lda"
@@ -13,31 +12,26 @@ class Xc(Enum):
     pbe0 = "pbe0"
     hse = "hse"
 
-    def __str__(self):
-        return self.name
-
     @classmethod
-    def from_string(cls, s):
-
-        for m in Xc:
-            if m.value == s:
-                return m
+    def from_string(cls, s: str):
         if s == "perdew-zunger81":
-            return Xc.lda
-        raise AttributeError(f"Xc:{s} is not proper.\n "
-                             f"Supported Xc:\n {cls.name_list()}")
-
-    @classmethod
-    def name_list(cls):
-        return ', '.join([e.value for e in cls])
+            return cls.lda
+        return super().from_string(s)
 
     @property
-    def require_wavefunctions(self):
-        return True if self in BEYOND_MGGA else False
+    def is_lda_or_gga(self):
+        return self in (self.pbe, self.pbesol, self.lda)
+
+    @property
+    def is_hybrid_functional(self):
+        return self in (self.pbe0, self.hse)
+
+    @property
+    def is_local_or_semilocal(self):
+        return self.is_lda_or_gga or self is self.scan
+
+    @property
+    def is_nonlocal(self):
+        return self.is_hybrid_functional
 
 
-LDA_OR_GGA = (Xc.pbe, Xc.pbesol, Xc.lda)
-SEMILOCAL = (Xc.pbe, Xc.pbesol, Xc.lda, Xc.scan)
-HYBRID_FUNCTIONAL = (Xc.pbe0, Xc.hse)
-MGGA_OR_HYBRID = (Xc.pbe0, Xc.hse, Xc.scan)
-BEYOND_MGGA = HYBRID_FUNCTIONAL

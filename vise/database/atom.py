@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-# Colors of atoms are obtained at
-# http://jmol.sourceforge.net/jscolors/
 # Pauling from wikipedia
 electronegativity_list = {
     'H' :  2.20,

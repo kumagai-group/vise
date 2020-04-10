@@ -8,35 +8,29 @@ ANGLE_TOL = 5
 
 DOS_STEP_SIZE = 0.01
 
-KPT_DENSITY = 2.5
-KPT_INIT_DENSITY = 2.5  # Initial k-point density used for k-point convergence
-KPT_FACTOR = 1.2  # Multiplied factor used for incrementing the k-point density.
+INSULATOR_KPT_DENSITY = 2.5
+METAL_KPT_FACTOR = 5.0  # Multiplied factor used for metallic systems.
 
 BAND_MESH_DISTANCE = 0.025
 
-ENCUT_FACTOR_STR_OPT = 1.3  # This times ENMAX is used for structure opt calc.
+ENCUT_FACTOR_STR_OPT = 1.3  # This value * ENMAX is used for structure opt calc.
 
-BAND_GAP_CRITERION = 0.2  # Criterion in eV to determine if band gap exists.
+BAND_GAP_CRITERION = 0.2  # Criterion in eV to determine if a band gap exists.
 
 DEFAULT_NUM_NODES = 1
-
-TIMEOUT = 518400
 
 # chempotdiag
 ROOM_TEMPERATURE = 298.15
 REFERENCE_PRESSURE = 1e5
 
-
 MAIN_SETTINGS = {}
 # The following keys are set by vise.yaml
-main_setting_keys = ["vasp_cmd",
-                     "xc",
+main_setting_keys = ["xc",
                      "vise_opts",
                      "user_incar_settings",
                      "ldauu",
                      "ldaul",
                      "outcar",
-                     "convergence_criterion",  # kpt convergence
                      "contcar",
                      "vasprun",
                      "procar",

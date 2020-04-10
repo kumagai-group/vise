@@ -10,9 +10,6 @@ from vise.input_set.task import Task
 from vise.input_set.xc import Xc
 from vise.util.testing import ViseTest
 
-__author__ = "Yu Kumagai"
-__maintainer__ = "Yu Kumagai"
-
 
 class TaskIncarSettingsTest(ViseTest):
     def setUp(self) -> None:

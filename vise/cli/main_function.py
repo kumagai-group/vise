@@ -8,23 +8,16 @@ from itertools import chain
 from pathlib import Path
 from typing import Tuple
 
-from custodian.custodian import Custodian
-
 from pymatgen.analysis.phase_diagram import PhaseDiagram, PDPlotter
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure
 from pymatgen.ext.matproj import MPRester
+from pymatgen.io.vasp.outputs import Vasprun, Outcar
+
 
 from vise.analyzer.band_gap import band_gap_properties
 from vise.analyzer.band_plotter import PrettyBSPlotter
 from vise.analyzer.dos_plotter import get_dos_plot
-from vise.chempotdiag.chem_pot_diag import ChemPotDiag
-from vise.chempotdiag.free_energy_entries import FreeEnergyEntrySet
-from vise.custodian_extension.handler_groups import handler_group
-from vise.custodian_extension.jobs import (
-    ViseVaspJob, KptConvResult, StructureOptResult)
-from vise.custodian_extension.validators import (
-    VasprunXMLValidator, VaspFilesValidator)
 from vise.input_set.incar import incar_flags
 from vise.input_set.input_set import ViseInputSet
 from vise.input_set.prior_info import PriorInfo
@@ -32,7 +25,6 @@ from vise.input_set.task import Task
 from vise.input_set.xc import Xc
 from vise.util.logger import get_logger
 from vise.cli.main_tools import potcar_str2dict, list2dict
-from vise.util.mp_tools import make_poscars_from_mp
 
 logger = get_logger(__name__)
 
@@ -68,12 +60,8 @@ def get_poscar_from_mp(args: Namespace) -> None:
     if getattr(args, "number", None):
         s = MPRester().get_structure_by_material_id(f"mp-{args.number}")
         s.to(fmt="poscar", filename=args.poscar)
-    elif getattr(args, "elements", None):
-        make_poscars_from_mp(elements=args.elements,
-                             e_above_hull=args.e_above_hull,
-                             molecules=args.molecules)
     else:
-        logger.warning("Set mp number or elements")
+        logger.warning("Set mp number")
 
 
 def vasp_set(args: Namespace) -> None:
@@ -139,76 +127,6 @@ def vasp_set(args: Namespace) -> None:
     os.chdir(started_dir)
 
 
-def vasp_run_parser(args: Namespace) -> tuple:
-    if isinstance(args.vasp_cmd, str):
-        vasp_cmd = args.vasp_cmd.split()
-    elif isinstance(args.vasp_cmd, list):
-        if len(args.vasp_cmd) == 1:
-            vasp_cmd = args.vasp_cmd[0].split()
-        else:
-            vasp_cmd = args.vasp_cmd
-    else:
-        raise ValueError("Vasp command must be specified properly.")
-
-    handlers = handler_group(args.handler_name, timeout=args.timeout)
-
-    # Used in structure_opt
-    optimization_args = {"vasp_cmd": vasp_cmd,
-                         "max_relax_num": args.max_relax_num,
-                         "removes_wavecar": args.remove_wavecar,
-                         "left_files": args.left_files,
-                         "removed_files": ["PCDAT", "vasprun.xml"],
-                         "symprec": args.symprec,
-                         "angle_tolerance": args.angle_tolerance}
-
-    # Used in custodian
-    custodian_args = {"handlers": handlers,
-                      "polling_time_step": 5,
-                      "monitor_freq": 1,
-                      "max_errors": 10,
-                      "gzipped_output": False,
-                      "validators": [VasprunXMLValidator(),
-                                     VaspFilesValidator()]}
-
-    return optimization_args, custodian_args
-
-
-def vasp_run(args) -> None:
-
-    if args.print:
-        print(StructureOptResult.load_json(args.json_file))
-        return
-
-    optimization_args, custodian_args = vasp_run_parser(args)
-
-    custodian_args["jobs"] = ViseVaspJob.structure_optimization_run(
-        **optimization_args)
-
-    c = Custodian(**custodian_args)
-    c.run()
-
-
-def kpt_conv(args) -> None:
-
-    if args.print:
-        print(KptConvResult.load_json(args.json_file))
-        return
-
-    user_incar_settings, vis_kwargs = vasp_settings_from_args(args)
-    optimization_args, custodian_args = vasp_run_parser(args)
-
-    custodian_args["jobs"] = ViseVaspJob.kpt_converge(
-        xc=Xc.from_string(args.xc),
-        task=Task.from_string(args.task),
-        convergence_criterion=args.convergence_criterion,
-        initial_kpt_density=args.initial_kpt_density,
-        user_incar_settings=user_incar_settings,
-        **optimization_args, **vis_kwargs)
-
-    c = Custodian(**custodian_args)
-    c.run()
-
-
 def chempotdiag(args: Namespace) -> None:
     if args.print:
         print(ChemPotDiag.load_json(args.json_file))
@@ -243,15 +161,15 @@ def chempotdiag(args: Namespace) -> None:
 
 
 def plot_band(args) -> None:
-    p = PrettyBSPlotter.from_vasp_files(kpoints_filenames=args.kpoints,
-                                        vasprun_filenames=args.vasprun,
-                                        vasprun2_filenames=args.vasprun2,
+    p = PrettyBSPlotter.from_vasp_files(kpoints=args.kpoints,
+                                        vasprun=args.vasprun,
+                                        vasprun2=args.vasprun2,
                                         absolute=args.absolute,
                                         y_range=args.y_range,
                                         legend=args.legend,
                                         symprec=args.symprec,
                                         angle_tolerance=args.angle_tolerance)
-    p.bs_plotter.plot_brillouin()
+    p.bsp.plot_brillouin()
 #    p.show(args.filename, format_type="pdf")
 
 
@@ -278,7 +196,8 @@ def plot_dos(args) -> None:
 def band_gap(args) -> None:
     try:
         band_gap_value, vbm_info, cbm_info = \
-            band_gap_properties(vasprun=args.vasprun, outcar=args.outcar)
+            band_gap_properties(vasprun=Vasprun(args.vasprun),
+                                outcar=Outcar(args.outcar))
         print(f"CBM info {cbm_info}")
         print(f"VBM info {vbm_info}")
         print(f"band gap info {band_gap_value}")

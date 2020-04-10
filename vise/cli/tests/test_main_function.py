@@ -13,12 +13,12 @@ from pymatgen.core.structure import IStructure
 
 from vise.util.testing import ViseTest
 from vise.cli.main_function import (
-    vasp_settings_from_args, get_poscar_from_mp, vasp_set, vasp_run,
+    vasp_settings_from_args, get_poscar_from_mp, vasp_set,
     chempotdiag, plot_band, plot_dos, band_gap)
 from vise.cli.tests.test_main import default_vasp_args, symprec_args
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc
-from vise.config import KPT_DENSITY
+from vise.config import INSULATOR_KPT_DENSITY
 
 vasp_args = default_vasp_args
 
@@ -73,14 +73,9 @@ direct
         actual = IStructure.from_file("POSCAR")
         self.assertEqual(expected, actual)
 
-    @patch('vise.cli.main_function.make_poscars_from_mp', autospec=True)
-    def test_mp_poscars(self, mock_make_poscars):
-        get_poscar_from_mp(self.args_elements)
-        mock_make_poscars.assert_called_once_with(**self.kwargs)
-
     def test_warning(self):
-        expected = ['WARNING:vise.cli.main_function:Set mp number or elements']
-        with self.assertLogs(level='WARNING') as cm:
+        expected = ["WARNING:vise.cli.main_function:Set mp number"]
+        with self.assertLogs(level="WARNING") as cm:
             get_poscar_from_mp(self.args_none)
             self.assertEqual(expected, cm.output)
 
@@ -92,7 +87,7 @@ direct
 class VaspSetTest(ViseTest):
     def setUp(self) -> None:
         self.min_default_kwargs = {"poscar": "POSCAR",
-                                   "kpt_density": KPT_DENSITY,
+                                   "kpt_density": INSULATOR_KPT_DENSITY,
                                    "standardize_structure": True,
                                    "prior_info": True,
                                    "dirs": ["."],
@@ -162,18 +157,6 @@ class VaspSetTest(ViseTest):
                   "user_incar_settings": user_incar_settings}
 
         mock.assert_called_once_with(**kwargs)
-
-
-class VaspRunTest(ViseTest):
-    def setUp(self) -> None:
-        self.min_default_kwargs = {"poscar": "POSCAR",
-                                   "kpt_density": KPT_DENSITY,
-                                   "standardize_structure": True,
-                                   "prior_info": True,
-                                   }
-        self.args_print = Namespace(json="vasp_input_set.json",
-                                    **self.min_default_kwargs,
-                                    **vasp_args, **symprec_args)
 
 
 class TestChemPotDiag(ViseTest):
@@ -288,7 +271,7 @@ class TestGetDosPlotter(ViseTest):
 
 class TestBandGap(ViseTest):
     def setUp(self) -> None:
-        self.kwargs = {"vasprun": "vasprun.xml", "outcar": "OUTCAR"}
+        self.kwargs = {"vasprun": "vasprun.xml"}
         self.args = Namespace(**self.kwargs)
 
     @patch('vise.cli.main_function.band_gap_properties', autospec=True,

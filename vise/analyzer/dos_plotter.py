@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+#  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
 from collections import OrderedDict, defaultdict
 from itertools import groupby
@@ -101,7 +102,9 @@ class ViseDosPlotter(DosPlotter):
                 grouped_keys[first_word] = [k]
 
         num_figs = len(grouped_keys)
+        print("num_figs", num_figs)
         fig, axs = plt.subplots(num_figs, 1, sharex=True)
+
 
         if xlim:
             axs[0].set_xlim(xlim)
@@ -242,12 +245,12 @@ def get_dos_plot(vasprun: str,
 
     if specific and specific[0].isdigit():
         if pdos_type is not "none":
-            logger.warning(f"pdos_type is changed from {pdos_type} to none")
+            logger.warning(f"pdos_type is changed from {pdos_type} to none.")
         pdos_type = "none"
 
     elif specific and specific[0].isalpha():
         if pdos_type is not "none":
-            logger.warning(f"pdos_type is changed from {pdos_type} to element")
+            logger.warning(f"pdos_type is changed from {pdos_type} to element.")
         pdos_type = "element"
 
     grouped_indices = defaultdict(list)
@@ -318,7 +321,7 @@ def get_dos_plot(vasprun: str,
                         name = f"{key} {orb}"
                     else:
                         name = f"{key} #{len(value)} {orb}"
-                    density = divide_densities(pdos.densities, len(value))
+                    density = div_densities(pdos.densities, len(value))
                     if name in dos:
                         density = add_densities(dos[name].densities, density)
                     dos[name] = Dos(efermi, energies, density)
@@ -393,20 +396,8 @@ def get_dos_plot(vasprun: str,
                             title=title)
 
 
-def divide_densities(density: dict,
-                     denominator: float) -> Dict[Spin, np.ndarray]:
-    """Method to divide density.
-
-    Args:
-        density:
-            Density of states as a function of Spin.
-        denominator:
-            Denominator.
-
-    Returns:
-        Density of states with the format of {spin: np.array(density)}.
-    """
-
+def div_densities(density: dict, denominator: float) -> Dict[Spin, np.ndarray]:
+    """Method to divide density. """
     return {spin: np.array(val) / denominator for spin, val in density.items()}
 
 

@@ -1,28 +1,26 @@
 # -*- coding: utf-8 -*-
+#  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
-from enum import Enum, unique
 from math import ceil, modf, pow
 from typing import List
 
 import numpy as np
+
 from pymatgen import Structure
-from pymatgen.core.periodic_table import Element
 from pymatgen.io.vasp.inputs import Kpoints
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from vise.config import BAND_MESH_DISTANCE, KPT_DENSITY
+
+from vise.config import BAND_MESH_DISTANCE, INSULATOR_KPT_DENSITY
 from vise.config import SYMMETRY_TOLERANCE, ANGLE_TOL
 from vise.input_set.datasets.kpt_centering import kpt_centering
+from vise.util.enum import ExtendedEnum
 from vise.util.logger import get_logger
 from vise.util.structure_symmetrizer import StructureSymmetrizer
 
 logger = get_logger(__name__)
 
-__author__ = "Yu Kumagai"
-__maintainer__ = "Yu Kumagai"
 
-
-@unique
-class KpointsMode(Enum):
+class KpointsMode(ExtendedEnum):
     """K-point generation type
 
        Supporting modes are:
@@ -42,33 +40,13 @@ class KpointsMode(Enum):
            shifted along the perpendicular direction.
            This mode is useful when calculating the supercells.
     """
-
     band = "band"
     primitive_uniform = "primitive_uniform"
     manual_set = "manual_set"
 
-    def __repr__(self):
-        return self.value
-
-    # Don't remove __str__. This is a must.
-    def __str__(self):
-        return self.value
-
-    @classmethod
-    def from_string(cls, s: str):
-        for m in cls:
-            if m.value == s or m.name == s:
-                return m
-        raise AttributeError(f"k-point mode {str(s)} is not proper.\n",
-                             f"Supported modes:\n {cls.name_list()}")
-
-    @classmethod
-    def name_list(cls):
-        return ', '.join([e.name for e in cls])
-
 
 class MakeKpoints:
-    """Make Kpoint based on default settings depending on the task.
+    """Make Kpoints based on default settings depending on the task.
 
         # The structures of aP (SG:1, 2), mC (5, 8, 9, 12, 15) and
         # oA (38, 39, 40, 41) are different between spglib and seekpath.
@@ -94,7 +72,7 @@ class MakeKpoints:
     def __init__(self,
                  mode: str,
                  structure: Structure,
-                 kpt_density: float = KPT_DENSITY,
+                 kpt_density: float = INSULATOR_KPT_DENSITY,
                  only_even: bool = False,
                  manual_kpts: list = None,
                  ref_distance: float = BAND_MESH_DISTANCE,
@@ -329,6 +307,7 @@ def irreducible_kpoints(structure: Structure,
     return sga.get_ir_reciprocal_mesh(mesh=kpoints.kpts[0], is_shift=shift)
 
 
+# move to method.
 def num_irreducible_kpoints(kpoints: Kpoints,
                             structure: Structure = None,
                             symprec: float = SYMMETRY_TOLERANCE,

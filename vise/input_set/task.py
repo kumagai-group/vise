@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from enum import unique, Enum
+from vise.util.enum import ExtendedEnum
 
 
-@unique
-class Task(Enum):
+class Task(ExtendedEnum):
     """ Supported tasks """
     structure_opt = "structure_opt"
     structure_opt_rough = "structure_opt_rough"
@@ -18,31 +17,26 @@ class Task(Enum):
     dielectric_finite_field = "dielectric_finite_field"
     dielectric_function = "dielectric_function"
 
-    def __str__(self):
-        return self.name
-
-    @classmethod
-    def from_string(cls, s):
-        for m in Task:
-            if m.value == s:
-                return m
-        raise AttributeError(f"Task: {s} is not proper.\n"
-                             f"Supported Task:\n {cls.name_list()}")
-
     @property
     def kpt_factor(self):
-        factor_3 = self.dielectric_dfpt,
-        factor_2 = self.dos, self.dielectric_dfpt, self.dielectric_finite_field
-        return 3 if self in factor_3 else 2 if self in factor_2 else 1
+        if self is self.dielectric_function:
+            return 3
+        elif self in (self.dos,
+                      self.dielectric_dfpt,
+                      self.dielectric_finite_field):
+            return 2
 
-    @classmethod
-    def name_list(cls):
-        return ', '.join([e.value for e in cls])
+        return 1
 
+    @property
+    def is_lattice_relax(self):
+        return "structure_opt" in self.name
 
-LATTICE_RELAX_TASK = (Task.structure_opt,
-                      Task.structure_opt_rough,
-                      Task.structure_opt_tight)
-PLOT_TASK = (Task.band, Task.dos, Task.dielectric_function)
-SPECTRA_TASK = (Task.dos, Task.dielectric_function)
+    @property
+    def is_plot_task(self):
+        return self in (self.band, self.dos, self.dielectric_function)
+
+    @property
+    def is_spectrum_task(self):
+        return self in (self.dos, self.dielectric_function)
 

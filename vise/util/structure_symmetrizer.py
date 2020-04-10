@@ -49,9 +49,6 @@ class StructureSymmetrizer:
         positions = structure.frac_coords.tolist()
         atomic_numbers = [i.specie.number for i in structure.sites]
         self.cell = lattice, positions, atomic_numbers
-        self.kwargs = {"cell": self.cell,
-                       "symprec": symprec,
-                       "angle_tolerance": angle_tolerance}
         self._spglib_sym_data = None
         self._conventional = None
         self._primitive = None
@@ -61,13 +58,15 @@ class StructureSymmetrizer:
     @property
     def spglib_sym_data(self):
         if not self._spglib_sym_data:
-            self._spglib_sym_data = spglib.get_symmetry_dataset(**self.kwargs)
+            self._spglib_sym_data = spglib.get_symmetry_dataset(
+                self.cell, self.symprec, self.angle_tolerance)
         return self._spglib_sym_data
 
     @property
     def conventional(self):
         if self._conventional is None:
-            conventional = spglib.standardize_cell(**self.kwargs)
+            conventional = spglib.standardize_cell(
+                self.cell, self.symprec, self.angle_tolerance)
             if conventional is None:
                 raise ViseSymmetryError(
                     "Spglib couldn't find the conventional cell. Change the "
@@ -79,7 +78,8 @@ class StructureSymmetrizer:
     @property
     def primitive(self):
         if self._primitive is None:
-            primitive = spglib.find_primitive(**self.kwargs)
+            primitive = spglib.find_primitive(
+                self.cell, self.symprec, self.angle_tolerance)
             if primitive is None:
                 raise ViseSymmetryError(
                     "Spglib couldn't find the primitive cell. Change the "
@@ -133,10 +133,6 @@ class StructureSymmetrizer:
         # For Lattice comparison, np.allclose is used.
         # def allclose(a, b, rtol=1.e-5, atol=1.e-8, equal_nan=False):
         return self.structure.lattice != self.primitive.lattice
-
-# if self.structure.lattice != lattice:
-#     logger.warning(
-#         "Given structure is modified consistently with HPKOT k-path.")
 
 
 class ViseSymmetryError(Exception):

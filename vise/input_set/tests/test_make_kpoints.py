@@ -2,6 +2,8 @@
 
 import numpy as np
 
+import pytest
+
 from pymatgen.io.vasp import Kpoints
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
@@ -11,14 +13,18 @@ from vise.input_set.make_kpoints import (
 from vise.util.testing import ViseTest
 
 
-class KpointsModeTest(ViseTest):
-    def test(self):
-        band = KpointsMode.from_string("band")
-        self.assertEqual(KpointsMode.band, band)
+def test_kpoints_mode_from_string():
+    assert KpointsMode.band == KpointsMode.from_string("band")
 
-    def test2(self):
-        with self.assertRaises(AttributeError):
-            KpointsMode.from_string("fail_string")
+
+def test_kpoints_mode_from_string_raise_error():
+    with pytest.raises(AttributeError):
+        KpointsMode.from_string("fail_string")
+
+
+def test_kpoints_mode_name_list():
+    expected = "band, primitive_uniform, manual_set"
+    assert expected == KpointsMode.name_list()
 
 
 class MakeKpointsTest(ViseTest):

@@ -5,4 +5,5 @@ from vise.input_set.incar import ViseIncar
 
 # Monkey patch
 orig_inputs.Incar = ViseIncar
+# TODO: remove this
 ViseVaspInput = orig_inputs.VaspInput
