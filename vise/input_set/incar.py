@@ -139,11 +139,13 @@ class ViseIncar(Incar):
                 lines.append("\n")  # blank space
 
         for mson_key in ["@module", "@class"]:
-            if mson_key in check_incar_keys:
-                check_incar_keys.pop(mson_key)
+            try:
+                check_incar_keys.remove(mson_key)
+            except ValueError:
+                pass
 
         if check_incar_keys:
-            logger.error(f"{check_incar_keys.keys()} are invalid in INCAR.")
+            logger.error(f"{check_incar_keys} are invalid in INCAR.")
             if raise_error:
                 raise ValueError
 
