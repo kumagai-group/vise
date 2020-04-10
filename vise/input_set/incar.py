@@ -3,6 +3,7 @@
 import itertools
 import os
 import re
+from collections import OrderedDict
 from copy import deepcopy
 from pathlib import Path
 
@@ -21,7 +22,7 @@ from tabulate import tabulate
 MODULE_DIR = Path(os.path.dirname(os.path.abspath(__file__)))
 # This incar_flags should be OrderedDict, but from python 3.6, dict uses
 # order-preserving semantics. Besides, it does not affect vasp result.
-incar_flags = loadfn(MODULE_DIR / "datasets" / "incar_flags.yaml")
+incar_tags = loadfn(MODULE_DIR / "datasets" / "incar_flags.yaml")
 
 
 logger = get_logger(__name__)
@@ -84,65 +85,37 @@ class ViseIncar(Incar):
                 params[k] = v
         return ViseIncar(params)
 
-    def get_string(self, raise_error: bool = False, **kwargs) -> str:
+    def get_string(self, **kwargs) -> str:
         """Override for the pretty printing. """
-        lines = []
+        lines = OrderedDict()
         check_incar_keys = list(self.keys())
-        for key, val in incar_flags.items():
-            comment = False
-            blank_line = False
-            ll = []
 
-            for v in val.keys():
-                if v in check_incar_keys:
-                    if comment is False:
-                        category = "\n" if lines else ""
-                        category += f"# {key}"
-                        lines.append(category)
-                        comment = True
-                    if v == "MAGMOM" and isinstance(self[v], list):
-                        value = []
-                        if type(self[v][0]) in list or Magmom \
-                                and self.is_ncl_calc:
-                            value.append(
-                                " ".join(str(i) for j in self[v] for i in j))
-                        elif self.get("LSORBIT") or self.get("LNONCOLLINEAR"):
-                            for m, g in itertools.groupby(self[v]):
-                                value.append("3*{}*{}".format(len(tuple(g)), m))
-                        # YK: Add this
-                        elif len(self[v]) == 1:
-                            value.append(str(self[v][0]))
-                        else:
-                            # float() to ensure backwards compatibility between
-                            # float magmoms and Magmom objects
-                            try:
-                                for m, g in itertools.groupby(self[v],
-                                                              lambda x: float(
-                                                                  x)):
-                                    value.append(
-                                        "{}*{}".format(len(tuple(g)), m))
-                            except ValueError:
-                                raise ValueError("MAGMOM could be improper.")
+        for category, flags in incar_tags.items():
+            tag_list_by_category = []
 
-                        ll.append([v, " ".join(value)])
-                    elif isinstance(self[v], list):
-                        ll.append([v, " ".join([str(i) for i in self[v]])])
-                    else:
-                        ll.append([v, self[v]])
-                    blank_line = True
-                    check_incar_keys.remove(v)
-            if blank_line:
+            for incar_tag in flags.keys():
+                if incar_tag in check_incar_keys:
+                    tag_list_by_category.append(
+                        [incar_tag, "=", self.tag_value_to_str(incar_tag)])
+                    check_incar_keys.remove(incar_tag)
+
+            if tag_list_by_category:
                 # if not disable_numparse, e.g., LOPTICS = True becomes 1.
-                lines.append(str(tabulate([[l[0], "=", l[1]] for l in ll],
-                                          tablefmt="plain",
-                                          disable_numparse=True)))
+                tabulated_str = str(tabulate(tag_list_by_category,
+                                             tablefmt="plain",
+                                             disable_numparse=True))
+                lines[f"# {category}"] = tabulated_str
 
         if check_incar_keys:
-            logger.error(f"{check_incar_keys} are invalid in INCAR.")
-            if raise_error:
-                raise ValueError
+            logger.error(f"{check_incar_keys} may be invalid in INCAR.")
 
-        return "\n".join(lines)
+        return "\n\n".join(["\n".join([k, v]) for k, v in lines.items()])
+
+    def tag_value_to_str(self, incar_tag: str) -> str:
+        if isinstance(self[incar_tag], list):
+            return " ".join([str(i) for i in self[incar_tag]])
+        else:
+            return self[incar_tag]
 
     @property
     def is_ncl_calc(self) -> bool:

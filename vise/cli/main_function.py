@@ -18,7 +18,7 @@ from pymatgen.io.vasp.outputs import Vasprun, Outcar
 from vise.analyzer.band_gap import band_gap_properties
 from vise.analyzer.band_plotter import PrettyBSPlotter
 from vise.analyzer.dos_plotter import get_dos_plot
-from vise.input_set.incar import incar_flags
+from vise.input_set.incar import incar_tags
 from vise.input_set.input_set import ViseInputSet
 from vise.input_set.prior_info import PriorInfo
 from vise.input_set.task import Task
@@ -40,7 +40,7 @@ def vasp_settings_from_args(args: Namespace
     key_candidates = list(ViseInputSet.ALL_OPTIONS.keys())
     # Sanitize values of vis_base_kwargs and user_incar_settings with list2dict.
     vis_base_kwargs = list2dict(args.vise_opts, key_candidates)
-    key_candidates = list(chain.from_iterable(incar_flags.values()))
+    key_candidates = list(chain.from_iterable(incar_tags.values()))
     user_incar_settings = list2dict(args.user_incar_settings, key_candidates)
 
     if args.additional_user_incar_settings:
