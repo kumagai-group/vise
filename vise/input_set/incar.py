@@ -96,7 +96,7 @@ class ViseIncar(Incar):
             for incar_tag in flags.keys():
                 if incar_tag in check_incar_keys:
                     tag_list_by_category.append(
-                        [incar_tag, "=", self.tag_value_to_str(incar_tag)])
+                        [incar_tag, "=", self.str_value(incar_tag)])
                     check_incar_keys.remove(incar_tag)
 
             if tag_list_by_category:
@@ -111,7 +111,7 @@ class ViseIncar(Incar):
 
         return "\n\n".join(["\n".join([k, v]) for k, v in lines.items()])
 
-    def tag_value_to_str(self, incar_tag: str) -> str:
+    def str_value(self, incar_tag: str) -> str:
         if isinstance(self[incar_tag], list):
             return " ".join([str(i) for i in self[incar_tag]])
         else:
