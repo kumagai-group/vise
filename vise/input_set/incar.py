@@ -87,6 +87,10 @@ class ViseIncar(Incar):
 
     def get_string(self, **kwargs) -> str:
         """Override for the pretty printing. """
+        if kwargs:
+            logger.warning(f"Keywords: {kwargs} for get_string in ViseIncar "
+                           f"are not used.")
+
         lines = OrderedDict()
         check_incar_keys = list(self.keys())
 
