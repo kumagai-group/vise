@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from vise.util.testing import ViseTest
-from vise.input_set.incar import incar_flags
+from vise.input_set.incar import incar_flags, ViseIncar
 
 
 def test_incar_flags():
@@ -16,7 +16,34 @@ def test_incar_flags():
                 'NELMIN': None,
                 'PREC': 'task_required'}
     actual = incar_flags["accuracy"]
-    assert expected == actual
+    assert actual == expected
 
+
+def test_from_string():
+    incar_string = """
+    ENCUT = 500; LREAD = True
+     ALGO = D     ; PREC = A  
+      MAGMOM = 5 5 5
+    """
+    actual = ViseIncar.from_string(incar_string)
+    expected = {'ALGO': 'D', 'ENCUT': 500, 'LREAD': True,
+                'MAGMOM': [5, 5, 5], 'PREC': 'A'}
+    assert actual == expected
+
+
+def test_get_string():
+    incar = ViseIncar.from_dict({"PREC": "Normal",
+                                 "LREAL": False,
+                                 "EDIFF": 1.0,
+                                 "ISYM": 0})
+    actual = incar.get_string()
+    expected = """# accuracy
+PREC   =  Normal
+LREAL  =  False
+EDIFF  =  1.0
+
+# symmetry
+ISYM  =  0"""
+    assert actual == expected
 
 
