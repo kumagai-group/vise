@@ -13,13 +13,13 @@ from monty.io import zopen
 from monty.json import MontyEncoder
 from monty.serialization import loadfn
 from pymatgen.core.structure import Structure
-from pymatgen.io.vasp.sets import VaspInputSet, Poscar, Potcar, Kpoints, VaspInput
+from pymatgen.io.vasp.sets import Poscar, Potcar, Kpoints, VaspInput
 from pymatgen.io.vasp.sets import (
     get_vasprun_outcar, get_structure_from_prev_run)
 from pymatgen.util.serialization import pmg_serialize
 
 from vise import __version__
-from vise.analyzer.band_gap import band_gap_properties
+from vise.analyzer.band_gap import band_gap_from_vasp
 from vise.config import (
     DOS_STEP_SIZE, INSULATOR_KPT_DENSITY, ENCUT_FACTOR_STR_OPT, ANGLE_TOL,
     SYMMETRY_TOLERANCE, BAND_MESH_DISTANCE, DEFAULT_NUM_NODES)
