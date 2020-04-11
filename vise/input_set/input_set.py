@@ -393,36 +393,28 @@ class ViseInputSet:
         self.poscar.write_file(str(poscar_file), significant_figures=10)
 
     def transfer_files(self, output_dir: str) -> None:
-        out_dir = Path(output_dir).absolute()
-        for key, value in self.files_to_transfer.items():
+        abs_output_dir = Path(output_dir).absolute()
+        for filename, value in self.files_to_transfer.items():
             try:
-                # full path is usually safer for symbolic link.
-                filepath = Path(key).absolute()
-                name = filepath.name
+                # full path is safer for symbolic link.
+                abs_in_file = Path(filename).absolute()
+                abs_out_file = abs_output_dir / abs_in_file.name
                 if value == "c" or value == "m":
-                    with zopen(filepath, "rb") as fin, \
-                            zopen((out_dir / name), "wb") as fout:
+                    with zopen(abs_in_file, "rb") as fin, \
+                            zopen(abs_out_file, "wb") as fout:
                         if value == "c":
                             shutil.copyfileobj(fin, fout)
                         elif value == "m":
                             shutil.move(fin, fout)
                 elif value == "l":
-                    os.symlink(filepath, out_dir / name)
+                    os.symlink(abs_in_file, abs_out_file)
 
             except FileNotFoundError:
-                logger.warning(f"{key} does not exist.")
+                logger.warning(f"{filename} does not exist.")
 
     def write_input(self,
                     output_dir: str,
                     json_filename: str = "vise.json") -> None:
-        """Write vasp input files and handle transferred files.
-
-        Args:
-            See docstring of write_input of VaspInputSet
-
-        Return:
-            None
-        """
         self.write_vasp_input_files(output_dir)
         self.transfer_files(output_dir)
         self.to_json_file(Path(output_dir) / json_filename)
