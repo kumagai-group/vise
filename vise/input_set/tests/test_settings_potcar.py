@@ -8,9 +8,6 @@ from vise.input_set.xc import Xc
 
 from vise.util.testing import ViseTest
 
-__author__ = "Yu Kumagai"
-__maintainer__ = "Yu Kumagai"
-
 
 class XcTaskPotcarTest(ViseTest):
     def test_gga(self) -> None:

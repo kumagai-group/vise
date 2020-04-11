@@ -8,9 +8,6 @@ from vise.input_set.settings_incar import (
     XC_REQUIRED_FLAGS, XC_OPTIONAL_FLAGS)
 from vise.util.testing import ViseTest
 
-__author__ = "Yu Kumagai"
-__maintainer__ = "Yu Kumagai"
-
 
 class LoadPotcarYamlTest(ViseTest):
     def setUp(self):

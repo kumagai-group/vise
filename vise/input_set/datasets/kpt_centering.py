@@ -1,9 +1,5 @@
 import argparse
 
-__author__ = "Yu Kumagai"
-__maintainer__ = "Yu Kumagai"
-
-
 kpt_centering = {
   1: [0.5, 0.5, 0.5],
   2: [0.5, 0.5, 0.5],
