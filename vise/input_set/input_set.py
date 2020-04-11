@@ -559,7 +559,7 @@ class ViseInputSet:
             vasprun, outcar = get_vasprun_outcar(dirname)
             structure = get_structure_from_prev_run(vasprun, outcar)
 
-            gap_properties = band_gap_properties(vasprun, outcar)
+            gap_properties = band_gap_from_vasp(vasprun, outcar)
 
             if gap_properties[1]:
                 _, vbm, cbm = gap_properties
