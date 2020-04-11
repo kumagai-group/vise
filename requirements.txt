@@ -8,3 +8,4 @@ palettable
 seekpath
 numpy
 PyYAML
+pytest-mock
