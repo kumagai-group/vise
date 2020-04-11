@@ -129,7 +129,7 @@ class ViseInputSet(VaspInputSet):
     GENERAL_OPTIONS = {"sort_structure": True,
                        "standardize_structure": True}
 
-    TASK_OPTIONS = {"kpt_mode": "primitive_uniform",
+    TASK_OPTIONS = {"kpt_mode": "primitive",
                     "kpt_density": INSULATOR_KPT_DENSITY,
                     "kpt_shift": None,
                     "only_even": False,
