@@ -45,6 +45,72 @@ class KpointsMode(ExtendedEnum):
     uniform = "uniform"
 
 
+def irreducible_kpoints(structure: Structure,
+                        kpoints: Kpoints,
+                        symprec: float = SYMMETRY_TOLERANCE,
+                        angle_tolerance: float = ANGLE_TOL) -> List[tuple]:
+    """Estimate the irreducible k-points at the given k-mesh written in KPOINTS
+
+    Args:
+        kpoints (Kpoints):
+            Kpoints file. Supported modes are only Gamma and Monkhorst.
+        structure (Structure):
+            Input structure corresponding to kpoints.
+        symprec (float):
+        angle_tolerance (float):
+            See docstrings in spglib.
+
+    Returns:
+        List of irreducible kpoints and their weights tuples
+        [(ir_kpoint, weight)], with ir_kpoint given in fractional coordinates.
+    """
+    if kpoints.style == Kpoints.supported_modes.Monkhorst:
+        kpts_shift = [0.5, 0.5, 0.5]
+    elif kpoints.style == Kpoints.supported_modes.Gamma:
+        kpts_shift = [0.0, 0.0, 0.0]
+    else:
+        raise ValueError("Only Gamma or Monkhorst k-points modes supported.")
+
+    kpts_shift = [kpts_shift[x] + kpoints.kpts_shift[x] for x in range(3)]
+    # modf(x) returns (fraction part, integer part)
+    shift = [1 if modf(i)[0] == 0.5 else 0 for i in kpts_shift]
+
+    sga = SpacegroupAnalyzer(structure=structure,
+                             symprec=symprec,
+                             angle_tolerance=angle_tolerance)
+
+    return sga.get_ir_reciprocal_mesh(mesh=kpoints.kpts[0], is_shift=shift)
+
+
+# move to method.
+def num_irreducible_kpoints(kpoints: Kpoints,
+                            structure: Structure = None,
+                            symprec: float = SYMMETRY_TOLERANCE,
+                            angle_tolerance: float = ANGLE_TOL) -> int:
+    """Calculate number of k-points
+
+    Args:
+        kpoints (Kpoints):
+            Kpoints file. Supported modes are only Reciprocal, Gamma and
+            Monkhorst.
+        structure (Structure):
+            Input structure corresponding to kpoints.
+        symprec (float):
+        angle_tolerance (float):
+            See docstrings in spglib.
+
+    Return:
+        Int of Number of k-points
+    """
+    if kpoints.style == Kpoints.supported_modes.Reciprocal:
+        return len(kpoints.kpts)
+    else:
+        return len(irreducible_kpoints(structure=structure,
+                                       kpoints=kpoints,
+                                       symprec=symprec,
+                                       angle_tolerance=angle_tolerance))
+
+
 class MakeKpoints:
     """Make Kpoints based on default settings depending on the task.
 
@@ -272,70 +338,3 @@ class MakeKpoints:
     def is_lattice_changed(self):
         return not(self.initial_structure.lattice ==
                    self.corresponding_structure.lattice)
-
-
-def irreducible_kpoints(structure: Structure,
-                        kpoints: Kpoints,
-                        symprec: float = SYMMETRY_TOLERANCE,
-                        angle_tolerance: float = ANGLE_TOL) -> List[tuple]:
-    """Estimate the irreducible k-points at the given k-mesh written in KPOINTS
-
-    Args:
-        kpoints (Kpoints):
-            Kpoints file. Supported modes are only Gamma and Monkhorst.
-        structure (Structure):
-            Input structure corresponding to kpoints.
-        symprec (float):
-        angle_tolerance (float):
-            See docstrings in spglib.
-
-    Returns:
-        List of irreducible kpoints and their weights tuples
-        [(ir_kpoint, weight)], with ir_kpoint given in fractional coordinates.
-    """
-    if kpoints.style == Kpoints.supported_modes.Monkhorst:
-        kpts_shift = [0.5, 0.5, 0.5]
-    elif kpoints.style == Kpoints.supported_modes.Gamma:
-        kpts_shift = [0.0, 0.0, 0.0]
-    else:
-        raise ValueError("Only Gamma or Monkhorst k-points modes supported.")
-
-    kpts_shift = [kpts_shift[x] + kpoints.kpts_shift[x] for x in range(3)]
-    # modf(x) returns (fraction part, integer part)
-    shift = [1 if modf(i)[0] == 0.5 else 0 for i in kpts_shift]
-
-    sga = SpacegroupAnalyzer(structure=structure,
-                             symprec=symprec,
-                             angle_tolerance=angle_tolerance)
-
-    return sga.get_ir_reciprocal_mesh(mesh=kpoints.kpts[0], is_shift=shift)
-
-
-# move to method.
-def num_irreducible_kpoints(kpoints: Kpoints,
-                            structure: Structure = None,
-                            symprec: float = SYMMETRY_TOLERANCE,
-                            angle_tolerance: float = ANGLE_TOL) -> int:
-    """Calculate number of k-points
-
-    Args:
-        kpoints (Kpoints):
-            Kpoints file. Supported modes are only Reciprocal, Gamma and
-            Monkhorst.
-        structure (Structure):
-            Input structure corresponding to kpoints.
-        symprec (float):
-        angle_tolerance (float):
-            See docstrings in spglib.
-
-    Return:
-        Int of Number of k-points
-    """
-    if kpoints.style == Kpoints.supported_modes.Reciprocal:
-        return len(kpoints.kpts)
-    else:
-        return len(irreducible_kpoints(structure=structure,
-                                       kpoints=kpoints,
-                                       symprec=symprec,
-                                       angle_tolerance=angle_tolerance))
-
