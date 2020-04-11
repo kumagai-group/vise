@@ -6,7 +6,8 @@ import re
 import shutil
 from copy import deepcopy
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List, Dict
+from dataclasses import dataclass
 
 import numpy as np
 from monty.io import zopen
@@ -29,6 +30,7 @@ from vise.input_set.settings_incar import (
     CommonIncarSettings)
 from vise.input_set.settings_potcar import XcTaskPotcar
 from vise.input_set.settings_structure_kpoints import TaskStructureKpoints
+from vise.input_set.make_kpoints import KpointsMode
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc
 from vise.util.logger import get_logger
@@ -37,7 +39,52 @@ from vise.util.structure_handler import get_symbol_list
 logger = get_logger(__name__)
 
 
-class ViseInputSet:
+@dataclass
+class GeneralOptions:
+    sort_structure: bool = True
+    standardize_structure: bool = True
+
+
+@dataclass
+class TaskOptions:
+    kpt_mode: str = "primitive"
+    kpt_density: float = INSULATOR_KPT_DENSITY
+    kpt_shift: Optional[List[float]] = None
+    only_even: bool = False
+    band_ref_dist: float = BAND_MESH_DISTANCE
+    factor: Optional[int] = None
+    symprec: float = SYMMETRY_TOLERANCE
+    angle_tolerance: float = ANGLE_TOL
+    dos_step_size: float = DOS_STEP_SIZE
+    charge: float = 0.0
+
+
+@dataclass
+class XcOptions:
+    potcar_set_name: str = "normal"
+    override_potcar_set: Optional[dict] = None
+    vbm_cbm: Optional[List[float]] = None
+    aexx: float = 0.25
+    hubbard_u: Optional[bool] = None
+    ldauu: Optional[Dict[str, float]] = None
+    ldaul: Optional[Dict[str, float]] = None
+    ldaul_set_name: str = "default"
+
+
+@dataclass
+class XcTaskOptions:
+    npar_kpar: bool = True
+    encut: Optional[float] = None
+
+
+@dataclass
+class CommonOptions:
+    is_magnetization: bool = False
+    num_nodes: int = DEFAULT_NUM_NODES
+    structure_opt_encut_factor: float = ENCUT_FACTOR_STR_OPT
+
+
+class ViseInputOptions:
     """Vise version of VaspInputSet
 
     Use the kwargs for the options that control vasp input set as the dict
@@ -125,39 +172,18 @@ class ViseInputSet:
             ENCUT multiplied factor for structure optimization, where encut
             needs to be increased to reduce the Pulay Stress errors.
     """
-    GENERAL_OPTIONS = {"sort_structure": True,
-                       "standardize_structure": True}
-
-    TASK_OPTIONS = {"kpt_mode": "primitive",
-                    "kpt_density": INSULATOR_KPT_DENSITY,
-                    "kpt_shift": None,
-                    "only_even": False,
-                    "band_ref_dist": BAND_MESH_DISTANCE,
-                    "factor": None,
-                    "symprec": SYMMETRY_TOLERANCE,
-                    "angle_tolerance": ANGLE_TOL,
-                    "dos_step_size": DOS_STEP_SIZE,
-                    "charge": 0}
-
-    XC_OPTIONS = {"potcar_set_name": "normal",
-                  "override_potcar_set": None,
-                  "vbm_cbm": None,
-                  "aexx": 0.25,
-                  "hubbard_u": None,
-                  "ldauu": None,
-                  "ldaul": None,
-                  "ldaul_set_name": "default"}
-
-    XC_TASK_OPTIONS = {"npar_kpar": True,
-                       "encut": None}
-
-    COMMON_OPTIONS = {"is_magnetization": False,
-                      "num_nodes": DEFAULT_NUM_NODES,
-                      "structure_opt_encut_factor": ENCUT_FACTOR_STR_OPT}
+    GENERAL_OPTIONS = GeneralOptions().__dict__
+    TASK_OPTIONS = TaskOptions().__dict__
+    XC_OPTIONS = XcOptions().__dict__
+    XC_TASK_OPTIONS = XcTaskOptions().__dict__
+    COMMON_OPTIONS = CommonOptions().__dict__
 
     ALL_OPTIONS = {**GENERAL_OPTIONS, **TASK_OPTIONS, **XC_OPTIONS,
                    **XC_TASK_OPTIONS, **COMMON_OPTIONS}
 
+
+class ViseInputSet:
+    """Vise version of VaspInputSet"""
     def __init__(self,
                  structure: Structure,
                  xc: Xc,
@@ -262,17 +288,17 @@ class ViseInputSet:
         user_incar_settings = user_incar_settings or {}
 
         # First, set default.
-        opts = deepcopy(cls.ALL_OPTIONS)
+        opts = deepcopy(ViseInputOptions.ALL_OPTIONS)
 
         # Second, override with previous condition
         if prev_set:
-            key_set = set(cls.COMMON_OPTIONS.keys())
+            key_set = set(ViseInputOptions.COMMON_OPTIONS.keys())
             if prev_set.task == task:
-                key_set.update(cls.TASK_OPTIONS.keys())
+                key_set.update(ViseInputOptions.TASK_OPTIONS.keys())
             if prev_set.xc == xc:
-                key_set.update(cls.XC_OPTIONS.keys())
+                key_set.update(ViseInputOptions.XC_OPTIONS.keys())
             if prev_set.task == task and prev_set.xc == xc:
-                key_set.update(cls.XC_TASK_OPTIONS)
+                key_set.update(ViseInputOptions.XC_TASK_OPTIONS)
 
             for k in key_set:
                 opts[k] = prev_set.kwargs[k]
