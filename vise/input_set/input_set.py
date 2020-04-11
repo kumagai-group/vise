@@ -13,7 +13,7 @@ from monty.io import zopen
 from monty.json import MontyEncoder
 from monty.serialization import loadfn
 from pymatgen.core.structure import Structure
-from pymatgen.io.vasp.sets import VaspInputSet, Poscar, Potcar, Kpoints
+from pymatgen.io.vasp.sets import VaspInputSet, Poscar, Potcar, Kpoints, VaspInput
 from pymatgen.io.vasp.sets import (
     get_vasprun_outcar, get_structure_from_prev_run)
 from pymatgen.util.serialization import pmg_serialize
@@ -37,8 +37,7 @@ from vise.util.structure_handler import get_symbol_list
 logger = get_logger(__name__)
 
 
-# TODO: remove VaspInputSet
-class ViseInputSet(VaspInputSet):
+class ViseInputSet:
     """Vise version of VaspInputSet
 
     Use the kwargs for the options that control vasp input set as the dict
@@ -391,28 +390,17 @@ class ViseInputSet(VaspInputSet):
     def poscar(self):
         return Poscar(self.structure)
 
-    def write_input(self,
-                    output_dir: str,
-                    make_dir_if_not_present: bool = True,
-                    include_cif: bool = False,
-                    to_json_file: bool = True,
-                    json_filename: str = "vise.json") -> None:
-        """Write vasp input files and handle transferred files.
+    def vasp_input(self) -> VaspInput:
+        return VaspInput(incar=self.incar, kpoints=self.kpoints,
+                         poscar=self.poscar, potcar=self.potcar)
 
-        Args:
-            See docstring of write_input of VaspInputSet
-
-        Return:
-            None
-        """
-        super().write_input(output_dir=output_dir,
-                            make_dir_if_not_present=make_dir_if_not_present,
-                            include_cif=include_cif)
-
+    def write_vasp_input_files(self, output_dir: str) -> None:
+        self.vasp_input().write_input(output_dir, make_dir_if_not_present=True)
         # Overwrite POSCAR to increase the digit for frac coords.
         poscar_file = Path(output_dir) / "POSCAR"
         self.poscar.write_file(str(poscar_file), significant_figures=10)
 
+    def transfer_files(self, output_dir: str) -> None:
         out_dir = Path(output_dir).absolute()
         for key, value in self.files_to_transfer.items():
             try:
@@ -432,8 +420,20 @@ class ViseInputSet(VaspInputSet):
             except FileNotFoundError:
                 logger.warning(f"{key} does not exist.")
 
-        if to_json_file:
-            self.to_json_file(json_filename)
+    def write_input(self,
+                    output_dir: str,
+                    json_filename: str = "vise.json") -> None:
+        """Write vasp input files and handle transferred files.
+
+        Args:
+            See docstring of write_input of VaspInputSet
+
+        Return:
+            None
+        """
+        self.write_vasp_input_files(output_dir)
+        self.transfer_files(output_dir)
+        self.to_json_file(json_filename)
 
     @pmg_serialize
     def as_dict(self, **kwargs):
