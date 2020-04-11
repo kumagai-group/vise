@@ -184,9 +184,9 @@ class ViseInputSet:
         self.structure = structure
         self.xc = xc
         self.task = task
-        self._kpoints = kpoints
-        self._potcar = potcar
-        self._version = version
+        self.kpoints = kpoints
+        self.potcar = potcar
+        self.version = version
         self.incar_settings = incar_settings
         self.files_to_transfer = files_to_transfer
         self.kwargs = kwargs
@@ -374,14 +374,6 @@ class ViseInputSet:
                    **opts)
 
     @property
-    def potcar(self):
-        return self._potcar
-
-    @property
-    def kpoints(self):
-        return self._kpoints
-
-    @property
     def incar(self):
         incar = ViseIncar.from_dict(self.incar_settings)
         return incar
@@ -444,7 +436,7 @@ class ViseInputSet:
              "task":                str(self.task),
              "kpoints":             self.kpoints,
              "potcar":              self.potcar.as_dict(),
-             "version":             self._version,
+             "version":             self.version,
              "incar_settings":      self.incar_settings,
              "files_to_transfer":   self.files_to_transfer,
              "kwargs":              self.kwargs}
@@ -460,7 +452,7 @@ class ViseInputSet:
     def __repr__(self):
         kwargs = "\n".join(
             [f"  {str(k):26s}: {str(v):26s}" for k, v in self.kwargs.items()])
-        out = [f"Vise version: {self._version}",
+        out = [f"Vise version: {self.version}",
                f"task: {self.task}",
                f"xc: {self.xc}",
                f"potcar: {self.potcar.symbols}",
@@ -470,10 +462,6 @@ class ViseInputSet:
 
     def __str__(self):
         return self.__repr__()
-
-    @property
-    def version(self):
-        return self._version
 
     @classmethod
     def from_dict(cls, d):
