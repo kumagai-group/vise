@@ -425,7 +425,7 @@ class ViseInputSet:
         """
         self.write_vasp_input_files(output_dir)
         self.transfer_files(output_dir)
-        self.to_json_file(json_filename)
+        self.to_json_file(Path(output_dir) / json_filename)
 
     @pmg_serialize
     def as_dict(self, **kwargs):
