@@ -3,9 +3,13 @@
 
 import pytest
 
-from vise.input_set.datasets.element_parameters import unoccupied_bands
+from vise.input_set.datasets.element_parameters import unoccupied_bands, magmom
 
 
 def test_unoccupied_bands():
     assert unoccupied_bands["H"] == 4
+
+
+def test_magmom():
+    assert magmom["Ti"] == 2
 
