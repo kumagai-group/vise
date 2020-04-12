@@ -5,6 +5,7 @@ import shutil
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
+import re
 from typing import List, Dict
 
 from monty.io import zopen
@@ -75,6 +76,13 @@ class FileTransfers:
                 file_transfers.append(transfer_cls(f))
 
         return cls(file_transfers)
+
+    def delete_file_transfers_w_keywords(self, keywords: List[str]):
+        pattern = re.compile("|".join(keywords))
+        print(pattern)
+        for a_file_transfer in list(self.file_transfer_list):
+            if pattern.search(a_file_transfer.file_name):
+                self.file_transfer_list.remove(a_file_transfer)
 
     def transfer(self, output_dir: Path) -> None:
         for transfer in self.file_transfer_list:
