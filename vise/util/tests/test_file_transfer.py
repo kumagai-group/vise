@@ -8,7 +8,7 @@ import tempfile
 import pytest
 
 from vise.util.file_transfer import (
-    AFileTransfer, AFileMove, AFileCopy, AFileLink, FileTransfers)
+    AFileTransfer, AFileMove, AFileCopy, AFileLink, FileTransfers, A)
 
 
 cwd = Path.cwd().absolute()
@@ -117,15 +117,40 @@ def test_transfer_files():
                     assert f2.read() == print_string
 
 
-# def test_transfer_files(mocker):
-#     mock = mocker.Mock()
-#     mocker.patch("vise.util.file_transfer.logger.warning")
-#     print_string = "test"
-#     with tempfile.TemporaryDirectory() as tmp_from:
-#         os.chdir(tmp_from)
-#         with open("a", "w") as f1:
-#             print(print_string, end="", file=f1)
-#         FileTransfers.from_dict({"a": "x"}, path=Path(tmp_from))
-#         mocker.
-# print_string = "test"
-    # filename = "a"
+def test_transfer_files_logger_non_exist(mocker):
+    mock = mocker.patch("vise.util.file_transfer.logger.warning")
+    non_exist_filename = "a"
+
+    with tempfile.TemporaryDirectory() as tmp_from:
+        os.chdir(tmp_from)
+        FileTransfers.from_dict({non_exist_filename: "m"}, path=Path(tmp_from))
+        mock.assert_called_once_with(
+            f"{Path(tmp_from) / non_exist_filename} does not exist.")
+
+
+def test_transfer_files_logger_empty(mocker):
+    mock = mocker.patch("vise.util.file_transfer.logger.warning")
+    empty_filename = "b"
+
+    with tempfile.TemporaryDirectory() as tmp_from:
+        os.chdir(tmp_from)
+        with open(empty_filename, "w") as f1:
+            print("", end="", file=f1)
+        FileTransfers.from_dict({empty_filename: "m"}, path=Path(tmp_from))
+        mock.assert_called_once_with(
+            f"{Path(tmp_from) / empty_filename} is empty.")
+
+
+def test_transfer_files_logger_empty(mocker):
+    mock = mocker.patch("vise.util.file_transfer.logger.warning")
+    filename = "c"
+    print_string = "test"
+
+    with tempfile.TemporaryDirectory() as tmp_from:
+        os.chdir(tmp_from)
+        with open(filename, "w") as f2:
+            print(print_string, end="", file=f2)
+        FileTransfers.from_dict({filename: "x"}, path=Path(tmp_from))
+        mock.assert_called_once_with(
+            f"x option for {filename} is invalid.")
+
