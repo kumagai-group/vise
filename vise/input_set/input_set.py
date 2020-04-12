@@ -23,7 +23,8 @@ from vise import __version__
 from vise.analyzer.band_gap import band_gap_from_vasp
 from vise.config import (
     DOS_STEP_SIZE, INSULATOR_KPT_DENSITY, ENCUT_FACTOR_STR_OPT, ANGLE_TOL,
-    SYMMETRY_TOLERANCE, BAND_MESH_DISTANCE, DEFAULT_NUM_NODES)
+    SYMMETRY_TOLERANCE, BAND_MESH_DISTANCE, DEFAULT_NUM_NODES,
+    MAGNETIZATION_THRESHOLD)
 from vise.input_set.incar import ViseIncar
 from vise.input_set.settings_incar import (
     TaskIncarSettings, XcIncarSettings, XcTaskIncarSettings,
@@ -583,14 +584,9 @@ class ViseInputSet:
                 _, vbm, cbm = gap_properties
                 kwargs["vbm_cbm"] = [vbm["energy"], cbm["energy"]]
 
-            if "magmom" in structure.site_properties.keys():
-                abs_max_mag = abs(max(structure.site_properties["magmom"],
-                                      key=abs))
-            else:
-                abs_max_mag = 0
-
-            if vasprun.is_spin and abs_max_mag > 0.05:
-                kwargs["is_magnetization"] = True
+            site_magmom = structure.site_properties.get("magmom", [0.0])
+            kwargs["is_magnetization"] = \
+                abs(max(site_magmom, key=abs)) > MAGNETIZATION_THRESHOLD
 
         else:
             contcar = path / contcar_filename

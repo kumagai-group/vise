@@ -23,6 +23,8 @@ DEFAULT_NUM_NODES = 1
 ROOM_TEMPERATURE = 298.15
 REFERENCE_PRESSURE = 1e5
 
+MAGNETIZATION_THRESHOLD = 0.05
+
 MAIN_SETTINGS = {}
 # The following keys are set by vise.yaml
 main_setting_keys = ["xc",
