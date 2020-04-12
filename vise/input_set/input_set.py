@@ -517,7 +517,7 @@ class ViseInputSet:
                        parse_incar: bool = True,
                        sort_structure: bool = True,
                        standardize_structure: bool = False,
-                       files_to_transfer: Optional[dict] = None,
+                       files_to_transfer_dict: Optional[dict] = None,
                        user_incar_settings: Optional[dict] = None,
                        contcar_filename: str = "CONTCAR",
                        **kwargs) -> "ViseInputSet":
@@ -545,7 +545,7 @@ class ViseInputSet:
                 of Structure class in pymatgen.
             standardize_structure (bool):
                 Whether to convert the structure to a standardized primitive.
-            files_to_transfer (dict):
+            files_to_transfer_dict (dict):
                 Keys are file names to be transferred in the directory.
                 Values mean the transfer modes, where there are three modes,
                 "c": copy file, "m": move file, "l": make symbolic link
@@ -603,19 +603,8 @@ class ViseInputSet:
         if parse_incar:
             input_set.incar_settings = ViseIncar.from_file(path / "INCAR")
 
-        if files_to_transfer:
-            abs_files_to_transfer = {}
-            for filename, value in files_to_transfer.items():
-                f = path / filename
-                if not f.is_file():
-                    logger.warning(f"{f} does not exist.")
-                elif os.stat(f).st_size == 0:
-                    logger.warning(f"{f} is empty.")
-                elif value[0].lower() not in ["l", "c", "m"]:
-                    logger.warning(f"{value} option for {filename} is invalid.")
-                else:
-                    abs_files_to_transfer[str(f)] = value[0].lower()
-            files_to_transfer = abs_files_to_transfer
+        files_to_transfer = cls.generate_file_transfer(files_to_transfer_dict,
+                                                       path)
 
         return cls.make_input(structure=structure,
                               task=task or input_set.task,
@@ -624,5 +613,30 @@ class ViseInputSet:
                               abs_files_to_transfer=files_to_transfer,
                               user_incar_settings=user_incar_settings,
                               **kwargs)
+
+    @staticmethod
+    def generate_file_transfer(files_to_transfer_dict, path):
+        files_to_transfer = {}
+        if files_to_transfer_dict:
+            for filename, value in files_to_transfer_dict.items():
+                f = path / filename
+                if not f.is_file():
+                    logger.warning(f"{f} does not exist.")
+                elif os.stat(f).st_size == 0:
+                    logger.warning(f"{f} is empty.")
+                elif value[0].lower() not in ["l", "c", "m"]:
+                    logger.warning(f"{value} option for {filename} is invalid.")
+                else:
+                    files_to_transfer[str(f)] = value[0].lower()
+        return files_to_transfer
+
+    @staticmethod
+    def validate_vise_version_consistency(version: str, path: Path) -> None:
+        if version != __version__:
+            logger.critical(f"The current vise version is {__version__}, "
+                            f"while the previous version used in {path} is "
+                            f"{version}. You must know what you're doing.")
+
+
 
 

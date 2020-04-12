@@ -111,7 +111,7 @@ def vasp_set(args: Namespace) -> None:
             input_set = ViseInputSet.from_prev_calc(args.prev_dir,
                                                     task=task,
                                                     xc=xc,
-                                                    files_to_transfer=files,
+                                                    files_to_transfer_dict=files,
                                                     **kwargs)
         else:
             s = Structure.from_file(args.poscar)
