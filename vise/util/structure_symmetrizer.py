@@ -15,8 +15,23 @@ logger = get_logger(__name__)
 
 
 def cell_to_structure(cell: tuple) -> Structure:
-    """Structure is returned from spglib cell """
-    return Structure(cell[0], [Element.from_Z(i) for i in cell[2]], cell[1])
+    """Structure is returned from spglib cell
+
+    Args:
+        cell: Crystal structrue given either in Atoms object or tuple.
+              In the case given by a tuple, it has to follow the form below,
+              (Lattice parameters in a 3x3 array (see the detail below),
+              Fractional atomic positions in an Nx3 array,
+              Integer numbers to distinguish species in a length N array,
+              (optional) Collinear magnetic moments in a length N array),
+              where N is the number of atoms.
+              Lattice parameters are given in the form:
+                [[a_x, a_y, a_z],
+                 [b_x, b_y, b_z],
+                 [c_x, c_y, c_z]]
+    """
+    return Structure(lattice=cell[0], coords=cell[1],
+                     species=[Element.from_Z(i) for i in cell[2]])
 
 
 class StructureSymmetrizer:
