@@ -122,7 +122,7 @@ def vasp_set(args: Namespace) -> None:
                                         user_incar_settings=user_incar_settings,
                                         **kwargs)
 
-        input_set.write_input(".")
+        input_set.create_input(".")
 
     os.chdir(started_dir)
 

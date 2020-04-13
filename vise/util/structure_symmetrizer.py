@@ -29,6 +29,27 @@ class StructureSymmetrizer:
 
         Note: site properties such as magmom are removed.
 
+        # The structures of aP (SG:1, 2), mC (5, 8, 9, 12, 15) and
+        # oA (38, 39, 40, 41) are different between spglib and seekpath.
+        # see Y. Hinuma et al. Comput. Mater. Sci. 128 (2017) 140–184
+        # -- spglib mC
+        #  6.048759 -3.479491 0.000000
+        #  6.048759  3.479491 0.000000
+        # -4.030758  0.000000 6.044512
+        # -- seekpath mC
+        #  6.048759  3.479491  0.000000
+        # -6.048759  3.479491  0.000000
+        # -4.030758  0.000000  6.044512
+        # -- spglib oA
+        #  6.373362  0.000000  0.000000
+        #  0.000000  3.200419  5.726024
+        #  0.000000 -3.200419  5.726024
+        # -- seekpath oA
+        #  0.000000  3.200419 -5.726024
+        #  0.000000  3.200419  5.726024
+        #  6.373362  0.000000  0.000000
+
+
         Args:
             structure (Structure):
                 Pymatgen Structure class object

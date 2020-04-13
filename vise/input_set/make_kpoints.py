@@ -2,7 +2,7 @@
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
 from math import ceil, modf, pow
-from typing import List
+from typing import List, Optional
 
 import numpy as np
 
@@ -114,33 +114,14 @@ def num_irreducible_kpoints(kpoints: Kpoints,
 class MakeKpoints:
     """Make Kpoints based on default settings depending on the task.
 
-        # The structures of aP (SG:1, 2), mC (5, 8, 9, 12, 15) and
-        # oA (38, 39, 40, 41) are different between spglib and seekpath.
-        # see Y. Hinuma et al. Comput. Mater. Sci. 128 (2017) 140–184
-        # -- spglib mC
-        #  6.048759 -3.479491 0.000000
-        #  6.048759  3.479491 0.000000
-        # -4.030758  0.000000 6.044512
-        # -- seekpath mC
-        #  6.048759  3.479491  0.000000
-        # -6.048759  3.479491  0.000000
-        # -4.030758  0.000000  6.044512
-        # -- spglib oA
-        #  6.373362  0.000000  0.000000
-        #  0.000000  3.200419  5.726024
-        #  0.000000 -3.200419  5.726024
-        # -- seekpath oA
-        #  0.000000  3.200419 -5.726024
-        #  0.000000  3.200419  5.726024
-        #  6.373362  0.000000  0.000000
     """
 
     def __init__(self,
-                 mode: str,
+                 mode: KpointsMode,
                  structure: Structure,
                  kpt_density: float = INSULATOR_KPT_DENSITY,
                  only_even: bool = False,
-                 manual_kpts: list = None,
+                 manual_kpts: Optional[list] = None,
                  ref_distance: float = BAND_MESH_DISTANCE,
                  kpt_shift: list = None,
                  factor: int = 1,
@@ -177,7 +158,7 @@ class MakeKpoints:
                 Whether the magnetization is considered or not.
                 This modifies the band structure path of systems w/o inversion.
         """
-        self.mode = KpointsMode.from_string(mode)
+        self.mode = mode
         self.initial_structure = structure
         self.kpt_density = kpt_density
         self.only_even = only_even

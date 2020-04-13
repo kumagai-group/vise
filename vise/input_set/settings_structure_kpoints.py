@@ -7,10 +7,10 @@ from typing import Optional
 import numpy as np
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp import Kpoints
-from vise.input_set.make_kpoints import MakeKpoints
+from vise.input_set.make_kpoints import MakeKpoints, KpointsMode
 from vise.input_set.task import Task
 from vise.util.logger import get_logger
-from vise.util.structure_handler import get_symbol_list
+from vise.util.structure_handler import symbol_list
 from vise.util.structure_symmetrizer import StructureSymmetrizer
 
 logger = get_logger(__name__)
@@ -40,7 +40,7 @@ class TaskStructureKpoints:
                      standardize_structure: bool,
                      sort_structure: bool,
                      is_magnetization: bool,
-                     kpt_mode: str,
+                     kpt_mode: KpointsMode,
                      kpt_density: float,
                      kpt_shift: list,
                      only_even: bool,
@@ -60,13 +60,13 @@ class TaskStructureKpoints:
         """
         if sort_structure:
             structure = original_structure.get_sorted_structure()
-            symbol_list = get_symbol_list(structure)
-            orig_symbol_list = get_symbol_list(original_structure)
-            if symbol_list != orig_symbol_list:
+            sym_list = symbol_list(structure)
+            orig_sym_list = symbol_list(original_structure)
+            if sym_list != orig_sym_list:
                 logger.warning(
                     "CAUTION: The sequence of the species is changed. \n"
-                    f"Symbol set in the original structure {orig_symbol_list}\n"
-                    f"Symbol set in the generated structure {symbol_list}")
+                    f"Symbol set in the original structure {orig_sym_list}\n"
+                    f"Symbol set in the generated structure {sym_list}")
         else:
             structure = original_structure.copy()
 
