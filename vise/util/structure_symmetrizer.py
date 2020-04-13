@@ -143,28 +143,23 @@ class StructureSymmetrizer:
     @property
     def seekpath_data(self):
         if self._seekpath_data is None:
-            raise ViseSymmetryError("seekpath_data is not set.")
+            self.find_seekpath_data()
         return self._seekpath_data
 
     @property
     def band_primitive(self) -> Structure:
         if self._band_primitive is None:
-            raise ViseSymmetryError("seekpath_primitive is not set.")
+            self.find_seekpath_data()
         return self._band_primitive
 
     @property
     def is_primitive_lattice_changed(self) -> bool:
-        if not hasattr(self, "primitive"):
-            raise ViseSymmetryError("Primitive cell is not searched for yet.")
         # For Lattice comparison, np.allclose is used.
         # def allclose(a, b, rtol=1.e-5, atol=1.e-8, equal_nan=False):
         return self.structure.lattice != self.primitive.lattice
 
     @property
     def is_band_primitive_lattice_changed(self) -> bool:
-        if not hasattr(self, "band_primitive"):
-            raise ViseSymmetryError(
-                "Primitive cell for band structure is not searched for yet.")
         return self.structure.lattice != self.band_primitive.lattice
 
 
