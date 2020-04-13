@@ -38,16 +38,16 @@ class StructureSymmetrizer:
 
     def __init__(self,
                  structure: Structure,
-                 time_reversal: bool = True,
                  symprec: float = SYMMETRY_TOLERANCE,
                  angle_tolerance: float = ANGLE_TOL,
+                 time_reversal: bool = True,
                  ref_distance: float = BAND_MESH_DISTANCE):
         """Get full information of seekpath band path.
 
         Note: site properties such as magmom are removed.
 
         The structures of aP (SG:1, 2), mC (5, 8, 9, 12, 15) and
-        oA (38, 39, 40, 41) are different between spglib and seekpath.
+        oA (38, 39, 40, 41) can be different between spglib and seekpath.
         see Y. Hinuma et al. Comput. Mater. Sci. 128 (2017) 140–184
         -- spglib mC
          6.048759 -3.479491 0.000000
@@ -57,41 +57,32 @@ class StructureSymmetrizer:
          6.048759  3.479491  0.000000
         -6.048759  3.479491  0.000000
         -4.030758  0.000000  6.044512
-        -- spglib oA
-         6.373362  0.000000  0.000000
-         0.000000  3.200419  5.726024
-         0.000000 -3.200419  5.726024
-        -- seekpath oA
-         0.000000  3.200419 -5.726024
-         0.000000  3.200419  5.726024
-         6.373362  0.000000  0.000000
 
         Args:
             structure (Structure):
                 Pymatgen Structure class object
-            time_reversal (bool):
-                If the time reversal symmetry exists
             symprec (float):
                 Distance tolerance in cartesian coordinates Unit is compatible
                 with the structure.
             angle_tolerance (float):
                 Angle tolerance used for symmetry analyzer.
+            time_reversal (bool):
+                If the time reversal symmetry exists. Used only for seekpath.
             ref_distance (float):
                 Mesh distance for the k-point mesh.
         """
         self.structure = structure
-        props = self.structure.site_properties
-        if props:
-            logger.warning(f"The site properties {props.keys()} are removed"
-                           f"in the primitive and conventional structures.")
-        self.time_reversal = time_reversal
+        if structure.site_properties:
+            logger.warning(f"Site property {structure.site_properties.keys()} "
+                           f"removed in primitive and conventional structures.")
         self.symprec = symprec
         self.angle_tolerance = angle_tolerance
+        self.time_reversal = time_reversal
         self.ref_distance = ref_distance
         lattice = list(structure.lattice.matrix)
         positions = structure.frac_coords.tolist()
         atomic_numbers = [i.specie.number for i in structure.sites]
-        self.cell = lattice, positions, atomic_numbers
+        self.cell = (lattice, positions, atomic_numbers)
         self._spglib_sym_data = None
         self._conventional = None
         self._primitive = None
@@ -125,8 +116,8 @@ class StructureSymmetrizer:
                 self.cell, self.symprec, self.angle_tolerance)
             if primitive is None:
                 raise ViseSymmetryError(
-                    "Spglib couldn't find the primitive cell. Change the "
-                    "symprec and/or angle_tolerance.")
+                    "Spglib couldn't find the primitive cell. "
+                    "Change the symprec and/or angle_tolerance.")
             else:
                 self._primitive = cell_to_structure(primitive)
         return self._primitive
@@ -156,7 +147,7 @@ class StructureSymmetrizer:
         return self._seekpath_data
 
     @property
-    def band_primitive(self):
+    def band_primitive(self) -> Structure:
         if self._band_primitive is None:
             raise ViseSymmetryError("seekpath_primitive is not set.")
         return self._band_primitive
