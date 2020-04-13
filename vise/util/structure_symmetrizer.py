@@ -162,6 +162,10 @@ class StructureSymmetrizer:
     def is_band_primitive_lattice_changed(self) -> bool:
         return self.structure.lattice != self.band_primitive.lattice
 
+    @property
+    def band_primitive_differ_primitive(self) -> bool:
+        return self.primitive.lattice != self.band_primitive.lattice
+
 
 class ViseSymmetryError(Exception):
     """Raised when the spglib return is inadequate."""
