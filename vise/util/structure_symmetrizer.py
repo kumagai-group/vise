@@ -169,6 +169,13 @@ class StructureSymmetrizer:
         # def allclose(a, b, rtol=1.e-5, atol=1.e-8, equal_nan=False):
         return self.structure.lattice != self.primitive.lattice
 
+    @property
+    def is_band_primitive_lattice_changed(self) -> bool:
+        if not hasattr(self, "band_primitive"):
+            raise ViseSymmetryError(
+                "Primitive cell for band structure is not searched for yet.")
+        return self.structure.lattice != self.band_primitive.lattice
+
 
 class ViseSymmetryError(Exception):
     """Raised when the spglib return is inadequate."""
