@@ -38,8 +38,10 @@ class StructureSymmetrizer:
 
     def __init__(self,
                  structure: Structure,
+                 time_reversal: bool = True,
                  symprec: float = SYMMETRY_TOLERANCE,
-                 angle_tolerance: float = ANGLE_TOL):
+                 angle_tolerance: float = ANGLE_TOL,
+                 ref_distance: float = BAND_MESH_DISTANCE):
         """Get full information of seekpath band path.
 
         Note: site properties such as magmom are removed.
@@ -67,19 +69,25 @@ class StructureSymmetrizer:
         Args:
             structure (Structure):
                 Pymatgen Structure class object
+            time_reversal (bool):
+                If the time reversal symmetry exists
             symprec (float):
                 Distance tolerance in cartesian coordinates Unit is compatible
                 with the structure.
             angle_tolerance (float):
                 Angle tolerance used for symmetry analyzer.
+            ref_distance (float):
+                Mesh distance for the k-point mesh.
         """
         self.structure = structure
         props = self.structure.site_properties
         if props:
             logger.warning(f"The site properties {props.keys()} are removed"
                            f"in the primitive and conventional structures.")
+        self.time_reversal = time_reversal
         self.symprec = symprec
         self.angle_tolerance = angle_tolerance
+        self.ref_distance = ref_distance
         lattice = list(structure.lattice.matrix)
         positions = structure.frac_coords.tolist()
         atomic_numbers = [i.specie.number for i in structure.sites]
@@ -123,16 +131,8 @@ class StructureSymmetrizer:
                 self._primitive = cell_to_structure(primitive)
         return self._primitive
 
-    def find_seekpath_data(self,
-                           time_reversal: bool = True,
-                           ref_distance: float = BAND_MESH_DISTANCE):
+    def find_seekpath_data(self):
         """Get full information of seekpath band path.
-
-        Args:
-            time_reversal (bool):
-                If the time reversal symmetry exists
-            ref_distance (float):
-                Mesh distance for the k-point mesh.
 
         Return:
             Dict with some properties. See docstrings of seekpath.
@@ -141,8 +141,8 @@ class StructureSymmetrizer:
             seekpath.get_explicit_k_path(structure=self.cell,
                                          symprec=self.symprec,
                                          angle_tolerance=self.angle_tolerance,
-                                         with_time_reversal=time_reversal,
-                                         reference_distance=ref_distance)
+                                         with_time_reversal=self.time_reversal,
+                                         reference_distance=self.ref_distance)
         lattice = self._seekpath_data["primitive_lattice"]
         element_types = self._seekpath_data["primitive_types"]
         species = [Element.from_Z(i) for i in element_types]
@@ -164,7 +164,7 @@ class StructureSymmetrizer:
     @property
     def is_primitive_lattice_changed(self) -> bool:
         if not hasattr(self, "primitive"):
-            raise ViseSymmetryError("Primitive cell is not searched for.")
+            raise ViseSymmetryError("Primitive cell is not searched for yet.")
         # For Lattice comparison, np.allclose is used.
         # def allclose(a, b, rtol=1.e-5, atol=1.e-8, equal_nan=False):
         return self.structure.lattice != self.primitive.lattice
