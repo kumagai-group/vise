@@ -162,7 +162,7 @@ class StructureSymmetrizer:
         return self._band_primitive
 
     @property
-    def is_lattice_changed(self) -> bool:
+    def is_primitive_lattice_changed(self) -> bool:
         if not hasattr(self, "primitive"):
             raise ViseSymmetryError("Primitive cell is not searched for.")
         # For Lattice comparison, np.allclose is used.

@@ -93,7 +93,7 @@ class TaskStructureKpoints:
             if standardize_structure:
                 org_lat = original_structure.lattice.matrix
                 primitive_lat = s.primitive.lattice.matrix
-                if s.is_lattice_changed:
+                if s.is_primitive_lattice_changed:
                     with np.printoptions(precision=3, suppress=True):
                         logger.warning(
                             "The structure is changed.\n"

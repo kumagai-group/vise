@@ -362,7 +362,7 @@ class ViseInputSet:
                                            self.opts.symprec,
                                            self.opts.angle_tolerance)
         if self.opts.standardize_structure:
-            if symmetrizer.is_lattice_changed:
+            if symmetrizer.is_primitive_lattice_changed:
                 org_lat = self.opts.initial_structure.lattice.matrix
                 primitive_lat = symmetrizer.primitive.lattice.matrix
                 with np.printoptions(precision=3, suppress=True):
@@ -372,7 +372,7 @@ class ViseInputSet:
                         f"Generated lattice\n {primitive_lat} \n")
             return symmetrizer.primitive
         else:
-            if symmetrizer.is_lattice_changed and \
+            if symmetrizer.is_primitive_lattice_changed and \
                     self.opts.kpt_mode != "manual_set":
                 raise ValueError(
                     "Although the given structure is not a primitive cell, "
