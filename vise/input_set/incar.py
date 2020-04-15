@@ -1,27 +1,20 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
+import os
+import re
 from collections import OrderedDict
 from copy import deepcopy
-import os
 from pathlib import Path
-import re
 
 from monty.io import zopen
-from monty.serialization import loadfn
-
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.io.vasp import Incar
-
 from tabulate import tabulate
-
+from vise.input_set.datasets.dataset_util import incar_tags
 from vise.util.logger import get_logger
 
-
 MODULE_DIR = Path(os.path.dirname(os.path.abspath(__file__)))
-# This incar_flags should be OrderedDict, but from python 3.6, dict uses
-# order-preserving semantics. Besides, it does not affect vasp result.
-incar_tags = loadfn(MODULE_DIR / "datasets" / "incar_flags.yaml")
 
 
 logger = get_logger(__name__)
@@ -89,14 +82,14 @@ class ViseIncar(Incar):
         lines = OrderedDict()
         check_incar_keys = list(self.keys())
 
-        for category, flags in incar_tags.items():
+        for category, tags in incar_tags.items():
             tag_list_by_category = []
 
-            for incar_tag in flags.keys():
-                if incar_tag in check_incar_keys:
+            for tag in tags:
+                if tag in check_incar_keys:
                     tag_list_by_category.append(
-                        [incar_tag, "=", self.str_value(incar_tag)])
-                    check_incar_keys.remove(incar_tag)
+                        [tag, "=", self.str_value(tag)])
+                    check_incar_keys.remove(tag)
 
             if tag_list_by_category:
                 # if not disable_numparse, e.g., LOPTICS = True becomes 1.

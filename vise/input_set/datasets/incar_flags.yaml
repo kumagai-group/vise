@@ -1,166 +1,166 @@
 system:
-  SYSTEM:
+  - SYSTEM
 
 algorithm:
-  ALGO: xc_required
+  - ALGO
 
 accuracy:
-  PREC: task_required
-  LREAL: task_required
-  EDIFF: task_required
-  ENCUT: task_optional
-  ADDGRID: task_optional
-  LASPH: common_required
-  NELM: common_required
-  NELMIN:
-  NELMDL:
-  ENAUG:
+  - PREC
+  - LREAL
+  - EDIFF
+  - ENCUT
+  - ADDGRID
+  - LASPH
+  - NELM
+  - NELMIN
+  - NELMDL
+  - ENAUG
 
 electronic structure:
-  SCISSOR:
+  - SCISSOR
 
 symmetry:
-  ISYM:
-  SYMPREC:
+  - ISYM
+  - SYMPREC
 
 ionic relaxation:
-  ISIF: task_required
-  IBRION: task_required
-  EDIFFG: task_optional
-  NSW: task_optional
-  POTIM: task_optional
-  TIME: xc_optional
-  POMASS:
-  ZVAL:
-  PSTRESS:
+  - ISIF
+  - IBRION
+  - EDIFFG
+  - NSW
+  - POTIM
+  - POMASS
+  - ZVAL
+  - PSTRESS
 
 fft related:
-  NGX:
-  NGY:
-  NGZ:
+  - NGX
+  - NGY
+  - NGZ
 
 occupation:
-  ISMEAR: task_required
-  SIGMA: common_required
-  FERDO:
-  FERWE:
-  SMEARINGS:
+  - ISMEAR
+  - SIGMA
+  - FERDO
+  - FERWE
+  - SMEARINGS
 
 spin:
-  ISPIN: task_required
-  MAGMOM: task_optional
-  NUPDOWN:
-  LNONCOLLINEAR:
-  LSORBIT:
-  GGA_COMPAT:
+  - ISPIN
+  - MAGMOM
+  - NUPDOWN
+  - LNONCOLLINEAR
+  - LSORBIT
+  - GGA_COMPAT
 
 mixing parameter:
-  MIX:
-  INIMIX:
-  MAXMIX:
-  AMIX:
-  BMIX:
-  AMIX_MAG:
-  BMIX_MAG:
-  AMIN:
-  MIXPRE:
-  WC:
-  IMIX:
+  - MIX
+  - INIMIX
+  - MAXMIX
+  - AMIX
+  - BMIX
+  - AMIX_MAG
+  - BMIX_MAG
+  - AMIN
+  - MIXPRE
+  - WC
+  - IMIX
 
 IO control:
-  LWAVE: xc_required
-  LCHARG: common_required
-  ISTART:
-  ICHARG:
-  INIWAV:
-  NWRITE:
-  LAECHG:
+  - LWAVE
+  - LCHARG
+  - ISTART
+  - ICHARG
+  - INIWAV
+  - NWRITE
+  - LAECHG
 
 analyzer:
-  NBANDS: task_optional
-  NEDOS: task_optional
-  EMAX: task_optional
-  EMIN: task_optional
-  LORBIT: common_required
-  RWIGS:
+  - NBANDS
+  - NEDOS
+  - EMAX
+  - EMIN
+  - LORBIT
+  - RWIGS
 
 dielectric:
-  LEPSILON: task_optional
-  LOPTICS: task_optional
-  LCALCEPS: task_optional
-  CSHIFT: task_optional
-  LRPA:
-  EFIELD:
-  OMEGAMIN:
-  OMEGAMAX:
-  LNABLA:
-  LPEAD:
+  - LEPSILON
+  - LOPTICS
+  - LCALCEPS
+  - CSHIFT
+  - LRPA
+  - EFIELD
+  - OMEGAMIN
+  - OMEGAMAX
+  - LNABLA
+  - LPEAD
 
 dft parameter:
-  GGA: xc_optional
-  METAGGA: xc_optional
-  IVDW:
-  VDW_S6:
-  VDW_A1:
-  VDW_S8:
-  VDW_A2:
+  - GGA
+  - IVDW
+  - VDW_S6
+  - VDW_A1
+  - VDW_S8
+  - VDW_A2
+  - METAGGA
 
 hybrid functional:
-  LHFCALC: xc_optional
-  PRECFOCK: xc_optional
-  AEXX: xc_optional
-  HFSCREEN: xc_optional
-  NKRED: xc_optional
+  - LHFCALC
+  - PRECFOCK
+  - AEXX
+  - HFSCREEN
+  - NKRED
+  - TIME
 
 gw related:
-  NBANDSGW:
-  NOMEGA:
-  ANTIRES:
-  MAXMEM:
-  NMAXFOCKAE:
-  NBANDSLF:
-  ENCUTGW:
+  - NBANDSGW
+  - NOMEGA
+  - ANTIRES
+  - MAXMEM
+  - NMAXFOCKAE
+  - NBANDSLF
+  - ENCUTGW
 
 hubbard u:
-  LDAU: xc_optional
-  LDAUTYPE: xc_optional
-  LMAXMIX: xc_optional
-  LDAUPRINT: xc_optional
-  LDAUL: xc_optional
-  LDAUU: xc_optional
-  LDAUJ:
+  - LDAU
+  - LDAUTYPE
+  - LMAXMIX
+  - LDAUPRINT
+  - LDAUL
+  - LDAUU
+  - LDAUJ
 
 electrostatic:
-  NELECT: common_optional
-  LOCPOT:
-  LVHAR:
-  EPSILON:
-  DIPOL:
-  IDIPOL:
-  LMONO:
-  LDIPOL:
+  - NELECT
+  - LOCPOT
+  - LVHAR
+  - EPSILON
+  - DIPOL
+  - IDIPOL
+  - LMONO
+  - LDIPOL
 
 bse:
-  LMODELHF:
+  - LMODELHF
 
 md:
-  SMASS:
-  NBLOCK:
+  - SMASS
+  - NBLOCK
 
 parallel:
-  KPAR: task_optional
-  NPAR: task_optional
-  NCORE:
-  LPLANE:
-  NSIM:
+  - KPAR
+  - NPAR
+  - NCORE
+  - LPLANE
+  - NSIM
 
 parchg:
-  LPARD:
-  IBAND:
-  KPUSE:
-  EINT:
-  NBMOD:
-  LSEPB:
-  LSEPK:
+  - LPARD
+  - IBAND
+  - KPUSE
+  - EINT
+  - NBMOD
+  - LSEPB
+  - LSEPK
 
 
