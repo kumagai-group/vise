@@ -19,12 +19,14 @@ normal:
   K: K_pv
   Rb: Rb_sv
   Cs: Cs_sv
+  Fr: Fr_sv
 
   Be: Be
   Mg: Mg
   Ca: Ca_pv
   Sr: Sr_sv
   Ba: Ba_sv
+  Ra: Ra_sv
 
   Sc: Sc
   Y: Y_sv
@@ -147,12 +149,14 @@ gw:
   K: K_sv_GW
   Rb: Rb_sv_GW
   Cs: Cs_sv_GW
+  Fr: Fr_sv # no GW potcars
 
   Be: Be_GW
   Mg: Mg_GW
   Ca: Ca_sv_GW
   Sr: Sr_sv_GW
   Ba: Ba_sv_GW
+  Ra: Ra_sv # no GW potcars
 
   Sc: Sc_sv_GW
   Y: Y_sv_GW
