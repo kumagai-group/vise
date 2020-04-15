@@ -106,6 +106,7 @@ class Task(ExtendedEnum):
         else:
             raise NotImplementedError
 
+    # During dielectric_dfpt calculations, EDIFF is tightened automatically.
     @property
     def incar_ediff(self):
         if self.is_tight_calc:
