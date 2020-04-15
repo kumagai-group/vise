@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
+#  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
 from vise.util.enum import ExtendedEnum
 
 
 class Xc(ExtendedEnum):
-    """Supported exchange-correlation treatment. """
     pbe = "pbe"
     pbesol = "pbesol"
     lda = "lda"
@@ -17,6 +17,10 @@ class Xc(ExtendedEnum):
         if s == "perdew-zunger81":
             return cls.lda
         return super().from_string(s)
+
+    @property
+    def potcar_functional(self) -> str:
+        return "LDA" if self == Xc.lda else "PBE_54"
 
     @property
     def is_lda_or_gga(self):
@@ -34,4 +38,19 @@ class Xc(ExtendedEnum):
     def is_nonlocal(self):
         return self.is_hybrid_functional
 
+    @property
+    def incar_algo(self):
+        return "Damped" if self.is_hybrid_functional else "Normal"
+
+    @property
+    def incar_lwave(self):
+        return True if self.is_hybrid_functional else False
+
+    @property
+    def incar_gga_optional(self):
+        return "PS" if self is self.pbesol else None
+
+    @property
+    def incar_metagga_optional(self):
+        return "SCAN" if self is self.scan else None
 
