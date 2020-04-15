@@ -166,6 +166,27 @@ class StructureSymmetrizer:
     def band_primitive_differ_primitive(self) -> bool:
         return self.primitive.lattice != self.band_primitive.lattice
 
+    def irreducible_kpoints(self,
+                            num_kpt_list: List[int],
+                            kpt_shift: List[float]  # vasp convention
+                            ) -> List[Tuple[List[float], int]]:
+        mapping, integer_grid_points = spglib.get_ir_reciprocal_mesh(
+            mesh=num_kpt_list,
+            cell=self.cell,
+            is_shift=kpt_shift,
+            is_time_reversal=self.time_reversal,
+            symprec=self.symprec)
+
+        results = []
+        shift_in_integer_grid = np.array(kpt_shift) / 2
+        for repr_index, count in zip(*np.unique(mapping, return_counts=True)):
+            integer_grid_point = \
+                integer_grid_points[repr_index] + shift_in_integer_grid
+            normalized_grid_point = integer_grid_point / num_kpt_list
+            results.append((normalized_grid_point.tolist(), count))
+
+        return results  # [(irreducible kpoint in fractional coords, weight)]
+
 
 class ViseSymmetryError(Exception):
     """Raised when the spglib return is inadequate."""
