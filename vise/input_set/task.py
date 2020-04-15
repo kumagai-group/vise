@@ -158,12 +158,6 @@ class Task(ExtendedEnum):
         return 50 if self.is_atom_relaxed_task else 0
 
     @property
-    def incar_ismear_optional(self):
-        if self in (self.dos, self.dielectric_function):
-            return -5
-        return
-
-    @property
     def incar_potim_optional(self):
         if self is self.structure_opt_rough:
             return 0.1

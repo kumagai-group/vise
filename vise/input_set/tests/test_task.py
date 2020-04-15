@@ -138,11 +138,6 @@ def test_incar_nsw():
     assert Task.band.incar_nsw == 0
 
 
-def test_incar_ismear_optional():
-    assert Task.dos.incar_ismear_optional == -5
-    assert Task.band.incar_ismear_optional is None
-
-
 def test_incar_potim_optional():
     assert Task.structure_opt_rough.incar_potim_optional == 0.1
     assert Task.structure_opt.incar_potim_optional is None
