@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
-import pytest
 import numpy as np
+import pytest
+from pymatgen.core.structure import Structure
 
 from vise.util.structure_symmetrizer import (
     cell_to_structure, StructureSymmetrizer)
-from pymatgen.core.structure import Structure
 
 
 def test_cell_to_structure():
