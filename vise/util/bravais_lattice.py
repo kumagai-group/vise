@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
-from typing import List
+from pathlib import Path
+from typing import List, Dict
+
+from monty.serialization import loadfn
 from vise.util.enum import ExtendedEnum
 
-from pathlib import Path
-from monty.serialization import loadfn
-
-hermann_mauguin_list: List[str] = \
+hermann_mauguin_list: Dict[int, str] = \
     loadfn(Path(__file__).parent / "Hermann–Mauguin.yaml")
 
 
@@ -28,26 +28,25 @@ class BravaisLattice(ExtendedEnum):
     cI = "cI"
 
     @classmethod
-    def from_sg_number(cls, sg_num):
+    def from_sg_num(cls, sg_num: int) -> "BravaisLattice":
         cs = {"a": (1, 2),
               "m": (3, 15),
               "o": (16, 74),
               "t": (75, 142),
               "h": (143, 194),
               "c": (195, 230)}
-
+        centering_capital_letter = hermann_mauguin_list[sg_num][0]
         for crystal_system, (initial_sg, final_sg) in cs.items():
             if initial_sg <= sg_num <= final_sg:
-                sg = hermann_mauguin_list[sg_num]
-                centering = sg[0]
+                bravais_letter = crystal_system + centering_capital_letter
                 break
         else:
             raise ValueError
 
-        return cls(crystal_system + centering)
+        return cls.from_string(bravais_letter)
 
     @property
-    def kpt_centering(self):
+    def kpt_centering(self) -> List[float]:
         if self in [self.oF, self.tI, self.cF, self.cI]:
             return [0.0, 0.0, 0.0]
         elif self is self.hP:
@@ -56,5 +55,5 @@ class BravaisLattice(ExtendedEnum):
             return [0.5, 0.5, 0.5]
 
     @property
-    def need_same_num_kpt(self):
+    def need_same_num_kpt(self) -> bool:
         return True if self in (self.oI, self.tI) else False
