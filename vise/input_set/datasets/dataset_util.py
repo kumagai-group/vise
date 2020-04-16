@@ -2,23 +2,90 @@
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 from math import ceil
 from pathlib import Path
-from typing import Tuple
+from typing import Tuple, List, Dict, Any, Optional
 
 from monty.serialization import loadfn
-from pymatgen import Composition
+from pymatgen import Composition, Element
 from pymatgen.io.vasp import Potcar
+from vise.util.enum import ExtendedEnum
 
 unoccupied_bands = loadfn(Path(__file__).parent / "unoccupied_bands.yaml")
 # magmom = loadfn(Path(__file__).parent / "magmom.yaml")
 
 # This incar_flags should be OrderedDict, but from python 3.6, dict uses
 # order-preserving semantics. Besides, it does not affect vasp result.
-incar_tags = loadfn(Path(__file__).parent / "incar_flags.yaml")
+all_incar_flags: Dict[str, Any] = \
+    loadfn(Path(__file__).parent / "incar_flags.yaml")
 kpar_set = loadfn(Path(__file__).parent / "kpar_set.yaml")
 
 
-def nbands(composition: Composition, potcar: Potcar) -> int:
-    """Number of bands required for optical absorption, band structure, & DOS"""
+class LDAU:
+    def __init__(self,
+                 symbol_list: List[str],
+                 override_ldauu: Optional[Dict[str, float]] = None,
+                 override_ldaul: Optional[Dict[str, float]] = None):
+
+        ldau_set = loadfn(Path(__file__).parent / "u_parameter_set.yaml")
+
+        ldauu_set = ldau_set["LDAUU"]
+        ldauu_set.update(override_ldauu or {})
+        self.ldauu = [ldauu_set.get(el, 0) for el in symbol_list]
+
+        ldaul_set = ldau_set["LDAUL"]
+        ldaul_set.update(override_ldaul or {})
+        self.ldaul = [ldaul_set.get(el, -1) for el in symbol_list]
+
+        if any([Element(el).Z > 56 for el in symbol_list]):
+            self.lmaxmix = 6
+        else:
+            self.lmaxmix = 4
+
+    @property
+    def is_ldau_needed(self) -> bool:
+        return set(self.ldaul) != 0
+
+
+def potcar_list() -> Dict[str, Dict[str, str]]:
+    _potcar_list = loadfn(Path(__file__).parent / "potcar_set.yaml")
+    set_names = _potcar_list.pop("set_names")
+    result = {}
+    for name in set_names:
+        result[name] = {}  # normal, mp_relax_set, gw
+
+    for element, potcar_string in _potcar_list.items():
+        potcars = potcar_string.split()
+
+        def sanitize(val):
+            if val == "---":
+                return potcars[0]
+            elif val == "None":
+                return None
+            else:
+                return val
+
+        for index, a_potcar in enumerate(potcars):
+            set_name = set_names[index]
+            result[set_name][element] = sanitize(a_potcar)
+
+    return result
+
+
+class PotcarSet(ExtendedEnum):
+    normal = "normal"
+    mp_relax_set = "mp_relax_set"
+    gw = "gw"
+
+    def potcar_dict(self, override_potcar_set: Optional[dict] = None
+                    ) -> Dict[str, str]:
+        result = potcar_list()[self.value]
+        if override_potcar_set:
+            result.update(override_potcar_set)
+
+        return result  # e.g. {"Zr": "Zr_pv", ...}
+
+
+def num_bands(composition: Composition, potcar: Potcar) -> int:
+    """Required for optical absorption, band structure, and DOS"""
     results = 0
     for c, p in zip(composition, potcar):
         num_atoms_per_element = composition[c]
@@ -28,9 +95,7 @@ def nbands(composition: Composition, potcar: Potcar) -> int:
     return ceil(results)
 
 
-def npar_kpar(num_kpoints: int,
-              num_nodes: int) -> Tuple[int, int]:
-
+def npar_kpar(num_kpoints: int, num_nodes: int) -> Tuple[int, int]:
     num_kpt_key = num_kpoints if num_kpoints in kpar_set else "None"
     if num_nodes == 2:
         kpar = kpar_set[num_kpt_key][1]
