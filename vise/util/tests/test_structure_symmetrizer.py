@@ -60,6 +60,10 @@ def test_structure_symmetrizer_mc_lattice_change(symmetrizer_mc):
     assert symmetrizer_mc.band_primitive_differ_primitive is True
 
 
+def test_sg_number(symmetrizer_mc):
+    assert symmetrizer_mc.sg_number == 12
+
+
 @pytest.fixture()
 def symmetrizer_bcc():
     lattice = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]

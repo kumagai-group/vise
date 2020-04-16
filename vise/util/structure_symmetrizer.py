@@ -115,6 +115,10 @@ class StructureSymmetrizer:
         self._band_primitive = Structure(lattice, species, positions)
 
     @property
+    def sg_number(self):
+        return self.spglib_sym_data["number"]
+
+    @property
     def seekpath_data(self):
         if self._seekpath_data is None:
             self.find_seekpath_data()
