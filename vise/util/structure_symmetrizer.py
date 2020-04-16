@@ -77,8 +77,10 @@ class StructureSymmetrizer:
     @property
     def conventional(self) -> Structure:
         if self._conventional is None:
-            conventional = spglib.standardize_cell(
-                self.cell, self.symprec, self.angle_tolerance)
+            conventional = \
+                spglib.standardize_cell(self.cell,
+                                        symprec=self.symprec,
+                                        angle_tolerance=self.angle_tolerance)
             if conventional is None:
                 raise ViseSymmetryError(
                     "Spglib couldn't find the conventional cell. Change the "
@@ -90,8 +92,10 @@ class StructureSymmetrizer:
     @property
     def primitive(self) -> Structure:
         if self._primitive is None:
-            primitive = spglib.find_primitive(
-                self.cell, self.symprec, self.angle_tolerance)
+            primitive = \
+                spglib.find_primitive(self.cell,
+                                      symprec=self.symprec,
+                                      angle_tolerance=self.angle_tolerance)
             if primitive is None:
                 raise ViseSymmetryError(
                     "Spglib couldn't find the primitive cell. "
@@ -151,12 +155,12 @@ class StructureSymmetrizer:
         mapping, integer_grid_points = spglib.get_ir_reciprocal_mesh(
             mesh=num_kpt_list,
             cell=self.cell,
-            is_shift=kpt_shift,
+            is_shift=np.array(kpt_shift) * 2,
             is_time_reversal=self.time_reversal,
             symprec=self.symprec)
 
         results = []
-        shift_in_integer_grid = np.array(kpt_shift) / 2
+        shift_in_integer_grid = np.array(kpt_shift)
         for repr_index, count in zip(*np.unique(mapping, return_counts=True)):
             integer_grid_point = \
                 integer_grid_points[repr_index] + shift_in_integer_grid

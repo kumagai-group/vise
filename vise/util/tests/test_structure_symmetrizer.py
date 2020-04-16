@@ -20,37 +20,44 @@ def test_cell_to_structure():
 
 @pytest.fixture()
 def symmetrizer_mc():
-    lattice =[[ 6.0,-3.0, 0.0],
-              [ 6.0, 3.0, 0.0],
-              [-4.0, 0.0, 7.0]]
-    coords = [[0.0, 0.0, 0.0]]
-    structure = Structure(lattice=lattice, species=["H"], coords=coords)
+    lattice =[[10.0,  0.0,  0.0],
+              [ 0.0, 10.0,  0.0],
+              [-2.0,  0.0, 10.0]]
+    coords = [[0.0, 0.0, 0.0], [0.5, 0.5, 0.0]]
+    structure = Structure(lattice=lattice, species=["H"] * 2, coords=coords)
     symmetrizer = StructureSymmetrizer(structure)
     return symmetrizer
 
 
 def test_structure_symmetrizer_mc_primitive(symmetrizer_mc):
     matrix = symmetrizer_mc.primitive.lattice.matrix
-    expected = np.array([[ 6.0,-3.0, 0.0],
-                         [ 6.0, 3.0, 0.0],
-                         [-4.0, 0.0, 7.0]])
+    expected = np.array([[5., -5., 0.],
+                         [5., 5., 0.],
+                         [-2., 0., 10.]])
+    np.testing.assert_array_almost_equal(matrix, expected)
+
+
+def test_structure_symmetrizer_mc_conventional(symmetrizer_mc):
+    matrix = symmetrizer_mc.conventional.lattice.matrix
+    expected = np.array([[10.,  0.,  0.],
+                         [ 0., 10.,  0.],
+                         [-2.,  0., 10.]])
     np.testing.assert_array_almost_equal(matrix, expected)
 
 
 def test_structure_symmetrizer_mc_band_primitive(symmetrizer_mc):
     band_matrix = symmetrizer_mc.band_primitive.lattice.matrix
-    expected = np.array([[ 6.0, 3.0, 0.0],
-                         [-6.0, 3.0, 0.0],
-                         [-4.0, 0.0, 7.0]])
+    expected = np.array([[5., 5., 0.],
+                         [-5., 5., 0.],
+                         [-2., 0., 10.]])
     np.testing.assert_array_almost_equal(band_matrix, expected)
 
 
 def test_structure_symmetrizer_mc_irreducible_kpoints(symmetrizer_mc):
     num_kpt_list = [2, 2, 2]
-    kpt_shift = [1, 1, 1]
+    kpt_shift = [0.5, 0.5, 0.5]
     actual = symmetrizer_mc.irreducible_kpoints(num_kpt_list, kpt_shift)
-    expected = [([0.25, 0.25, 0.25], 2), ([0.75, 0.25, 0.25], 4),
-                ([0.75, 0.75, 0.25], 2)]
+    expected = [([0.25, 0.25, 0.25], 4), ([0.75, 0.25, 0.25], 4)]
     assert actual == expected
 
 
