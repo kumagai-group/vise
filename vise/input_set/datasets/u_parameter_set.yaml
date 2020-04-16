@@ -1,5 +1,4 @@
 LDAUU:
-  default:
     Ti: 3
     V: 3
     Cr: 3
@@ -51,7 +50,6 @@ LDAUU:
     Cf: 5
 
 LDAUL:
-  default:
     Ti: 2
     V: 2
     Cr: 2
