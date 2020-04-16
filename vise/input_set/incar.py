@@ -6,6 +6,7 @@ import re
 from collections import OrderedDict
 from copy import deepcopy
 from pathlib import Path
+from typing import List, Dict, Any
 
 from monty.io import zopen
 from pymatgen.electronic_structure.core import Magmom
@@ -32,7 +33,7 @@ class ViseIncar(Incar):
             return cls.from_string(f.read())
 
     @classmethod
-    def from_dict(cls, d: dict) -> "ViseIncar":
+    def from_dict(cls, d: Dict[str, Any]) -> "ViseIncar":
         kwargs = deepcopy(d)
         if kwargs.get("MAGMOM") and isinstance(kwargs["MAGMOM"][0], dict):
             kwargs["MAGMOM"] = [Magmom.from_dict(m) for m in kwargs["MAGMOM"]]
@@ -78,7 +79,7 @@ class ViseIncar(Incar):
             for flag in flags_by_category:
                 if flag in this_incar_flags:
                     settings_by_category.append(
-                        [flag, "=", self.setting_to_str(flag)])
+                        [flag, self.setting_to_str(flag)])
                     this_incar_flags.remove(flag)
 
             if settings_by_category:
@@ -102,7 +103,8 @@ class ViseIncar(Incar):
                     self.get("LSORBIT", False)])
 
 
-def tabulated_string(target_list):
+def tabulated_string(target_list: List[list]) -> str:
     # if not disable_numparse, e.g., LOPTICS = True becomes 1.
-    return str(tabulate(target_list, tablefmt="plain", disable_numparse=True))
+    equal_added = [[key, "=", value] for (key, value) in target_list]
+    return str(tabulate(equal_added, tablefmt="plain", disable_numparse=True))
 

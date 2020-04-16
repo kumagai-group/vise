@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from vise.input_set.incar import ViseIncar
+from vise.input_set.incar import ViseIncar, tabulated_string
 
 
 def test_from_string():
@@ -47,3 +47,10 @@ def test_is_ncs_calc():
     assert incar.is_ncl_calc
     incar = ViseIncar.from_dict({})
     assert incar.is_ncl_calc is False
+
+
+def test_tabulated_string():
+    actual = tabulated_string([["short", "short"], ["long_str", "long_str"]])
+    expected = """short     =  short
+long_str  =  long_str"""
+    assert actual == expected
