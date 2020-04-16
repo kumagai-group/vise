@@ -11,7 +11,7 @@ from monty.io import zopen
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.io.vasp import Incar
 from tabulate import tabulate
-from vise.input_set.datasets.dataset_util import incar_tags
+from vise.input_set.datasets.dataset_util import all_incar_flags
 from vise.util.logger import get_logger
 
 MODULE_DIR = Path(os.path.dirname(os.path.abspath(__file__)))
@@ -21,14 +21,11 @@ logger = get_logger(__name__)
 
 
 class ViseIncar(Incar):
-    """Incar class modified for pretty writing of INCAR file.
-
-    """
+    """Incar class modified for pretty writing of INCAR file. """
     @classmethod
     def from_file(cls, filename: str) -> "ViseIncar":
-        """Reads an Incar object from a file.
-
-        Since from_file and from_string methods in Incar class use Incar class
+        """
+        Since from_file and from_string methods in Incar class use 'Incar' class
         constructor, we need to override them.
         """
         with zopen(filename, "rt") as f:
@@ -44,21 +41,15 @@ class ViseIncar(Incar):
                     if k not in ("@module", "@class")})
 
     @classmethod
-    def from_string(cls, string: str):
+    def from_string(cls, string: str) -> "ViseIncar":
         """Reads an Incar object from a string.
 
         This method is different from that of Incar superclass as it supports
         ";" semantic, which splits the incar flags.
-
-        Args:
-            string (str): Incar string
-
-        Returns:
-            ViseIncar object
         """
         params = {}
         for line in string.splitlines():
-            # Support ";" semantic for split of tags in INCAR file
+            # Support ";" semantic for split of flags in INCAR file
             for sub_line in line.split(";"):
                 m = re.match(r"\s*(\w+)\s*=\s*(.*)\s*", sub_line)
                 if m:
@@ -69,47 +60,49 @@ class ViseIncar(Incar):
 
     def __add__(self, other: Incar) -> "ViseIncar":
         """Add all the values of another INCAR object to this object. """
-        params = {k: v for k, v in self.items()}
-        for k, v in other.items():
-            if k in self and v != self[k]:
+        original_settings = {k: v for k, v in self.items()}
+        for key, value in other.items():
+            if key in self and value != self[key]:
                 raise ValueError("INCARs have conflicting values!")
             else:
-                params[k] = v
-        return ViseIncar(params)
+                original_settings[key] = value
+        return ViseIncar(original_settings)
 
     def get_string(self, **kwargs) -> str:
-        """Override for the pretty printing. """
         lines = OrderedDict()
-        check_incar_keys = list(self.keys())
+        this_incar_flags = list(self.keys())
 
-        for category, tags in incar_tags.items():
-            tag_list_by_category = []
+        for category, flags_by_category in all_incar_flags.items():
+            settings_by_category = []
 
-            for tag in tags:
-                if tag in check_incar_keys:
-                    tag_list_by_category.append(
-                        [tag, "=", self.str_value(tag)])
-                    check_incar_keys.remove(tag)
+            for flag in flags_by_category:
+                if flag in this_incar_flags:
+                    settings_by_category.append(
+                        [flag, "=", self.setting_to_str(flag)])
+                    this_incar_flags.remove(flag)
 
-            if tag_list_by_category:
-                # if not disable_numparse, e.g., LOPTICS = True becomes 1.
-                tabulated_str = str(tabulate(tag_list_by_category,
-                                             tablefmt="plain",
-                                             disable_numparse=True))
-                lines[f"# {category}"] = tabulated_str
+            if settings_by_category:
+                lines[f"# {category}"] = tabulated_string(settings_by_category)
 
-        if check_incar_keys:
-            logger.error(f"{check_incar_keys} may be invalid in INCAR.")
+        if this_incar_flags:
+            logger.error(f"{this_incar_flags} may be invalid in INCAR.")
+            lines[f"# others"] = tabulated_string(this_incar_flags)
 
         return "\n\n".join(["\n".join([k, v]) for k, v in lines.items()])
 
-    def str_value(self, incar_tag: str) -> str:
-        if isinstance(self[incar_tag], list):
-            return " ".join([str(i) for i in self[incar_tag]])
+    def setting_to_str(self, incar_flag: str) -> str:
+        if isinstance(self[incar_flag], list):
+            return " ".join([str(i) for i in self[incar_flag]])
         else:
-            return str(self[incar_tag])
+            return str(self[incar_flag])
 
     @property
     def is_ncl_calc(self) -> bool:
         return any([self.get("LNONCOLLINEAR", False),
                     self.get("LSORBIT", False)])
+
+
+def tabulated_string(target_list):
+    # if not disable_numparse, e.g., LOPTICS = True becomes 1.
+    return str(tabulate(target_list, tablefmt="plain", disable_numparse=True))
+
