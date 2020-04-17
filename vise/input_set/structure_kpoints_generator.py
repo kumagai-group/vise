@@ -1,0 +1,187 @@
+# -*- coding: utf-8 -*-
+#  Copyright (c) 2020. Distributed under the terms of the MIT License.
+
+from math import ceil
+from typing import Optional, List
+
+import numpy as np
+from pymatgen import Structure
+from pymatgen.io.vasp.sets import Kpoints
+
+from vise.config import (
+    INSULATOR_KPT_DENSITY, ANGLE_TOL,
+    SYMMETRY_TOLERANCE, BAND_MESH_DISTANCE)
+from vise.input_set.kpoints_mode import KpointsMode
+from vise.input_set.task import Task
+from vise.util.logger import get_logger
+from vise.util.structure_symmetrizer import StructureSymmetrizer
+from vise.util.bravais_lattice import BravaisLattice
+
+logger = get_logger(__name__)
+
+# # TODO: move sort_structure to out scope
+# if sort_structure:
+#     self._initial_structure = initial_structure.get_sorted_structure()
+# else:
+#     self._initial_structure = initial_structure.copy()
+
+
+class StructureKpointsGenerator:
+    def __init__(
+            self,
+            initial_structure: Structure,
+            task: Task = Task.structure_opt,
+            kpt_mode: Optional[KpointsMode] = None,  # None for default setting
+            kpt_density: float = INSULATOR_KPT_DENSITY,  # in Å
+            gamma_centered: Optional[bool] = None,  # Vasp definition
+            only_even_num_kpts: bool = False,  # If ceil kpt numbers to be even.
+            num_kpt_factor: Optional[int] = None,  # NKRED, too
+            band_ref_dist: float = BAND_MESH_DISTANCE,
+            symprec: float = SYMMETRY_TOLERANCE,  # in Å
+            angle_tolerance: float = ANGLE_TOL,  # in degree
+            is_magnetization: bool = False):  # Whether the system is magnetic.
+
+        self._initial_structure = initial_structure.copy()
+        self._task = task
+        self._kpt_density = kpt_density
+        self._is_magnetization = is_magnetization
+        self._num_kpt_factor = num_kpt_factor or self._task.default_kpt_factor
+        self._symmetrizer = \
+            StructureSymmetrizer(structure=self._initial_structure,
+                                 symprec=symprec,
+                                 angle_tolerance=angle_tolerance,
+                                 ref_distance=band_ref_dist,
+                                 time_reversal=(not self._is_magnetization))
+        # overwrite options fixed by other options
+        self._gamma_centered = task.requisite_gamma_centered or gamma_centered
+        self._adjust_only_even_num_kpts(only_even_num_kpts)
+        self._adjust_kpt_mode(kpt_mode)
+
+    def _adjust_only_even_num_kpts(self, option):
+        task_requisite = self._task.requisite_only_even_num_kpts
+        if task_requisite in (True, False):
+            result = task_requisite
+        else:
+            result = option
+        self._only_even_num_kpts = result
+
+    def _adjust_kpt_mode(self, option):
+        self._kpt_mode = option or self._task.default_kpt_mode
+
+    def generate_input(self):
+        self._make_structure()
+        self._make_kpoints()
+
+    def _make_structure(self):
+        if self._kpt_mode == KpointsMode.uniform:
+            self._structure = self._initial_structure.copy()
+        elif self._kpt_mode == KpointsMode.primitive:
+            self._structure = self._symmetrizer.primitive
+        elif self._kpt_mode == KpointsMode.band:
+            self._structure = self._symmetrizer.band_primitive
+        else:
+            raise NotImplementedError
+
+    def _make_kpoints(self):
+        self._set_num_kpt_list()
+        self._set_kpt_shift()
+        self._set_kpoints()
+
+    def _set_num_kpt_list(self) -> None:
+        if self._task.requisite_num_kpt_list:
+            self._num_kpt_list = self._task.requisite_num_kpt_list
+            return
+
+        kpt_list = []
+        for reciprocal_lattice_length in self._reciprocal_lat_abc:
+            a_kpt_num = self._kpt_density * reciprocal_lattice_length
+
+            if self._only_even_num_kpts:
+                rounded_up = ceil(a_kpt_num / 2) * 2
+            else:
+                rounded_up = ceil(a_kpt_num)
+
+            kpt_list.append(rounded_up * self._num_kpt_factor)
+        self._num_kpt_list = kpt_list
+
+    @property
+    def _reciprocal_lat_abc(self) -> List[float]:
+        recipro_lat_abc = self._structure.lattice.reciprocal_lattice.abc
+        self.bravais = BravaisLattice.from_sg_num(self._symmetrizer.sg_number)
+        if self._kpt_mode.band_or_primitive and self.bravais.need_same_num_kpt:
+            logger.warning("To keep the space group symmetry, the number "
+                           "of k-points along three directions must be the "
+                           "same for oI and tI Bravais lattice.")
+            geometric_mean_abc = pow(float(np.prod(recipro_lat_abc)), 1 / 3)
+            result = (geometric_mean_abc,) * 3
+        else:
+            result = recipro_lat_abc
+
+        return result
+
+    def _set_kpt_shift(self):
+        if self._gamma_centered:
+            self._kpt_shift = [0.0, 0.0, 0.0]
+            return
+
+        if self._kpt_mode is KpointsMode.uniform:
+            kpt_shift = []
+            angles = self._structure.lattice.angles
+            for i in range(3):
+                normal_to_plane = max([abs(angles[i - 2] - 90),
+                                       abs(angles[i - 1] - 90)]) < 1e-5
+                kpt_shift.append(0.5 if normal_to_plane else 0.0)
+        else:
+            kpt_shift = self.bravais.kpt_centering
+
+        active_positions = [self._num_kpt_list[i] % 2 == 0 for i in range(3)]
+        self._kpt_shift = [s * a for s, a in zip(kpt_shift, active_positions)]
+
+    def _set_kpoints(self):
+        irreducible_kpoints = self._symmetrizer.irreducible_kpoints(
+            self._num_kpt_list, self._kpt_shift)
+        self.comment = ""
+        if self._kpt_mode is KpointsMode.band:
+            self._add_weighted_kpts(irreducible_kpoints)
+            self._add_band_path_kpts()
+            self._num_kpts = len(self._kpoints.kpts)
+        else:
+            self._kpoints = Kpoints(comment=self.comment,
+                                    kpts=(self._num_kpt_list,),
+                                    kpts_shift=self._kpt_shift)
+            self._num_kpts = len(irreducible_kpoints)
+
+    def _add_weighted_kpts(self, irreducible_kpoints):
+        kpts = [k[0] for k in irreducible_kpoints]
+        weights = [k[1] for k in irreducible_kpoints]
+        labels = [None] * len(irreducible_kpoints)
+        self._kpoints = Kpoints(comment=self.comment,
+                                style=Kpoints.supported_modes.Reciprocal,
+                                num_kpts=len(kpts),
+                                kpts=kpts,
+                                kpts_weights=weights,
+                                labels=labels)
+
+    def _add_band_path_kpts(self):
+        k_path = self._symmetrizer.seekpath_data["explicit_kpoints_rel"]
+        k_labels = self._symmetrizer.seekpath_data["explicit_kpoints_labels"]
+        # formula = self._structure.composition.reduced_formula
+        # self.kpoints.comment += \
+        #    f"k-path added by seekpath. Formula: {formula} SG: {self.sg}"
+        self._kpoints.num_kpts += len(k_path)
+        self._kpoints.kpts += list(k_path)
+        self._kpoints.labels += k_labels
+        self._kpoints.kpts_weights += [0] * len(k_path)
+
+    @property
+    def structure(self):
+        return self._structure
+
+    @property
+    def kpoints(self):
+        return self._kpoints
+
+    @property
+    def num_kpts(self):
+        return self._num_kpts
+
