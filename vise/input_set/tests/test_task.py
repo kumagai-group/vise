@@ -3,7 +3,7 @@
 
 import pytest
 
-from vise.input_set.make_kpoints import KpointsMode
+from vise.input_set.kpoints_mode import KpointsMode
 from vise.input_set.task import Task
 
 
@@ -84,9 +84,9 @@ def test_requisite_only_even_num_kpts():
 
 
 def test_requisite_kpt_shift():
-    assert Task.cluster_opt.requisite_kpt_shift == [0, 0, 0]
-    assert Task.dos.requisite_kpt_shift == [0, 0, 0]
-    assert Task.band.requisite_kpt_shift is None
+    assert Task.cluster_opt.requisite_gamma_centered is True
+    assert Task.dos.requisite_gamma_centered is True
+    assert Task.band.requisite_gamma_centered is None
 
 
 def test_incar_isif():

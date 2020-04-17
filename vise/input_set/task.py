@@ -4,7 +4,7 @@
 from typing import Optional, List
 
 from vise.util.enum import ExtendedEnum
-from vise.input_set.make_kpoints import KpointsMode
+from vise.input_set.kpoints_mode import KpointsMode
 
 
 class Task(ExtendedEnum):
@@ -89,10 +89,10 @@ class Task(ExtendedEnum):
     # implementation and tetrahedron method, while is a strong recommend for
     # dos and dielectric function to sample the band edges.
     @property
-    def requisite_kpt_shift(self) -> Optional[List[float]]:
+    def requisite_gamma_centered(self) -> Optional[bool]:
         if self in (self.cluster_opt, self.phonon_force) \
                 or self.is_spectrum_task:
-            return [0, 0, 0]
+            return True
         return
 
     @property
@@ -115,7 +115,8 @@ class Task(ExtendedEnum):
             return 1e-7
         elif self in (self.dielectric_dfpt, self.dielectric_finite_field):
             return 1e-6
-        elif self in (self.dielectric_function,):
+        elif self in (self.dielectric_function, self.band, self.dos,
+                      self.defect):
             return 1e-5
         elif self in (self.structure_opt_rough,):
             return 1e-4
