@@ -5,7 +5,7 @@ from typing import List, Dict
 
 from monty.serialization import loadfn
 from vise.util.enum import ExtendedEnum
-
+from vise.util.structure_symmetrizer import StructureSymmetrizer
 hermann_mauguin_list: Dict[int, str] = \
     loadfn(Path(__file__).parent / "Hermann–Mauguin.yaml")
 
@@ -44,6 +44,12 @@ class BravaisLattice(ExtendedEnum):
             raise ValueError
 
         return cls.from_string(bravais_letter)
+
+    @classmethod
+    def from_structure_symmetrizer(cls,
+                                   structure_symmetrizer: StructureSymmetrizer):
+        bravais_string = structure_symmetrizer.seekpath_data["bravais_lattice"]
+        return cls.from_string(bravais_string)
 
     @property
     def kpt_centering(self) -> List[float]:
