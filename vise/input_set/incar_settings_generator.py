@@ -62,9 +62,9 @@ class IncarSettingsGenerator:
 
         self._incar_settings = {}
         self._set_default_settings()
-        self._set_task_related_settings()
+        self._incar_settings.update(TaskIncarSettings(task).incar_settings)
         self._set_xc_related_settings()
-        self._set_multiple_conditions_related_settings()
+        self._set_options_related_settings()
 
         if self._task.is_spectrum_task:
             self._set_spectrum_related_settings()
@@ -109,7 +109,7 @@ class IncarSettingsGenerator:
             "METAGGA": self._xc.incar_metagga_optional,
         })
 
-    def _set_multiple_conditions_related_settings(self):
+    def _set_options_related_settings(self):
         self._incar_settings.update({
             "ENCUT": self._encut,
             "ISMEAR": self._ismear,
@@ -146,7 +146,7 @@ class IncarSettingsGenerator:
 
     @property
     def _ispin(self) -> Optional[int]:
-        if self._is_magnetization or (self._task.incar_ispin == 2):
+        if self._is_magnetization or self._task.need_spin:
             return 2
         return
 
@@ -229,4 +229,113 @@ def is_band_gap(vbm_cbm: Optional[List[float]]) -> bool:
         logger.info(f"Band gap: {round(band_gap, 3)} eV.")
         return band_gap > BAND_GAP_CRITERION
     return False
+
+
+class TaskIncarSettings:
+    def __init__(self, task: Task):
+        self._task = task
+
+    @property
+    def incar_settings(self):
+        return {"PREC": self._prec,
+                "LREAL": self._lreal,
+                "EDIFF": self._ediff,
+                "ADDGRID": self._addgrid_optional,
+                "ISIF": self._isif,
+                "IBRION": self._ibrion,
+                "EDIFFG": self._ediffg_optional,
+                "NSW": self._nsw,
+                "POTIM": self._potim_optional}
+
+    @property
+    def _isif(self):
+        if self._task.is_lattice_relaxed_task:
+            return 3
+        elif self._task.is_atom_relaxed_task:
+            return 2
+        elif self._task in (Task.band, Task.dos) \
+                or self._task.is_dielectric_task:
+            return 0
+        else:
+            raise NotImplementedError
+
+    # During dielectric_dfpt calculations, EDIFF is tightened automatically.
+    @property
+    def _ediff(self):
+        print(self._task)
+        if self._task.is_tight_calc:
+            return 1e-8
+        elif self._task in (Task.structure_opt, Task.cluster_opt):
+            return 1e-7
+        elif self._task in (Task.dielectric_dfpt, Task.dielectric_finite_field):
+            return 1e-6
+        elif self._task in (Task.dielectric_function,
+                            Task.band,
+                            Task.dos,
+                            Task.defect):
+            return 1e-5
+        elif self._task in (Task.structure_opt_rough,):
+            return 1e-4
+        else:
+            raise NotImplementedError
+
+    @property
+    def _ediffg_optional(self):
+        if self._task.is_atom_relaxed_task:
+            if self._task is Task.structure_opt_tight:
+                return -0.001
+            elif self._task in (Task.structure_opt, Task.cluster_opt):
+                return -0.005
+            elif self._task is Task.defect:
+                return -0.03
+            elif self._task is Task.structure_opt_rough:
+                return -0.2
+            else:
+                raise NotImplementedError
+        else:
+            return
+
+    @property
+    def _ibrion(self):
+        return 8 if self._task is Task.dielectric_dfpt else 2
+
+    @property
+    def _lreal(self):
+        return "Auto" if self._task is Task.defect else False
+
+    @property
+    def _prec(self):
+        return "Accurate" if self._task.is_tight_calc else "Normal"
+
+    @property
+    def _nsw(self):
+        return 50 if self._task.is_atom_relaxed_task else 0
+
+    @property
+    def _potim_optional(self):
+        if self._task is Task.structure_opt_rough:
+            return 0.1
+        return
+
+    @property
+    def _addgrid_optional(self):
+        if self._task.is_tight_calc:
+            return 0.1
+        return
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

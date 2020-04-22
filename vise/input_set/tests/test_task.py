@@ -89,60 +89,8 @@ def test_requisite_kpt_shift():
     assert Task.band.requisite_gamma_centered is None
 
 
-def test_incar_isif():
-    assert Task.structure_opt_tight.incar_isif == 3
-    assert Task.defect.incar_isif == 2
-    assert Task.band.incar_isif == 0
-    assert Task.dielectric_function.incar_isif == 0
+def test_need_spin():
+    assert Task.defect.need_spin is True
+    assert Task.band.need_spin is False
 
 
-def test_incar_ediff():
-    assert Task.structure_opt_tight.incar_ediff == 1e-8
-    assert Task.structure_opt.incar_ediff == 1e-7
-    assert Task.dielectric_finite_field.incar_ediff == 1e-6
-    assert Task.dielectric_function.incar_ediff == 1e-5
-    assert Task.structure_opt_rough.incar_ediff == 1e-4
-
-
-def test_incar_ediffg():
-    assert Task.structure_opt_tight.incar_ediffg_optional == -0.001
-    assert Task.structure_opt.incar_ediffg_optional == -0.005
-    assert Task.defect.incar_ediffg_optional == -0.03
-    assert Task.structure_opt_rough.incar_ediffg_optional == -0.2
-    assert Task.dos.incar_ediffg_optional is None
-
-
-def test_incar_ibrion():
-    assert Task.dielectric_dfpt.incar_ibrion == 8
-    assert Task.band.incar_ibrion == 2
-
-
-def test_incar_lreal():
-    assert Task.defect.incar_lreal == "Auto"
-    assert Task.band.incar_lreal is False
-
-
-def test_incar_ispin():
-    assert Task.defect.incar_ispin == 2
-    assert Task.band.incar_ispin == 1
-
-
-def test_incar_prec():
-    assert Task.structure_opt_tight.incar_prec == "Accurate"
-    assert Task.structure_opt.incar_prec == "Normal"
-
-
-def test_incar_nsw():
-    assert Task.structure_opt_tight.incar_nsw == 50
-    assert Task.defect.incar_nsw == 50
-    assert Task.band.incar_nsw == 0
-
-
-def test_incar_potim_optional():
-    assert Task.structure_opt_rough.incar_potim_optional == 0.1
-    assert Task.structure_opt.incar_potim_optional is None
-
-
-def test_incar_addgrid_optional():
-    assert Task.structure_opt_tight.incar_addgrid_optional == 0.1
-    assert Task.structure_opt.incar_addgrid_optional is None

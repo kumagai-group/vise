@@ -53,12 +53,21 @@ class Task(ExtendedEnum):
                       self.dielectric_dfpt,
                       self.dielectric_finite_field):
             return 2
-        elif (self in (self.band, self.cluster_opt,
-                       self.phonon_force, self.defect)
-              or self.is_lattice_relaxed_task):
+        elif self.condition_kpt_factor_is_one:
             return 1
         else:
             raise NotImplementedError
+
+    @property
+    def condition_kpt_factor_is_one(self):
+        if self in (self.band,
+                    self.cluster_opt,
+                    self.phonon_force,
+                    self.defect) or \
+                self.is_lattice_relaxed_task:
+            return True
+        else:
+            return False
 
     @property
     def default_kpt_mode(self) -> KpointsMode:
@@ -66,12 +75,19 @@ class Task(ExtendedEnum):
             return KpointsMode.band
         elif self in (self.defect, self.cluster_opt, self.phonon_force):
             return KpointsMode.uniform
-        elif (self is self.dos
-              or self.is_dielectric_task
-              or self.is_lattice_relaxed_task):
+        elif self.condition_kpoints_mode_is_primitive:
             return KpointsMode.primitive
         else:
             raise NotImplementedError
+
+    @property
+    def condition_kpoints_mode_is_primitive(self):
+        if self is self.dos or \
+                self.is_dielectric_task or \
+                self.is_lattice_relaxed_task:
+            return True
+        else:
+            return False
 
     @property
     def requisite_num_kpt_list(self) -> Optional[List[int]]:
@@ -96,92 +112,6 @@ class Task(ExtendedEnum):
         return
 
     @property
-    def incar_isif(self):
-        if self.is_lattice_relaxed_task:
-            return 3
-        elif self.is_atom_relaxed_task:
-            return 2
-        elif self in (self.band, self.dos) or self.is_dielectric_task:
-            return 0
-        else:
-            raise NotImplementedError
-
-    # During dielectric_dfpt calculations, EDIFF is tightened automatically.
-    @property
-    def incar_ediff(self):
-        if self.is_tight_calc:
-            return 1e-8
-        elif self in (self.structure_opt, self.cluster_opt):
-            return 1e-7
-        elif self in (self.dielectric_dfpt, self.dielectric_finite_field):
-            return 1e-6
-        elif self in (self.dielectric_function, self.band, self.dos,
-                      self.defect):
-            return 1e-5
-        elif self in (self.structure_opt_rough,):
-            return 1e-4
-        else:
-            raise NotImplementedError
-
-    @property
-    def incar_ediffg_optional(self):
-        if self.is_atom_relaxed_task:
-            if self is self.structure_opt_tight:
-                return -0.001
-            elif self in (self.structure_opt, self.cluster_opt):
-                return -0.005
-            elif self is self.defect:
-                return -0.03
-            elif self is self.structure_opt_rough:
-                return -0.2
-            else:
-                raise NotImplementedError
-        else:
-            return
-
-    @property
-    def incar_ibrion(self):
-        return 8 if self is self.dielectric_dfpt else 2
-
-    @property
-    def incar_lreal(self):
-        return "Auto" if self is Task.defect else False
-
-    @property
-    def incar_ispin(self):
-        return 2 if self is self.defect else 1
-
-    @property
-    def incar_prec(self):
-        return "Accurate" if self.is_tight_calc else "Normal"
-
-    @property
-    def incar_nsw(self):
-        return 50 if self.is_atom_relaxed_task else 0
-
-    @property
-    def incar_potim_optional(self):
-        if self is self.structure_opt_rough:
-            return 0.1
-        return
-
-    @property
-    def incar_addgrid_optional(self):
-        if self.is_tight_calc:
-            return 0.1
-        return
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    def need_spin(self):
+        return True if self is self.defect else False
 

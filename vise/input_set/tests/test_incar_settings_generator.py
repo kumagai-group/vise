@@ -9,7 +9,7 @@ from pymatgen.io.vasp import Potcar
 
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc
-from vise.input_set.incar_settings_generator import IncarSettingsGenerator
+from vise.input_set.incar_settings_generator import IncarSettingsGenerator, TaskIncarSettings
 from vise.input_set.kpoints_mode import KpointsMode
 
 
@@ -193,4 +193,51 @@ def test_dielectric_function(default_dict):
     }
     assert generator.incar_settings == expected
 
+
+def test_structure_opt():
+    task_settings = TaskIncarSettings(task=Task.structure_opt)
+    expected = {
+        "PREC": "Normal",
+        'LREAL': False,
+        "EDIFF": 1e-7,
+        "ADDGRID": None,
+        "ISIF": 3,
+        'IBRION': 2,
+        "EDIFFG": -0.005,
+        'NSW': 50,
+        "POTIM": None,
+    }
+    assert expected == task_settings.incar_settings
+
+
+def test_structure_opt_rough():
+    task_settings = TaskIncarSettings(task=Task.structure_opt_rough)
+    expected = {
+        'PREC': 'Normal',
+        'LREAL': False,
+        'EDIFF': 0.0001,
+        'ADDGRID': None,
+        'ISIF': 3,
+        'IBRION': 2,
+        'EDIFFG': -0.2,
+        'NSW': 50,
+        'POTIM': 0.1,
+    }
+    assert expected == task_settings.incar_settings
+
+
+def test_band():
+    task_settings = TaskIncarSettings(task=Task.band)
+    expected = {
+        'ADDGRID': None,
+        'EDIFF': 1e-05,
+        'EDIFFG': None,
+        'IBRION': 2,
+        'ISIF': 0,
+        'LREAL': False,
+        'NSW': 0,
+        'POTIM': None,
+        'PREC': 'Normal',
+    }
+    assert expected == task_settings.incar_settings
 
