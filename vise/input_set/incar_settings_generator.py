@@ -62,8 +62,8 @@ class IncarSettingsGenerator:
 
         self._incar_settings = {}
         self._set_default_settings()
-        self._incar_settings.update(TaskIncarSettings(task).incar_settings)
-        self._incar_settings.update(XcIncarSettings(xc).incar_settings)
+        self._set_task_related_settings()
+        self._set_xc_related_settings()
         self._set_options_related_settings()
 
         if self._task.is_spectrum_task:
@@ -86,6 +86,29 @@ class IncarSettingsGenerator:
             "SIGMA": 0.1,
             "LCHARG": False,
             "LORBIT": 12,
+        })
+
+    def _set_task_related_settings(self):
+        t = TaskIncarSettings(self._task)
+        self._incar_settings.update({
+            "PREC": t.prec,
+            "LREAL": t.lreal,
+            "EDIFF": t.ediff,
+            "ADDGRID": t.addgrid_optional,
+            "ISIF": t.isif,
+            "IBRION": t.ibrion,
+            "EDIFFG": t.ediffg_optional,
+            "NSW": t.nsw,
+            "POTIM": t.potim_optional
+        })
+
+    def _set_xc_related_settings(self):
+        x = XcIncarSettings(self._xc)
+        self._incar_settings.update({
+            "ALGO": x.algo,
+            "LWAVE": x.lwave,
+            "GGA": x.gga_optional,
+            "METAGGA": x.metagga_optional
         })
 
     def _set_options_related_settings(self):
@@ -215,19 +238,7 @@ class TaskIncarSettings:
         self._task = task
 
     @property
-    def incar_settings(self):
-        return {"PREC": self._prec,
-                "LREAL": self._lreal,
-                "EDIFF": self._ediff,
-                "ADDGRID": self._addgrid_optional,
-                "ISIF": self._isif,
-                "IBRION": self._ibrion,
-                "EDIFFG": self._ediffg_optional,
-                "NSW": self._nsw,
-                "POTIM": self._potim_optional}
-
-    @property
-    def _isif(self):
+    def isif(self):
         if self._task.is_lattice_relaxed_task:
             return 3
         elif self._task.is_atom_relaxed_task:
@@ -240,7 +251,7 @@ class TaskIncarSettings:
 
     # During dielectric_dfpt calculations, EDIFF is tightened automatically.
     @property
-    def _ediff(self):
+    def ediff(self):
         if self._task.is_tight_calc:
             return 1e-8
         elif self._task in (Task.structure_opt, Task.cluster_opt):
@@ -258,7 +269,7 @@ class TaskIncarSettings:
             raise NotImplementedError
 
     @property
-    def _ediffg_optional(self):
+    def ediffg_optional(self):
         if self._task.is_atom_relaxed_task:
             if self._task is Task.structure_opt_tight:
                 return -0.001
@@ -274,29 +285,29 @@ class TaskIncarSettings:
             return
 
     @property
-    def _ibrion(self):
+    def ibrion(self):
         return 8 if self._task is Task.dielectric_dfpt else 2
 
     @property
-    def _lreal(self):
+    def lreal(self):
         return "Auto" if self._task is Task.defect else False
 
     @property
-    def _prec(self):
+    def prec(self):
         return "Accurate" if self._task.is_tight_calc else "Normal"
 
     @property
-    def _nsw(self):
+    def nsw(self):
         return 50 if self._task.is_atom_relaxed_task else 0
 
     @property
-    def _potim_optional(self):
+    def potim_optional(self):
         if self._task is Task.structure_opt_rough:
             return 0.1
         return
 
     @property
-    def _addgrid_optional(self):
+    def addgrid_optional(self):
         if self._task.is_tight_calc:
             return 0.1
         return
@@ -307,26 +318,19 @@ class XcIncarSettings:
         self._xc = xc
 
     @property
-    def incar_settings(self):
-        return {"ALGO": self._algo,
-                "LWAVE": self._lwave,
-                "GGA": self._gga_optional,
-                "METAGGA": self._metagga_optional}
-
-    @property
-    def _algo(self):
+    def algo(self):
         return "Damped" if self._xc.is_hybrid_functional else "Normal"
 
     @property
-    def _lwave(self):
+    def lwave(self):
         return True if self._xc.is_hybrid_functional else False
 
     @property
-    def _gga_optional(self):
+    def gga_optional(self):
         return "PS" if self._xc is Xc.pbesol else None
 
     @property
-    def _metagga_optional(self):
+    def metagga_optional(self):
         return "SCAN" if self._xc is Xc.scan else None
 
 
