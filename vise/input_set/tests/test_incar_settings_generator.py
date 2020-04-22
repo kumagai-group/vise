@@ -9,7 +9,8 @@ from pymatgen.io.vasp import Potcar
 
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc
-from vise.input_set.incar_settings_generator import IncarSettingsGenerator, TaskIncarSettings
+from vise.input_set.incar_settings_generator import (
+    IncarSettingsGenerator, TaskIncarSettings, XcIncarSettings)
 from vise.input_set.kpoints_mode import KpointsMode
 
 
@@ -240,4 +241,10 @@ def test_band():
         'PREC': 'Normal',
     }
     assert expected == task_settings.incar_settings
+
+
+def test_pbe():
+    xc_settings = XcIncarSettings(xc=Xc.pbe)
+    expected = {'ALGO': 'Normal', 'GGA': None, 'LWAVE': False, 'METAGGA': None}
+    assert expected == xc_settings.incar_settings
 

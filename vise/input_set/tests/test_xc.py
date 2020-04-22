@@ -44,22 +44,3 @@ def test_xc_is_nonlocal():
     assert Xc.scan.is_nonlocal is False
     assert Xc.hse.is_nonlocal is True
 
-
-def test_incar_algo():
-    assert Xc.hse.incar_algo == "Damped"
-    assert Xc.pbe.incar_algo == "Normal"
-
-
-def test_incar_lwave():
-    assert Xc.hse.incar_lwave is True
-    assert Xc.pbe.incar_lwave is False
-
-
-def test_gga_optional():
-    assert Xc.pbesol.incar_gga_optional == "PS"
-    assert Xc.pbe.incar_gga_optional is None
-
-
-def test_metagga_optional():
-    assert Xc.scan.incar_metagga_optional == "SCAN"
-    assert Xc.pbe.incar_metagga_optional is None

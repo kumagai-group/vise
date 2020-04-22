@@ -37,20 +37,3 @@ class Xc(ExtendedEnum):
     @property
     def is_nonlocal(self):
         return self.is_hybrid_functional
-
-    @property
-    def incar_algo(self):
-        return "Damped" if self.is_hybrid_functional else "Normal"
-
-    @property
-    def incar_lwave(self):
-        return True if self.is_hybrid_functional else False
-
-    @property
-    def incar_gga_optional(self):
-        return "PS" if self is self.pbesol else None
-
-    @property
-    def incar_metagga_optional(self):
-        return "SCAN" if self is self.scan else None
-

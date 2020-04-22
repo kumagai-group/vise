@@ -63,7 +63,7 @@ class IncarSettingsGenerator:
         self._incar_settings = {}
         self._set_default_settings()
         self._incar_settings.update(TaskIncarSettings(task).incar_settings)
-        self._set_xc_related_settings()
+        self._incar_settings.update(XcIncarSettings(xc).incar_settings)
         self._set_options_related_settings()
 
         if self._task.is_spectrum_task:
@@ -86,27 +86,6 @@ class IncarSettingsGenerator:
             "SIGMA": 0.1,
             "LCHARG": False,
             "LORBIT": 12,
-        })
-
-    def _set_task_related_settings(self):
-        self._incar_settings.update({
-            "PREC": self._task.incar_prec,
-            "LREAL": self._task.incar_lreal,
-            "EDIFF": self._task.incar_ediff,
-            "ADDGRID": self._task.incar_addgrid_optional,
-            "ISIF": self._task.incar_isif,
-            "IBRION": self._task.incar_ibrion,
-            "EDIFFG": self._task.incar_ediffg_optional,
-            "NSW": self._task.incar_nsw,
-            "POTIM": self._task.incar_potim_optional,
-        })
-
-    def _set_xc_related_settings(self):
-        self._incar_settings.update({
-            "ALGO": self._xc.incar_algo,
-            "LWAVE": self._xc.incar_lwave,
-            "GGA": self._xc.incar_gga_optional,
-            "METAGGA": self._xc.incar_metagga_optional,
         })
 
     def _set_options_related_settings(self):
@@ -262,7 +241,6 @@ class TaskIncarSettings:
     # During dielectric_dfpt calculations, EDIFF is tightened automatically.
     @property
     def _ediff(self):
-        print(self._task)
         if self._task.is_tight_calc:
             return 1e-8
         elif self._task in (Task.structure_opt, Task.cluster_opt):
@@ -324,6 +302,32 @@ class TaskIncarSettings:
         return
 
 
+class XcIncarSettings:
+    def __init__(self, xc: Xc):
+        self._xc = xc
+
+    @property
+    def incar_settings(self):
+        return {"ALGO": self._algo,
+                "LWAVE": self._lwave,
+                "GGA": self._gga_optional,
+                "METAGGA": self._metagga_optional}
+
+    @property
+    def _algo(self):
+        return "Damped" if self._xc.is_hybrid_functional else "Normal"
+
+    @property
+    def _lwave(self):
+        return True if self._xc.is_hybrid_functional else False
+
+    @property
+    def _gga_optional(self):
+        return "PS" if self._xc is Xc.pbesol else None
+
+    @property
+    def _metagga_optional(self):
+        return "SCAN" if self._xc is Xc.scan else None
 
 
 
