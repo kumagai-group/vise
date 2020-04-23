@@ -21,21 +21,25 @@ class Task(ExtendedEnum):
     dielectric_function = "dielectric_function"
 
     @property
-    def is_lattice_relaxed_task(self) -> bool:
+    def is_lattice_relaxed(self) -> bool:
         return "structure_opt" in self.name
+
+    @property
+    def is_atom_relaxed_lattice_fixed(self) -> bool:
+        return self in (self.cluster_opt, self.defect)
+
+    @property
+    def is_atom_relaxed(self) -> bool:
+        return (self.is_lattice_relaxed
+                or self.is_atom_relaxed_lattice_fixed)
+
+    @property
+    def is_dielectric(self) -> bool:
+        return "dielectric" in self.name
 
     @property
     def is_tight_calc(self) -> bool:
         return self in (self.structure_opt_tight, self.phonon_force)
-
-    @property
-    def is_atom_relaxed_task(self) -> bool:
-        return (self.is_lattice_relaxed_task or
-                self in (self.cluster_opt, self.defect))
-
-    @property
-    def is_dielectric_task(self) -> bool:
-        return "dielectric" in self.name
 
     @property
     def is_plot_task(self) -> bool:
@@ -64,7 +68,7 @@ class Task(ExtendedEnum):
                     self.cluster_opt,
                     self.phonon_force,
                     self.defect) or \
-                self.is_lattice_relaxed_task:
+                self.is_lattice_relaxed:
             return True
         else:
             return False
@@ -83,8 +87,8 @@ class Task(ExtendedEnum):
     @property
     def condition_kpoints_mode_is_primitive(self):
         if self is self.dos or \
-                self.is_dielectric_task or \
-                self.is_lattice_relaxed_task:
+                self.is_dielectric or \
+                self.is_lattice_relaxed:
             return True
         else:
             return False

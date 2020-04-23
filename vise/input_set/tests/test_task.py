@@ -27,26 +27,32 @@ def test_task_name_list():
     assert Task.name_list() == expected
 
 
-def test_task_is_lattice_relax():
-    assert Task.structure_opt.is_lattice_relaxed_task is True
-    assert Task.structure_opt_rough.is_lattice_relaxed_task is True
-    assert Task.band.is_lattice_relaxed_task is False
+def test_is_atom_relaxed_lattice_fixed():
+    assert Task.structure_opt_tight.is_atom_relaxed_lattice_fixed is False
+    assert Task.cluster_opt.is_atom_relaxed_lattice_fixed is True
+    assert Task.band.is_atom_relaxed_lattice_fixed is False
+
+
+def test_is_lattice_relaxed():
+    assert Task.structure_opt.is_lattice_relaxed is True
+    assert Task.structure_opt_rough.is_lattice_relaxed is True
+    assert Task.band.is_lattice_relaxed is False
+
+
+def test_is_atom_relaxed():
+    assert Task.structure_opt_tight.is_atom_relaxed is True
+    assert Task.cluster_opt.is_atom_relaxed is True
+    assert Task.band.is_atom_relaxed is False
+
+
+def test_is_dielectric():
+    assert Task.dielectric_function.is_dielectric is True
+    assert Task.band.is_dielectric is False
 
 
 def test_is_tight_calc():
     assert Task.structure_opt_tight.is_tight_calc is True
     assert Task.band.is_tight_calc is False
-
-
-def test_is_atom_relaxed_task():
-    assert Task.structure_opt_tight.is_atom_relaxed_task is True
-    assert Task.cluster_opt.is_atom_relaxed_task is True
-    assert Task.band.is_atom_relaxed_task is False
-
-
-def test_is_dielectric_task():
-    assert Task.dielectric_function.is_dielectric_task is True
-    assert Task.band.is_dielectric_task is False
 
 
 def test_is_plot_task():
