@@ -7,7 +7,7 @@ from pymatgen import Composition
 from pymatgen.io.vasp import Potcar
 
 from vise.input_set.datasets.dataset_util import (
-    LDAU, potcar_list, PotcarSet, unoccupied_bands, num_bands, npar_kpar)
+    LDAU, PotcarSet, unoccupied_bands, num_bands, npar_kpar)
 
 
 def test_ldau_3d_transition_metal():
@@ -33,19 +33,19 @@ def test_ldau_3d_override():
 
 
 def test_potcar_list_normal():
-    assert potcar_list()["normal"]["H"] == "H"
+    potcar_list = PotcarSet.normal.potcar_list()
+    assert potcar_list["H"] == "H"
 
 
 def test_potcar_list_gw():
-    assert potcar_list()["gw"]["Li"] == "Li_GW"
+    potcar_list = PotcarSet.gw.potcar_list()
+    assert potcar_list["Li"] == "Li_GW"
 
 
 def test_potcar_list_non():
-    assert potcar_list()["mp_relax_set"]["Fr"] is None
-
-
-def test_potcar_list_same():
-    assert potcar_list()["mp_relax_set"]["Sr"] == "Sr_sv"
+    potcar_list = PotcarSet.mp_relax_set.potcar_list()
+    assert potcar_list["Fr"] is None
+    assert potcar_list["Sr"] == "Sr_sv"
 
 
 def test_potcar_set():
