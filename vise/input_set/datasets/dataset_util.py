@@ -42,7 +42,7 @@ class LDAU:
 
     @property
     def is_ldau_needed(self) -> bool:
-        return set(self.ldaul) != 0
+        return set(self.ldauu) != {0}
 
 
 def potcar_list() -> Dict[str, Dict[str, str]]:
