@@ -6,7 +6,7 @@ import pytest
 
 from pymatgen.core.structure import Structure
 
-from vise.input_set.input_options import DividedInputOptions
+from vise.input_set.input_options import ClassifiedInputOptions
 from vise.input_set.vasp_input_files import VaspInputFiles
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc
@@ -17,7 +17,7 @@ def input_options():
     lattice = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
     coords = [[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]]
     structure = Structure(lattice=lattice, species=["H", "Li"], coords=coords)
-    return DividedInputOptions(input_structure=structure, task=Task.structure_opt, xc=Xc.pbe)
+    return ClassifiedInputOptions(input_structure=structure, task=Task.structure_opt, xc=Xc.pbe)
 
 
 def test_integration(input_options, mocker):
