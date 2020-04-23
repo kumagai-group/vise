@@ -120,11 +120,13 @@ def test_manual_kpts():
     # so only kpoint shift along b-direction must be 0.5.
     structure = Structure(lattice=lattice, species=["H"], coords=coords)
     generator = StructureKpointsGenerator(structure,
+                                          task=Task.structure_opt,
                                           kpt_mode=KpointsMode.uniform)
     generator.generate_input()
     assert generator.kpoints.kpts[0] == [2, 2, 2]
     assert generator.kpoints.kpts_shift == [0.0, 0.5, 0.0]
     generator = StructureKpointsGenerator(structure,
+                                          task=Task.structure_opt,
                                           kpt_mode=KpointsMode.uniform,
                                           gamma_centered=[0.0, 0.0, 0.0])
     generator.generate_input()
@@ -189,6 +191,7 @@ def test_oi_ti_bravais():
     # recipro_lat_abc = (0.85, 1.09, 1.31)
     structure = Structure(lattice=lattice, species=["H", "H"], coords=coords)
     generator = StructureKpointsGenerator(structure,
+                                          task=Task.structure_opt,
                                           kpt_density=5)
     generator.generate_input()
     assert generator.num_kpts == 27
@@ -204,6 +207,7 @@ def test_hexagonal():
     structure = Structure(lattice=hexagonal_lattice,
                           species=["H"], coords=coords)
     generator = StructureKpointsGenerator(structure,
+                                          task=Task.structure_opt,
                                           kpt_density=5)
     generator.generate_input()
     assert generator.kpoints.kpts_shift == [0.0, 0.0, 0.5]

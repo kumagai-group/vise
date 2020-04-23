@@ -71,23 +71,23 @@ class ViseIncar(Incar):
 
     def get_string(self, **kwargs) -> str:
         lines = OrderedDict()
-        this_incar_flags = list(self.keys())
+        input_incar_flags = list(self.keys())
 
         for category, flags_by_category in all_incar_flags.items():
             settings_by_category = []
 
             for flag in flags_by_category:
-                if flag in this_incar_flags:
+                if flag in input_incar_flags:
                     settings_by_category.append(
                         [flag, self.setting_to_str(flag)])
-                    this_incar_flags.remove(flag)
+                    input_incar_flags.remove(flag)
 
             if settings_by_category:
                 lines[f"# {category}"] = tabulated_string(settings_by_category)
 
-        if this_incar_flags:
-            logger.error(f"{this_incar_flags} may be invalid in INCAR.")
-            lines[f"# others"] = tabulated_string(this_incar_flags)
+        if input_incar_flags:
+            logger.error(f"{input_incar_flags} may be invalid in INCAR.")
+            lines[f"# others"] = tabulated_string(input_incar_flags)
 
         return "\n\n".join(["\n".join([k, v]) for k, v in lines.items()])
 

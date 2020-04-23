@@ -19,7 +19,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.plotting import pretty_plot
 from pymatgen.util.string import latexify_spacegroup, latexify
 
-from vise.config import SYMMETRY_TOLERANCE, ANGLE_TOL
+from vise.defaults import SYMMETRY_TOLERANCE, ANGLE_TOL
 from vise.util.logger import get_logger
 from vise.util.matplotlib import formatter
 

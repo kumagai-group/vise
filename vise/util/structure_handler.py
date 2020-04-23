@@ -11,7 +11,7 @@ from vise.util.logger import get_logger
 logger = get_logger(__name__)
 
 
-def symbol_list(structure: Structure):
+def create_symbol_list(structure: Structure):
     species = [str(s) for s in structure.species]
     # unique_justseen https://docs.python.org/ja/3/library/itertools.html
     # ["H", "H", "O", "O", "H"] -> ['H', 'O', 'H']

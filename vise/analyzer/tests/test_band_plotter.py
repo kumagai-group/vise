@@ -7,7 +7,7 @@ import warnings
 
 from vise.util.testing import ViseTest
 from vise.analyzer.band_plotter import (
-    labels_to_unicode, PrettyBSPlotter, ModBSPlotter, make_bs_sym_lines)
+    labels_to_unicode, PrettyBSPlotter, make_bs_sym_lines)
 
 parent_dir = Path(__file__).parent
 

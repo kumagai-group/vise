@@ -8,7 +8,7 @@ import numpy as np
 from pymatgen import Structure
 from pymatgen.io.vasp.sets import Kpoints
 
-from vise.config import (
+from vise.defaults import (
     INSULATOR_KPT_DENSITY, ANGLE_TOL,
     SYMMETRY_TOLERANCE, BAND_MESH_DISTANCE)
 from vise.input_set.kpoints_mode import KpointsMode
@@ -19,18 +19,12 @@ from vise.util.bravais_lattice import BravaisLattice
 
 logger = get_logger(__name__)
 
-# # TODO: move sort_structure to out scope
-# if sort_structure:
-#     self._initial_structure = initial_structure.get_sorted_structure()
-# else:
-#     self._initial_structure = initial_structure.copy()
-
 
 class StructureKpointsGenerator:
     def __init__(
             self,
             initial_structure: Structure,
-            task: Task = Task.structure_opt,
+            task: Task,
             kpt_mode: Optional[KpointsMode] = None,  # None for default setting
             kpt_density: float = INSULATOR_KPT_DENSITY,  # in Å
             gamma_centered: Optional[bool] = None,  # Vasp definition
@@ -165,9 +159,9 @@ class StructureKpointsGenerator:
     def _add_band_path_kpts(self):
         k_path = self._symmetrizer.seekpath_data["explicit_kpoints_rel"]
         k_labels = self._symmetrizer.seekpath_data["explicit_kpoints_labels"]
-        # formula = self._structure.composition.reduced_formula
-        # self.kpoints.comment += \
-        #    f"k-path added by seekpath. Formula: {formula} SG: {self.sg}"
+        formula = self._structure.composition.reduced_formula
+        self.kpoints.comment += \
+           f"k-path added by seekpath. Formula: {formula} SG: {self.sg}"
         self._kpoints.num_kpts += len(k_path)
         self._kpoints.kpts += list(k_path)
         self._kpoints.labels += k_labels
@@ -184,4 +178,8 @@ class StructureKpointsGenerator:
     @property
     def num_kpts(self):
         return self._num_kpts
+
+    @property
+    def num_kpt_factor(self):
+        return self._num_kpt_factor
 

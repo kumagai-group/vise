@@ -268,7 +268,7 @@ class TaskIncarSettingsTest(ViseTest):
 class XcIncarSettingsTest(ViseTest):
     def setUp(self) -> None:
         self.default_kwargs = {"xc": Xc.pbe,
-                               "symbol_list": ["Mg", "O"],
+                               "create_symbol_list": ["Mg", "O"],
                                "factor": 1}
 
     def test(self):
@@ -278,7 +278,7 @@ class XcIncarSettingsTest(ViseTest):
 
     def test_hubbard_u(self):
         kwargs = deepcopy(self.default_kwargs)
-        kwargs["symbol_list"] = ["Zn", "O"]
+        kwargs["create_symbol_list"] = ["Zn", "O"]
         setting = XcIncarSettings.from_options(**kwargs)
         expected = {'ALGO': 'N',
                     'LWAVE': False,

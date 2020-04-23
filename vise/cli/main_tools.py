@@ -157,7 +157,7 @@ def get_user_settings(yaml_filename: str,
            dictionary is returned.
     Note2: When the key includes "/", the absolute path is added as a prefix.
            E.g., unitcell/unitcell.json -> /something/../unitcell/unitcell.json
-    Note3: The value of "potcar_set: Mg_pv O_h" is a single string of
+    Note3: The value of "potcar_dict: Mg_pv O_h" is a single string of
            "Mg_pv O_h", which is suited for main default value.
 
     Args:

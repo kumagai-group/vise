@@ -33,9 +33,7 @@ class IncarSettingsGenerator:
             # [vbm, cbm] in absolute eV
             vbm_cbm: Optional[List[float]] = None,
             exchange_ratio: float = 0.25,
-            # effective U, {"Ti": 4}
             ldauu: Optional[Dict[str, float]] = None,
-            # s:0, p:1, d:2
             ldaul: Optional[Dict[str, float]] = None,
             set_hubbard_u: Optional[bool] = None,
             auto_npar_kpar: bool = True,

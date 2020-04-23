@@ -7,7 +7,7 @@ import seekpath
 import spglib
 from pymatgen import Structure, Element
 
-from vise.config import SYMMETRY_TOLERANCE, ANGLE_TOL, BAND_MESH_DISTANCE
+from vise.defaults import SYMMETRY_TOLERANCE, ANGLE_TOL, BAND_MESH_DISTANCE
 from vise.util.logger import get_logger
 
 logger = get_logger(__name__)

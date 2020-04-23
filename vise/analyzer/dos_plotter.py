@@ -18,7 +18,7 @@ from pymatgen.io.vasp import Vasprun
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.string import latexify_spacegroup, latexify
 
-from vise.config import SYMMETRY_TOLERANCE, ANGLE_TOL
+from vise.defaults import SYMMETRY_TOLERANCE, ANGLE_TOL
 from vise.util.logger import get_logger
 
 

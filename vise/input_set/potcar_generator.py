@@ -13,7 +13,7 @@ logger = get_logger(__name__)
 
 
 def generate_potcar(symbol_list: list,
-                    xc: Xc = Xc.pbe,
+                    xc: Xc,
                     potcar_set: PotcarSet = PotcarSet.normal,
                     override_potcar_set: Optional[dict] = None):
 
