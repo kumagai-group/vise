@@ -28,17 +28,20 @@ class IncarSettingsGenerator:
             potcar: Potcar,
             task: Task,
             xc: Xc,
-            dos_step_size: float = DOS_STEP_SIZE,  # in eV
-            charge: float = 0.0,  # in elementary charge as in vasp
-            vbm_cbm: Optional[List[float]] = None,  # [vbm, cbm] in absolute eV
-            aexx: float = 0.25,  # Exchange mixing parameter for hybrid func.
-            ldauu: Optional[Dict[str, float]] = None,  # effective U, {"Ti": 4}
-            ldaul: Optional[Dict[str, float]] = None,  # s:0, p:1, d:2 {"Ti": 2}
+            dos_step_size: float = DOS_STEP_SIZE,
+            charge: float = 0.0,
+            # [vbm, cbm] in absolute eV
+            vbm_cbm: Optional[List[float]] = None,
+            exchange_ratio: float = 0.25,
+            # effective U, {"Ti": 4}
+            ldauu: Optional[Dict[str, float]] = None,
+            # s:0, p:1, d:2
+            ldaul: Optional[Dict[str, float]] = None,
             set_hubbard_u: Optional[bool] = None,
-            auto_npar_kpar: bool = True,  # Automatically set NPAR and KPAR.
-            cutoff_energy: Optional[float] = None,  # ENCUT in eV.
-            is_magnetization: bool = False,  # If the system is magnetic.
-            num_nodes: int = DEFAULT_NUM_NODES,  # Used for KPAR and NPAR
+            auto_npar_kpar: bool = True,
+            cutoff_energy: Optional[float] = None,
+            is_magnetization: bool = False,
+            num_nodes_for_kpar: int = DEFAULT_NUM_NODES,
             str_opt_encut_multi_factor: float = ENCUT_FACTOR_STR_OPT):
 
         self._composition = composition
@@ -51,13 +54,13 @@ class IncarSettingsGenerator:
         self._dos_step_size = dos_step_size
         self._charge = charge
         self._vbm_cbm = vbm_cbm
-        self._aexx = aexx
+        self._exchange_ratio = exchange_ratio
         self._ldauu = ldauu
         self._ldaul = ldaul
         self._auto_npar_kpar = auto_npar_kpar
         self._cutoff_energy = cutoff_energy
         self._is_magnetization = is_magnetization
-        self._num_nodes = num_nodes
+        self._num_nodes_for_kpar = num_nodes_for_kpar
         self._str_opt_encut_multi_factor = str_opt_encut_multi_factor
 
         self._incar_settings = {}
@@ -68,7 +71,7 @@ class IncarSettingsGenerator:
 
         if self._task.is_spectrum_task:
             self._set_spectrum_related_settings()
-        if self._task.is_dielectric_task:
+        if self._task.is_dielectric:
             self._set_dielectric_related_settings()
         if self._xc.is_hybrid_functional:
             self._set_hybrid_func_related_settings()
@@ -135,7 +138,7 @@ class IncarSettingsGenerator:
             return self._cutoff_energy
         max_enmax = max([p.enmax for p in self._potcar])
 
-        if self._task.is_lattice_relaxed_task:
+        if self._task.is_lattice_relaxed:
             max_enmax *= self._str_opt_encut_multi_factor
         return round(max_enmax, 3)
 
@@ -193,7 +196,7 @@ class IncarSettingsGenerator:
         self._incar_settings["LHFCALC"] = True
         self._incar_settings["PRECFOCK"] = "Fast"
         self._incar_settings["TIME"] = 0.4
-        self._incar_settings["AEXX"] = self._aexx
+        self._incar_settings["AEXX"] = self._exchange_ratio
         if self._num_kpt_multiplication_factor != 1:
             self._incar_settings["NKRED"] = self._num_kpt_multiplication_factor
         if self._xc is Xc.hse:
@@ -210,7 +213,7 @@ class IncarSettingsGenerator:
             self._incar_settings["LDAUL"] = ldau.ldaul
 
     def _set_npar_kpar(self) -> None:
-        kpar, npar = npar_kpar(self._num_kpts, self._num_nodes)
+        kpar, npar = npar_kpar(self._num_kpts, self._num_nodes_for_kpar)
         self._incar_settings["KPAR"] = kpar
         # now switch off NPAR
         # self._settings["NPAR"] = npar
@@ -239,12 +242,12 @@ class TaskIncarSettings:
 
     @property
     def isif(self):
-        if self._task.is_lattice_relaxed_task:
+        if self._task.is_lattice_relaxed:
             return 3
-        elif self._task.is_atom_relaxed_task:
+        elif self._task.is_atom_relaxed_lattice_fixed:
             return 2
         elif self._task in (Task.band, Task.dos) \
-                or self._task.is_dielectric_task:
+                or self._task.is_dielectric:
             return 0
         else:
             raise NotImplementedError
@@ -270,7 +273,7 @@ class TaskIncarSettings:
 
     @property
     def ediffg_optional(self):
-        if self._task.is_atom_relaxed_task:
+        if self._task.is_atom_relaxed:
             if self._task is Task.structure_opt_tight:
                 return -0.001
             elif self._task in (Task.structure_opt, Task.cluster_opt):
@@ -298,7 +301,7 @@ class TaskIncarSettings:
 
     @property
     def nsw(self):
-        return 50 if self._task.is_atom_relaxed_task else 0
+        return 50 if self._task.is_atom_relaxed else 0
 
     @property
     def potim_optional(self):

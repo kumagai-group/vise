@@ -64,7 +64,7 @@ def test_hse_structure_opt(default_dict):
                          "composition": Composition("UO2"),
                          "symbol_list": ["U", "O"],
                          "potcar": Potcar(["U", "O"]),
-                         "aexx": 0.5,
+                         "exchange_ratio": 0.5,
                          "ldauu": {"O": 10},
                          "ldaul": {"O": 100},
                          "set_hubbard_u": True})
