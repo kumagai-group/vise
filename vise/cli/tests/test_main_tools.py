@@ -7,7 +7,7 @@ import tempfile
 from unittest.mock import patch
 
 from vise.cli.main_tools import (
-    potcar_str2dict, list2dict, dict2list, get_user_settings, get_default_args)
+    potcar_str2dict, list2dict, dict2list, get_default_args)
 from vise.util.testing import ViseTest
 
 
@@ -60,63 +60,6 @@ class Dict2ListTest(ViseTest):
         actual = dict2list({"a": 1, "b": "2 3 4", "c": True})
         expected = ["a", "1", "b", "2", "3", "4", "c", "True"]
         self.assertEqual(expected, actual)
-
-
-class GetUserSettingsTest(ViseTest):
-
-    @patch("pathlib.Path.home")
-    def test(self, mock_home) -> None:
-        with tempfile.TemporaryDirectory() as dirname:
-            mock_home.return_value = Path(dirname)
-            os.chdir(dirname)
-            os.mkdir(".home_hidden_dir")
-            with open('.home_hidden_dir/test_vise.yaml', mode="w") as f:
-                f.write("""# This file is needed for the unittest.
-a_float: 0.01
-settings:
-  b: False
-c_dict:
-  d: 5
-  e: 3
-f_str: g h
-i_dir: ~/j""")
-
-            with self.assertRaises(KeyError):
-                get_user_settings(yaml_filename="test_vise.yaml",
-                                  setting_keys=["nokey"],
-                                  home_hidden_directory=".home_hidden_dir")
-
-            setting_keys = ["a_float", "settings", "c_dict", "f_str", "i_dir"]
-
-            user_setting, _ = \
-                get_user_settings(yaml_filename="test_vise.yaml",
-                                  setting_keys=setting_keys,
-                                  home_hidden_directory=".home_hidden_dir")
-
-            self.assertEqual(0.01, user_setting["a_float"])
-            self.assertEqual({'b': False}, user_setting["settings"])
-            self.assertEqual({'d': 5, 'e': 3}, user_setting["c_dict"])
-            self.assertEqual("g h", user_setting["f_str"])
-            expected = str(mock_home.return_value / ".home_hidden_dir" / "~/j")
-            self.assertEqual(expected, user_setting["i_dir"])
-
-            with open('test_vise.yaml', mode="w") as f:
-                f.write("""a_float: 0.02,
-f_str: x y
-""")
-
-            os.makedirs("dir_a/dir_b")
-
-            with open('dir_a/dir_b/test_vise.yaml', mode="w") as f:
-                f.write("""a_float: 0.03""")
-
-            os.chdir("dir_a/dir_b")
-            user_setting, yaml_files = \
-                get_user_settings(yaml_filename="test_vise.yaml",
-                                  setting_keys=setting_keys,
-                                  home_hidden_directory=".home_hidden_dir")
-            self.assertEqual(0.03, user_setting["a_float"])
-            self.assertEqual("x y", user_setting["f_str"])
 
 
 class GetDefaultArgsTest(ViseTest):
