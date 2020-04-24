@@ -5,44 +5,7 @@ import os
 import tempfile
 from pathlib import Path
 
-from vise.defaults import Defaults, UserSettings
-
-# @patch("vise.config.get_user_settings",
-#        ({"SYMMETRY_TOLERANCE": 10, "xc": "a"}, "b"))
-# class ConfigTest(ViseTest):
-#     from vise.config import \
-#         SYMMETRY_TOLERANCE, MAIN_SETTINGS, VISE_YAML_FILES
-
-    # def test_override(self):
-    #     self.assertEqual(10, self.SYMMETRY_TOLERANCE)
-    #     self.assertEqual("a", self.MAIN_SETTINGS["xc"])
-    #     self.assertEqual("b", self.VISE_YAML_FILES[0])
-
-"""
-TODO
-* Parse vise.yaml file and create related attributes.
-DONE
-
-"""
-
-
-def test_user_settings_in_defaults():
-    with tempfile.TemporaryDirectory() as dirname:
-
-        os.chdir(dirname)
-        path = Path.cwd()
-        with open('vise.yaml', mode="w") as f:
-            f.write("""
-        ldauu: 
-            Mn: 5""")
-        defaults = Defaults()
-
-    actual = defaults.user_settings["ldauu"]
-    expected = {"Mn": 5}
-
-    assert actual == expected
-
-
+from vise.defaults import UserSettings
 
 """
 TODO
