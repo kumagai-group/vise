@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
+import os
+from pathlib import Path
 from monty.design_patterns import singleton
 
 from vise.cli.main_tools import get_user_settings
@@ -54,15 +56,15 @@ user_settings, VISE_YAML_FILES = \
 @singleton
 class Defaults:
     def __init__(self):
-        self.symmetry_tolerance = 0.01
-        self.angle_tol = 5.0
+        self.symmetry_length_tolerance = 0.01
+        self.symmetry_angle_tolerance = 5.0
         self.dos_step_size = 0.01
-        self.kpt_density = 5.0  # for insulator 2.5 is okay.
+        self.kpoint_density = 5.0  # for insulator 2.5 is okay.
         self.band_mesh_distance = 0.025
         self.encut_factor_str_opt = 1.3
         self.band_gap_criterion = 0.2  # in eV
+        self.magnetization_criterion = 0.05
         self.default_num_nodes = 1
-        self.magnetization_threshold = 0.05
         self.task = str(Task.structure_opt)
         self.xc = str(Xc.pbe)
         self.vise_opts = {}
@@ -90,4 +92,27 @@ defaults = Defaults()
 
 
 class UserSettings:
-    pass
+    def __init__(self, yaml_filename: str):
+        self.cwd = Path.cwd()
+        self.yaml_filename = yaml_filename
+        self.yaml_file_list = self._yaml_filenames
+
+    @property
+    def _yaml_filenames(self):
+        result = []
+
+        dirname = self.cwd
+        while True:
+            target_yaml_filename = dirname / self.yaml_filename
+            if target_yaml_filename.exists():
+                result.append(target_yaml_filename)
+
+            if dirname == Path("/"):
+                break
+            else:
+                dirname = dirname.parent
+
+        return list(reversed(result))
+
+#    def parse_yaml_files(self):
+
