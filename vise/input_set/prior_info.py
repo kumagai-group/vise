@@ -8,46 +8,19 @@ from dataclasses import dataclass
 from monty.json import MSONable
 from monty.serialization import loadfn
 
+from vise.defaults import defaults
+
 
 @dataclass()
 class PriorInfo(MSONable):
-    """ Prior information for controlling parameters in DFT calculations
-
-    Attributes:
-        energy_per_atom (float):
-            Energy per atom calculated in the data_source.
-        band_gap (float):
-            Band gap calculated in the data_source.
-        total_magnetization (float):
-            Total total_magnetization in the data_source.
-        data_source (str):
-            The data source
-        is_cluster (bool):
-            Whether the system is molecule or not.
-        mag_threshold (float):
-            Threshold to judge if the system is magnetic.
-        band_gap_threshold (float):
-            Threshold to judge if the system is metal.
-        incar (dict):
-            Dict of INCAR flags to be set.
-    """
     energy_per_atom: float = None
     band_gap: float = None
     total_magnetization: float = None
     data_source: str = None
     is_cluster: bool = None
-    mag_threshold: float = 0.05
-    band_gap_threshold: float = 0.1
+    magnetization_criterion: float = defaults.magnetization_criterion
+    band_gap_criterion: float = defaults.band_gap_criterion
     incar: dict = None
-
-    def __repr__(self):
-        outs = [f"energy_per_atom: {self.energy_per_atom}",
-                f"band gap: {self.band_gap}",
-                f"total magnetization: {self.total_magnetization}",
-                f"data source: {self.data_source}",
-                f"is cluster: {self.is_cluster}",
-                f"incar flags {self.incar}"]
-        return "\n".join(outs)
 
     def dump_yaml(self, filename: str = "prior_info.yaml") -> None:
         with open(filename, "w") as f:
@@ -71,14 +44,14 @@ class PriorInfo(MSONable):
     @property
     def is_magnetic(self) -> Optional[bool]:
         try:
-            return self.total_magnetization > self.mag_threshold
+            return self.total_magnetization > self.magnetization_criterion
         except TypeError:
             return
 
     @property
     def has_band_gap(self) -> bool:
-        return self.band_gap > self.band_gap_threshold
+        return self.band_gap > self.band_gap_criterion
 
     @property
     def is_metal(self) -> bool:
-        return self.band_gap < self.band_gap_threshold
+        return not self.has_band_gap
