@@ -4,7 +4,9 @@
 import pytest
 
 from pymatgen import Element
-from vise.input_set.potcar_generator import generate_potcar, NoPotcarError
+from vise.input_set.potcar_generator import generate_potcar, ViseNoPotcarError
+from vise.input_set.xc import Xc
+from vise.input_set.datasets.dataset_util import PotcarSet
 
 
 @pytest.fixture()
@@ -23,31 +25,33 @@ def Bk_symbol():
 
 
 def test_normal_mg(mg_symbol):
-    potcar = generate_potcar(mg_symbol)
+    potcar = generate_potcar(mg_symbol, Xc.pbe)
     expected = "  PAW_PBE Mg 13Apr2007                   "
     assert str(potcar).split("\n")[0] == expected
 
 
 def test_mp_relax_set_mg(mg_symbol):
-    potcar = generate_potcar(mg_symbol, potcar_set_name="mp_relax_set")
+    potcar = generate_potcar(mg_symbol,
+                             Xc.pbe,
+                             potcar_set=PotcarSet.mp_relax_set)
     expected = "  PAW_PBE Mg_pv 13Apr2007                "
     assert str(potcar).split("\n")[0] == expected
 
 
 def test_gw(mg_symbol):
-    potcar = generate_potcar(mg_symbol, potcar_set_name="gw")
+    potcar = generate_potcar(mg_symbol, Xc.pbe, potcar_set=PotcarSet.gw)
     expected = "  PAW_PBE Mg_GW 13Apr2007                    "
     assert str(potcar).split("\n")[0] == expected
 
 
 def test_normal_largest_z(max_z_Cm_symbol):
-    potcar = generate_potcar(max_z_Cm_symbol)
+    potcar = generate_potcar(max_z_Cm_symbol, Xc.pbe)
     expected = "  PAW_PBE Cm 17Jan2011                   "
     assert str(potcar).split("\n")[0] == expected
 
 
 def test_not_exist(Bk_symbol):
-    with pytest.raises(NoPotcarError):
-        generate_potcar(Bk_symbol)
+    with pytest.raises(ViseNoPotcarError):
+        generate_potcar(Bk_symbol, Xc.pbe)
 
 

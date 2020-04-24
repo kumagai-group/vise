@@ -18,13 +18,14 @@ def generate_potcar(symbol_list: list,
                     override_potcar_set: Optional[dict] = None):
 
     potcar_dict = potcar_set.potcar_dict(override_potcar_set)
-    potcar_symbols = [potcar_dict[el] for el in symbol_list]
     try:
-        return Potcar(potcar_symbols, functional=xc.potcar_functional)
-    except IOError as e:
-        raise NoPotcarError(e)
+        potcar_symbols = [potcar_dict[el] for el in symbol_list]
+    except KeyError as e:
+        raise ViseNoPotcarError(e)
+
+    return Potcar(potcar_symbols, functional=xc.potcar_functional)
 
 
-class NoPotcarError(Exception):
+class ViseNoPotcarError(Exception):
     pass
 
