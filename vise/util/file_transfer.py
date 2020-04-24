@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
+
 import os
 import shutil
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from pathlib import Path
 import re
 from typing import List, Dict
@@ -48,9 +48,9 @@ class AFileLink(AFileTransfer):
         os.symlink(self.abs_in_file, self.to(abs_output_dir))
 
 
-@dataclass
 class FileTransfers:
-    file_transfer_list: List[AFileTransfer]
+    def __init__(self, file_transfer_list: List[AFileTransfer]):
+        self.file_transfer_list = file_transfer_list
 
     @classmethod
     def from_dict(cls, d: Dict[str, str], path: Path) -> "FileTransfers":
@@ -79,7 +79,6 @@ class FileTransfers:
 
     def delete_file_transfers_w_keywords(self, keywords: List[str]):
         pattern = re.compile("|".join(keywords))
-        print(pattern)
         for a_file_transfer in list(self.file_transfer_list):
             if pattern.search(a_file_transfer.file_name):
                 self.file_transfer_list.remove(a_file_transfer)

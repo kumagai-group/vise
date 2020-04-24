@@ -95,24 +95,25 @@ def test_file_link():
 
 
 def test_transfer_files():
-    print_string = "test"
+    test_string = "test"
     with tempfile.TemporaryDirectory() as tmp_from:
         os.chdir(tmp_from)
-        for i in ["a", "b", "c", "d"]:
+        for i in ["file1", "file2", "file3", "file4"]:
             with open(i, "w") as f1:
-                print(print_string, end="", file=f1)
+                print(test_string, end="", file=f1)
         file_transfers = FileTransfers.from_dict(
-            {"a": "m", "b": "c", "c": "l", "d": "m"}, path=Path(tmp_from))
+            {"file1": "m", "file2": "c", "file3": "l", "file4": "m"},
+            path=Path(tmp_from))
 
         with tempfile.TemporaryDirectory() as tmp_to:
             file_transfers.transfer(Path(tmp_to))
-            for i in ["b", "c"]:
+            for i in ["file2", "file3"]:
                 with open(Path(tmp_to) / i, 'r') as f_to:
                     with open(Path(tmp_from) / i, 'r') as f_from:
                         assert f_to.read() == f_from.read()
-            for i in ["a", "d"]:
+            for i in ["file1", "file4"]:
                 with open(Path(tmp_to) / i, 'r') as f2:
-                    assert f2.read() == print_string
+                    assert f2.read() == test_string
 
 
 def test_transfer_files_logger_non_exist(mocker):
@@ -139,7 +140,7 @@ def test_transfer_files_logger_empty(mocker):
             f"{Path(tmp_from) / empty_filename} is empty.")
 
 
-def test_transfer_files_logger_empty(mocker):
+def test_transfer_files_logger_warning(mocker):
     mock = mocker.patch("vise.util.file_transfer.logger.warning")
     filename = "c"
     print_string = "test"
@@ -154,19 +155,16 @@ def test_transfer_files_logger_empty(mocker):
 
 
 def test_transfer_delete():
-    print_string = "test"
-    keywords = ["bb", "a"]
-
     with tempfile.TemporaryDirectory() as tmp_from:
         os.chdir(tmp_from)
         for i in ["a", "bbb", "cbb", "bd", "bda"]:
             with open(i, "w") as f1:
-                print(print_string, end="", file=f1)
+                print("test", end="", file=f1)
         file_transfers = FileTransfers.from_dict({"a":   "m",
                                                   "bbb": "c",
                                                   "cbb": "l",
                                                   "bd":  "m",
                                                   "bda": "m"},
                                                  path=Path(tmp_from))
-        file_transfers.delete_file_transfers_w_keywords(keywords)
+        file_transfers.delete_file_transfers_w_keywords(["bb", "a"])
         assert len(file_transfers.file_transfer_list) == 1
