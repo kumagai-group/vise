@@ -7,9 +7,7 @@ from typing import Optional, Union, List, Dict
 from pymatgen import Composition
 from pymatgen.io.vasp.sets import Potcar
 
-from vise.defaults import (
-    DOS_STEP_SIZE, ENCUT_FACTOR_STR_OPT, DEFAULT_NUM_NODES,
-    BAND_GAP_CRITERION)
+from vise.defaults import defaults
 from vise.input_set.datasets.dataset_util import num_bands, npar_kpar, LDAU
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc
@@ -28,7 +26,7 @@ class IncarSettingsGenerator:
             potcar: Potcar,
             task: Task,
             xc: Xc,
-            dos_step_size: float = DOS_STEP_SIZE,
+            dos_step_size: float = defaults.dos_step_size,
             charge: float = 0.0,
             # [vbm, cbm] in absolute eV
             vbm_cbm: Optional[List[float]] = None,
@@ -39,8 +37,8 @@ class IncarSettingsGenerator:
             auto_npar_kpar: bool = True,
             cutoff_energy: Optional[float] = None,
             is_magnetization: bool = False,
-            num_nodes_for_kpar: int = DEFAULT_NUM_NODES,
-            str_opt_encut_multi_factor: float = ENCUT_FACTOR_STR_OPT):
+            num_nodes_for_kpar: int = defaults.default_num_nodes,
+            str_opt_encut_multi_factor: float = defaults.encut_factor_str_opt):
 
         self._composition = composition
         self._symbol_list = symbol_list

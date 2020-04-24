@@ -7,7 +7,7 @@ import seekpath
 import spglib
 from pymatgen import Structure, Element
 
-from vise.defaults import SYMMETRY_TOLERANCE, ANGLE_TOL, BAND_MESH_DISTANCE
+from vise.defaults import defaults
 from vise.util.logger import get_logger
 
 logger = get_logger(__name__)
@@ -27,10 +27,10 @@ def cell_to_structure(
 class StructureSymmetrizer:
     def __init__(self,
                  structure: Structure,
-                 symprec: float = SYMMETRY_TOLERANCE,  # in A
-                 angle_tolerance: float = ANGLE_TOL,  # in degree
+                 symprec: float = defaults.symmetry_length_tolerance,
+                 angle_tolerance: float = defaults.symmetry_angle_tolerance,
                  time_reversal: bool = True,
-                 ref_distance: float = BAND_MESH_DISTANCE):  # For k-point mesh
+                 band_mesh_distance: float = defaults.band_mesh_distance):
         """Get full information of seekpath band path.
 
         Note: site properties such as magmom are removed.
@@ -54,7 +54,7 @@ class StructureSymmetrizer:
         self.symprec = symprec
         self.angle_tolerance = angle_tolerance
         self.time_reversal = time_reversal
-        self.ref_distance = ref_distance
+        self.ref_distance = band_mesh_distance
         lattice_matrix = structure.lattice.matrix
         positions = structure.frac_coords.tolist()
         atomic_numbers = [i.specie.number for i in structure.sites]

@@ -8,9 +8,7 @@ import numpy as np
 from pymatgen import Structure
 from pymatgen.io.vasp.sets import Kpoints
 
-from vise.defaults import (
-    INSULATOR_KPT_DENSITY, ANGLE_TOL,
-    SYMMETRY_TOLERANCE, BAND_MESH_DISTANCE)
+from vise.defaults import defaults
 from vise.input_set.kpoints_mode import KpointsMode
 from vise.input_set.task import Task
 from vise.util.logger import get_logger
@@ -26,13 +24,13 @@ class StructureKpointsGenerator:
             initial_structure: Structure,
             task: Task,
             kpt_mode: Optional[KpointsMode] = None,  # None for default setting
-            kpt_density: float = INSULATOR_KPT_DENSITY,  # in Å
+            kpt_density: float = defaults.kpoint_density,  # in Å
             gamma_centered: Optional[bool] = None,  # Vasp definition
             only_even_num_kpts: bool = False,  # If ceil kpt numbers to be even.
             num_kpt_factor: Optional[int] = None,  # NKRED, too
-            band_ref_dist: float = BAND_MESH_DISTANCE,
-            symprec: float = SYMMETRY_TOLERANCE,  # in Å
-            angle_tolerance: float = ANGLE_TOL,  # in degree
+            band_ref_dist: float = defaults.band_mesh_distance,
+            symprec: float = defaults.symmetry_length_tolerance,
+            angle_tolerance: float = defaults.symmetry_angle_tolerance,
             is_magnetization: bool = False):  # Whether the system is magnetic.
 
         self._initial_structure = initial_structure.copy()
@@ -44,7 +42,7 @@ class StructureKpointsGenerator:
             StructureSymmetrizer(structure=self._initial_structure,
                                  symprec=symprec,
                                  angle_tolerance=angle_tolerance,
-                                 ref_distance=band_ref_dist,
+                                 band_mesh_distance=band_ref_dist,
                                  time_reversal=(not self._is_magnetization))
         # overwrite options fixed by other options
         self._gamma_centered = task.requisite_gamma_centered or gamma_centered
