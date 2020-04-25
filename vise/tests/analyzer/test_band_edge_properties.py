@@ -10,7 +10,7 @@ import pytest
 from pymatgen.io.vasp.outputs import Vasprun, Outcar
 from pymatgen.electronic_structure.core import Spin
 
-from vise.analyzer.band_gap import (
+from vise.analyzer.band_edge_properties import (
     BandEdge, BandEdgeProperties, VaspBandEdgeProperties,
     eigenvalues_from_vasprun)
 
@@ -130,13 +130,6 @@ def test_mag_insulator(actual_kpt):
 
     assert band_edge.vbm.kpoint_coords == [10.4, 10.5, 10.6]
     assert band_edge.cbm.kpoint_coords == [10.1, 10.2, 10.3]
-
-
-"""
-TODO:
-+ Read vasprun.xml file and Outcar file
-+ Construct eigenvalues, nelect, magnetization, kpoints
-"""
 
 
 def test_eigenvalues_from_vasprun():
