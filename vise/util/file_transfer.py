@@ -15,7 +15,7 @@ from vise.util.logger import get_logger
 logger = get_logger(__name__)
 
 
-class AFileTransfer(ABC):
+class FileTransfer(ABC):
     def __init__(self, abs_file_path: Path):
         self.abs_in_file = abs_file_path
 
@@ -31,25 +31,25 @@ class AFileTransfer(ABC):
         return Path(abs_output_dir.absolute()) / self.file_name
 
 
-class AFileMove(AFileTransfer):
+class FileMove(FileTransfer):
     def transfer(self, abs_output_dir: Path):
         shutil.move(self.abs_in_file, self.to(abs_output_dir))
 
 
-class AFileCopy(AFileTransfer):
+class FileCopy(FileTransfer):
     def transfer(self, abs_output_dir: Path):
         with zopen(self.abs_in_file, "rb") as fin, \
                 zopen(self.to(abs_output_dir), "wb") as fout:
             shutil.copyfileobj(fin, fout)
 
 
-class AFileLink(AFileTransfer):
+class FileLink(FileTransfer):
     def transfer(self, abs_output_dir: Path):
         os.symlink(self.abs_in_file, self.to(abs_output_dir))
 
 
 class FileTransfers:
-    def __init__(self, file_transfer_list: List[AFileTransfer]):
+    def __init__(self, file_transfer_list: List[FileTransfer]):
         self.file_transfer_list = file_transfer_list
 
     @classmethod
@@ -67,11 +67,11 @@ class FileTransfers:
                 logger.warning(f"{f} is empty.")
             else:
                 if initial == "m":
-                    transfer_cls = AFileMove
+                    transfer_cls = FileMove
                 elif initial == "c":
-                    transfer_cls = AFileCopy
+                    transfer_cls = FileCopy
                 elif initial == "l":
-                    transfer_cls = AFileLink
+                    transfer_cls = FileLink
                 else:
                     logger.warning(
                         f"{transfer_manner} option for {filename} is invalid.")

@@ -8,7 +8,7 @@ import tempfile
 import pytest
 
 from vise.util.file_transfer import (
-    AFileTransfer, AFileMove, AFileCopy, AFileLink, FileTransfers)
+    FileTransfer, FileMove, FileCopy, FileLink, FileTransfers)
 
 
 cwd = Path.cwd().absolute()
@@ -16,7 +16,7 @@ cwd = Path.cwd().absolute()
 
 @pytest.fixture()
 def file_transfer_instance():
-    class Test(AFileTransfer):
+    class Test(FileTransfer):
         def transfer(self, abs_output_dir):
             pass
 
@@ -39,7 +39,7 @@ def test_file_move():
     print_string = "test"
     filename = "a"
     with tempfile.TemporaryDirectory() as tmp_from:
-        file_move = AFileMove(abs_file_path=Path(tmp_from) / filename)
+        file_move = FileMove(abs_file_path=Path(tmp_from) / filename)
         os.chdir(tmp_from)
 
         with open(filename, "w") as f1:
@@ -57,7 +57,7 @@ def test_file_copy():
     print_string = "test"
     filename = "a"
     with tempfile.TemporaryDirectory() as tmp_from:
-        file_copy = AFileCopy(abs_file_path=Path(tmp_from) / filename)
+        file_copy = FileCopy(abs_file_path=Path(tmp_from) / filename)
         os.chdir(tmp_from)
 
         with open(filename, "w") as f1:
@@ -76,7 +76,7 @@ def test_file_link():
     print_string = "test"
     filename = "a"
     with tempfile.TemporaryDirectory() as tmp_from:
-        file_link = AFileLink(abs_file_path=Path(tmp_from) / filename)
+        file_link = FileLink(abs_file_path=Path(tmp_from) / filename)
         os.chdir(tmp_from)
 
         with open(filename, "w") as f1:
