@@ -4,95 +4,111 @@
 import numpy as np
 from typing import Tuple, Optional, List, Dict
 
+from dataclasses import dataclass
+
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.io.vasp.outputs import Vasprun, Outcar
 
 
-def band_gap_from_vasp(vasprun: Vasprun,
-                       outcar: Outcar,
-                       ) -> Tuple[dict, Optional[dict], Optional[dict]]:
-    """Evaluate the band gap properties from vasprun.xml
+@dataclass()
+class BandEdge:
+    energy: float
+    spin: Spin = None
+    band_index: int = None
+    kpoint_coords: List[float] = None
 
-    Args:
-        vasprun (Vasprun):
-            Pymatgen Vasprun class instance with eigenvalue info.
-        outcar:
-    """
-    eigenvalues = {spin: e[:, :, 1] for spin, e in vasprun.eigenvalues.items()}
-    return band_gap_properties(eigenvalues,
-                               outcar.nelect,
-                               outcar.magnetization,
-                               vasprun.actual_kpoints)
+    def is_direct(self, other: "BandEdge"):
+        return (self.spin == other.spin and
+                self.kpoint_coords == other.kpoint_coords)
 
 
-def band_gap_properties(eigenvalues: Dict[Spin, np.ndarray],
-                        nelect: float,
-                        magnetization: float,
-                        kpoints: List[List[float]],
-                        frac_threshold: float = 0.1
-                        ) -> Tuple[dict, Optional[dict], Optional[dict]]:
-    """Evaluate the band gap properties from vasprun.xml and OUTCAR files
+class BandEdgeProperties:
+    def __init__(self,
+                 eigenvalues: Dict[Spin, np.ndarray],
+                 nelect: float,
+                 magnetization: float,
+                 kpoints: List[List[float]],
+                 integer_criterion: float = 0.1):
 
-    Args:
-        eigenvalues:
-            Eigenvalues[Spin][band_idx][k-point_idx] = eigenvalue
-        nelect:
-            Number of electrons.
-        magnetization:
-            Magnetization in Bohr magneton.
-        kpoints (list):
-            List of actual k-point fractional coordinates.
-        frac_threshold (float):
-            Threshold to judge if the number is integer or not, must be between
-            0 and 0.5.
+        assert 0 < integer_criterion < 0.5
 
-    Return:
-        Tuple of band_gap, vbm, and cbm-related info. For metals,
-        {'energy': 0.0, 'direct': None, 'transition': None}, None, None
-        is returned.
-    """
-    if not 0 < frac_threshold < 0.5:
-        raise ValueError("frac_threshold must be between 0 and 0.5.")
+        # [Spin][k-point_idx][band_idx] = eigenvalue
+        self._eigenvalues = eigenvalues
+        self._nelect = nelect
+        #  In Bohr magneton.
+        self._magnetization = magnetization
+        self._kpoints = kpoints
+        self._integer_criterion = integer_criterion
 
-    metal_info = {'energy': 0.0, 'direct': None, 'transition': None}, None, None
-    if max(nelect % 1, magnetization % 1) > frac_threshold:
-        return metal_info
+        self._calculate_vbm_cbm()
 
-    vbm_info = {'energy': -float("inf")}
-    cbm_info = {'energy': float("inf")}
+        if self._is_metal():
+            self.vbm = None
+            self.cbm = None
 
-    for spin, eigs_per_spin in eigenvalues.items():
+    def _calculate_vbm_cbm(self):
+        self.vbm = BandEdge(float("-inf"))
+        self.cbm = BandEdge(float("inf"))
+        for spin, eigenvalues in self._eigenvalues.items():
+            # ho = highest occupied
+            ho_band_index = self._hob_band_index(spin)
+            ho_eigenvalue = np.amax(eigenvalues[:, ho_band_index])
+            if ho_eigenvalue > self.vbm.energy:
+                self.vbm = self.band_edge(
+                    eigenvalues, ho_band_index, ho_eigenvalue, spin)
 
-        spin_int = None if len(eigenvalues) == 1 else int(spin)
-        hob_band_index = int(round(nelect + magnetization * int(spin)) / 2) - 1
-        hob_eigenvalue = np.amax(eigs_per_spin[:, hob_band_index])
-        lub_eigenvalue = np.amin(eigs_per_spin[:, hob_band_index + 1])
+            # lu = lowest unoccupied
+            lu_band_index = ho_band_index + 1
+            lu_eigenvalue = np.amin(eigenvalues[:, lu_band_index])
+            if lu_eigenvalue < self.cbm.energy:
+                self.cbm = self.band_edge(
+                    eigenvalues, lu_band_index, lu_eigenvalue, spin)
 
-        if hob_eigenvalue > vbm_info["energy"]:
-            hob_k_index = np.where(
-                eigs_per_spin[:, hob_band_index] == hob_eigenvalue)[0][0]
-            vbm_info = {'energy': round(hob_eigenvalue, 4),
-                        'spin': spin_int,
-                        'band_index': hob_band_index,
-                        'kpoints': kpoints[hob_k_index]}
+    def band_edge(self, eigenvalues, band_index, eigenvalue, spin):
+        k_index = np.where(eigenvalues[:, band_index] == eigenvalue)[0][0]
+        return BandEdge(eigenvalue, spin, band_index, self._kpoints[k_index])
 
-        if lub_eigenvalue < cbm_info["energy"]:
-            lub_k_index = np.where(
-                eigs_per_spin[:, hob_band_index + 1] == lub_eigenvalue)[0][0]
-            cbm_info = {'energy': round(lub_eigenvalue, 4),
-                        'spin': spin_int,
-                        'band_index': hob_band_index + 1,
-                        'kpoints': kpoints[lub_k_index]}
+    def _hob_band_index(self, spin):
+        if spin == Spin.up:
+            num_occupied_band = (self._nelect + self._magnetization) / 2
+        else:
+            num_occupied_band = (self._nelect - self._magnetization) / 2
 
-    if vbm_info["energy"] > cbm_info["energy"]:
-        return metal_info
+        return round(num_occupied_band) - 1
 
-    is_direct = (vbm_info["spin"] == cbm_info["spin"]
-                 and vbm_info["kpoints"] == cbm_info["kpoints"])
+    def _is_metal(self):
+        nelect_frac = abs(round(self._nelect) - self._nelect)
+        is_nelect_frac = nelect_frac > self._integer_criterion
 
-    band_gap = {"energy": round(cbm_info["energy"] - vbm_info["energy"], 4),
-                "direct": is_direct}
+        mag_frac = abs(round(self._magnetization) - self._magnetization)
+        is_mag_frac = mag_frac > self._integer_criterion
 
-    return band_gap, vbm_info, cbm_info
+        is_vbm_higher_than_cbm = self.vbm.energy > self.cbm.energy
 
+        return is_nelect_frac or is_mag_frac or is_vbm_higher_than_cbm
+
+    @property
+    def is_direct(self):
+        return self.vbm.is_direct(self.cbm) if self.vbm else None
+
+    @property
+    def band_gap(self):
+        return self.cbm.energy - self.vbm.energy if self.vbm else None
+
+
+class VaspBandEdgeProperties(BandEdgeProperties):
+    def __init__(self,
+                 vasprun: Vasprun,
+                 outcar: Outcar,
+                 integer_criterion: float = 0.1):
+
+        super().__init__(eigenvalues=eigenvalues_from_vasprun(vasprun),
+                         nelect=outcar.nelect,
+                         magnetization=outcar.total_mag,
+                         kpoints=vasprun.actual_kpoints,
+                         integer_criterion=integer_criterion)
+
+
+def eigenvalues_from_vasprun(vasprun):
+    return {spin: e[:, :, 0] for spin, e in vasprun.eigenvalues.items()}
 
