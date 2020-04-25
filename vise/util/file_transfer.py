@@ -53,11 +53,14 @@ class FileTransfers:
         self.file_transfer_list = file_transfer_list
 
     @classmethod
-    def from_dict(cls, d: Dict[str, str], path: Path) -> "FileTransfers":
+    def from_dict(cls,
+                  transfer_manner_by_file: Dict[str, str],
+                  path: Path) -> "FileTransfers":
+
         file_transfers = []
-        for filename, transfer_type in d.items():
+        for filename, transfer_manner in transfer_manner_by_file.items():
             f = path.absolute() / filename
-            initial = transfer_type[0].lower()
+            initial = transfer_manner[0].lower()
             if not f.is_file():
                 logger.warning(f"{f} does not exist.")
             elif f.stat().st_size == 0:
@@ -71,7 +74,7 @@ class FileTransfers:
                     transfer_cls = AFileLink
                 else:
                     logger.warning(
-                        f"{transfer_type} option for {filename} is invalid.")
+                        f"{transfer_manner} option for {filename} is invalid.")
                     continue
                 file_transfers.append(transfer_cls(f))
 
