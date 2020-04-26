@@ -63,7 +63,7 @@ def test_structure_symmetrizer_mc_irreducible_kpoints(symmetrizer_mc):
 
 def test_structure_symmetrizer_mc_lattice_change(symmetrizer_mc):
     assert symmetrizer_mc.is_band_primitive_lattice_changed is True
-    assert symmetrizer_mc.is_primitive_lattice_changed is False
+    assert symmetrizer_mc.is_primitive_lattice_changed is True
     assert symmetrizer_mc.band_primitive_differ_primitive is True
 
 
@@ -116,9 +116,46 @@ def symmetrizer_sc():
 
 def test_structure_symmetrizer_sc_irreducible_kpoints(symmetrizer_sc):
     num_kpt_list = [2, 2, 2]
-    kpt_shift = [1.0, 1.0, 1.0]
+    kpt_shift = [0.5, 0.5, 0.5]
     actual = symmetrizer_sc.irreducible_kpoints(num_kpt_list, kpt_shift)
     expected = [([0.25, 0.25, 0.25], 8)]
     assert actual == expected
 
+
+# def test_seekpath(symmetrizer_mc):
+#     """
+#     str(symmetrizer_mc.band_primitive)
+#     >> Full Formula (H1)
+# Reduced Formula: H2
+# abc   :   6.708204   6.708204   8.062258
+# angles:  63.655959 116.344041 126.869898
+# Sites (1)
+#   #  SP      a    b    c
+# ---  ----  ---  ---  ---
+#   0  H       0    0    0
+#
+#
+#     """
+#     print(symmetrizer_mc.band_primitive)
+#     print(symmetrizer_mc.seekpath_data["path"])
+# #    for i, v in symmetrizer_mc.seekpath_data.items():
+# #        print(i,v)
+#
+#
+# @pytest.fixture()
+# def symmetrizer_ap():
+#     lattice = [[10.0,  5.0, 1.0],
+#                [ 3.0, 12.0, 0.0],
+#                [ 1.0,  4.0, 40.0]]
+#     coords = [[0.4, 0.2, 0.1], [0.1, 0.2, 0.5]]
+#     structure = Structure(lattice=lattice, species=["H", "He"], coords=coords)
+# #    symmetrizer = StructureSymmetrizer(structure)
+#     symmetrizer = StructureSymmetrizer(structure, time_reversal=False)
+#     return symmetrizer
+#
+#
+# def test_seekpath_p1(symmetrizer_ap):
+# #    print(symmetrizer_ap.seekpath_data["has_inversion_symmetry"])
+#     for i, v in symmetrizer_ap.seekpath_data.items():
+#            print(items)
 
