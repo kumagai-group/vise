@@ -7,18 +7,6 @@ from pathlib import Path
 
 from vise.defaults import UserSettings
 
-"""
-TODO
-
-DONE
-- Get current working directory Path.
-- Find all the yaml files with the given name to the root directory.
-- Method to return the file names and their respective setting keys.
-- Allow hidden files, e.g., .test.yaml
-- When the key includes "/", the absolute path is added as a prefix.
-  E.g., unitcell/unitcell.json -> /something/../unitcell/unitcell.json
-"""
-
 
 def test_get_yaml_filenames():
     with tempfile.TemporaryDirectory() as dirname:

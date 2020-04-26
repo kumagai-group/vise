@@ -3,6 +3,7 @@
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
 import pytest
+
 from vise.input_set.kpoints_mode import KpointsMode
 
 

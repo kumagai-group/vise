@@ -5,15 +5,6 @@ import os
 import tempfile
 
 
-
-"""
-TODO
-* Parse vise.yaml file and create related attributes.
-DONE
-
-"""
-
-
 def test_user_settings_in_defaults():
     with tempfile.TemporaryDirectory() as dirname:
 

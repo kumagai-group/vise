@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
+import numpy as np
 import pytest
 from pymatgen.core.structure import Structure
-import numpy as np
 
+from vise.input_set.kpoints_mode import KpointsMode
 from vise.input_set.structure_kpoints_generator import \
     StructureKpointsGenerator
-from vise.input_set.kpoints_mode import KpointsMode
 from vise.input_set.task import Task
 
 
@@ -73,9 +73,10 @@ def test_constructor_symmetrizer(sc_structure, mocker):
                               is_magnetization=True)
     mock.assert_called_once_with(
         structure=sc_structure, symprec=10.0, angle_tolerance=20.0,
-        ref_distance=30.0, time_reversal=False)
+        band_mesh_distance=30.0, time_reversal=False)
 
 # Structure related unittests.
+
 
 def test_mc_structure_primitive(mc_structure):
     generator = StructureKpointsGenerator(mc_structure,
@@ -120,6 +121,7 @@ def test_manual_kpts():
     # so only kpoint shift along b-direction must be 0.5.
     structure = Structure(lattice=lattice, species=["H"], coords=coords)
     generator = StructureKpointsGenerator(structure,
+                                          kpt_density=2.5,
                                           task=Task.structure_opt,
                                           kpt_mode=KpointsMode.uniform)
     generator.generate_input()

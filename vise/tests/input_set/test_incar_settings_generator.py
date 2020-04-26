@@ -2,16 +2,13 @@
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
 import pytest
-
-from pymatgen.core.structure import Structure
 from pymatgen import Composition
 from pymatgen.io.vasp import Potcar
 
+from vise.input_set.incar_settings_generator import (
+    IncarSettingsGenerator)
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc
-from vise.input_set.incar_settings_generator import (
-    IncarSettingsGenerator, TaskIncarSettings, XcIncarSettings)
-from vise.input_set.kpoints_mode import KpointsMode
 
 
 @pytest.fixture()
