@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
-from vise.util.matplotlib import my_formatter, formatter
+from vise.util.matplotlib import my_formatter, float_to_int_formatter
 import matplotlib.pyplot as plt
 
 
@@ -15,5 +15,5 @@ def test_plot():
     plt.xlim(0, 1)
     plt.ylim(0, 1)
     axis = plt.gca()
-    axis.xaxis.set_major_formatter(formatter)
+    axis.xaxis.set_major_formatter(float_to_int_formatter)
     plt.show()

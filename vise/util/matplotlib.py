@@ -24,4 +24,4 @@ def my_formatter(tick_value, pos):
         return tick_value
 
 
-formatter = FuncFormatter(my_formatter)
+float_to_int_formatter = FuncFormatter(my_formatter)
