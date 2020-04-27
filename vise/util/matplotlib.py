@@ -15,7 +15,7 @@ def my_formatter(tick_value, pos):
         ax.yaxis.set_major_formatter(formatter)
     """
     if isinstance(tick_value, float):
-        rounded_value = round(tick_value, ndigits=3)
+        rounded_value = round(tick_value, ndigits=10)
         if rounded_value.is_integer():
             return int(rounded_value)
         else:

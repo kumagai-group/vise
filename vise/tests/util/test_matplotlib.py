@@ -6,8 +6,8 @@ import matplotlib.pyplot as plt
 
 
 def test_formatter():
-    assert my_formatter(0.0000049, None) == 0
-    assert my_formatter(0.0000051, None) == 5.1e-6
+    assert my_formatter(0.49e-10, None) == 0
+    assert my_formatter(0.51e-10, None) == 1e-10
     assert my_formatter("a", None) == "a"
 
 
