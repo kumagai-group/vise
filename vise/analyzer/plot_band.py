@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 from dataclasses import dataclass
 
 from pymatgen import Spin
+from vise.util.matplotlib import float_to_int_formatter
 
 
 @dataclass()
@@ -30,54 +31,78 @@ class BandInfo:
     band_energies: Dict[Spin, List[List[float]]]
     band_edge: Optional[BandEdge] = None
     fermi_level: Optional[float] = None
+    band_structure_args: Optional[dict] = None
+    band_edge_args: Optional[dict] = None
+
+    def __post_init__(self):
+        if self.band_structure_args is None:
+            self.band_structure_args = \
+                {"linestyle": "-", "color": "red", "linewidth": 1}
+        if self.band_edge_args is None:
+            self.band_edge_args = {"color": "r", "marker": "o", "s": 100}
 
 
 class BandPlotter:
+
     def __init__(self,
                  band_info_set: List[BandInfo],
                  distances: List[float],
                  x_ticks: XTics,
                  y_range: List[float],
+                 **frame_args
                  ):
+
+        assert distances[0] == x_ticks.distances[0]
+        assert distances[-1] == x_ticks.distances[-1]
+
         self._band_info_set = band_info_set
         self._distances = distances
         self._x_ticks = x_ticks
         self._y_range = y_range
-
-        assert self._distances[0] == self._x_ticks.distances[0]
-        assert self._distances[-1] == self._x_ticks.distances[-1]
-
+        self._set_plot_args(frame_args)
         self.plt = plt
+
+    def construct_plot(self):
         self._set_band_set()
         self._set_x_range()
         self._set_y_range()
         self._set_axes()
         self._set_xticks()
-#        ax.yaxis.set_major_formatter(formatter)
-#        self._set_major_fo()
+        self._set_formatter()
         self.plt.tight_layout()
+
+    def _set_plot_args(self, input_args):
+        # self.plot_args = {
+        #     "band_structure": {"linestyle": "-", "color": "red", "linewidth": 1},
+        #     "band_edge":
+        # }
+#        self.frame_args
+#        self.plot_args.update(input_args)
+        pass
 
     def _set_band_set(self):
         for band_info in self._band_info_set:
             self._set_band_structures(band_info)
             if band_info.band_edge:
-                self._set_band_edge(band_info.band_edge)
+                self._set_band_edge(band_info.band_edge,
+                                    **band_info.band_edge_args)
             if band_info.fermi_level:
                 self._set_fermi_level(band_info.fermi_level)
 
     def _set_band_structures(self, band_info):
         for spin, band_energies in band_info.band_energies.items():
             for energies_per_band in band_energies:
-                self.plt.plot(self._distances, energies_per_band)
+                self.plt.plot(self._distances, energies_per_band,
+                              **band_info.band_structure_args)
 
-    def _set_band_edge(self, band_edge):
+    def _set_band_edge(self, band_edge, **plot_args):
         self.plt.axhline(y=band_edge.vbm)
         for dist in band_edge.vbm_distances:
-            self.plt.scatter(dist, band_edge.vbm)
+            self.plt.scatter(dist, band_edge.vbm, **plot_args)
 
         self.plt.axhline(y=band_edge.cbm)
         for dist in band_edge.cbm_distances:
-            self.plt.scatter(dist, band_edge.cbm)
+            self.plt.scatter(dist, band_edge.cbm, **plot_args)
 
     def _set_fermi_level(self, fermi_level):
         self.plt.axhline(y=fermi_level)
@@ -102,6 +127,11 @@ class BandPlotter:
                 plt.axvline(x=distance)
             else:
                 plt.axvline(x=distance, linestyle="--")
+
+    def _set_formatter(self):
+        axis = self.plt.gca()
+        axis.xaxis.set_major_formatter(float_to_int_formatter)
+        axis.yaxis.set_major_formatter(float_to_int_formatter)
 
 
 def pairwise(iterable):

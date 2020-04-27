@@ -9,12 +9,13 @@ from vise.analyzer.plot_band import (
 from unittest.mock import MagicMock
 
 from pymatgen import Spin
+from vise.util.matplotlib import float_to_int_formatter
 
 """
 TODO:
-+ Enable multiple bands
-+ Use set_major_formatter
 + Set tuning parameters
+
++ Enable multiple bands
 + Create VaspBandPlotter inheriting BandPlotter
 + Move a|b part to VaspBandPlotter
 
@@ -31,6 +32,7 @@ DONE:
 + Add Fermi level
 + Set horizontal lines (vbm, cbm)
 + Add dashed line for the positions with labels
++ Use set_major_formatter
 """
 
 
@@ -64,14 +66,21 @@ def band_set():
 
 @pytest.fixture
 def mock_plt(band_set, distance, x_tics, y_range, mocker):
-    mock_plt = mocker.patch("vise.analyzer.plot_band.plt")
-    BandPlotter(band_set, distance, x_tics, y_range)
+    mock_plt = mocker.patch("vise.analyzer.plot_band.plt", auto_spec=True)
+    plotter = BandPlotter(band_set, distance, x_tics, y_range)
+    plotter.construct_plot()
     return mock_plt
 
 
 def test_set_band_structures(band_set, distance, mock_plt):
-    mock_plt.plot.assert_any_call(distance, band_set[0].band_energies[Spin.up][0])
-    mock_plt.plot.assert_any_call(distance, band_set[0].band_energies[Spin.up][1])
+    mock_plt.plot.assert_any_call(distance,
+                                  band_set[0].band_energies[Spin.up][0],
+                                  **band_set[0].band_structure_args,
+                                  )
+    mock_plt.plot.assert_any_call(distance,
+                                  band_set[0].band_energies[Spin.up][1],
+                                  **band_set[0].band_structure_args,
+                                  )
 
 
 def test_set_band_edge_circles(band_set, mock_plt):
@@ -102,12 +111,18 @@ def test_set_axes(mock_plt):
     mock_plt.ylabel.assert_called_with("Energy (eV)")
 
 
-def test_set_x_tics(band_set, distance, x_tics, y_range, mocker):
-    mock_plt = mocker.patch("vise.analyzer.plot_band.plt")
+@pytest.fixture
+def mocker_axis(band_set, distance, x_tics, y_range, mocker):
+    mock_plt = mocker.patch("vise.analyzer.plot_band.plt", auto_spec=True)
     mock_axis = MagicMock()
     mock_plt.gca.return_value = mock_axis
+    plotter = BandPlotter(band_set, distance, x_tics, y_range)
+    plotter.construct_plot()
+    return mock_plt, mock_axis
 
-    BandPlotter(band_set, distance, x_tics, y_range)
+
+def test_set_x_tics(x_tics, mocker_axis):
+    mock_plt, mock_axis = mocker_axis
 
     mock_axis.set_xticks.assert_called_once_with(x_tics.distances)
     mock_axis.set_xticklabels.assert_called_once_with(x_tics.labels)
@@ -115,7 +130,12 @@ def test_set_x_tics(band_set, distance, x_tics, y_range, mocker):
     mock_plt.axvline.assert_any_call(x=x_tics.distances[1], linestyle="--")
 
 
-#    mock_plt.axvline.assert_any_call(x=x_tics.distances[1], linestyle="--")
+def test_set_float_to_int_formatter(mocker_axis):
+    mock_plt, mock_axis = mocker_axis
+    mock_axis.xaxis.set_major_formatter.assert_called_once_with(
+        float_to_int_formatter)
+    mock_axis.yaxis.set_major_formatter.assert_called_once_with(
+        float_to_int_formatter)
 
 
 def test_plot_tight_layout(mock_plt):
@@ -124,6 +144,7 @@ def test_plot_tight_layout(mock_plt):
 
 def test_draw_bands(band_set, distance, x_tics, y_range):
     band_plotter = BandPlotter(band_set, distance, x_tics, y_range)
+    band_plotter.construct_plot()
     band_plotter.plt.show()
 
 
