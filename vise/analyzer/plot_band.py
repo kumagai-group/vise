@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
-from itertools import tee
+from collections import defaultdict
 import re
-from typing import List, Dict, Optional
-import matplotlib.pyplot as plt
 from dataclasses import dataclass
+from typing import List, Dict, Optional
 
+import matplotlib.pyplot as plt
 from pymatgen import Spin
 from pymatgen.electronic_structure.plotter import BSPlotter
 from pymatgen.io.vasp import Vasprun
-
 from vise.util.matplotlib import float_to_int_formatter
 
 
@@ -31,7 +30,7 @@ class BandEdge:
 
 @dataclass
 class BandInfo:
-    band_energies_by_branch: List[Dict[Spin, List[List[float]]]]
+    band_energies: Dict[Spin, List[List[List[float]]]]
     band_edge: Optional[BandEdge] = None
     fermi_level: Optional[float] = None
 
@@ -85,24 +84,24 @@ class BandPlotter:
         self._set_x_range()
         self._set_y_range()
         self._set_axes()
-        self._set_xticks()
+        self._set_x_ticks()
         self._set_formatter()
         self.plt.tight_layout()
 
     def _set_band_set(self):
         for band_info in self.band_info_set:
-            self._set_band_structures(band_info.band_energies_by_branch)
+            self._set_band_structures(band_info.band_energies)
             if band_info.band_edge:
                 self._set_band_edge(band_info.band_edge)
             if band_info.fermi_level:
                 self._set_fermi_level(band_info.fermi_level)
 
-    def _set_band_structures(self, energies_by_branch):
-        for distances_of_a_branch, energies_of_a_branch \
-                in zip(self.distances_by_branch, energies_by_branch):
+    def _set_band_structures(self, energies):
+        for spin, energies_by_branch in energies.items():
+            for distances_of_a_branch, energies_of_a_branch \
+                    in zip(self.distances_by_branch, energies_by_branch):
 
-            for spin, energies_of_a_spin in energies_of_a_branch.items():
-                for energies_of_a_band in energies_of_a_spin:
+                for energies_of_a_band in energies_of_a_branch:
                     self.plt.plot(distances_of_a_branch, energies_of_a_band,
                                   **self.defaults.band_args)
 
@@ -131,7 +130,7 @@ class BandPlotter:
         self.plt.xlabel("Wave vector")
         self.plt.ylabel("Energy (eV)")
 
-    def _set_xticks(self):
+    def _set_x_ticks(self):
         axis = self.plt.gca()
         axis.set_xticks(self.x_ticks.distances)
         axis.set_xticklabels(self.x_ticks.labels)
@@ -162,14 +161,22 @@ class VaspBandPlotter(BandPlotter):
         self.bs = vasprun.get_band_structure(kpoints_filename, line_mode=True)
         self.plot_data = BSPlotter(self.bs).bs_plot_data(zero_to_efermi=False)
 
-        band_info = BandInfo(band_energies_by_branch=self.plot_data["energy"],
-                             band_edge=self._band_edge,
-                             fermi_level=self.bs.efermi)
-
-        super().__init__(band_info_set=[band_info],
+        super().__init__(band_info_set=[self._band_info],
                          distances_by_branch=self.plot_data["distances"],
                          x_ticks=self._x_ticks,
                          y_range=[-10, 10])
+
+    @property
+    def _band_info(self):
+        energies = defaultdict(list)
+        for idx, branch_energies in enumerate(self.plot_data["energy"]):
+            for spin, energy_of_a_spin in branch_energies.items():
+                energies[spin].append(energy_of_a_spin)
+
+        band_info = BandInfo(band_energies=dict(energies),
+                             band_edge=self._band_edge,
+                             fermi_level=self.bs.efermi)
+        return band_info
 
     @property
     def _x_ticks(self):
@@ -182,11 +189,12 @@ class VaspBandPlotter(BandPlotter):
     def _band_edge(self):
         if self.bs.is_metal():
             return None
-        return BandEdge(vbm=self.plot_data["vbm"][0][1],
-                        cbm=self.plot_data["cbm"][0][1],
-                        vbm_distances=[i[0] for i in self.plot_data["vbm"]],
-                        cbm_distances=[i[0] for i in self.plot_data["cbm"]])
+        else:
+            return BandEdge(vbm=self.plot_data["vbm"][0][1],
+                            cbm=self.plot_data["cbm"][0][1],
+                            vbm_distances=[i[0] for i in self.plot_data["vbm"]],
+                            cbm_distances=[i[0] for i in self.plot_data["cbm"]])
 
     @staticmethod
-    def _sanitize_labels(label_list):
-        return [italic_to_roman(greek_to_unicode(l)) for l in label_list]
+    def _sanitize_labels(labels):
+        return [italic_to_roman(greek_to_unicode(label)) for label in labels]
