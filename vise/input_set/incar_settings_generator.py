@@ -12,6 +12,7 @@ from vise.input_set.datasets.dataset_util import num_bands, npar_kpar, LDAU
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc
 from vise.util.logger import get_logger
+from vise.defaults import defaults
 
 logger = get_logger(__name__)
 
@@ -38,7 +39,7 @@ class IncarSettingsGenerator:
             cutoff_energy: Optional[float] = None,
             is_magnetization: bool = False,
             num_nodes_for_kpar: int = defaults.default_num_nodes,
-            str_opt_encut_multi_factor: float = defaults.encut_factor_str_opt):
+            str_opt_encut_multi_factor: float = defaults.str_opt_encut_factor):
 
         self._composition = composition
         self._symbol_list = symbol_list
@@ -60,11 +61,13 @@ class IncarSettingsGenerator:
         self._str_opt_encut_multi_factor = str_opt_encut_multi_factor
 
         self._incar_settings = {}
+        self._set_incar_settings(set_hubbard_u)
+
+    def _set_incar_settings(self, set_hubbard_u):
         self._set_default_settings()
         self._set_task_related_settings()
         self._set_xc_related_settings()
         self._set_options_related_settings()
-
         if self._task.is_spectrum_task:
             self._set_spectrum_related_settings()
         if self._task.is_dielectric:
@@ -75,7 +78,6 @@ class IncarSettingsGenerator:
             self._set_hubbard_u_related_settings()
         if self._auto_npar_kpar:
             self._set_npar_kpar()
-
         self._remove_incar_settings_with_none_values()
 
     def _set_default_settings(self):
@@ -120,7 +122,7 @@ class IncarSettingsGenerator:
         })
 
     def _need_hubbard_u(self, set_hubbard_u):
-        if type(set_hubbard_u) == bool:
+        if isinstance(set_hubbard_u, bool):
             return set_hubbard_u
         if self._ldauu is not None:
             return True
@@ -228,7 +230,7 @@ def is_band_gap(vbm_cbm: Optional[List[float]]) -> bool:
     band_gap = vbm_cbm[1] - vbm_cbm[0] if vbm_cbm else None
     if band_gap:
         logger.info(f"Band gap: {round(band_gap, 3)} eV.")
-        return band_gap > BAND_GAP_CRITERION
+        return band_gap > defaults.band_gap_criterion
     return False
 
 

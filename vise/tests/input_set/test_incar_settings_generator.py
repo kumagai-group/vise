@@ -51,8 +51,8 @@ def test_pbe_structure_opt(default_dict):
 def test_scan_structure_opt(default_dict):
     default_dict["xc"] = Xc.scan
     generator = IncarSettingsGenerator(**default_dict)
-    for k, v in generator.incar_settings.items():
-        print(f'\"{k}\": {v}, ')
+    # for k, v in generator.incar_settings.items():
+    #     print(f'\"{k}\": {v}, ')
     assert generator.incar_settings["METAGGA"] == "SCAN"
 
 
@@ -67,8 +67,8 @@ def test_hse_structure_opt(default_dict):
                          "set_hubbard_u": True})
 
     generator = IncarSettingsGenerator(**default_dict)
-    for k, v in generator.incar_settings.items():
-        print(f'\"{k}\": {v}, ')
+    # for k, v in generator.incar_settings.items():
+    #     print(f'\"{k}\": {v}, ')
     expected = {
         "ALGO": "Damped",
         "PREC": "Normal",
@@ -135,8 +135,8 @@ def test_dos(default_dict):
 def test_defect(default_dict):
     default_dict.update({"task": Task.defect})
     generator = IncarSettingsGenerator(**default_dict)
-    for k, v in generator.incar_settings.items():
-        print(f'\"{k}\": {v}, ')
+    # for k, v in generator.incar_settings.items():
+    #     print(f'\"{k}\": {v}, ')
     expected = {
         "ALGO": "Normal",
         "PREC": "Normal",
