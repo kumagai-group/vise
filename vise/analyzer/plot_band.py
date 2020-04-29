@@ -1,21 +1,19 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
-from collections import defaultdict
-import re
 from dataclasses import dataclass
 from typing import List, Dict, Optional
+from copy import deepcopy
 
 import matplotlib.pyplot as plt
+
 from pymatgen import Spin
-from pymatgen.electronic_structure.plotter import BSPlotter
-from pymatgen.io.vasp import Vasprun
+
 from vise.util.matplotlib import float_to_int_formatter
 
 
 @dataclass()
 class XTicks:
-    # labels include "x$\\mid$y"
     labels: List[str]
     distances: List[float]
 
@@ -34,29 +32,62 @@ class BandInfo:
     band_edge: Optional[BandEdge] = None
     fermi_level: Optional[float] = None
 
+    def slide_energies(self, reference_energy):
+        self._slide_band_energies(reference_energy)
+        self._slide_band_edge(reference_energy)
+        self._slide_fermi_level(reference_energy)
+
+    def _slide_band_energies(self, reference_energy):
+        new_energies = deepcopy(self.band_energies)
+        for spin, energies_each_spin in self.band_energies.items():
+            for i, energies_each_branch in enumerate(energies_each_spin):
+                for j, energies_each_band in enumerate(energies_each_branch):
+                    for k in range(len(energies_each_band)):
+                        new_energies[spin][i][j][k] -= reference_energy
+
+        self.band_energies = new_energies
+
+    def _slide_fermi_level(self, reference_energy):
+        self.fermi_level -= reference_energy
+
+    def _slide_band_edge(self, reference_energy):
+        self.band_edge.vbm -= reference_energy
+        self.band_edge.cbm -= reference_energy
+
 
 class BandPlotterDefaults:
     def __init__(self,
-                 band_linestyle: Optional[List[str]] = None,
                  band_colors: Optional[List[str]] = None,
                  band_linewidth: float = 1.0,
-                 band_edge_circle_size: int = 100
+                 band_edge_circle_size: int = 100,
+                 title_font_size: int = 15,
+                 label_font_size: int = 15,
+                 legend_location: str = "lower right"
                  ):
-        self.band_linestyle = band_linestyle or ["-"]
-        self.band_colors = band_colors or ["red", "blue"]
+        self.band_colors = \
+            band_colors or ['#E15759', '#4E79A7', '#F28E2B', '#76B7B2']
         self.band_linewidth = band_linewidth
+
         self.band_edge_circle_size = band_edge_circle_size
+
+        self.title_font_size = title_font_size
+        self.label_font_size = label_font_size
+
+        self.legend_location = legend_location
 
     @property
     def band_args(self):
-        return {"linestyle": self.band_linestyle[0],
-                "color": self.band_colors[0],
-                "linewidth": self.band_linewidth}
+        for color in self.band_colors:
+            yield {"color": color, "linewidth": self.band_linewidth}
 
     @property
     def band_edge_circles_args(self):
         return {"marker": "o",
                 "s": self.band_edge_circle_size}
+
+    @property
+    def figure_legend(self):
+        return {"loc": self.legend_location}
 
 
 class BandPlotter:
@@ -66,6 +97,8 @@ class BandPlotter:
                  distances_by_branch: List[List[float]],
                  x_ticks: XTicks,
                  y_range: List[float],
+                 title: str = None,
+                 reference_energy: float = None,
                  defaults: Optional[BandPlotterDefaults] = BandPlotterDefaults()
                  ):
 
@@ -76,34 +109,58 @@ class BandPlotter:
         self.distances_by_branch = distances_by_branch
         self.x_ticks = x_ticks
         self.y_range = y_range
+        self.title = title
         self.defaults = defaults
         self.plt = plt
 
+        self._slide_energies(reference_energy)
+
+    def _slide_energies(self, reference_energy):
+        if reference_energy is None:
+            reference_energy = self._default_reference_energy()
+
+        if reference_energy:
+            self.band_info_set[0].slide_energies(reference_energy)
+
+    def _default_reference_energy(self):
+        if self.band_info_set[0].band_edge is not None:
+            return self.band_info_set[0].band_edge.vbm
+        return None
+
     def construct_plot(self):
         self._set_band_set()
+        self._set_figure_legend()
         self._set_x_range()
         self._set_y_range()
         self._set_axes()
         self._set_x_ticks()
+        self._set_title()
         self._set_formatter()
         self.plt.tight_layout()
 
     def _set_band_set(self):
-        for band_info in self.band_info_set:
-            self._set_band_structures(band_info.band_energies)
+        for set_index, band_info in enumerate(self.band_info_set):
+            self._set_band_structures(band_info.band_energies, set_index)
             if band_info.band_edge:
                 self._set_band_edge(band_info.band_edge)
             if band_info.fermi_level:
                 self._set_fermi_level(band_info.fermi_level)
 
-    def _set_band_structures(self, energies):
+    def _set_band_structures(self, energies, set_index):
+        band_args = self.defaults.band_args
         for spin, energies_by_branch in energies.items():
+            args_per_band = next(band_args)
+            label = str(set_index + 1) + "th"
+            if len(energies) == 2:
+                label += " " + spin.name
+            args_per_band["label"] = label
             for distances_of_a_branch, energies_of_a_branch \
                     in zip(self.distances_by_branch, energies_by_branch):
 
                 for energies_of_a_band in energies_of_a_branch:
                     self.plt.plot(distances_of_a_branch, energies_of_a_band,
-                                  **self.defaults.band_args)
+                                  **args_per_band)
+                    args_per_band.pop("label", None)
 
     def _set_band_edge(self, band_edge):
         self.plt.axhline(y=band_edge.vbm)
@@ -116,6 +173,9 @@ class BandPlotter:
             self.plt.scatter(dist, band_edge.cbm,
                              **self.defaults.band_edge_circles_args)
 
+    def _set_figure_legend(self):
+        self.plt.legend(**self.defaults.figure_legend)
+
     def _set_fermi_level(self, fermi_level):
         self.plt.axhline(y=fermi_level)
 
@@ -127,8 +187,8 @@ class BandPlotter:
         self.plt.ylim(self.y_range[0], self.y_range[1])
 
     def _set_axes(self):
-        self.plt.xlabel("Wave vector")
-        self.plt.ylabel("Energy (eV)")
+        self.plt.xlabel("Wave vector", size=self.defaults.label_font_size)
+        self.plt.ylabel("Energy (eV)", size=self.defaults.label_font_size)
 
     def _set_x_ticks(self):
         axis = self.plt.gca()
@@ -139,62 +199,12 @@ class BandPlotter:
             linestyle = "-" if "\\mid" in label else "--"
             plt.axvline(x=distance, linestyle=linestyle)
 
+    def _set_title(self):
+        self.plt.title(self.title,
+                       size=self.defaults.title_font_size)
+
     def _set_formatter(self):
         axis = self.plt.gca()
         axis.yaxis.set_major_formatter(float_to_int_formatter)
 
 
-def greek_to_unicode(label: str) -> str:
-    d = {"GAMMA": "Γ", "SIGMA": "Σ", "DELTA": "Δ"}
-    for k, v in d.items():
-        label = label.replace(k, v)
-    return label
-
-
-def italic_to_roman(label: str) -> str:
-    return re.sub(r"([A-Z])_([0-9])", r"{\\rm \1}_\2", label)
-
-
-class VaspBandPlotter(BandPlotter):
-    def __init__(self, vasprun: Vasprun, kpoints_filename: str):
-
-        self.bs = vasprun.get_band_structure(kpoints_filename, line_mode=True)
-        self.plot_data = BSPlotter(self.bs).bs_plot_data(zero_to_efermi=False)
-
-        super().__init__(band_info_set=[self._band_info],
-                         distances_by_branch=self.plot_data["distances"],
-                         x_ticks=self._x_ticks,
-                         y_range=[-10, 10])
-
-    @property
-    def _band_info(self):
-        energies = defaultdict(list)
-        for idx, branch_energies in enumerate(self.plot_data["energy"]):
-            for spin, energy_of_a_spin in branch_energies.items():
-                energies[spin].append(energy_of_a_spin)
-
-        band_info = BandInfo(band_energies=dict(energies),
-                             band_edge=self._band_edge,
-                             fermi_level=self.bs.efermi)
-        return band_info
-
-    @property
-    def _x_ticks(self):
-        labels = self._sanitize_labels(self.plot_data["ticks"]["label"])
-        distances = self.plot_data["ticks"]["distance"]
-        x_ticks = XTicks(labels=labels, distances=distances)
-        return x_ticks
-
-    @property
-    def _band_edge(self):
-        if self.bs.is_metal():
-            return None
-        else:
-            return BandEdge(vbm=self.plot_data["vbm"][0][1],
-                            cbm=self.plot_data["cbm"][0][1],
-                            vbm_distances=[i[0] for i in self.plot_data["vbm"]],
-                            cbm_distances=[i[0] for i in self.plot_data["cbm"]])
-
-    @staticmethod
-    def _sanitize_labels(labels):
-        return [italic_to_roman(greek_to_unicode(label)) for label in labels]

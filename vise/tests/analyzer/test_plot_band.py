@@ -1,31 +1,31 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
-from pathlib import Path
 from unittest.mock import MagicMock
 
 import pytest
 from pymatgen import Spin
-from pymatgen.io.vasp import Vasprun
 from vise.analyzer.plot_band import (
-    greek_to_unicode, italic_to_roman, BandPlotter, BandInfo,
-    BandEdge, XTicks, BandPlotterDefaults,
-    VaspBandPlotter)
+    BandPlotter, BandInfo,
+    BandEdge, XTicks, BandPlotterDefaults)
 from vise.util.matplotlib import float_to_int_formatter
 
 """
 TODO:
+
++ Raise error when 5 bands are drawn
++ Set color of vbm, cbm, efermi lines
++ Set band gap arrow(s).
 + Enable multiple bands (distances and x_ticks must be the same)
-+ Generate cyclic color and linestyle for band structures.
-+ Consider if the structure is parsed or not.
-+ Set title
++ To csv
++ Brillouin zone
++ Add spin info to band edge 
 
 DONE:
-+ Draw a non-magnetic band with a single band
 + Draw a non-magnetic band with two bands
 + Add x-label and y-label
 + Add x-axis and y-axis
-+ Change x-label to Unicodes.
++ Change x-label to unicode.
 + Add vbm and cbm circles
 + Add line when two x_ticks conflict
 + Enable to set y-range
@@ -39,6 +39,11 @@ DONE:
 + Create VaspBandPlotter inheriting BandPlotter
 + Move a|b part to VaspBandPlotter
 + From a vasprun.xml and a KPOINTS, generate minimum BandPlotter data.
++ Set title size
++ Set vbm to zero of energy.
++ Generate cyclic color for band structures.
++ Draw band edge lines.
++ Add figure legend
 """
 
 
@@ -60,65 +65,109 @@ def y_range():
 
 
 @pytest.fixture
-def band_info_set():
-    # band_energies = [{Spin.up: [[-3.0, -2, -1,  0, -1, -2, -3, -4, -5, -6],
-    #                            [ 7.0,  6,  5,  4,  3,  2,  3,  2,  3,  4]]}]
-    band_energies = {Spin.up: [[[-3.0, -2, -1,  0, -1, -2, -3],
-                                [ 7.0,  6,  5,  4,  3,  2,  3]],
-                               [[-4, -5, -6, -7],
-                                [ 5,  2,  7,  8]]]}
-
-    band_edge = BandEdge(vbm=0, cbm=2, vbm_distances=[3], cbm_distances=[5, 7])
-    fermi_level = 1.5
-    return [BandInfo(band_energies=band_energies,
-                     band_edge=band_edge,
-                     fermi_level=fermi_level)]
+def title():
+    return "Title"
 
 
 @pytest.fixture
-def mock_plt_axis(band_info_set, distances, x_ticks, y_range, mocker):
+def reference_energy():
+    return 1.0
+
+
+@pytest.fixture
+def band_info():
+    # [spin][branch idx][band idx][k-path idx]
+    band_energies = {Spin.up: [[[-3.0, -2, -1, -1, -1, -2, -3],
+                                [7.0, 6, 5, 4, 3, 2, 3]],
+                               [[-4, -5, -6, -7],
+                                [5, 2, 7, 8]]]}
+
+    band_edge = BandEdge(vbm=-1, cbm=2,
+                         vbm_distances=[2, 3, 4], cbm_distances=[5, 7])
+    fermi_level = 1.5
+    return BandInfo(band_energies=band_energies,
+                    band_edge=band_edge,
+                    fermi_level=fermi_level)
+
+
+def test_band_info_slide_energies(band_info, reference_energy):
+    band_info.slide_energies(reference_energy=reference_energy)
+    expected_band_energies = {Spin.up: [[[-4.0, -3, -2, -2, -2, -3, -4],
+                                          [6.0, 5, 4, 3, 2, 1, 2]],
+                                         [[-5, -6, -7, -8],
+                                          [4, 1, 6, 7]]]}
+    expected_band_edge = BandEdge(vbm=-2, cbm=1,
+                                  vbm_distances=[2, 3, 4], cbm_distances=[5, 7])
+    expected_fermi_level = 0.5
+
+    assert band_info.band_energies == expected_band_energies
+    assert band_info.band_edge == expected_band_edge
+    assert band_info.fermi_level == expected_fermi_level
+
+
+@pytest.fixture
+def band_info_set(band_info):
+    return [band_info]
+
+
+@pytest.fixture
+def mock_plt_axis(band_info_set, distances, x_ticks, y_range, title, mocker):
     mock_plt = mocker.patch("vise.analyzer.plot_band.plt", auto_spec=True)
     mock_axis = MagicMock()
     mock_plt.gca.return_value = mock_axis
-    plotter = BandPlotter(band_info_set, distances, x_ticks, y_range)
+    plotter = BandPlotter(band_info_set, distances, x_ticks, y_range, title)
     plotter.construct_plot()
     return mock_plt, mock_axis
 
 
-def test_defaults_class():
+@pytest.fixture
+def colors():
+    return ['#E15759', '#4E79A7', '#F28E2B', '#76B7B2']
+
+
+def test_defaults_class(colors):
     band_defaults = BandPlotterDefaults()
 
-    assert band_defaults.band_linestyle == ["-"]
-    assert band_defaults.band_colors == ["red", "blue"]
+    assert band_defaults.band_colors == colors
     assert band_defaults.band_linewidth == 1.0
     assert band_defaults.band_edge_circle_size == 100
+    assert band_defaults.title_font_size == 15
+    assert band_defaults.label_font_size == 15
 
-    band_defaults = BandPlotterDefaults(band_linestyle=["--"],
-                                        band_colors=["black"],
+    generator = band_defaults.band_args
+    assert next(generator) == {"color": colors[0], "linewidth": 1.0}
+    assert next(generator) == {"color": colors[1], "linewidth": 1.0}
+    assert next(generator) == {"color": colors[2], "linewidth": 1.0}
+    assert next(generator) == {"color": colors[3], "linewidth": 1.0}
+
+    band_defaults = BandPlotterDefaults(band_colors=["black"],
                                         band_linewidth=2.0,
-                                        band_edge_circle_size=200)
+                                        band_edge_circle_size=200,
+                                        title_font_size=30,
+                                        label_font_size=40)
 
-    assert band_defaults.band_linestyle == ["--"]
     assert band_defaults.band_colors == ["black"]
     assert band_defaults.band_linewidth == 2.0
     assert band_defaults.band_edge_circle_size == 200
+    assert band_defaults.title_font_size == 30
+    assert band_defaults.label_font_size == 40
 
 
-def test_set_band_structures(band_info_set, distances, mock_plt_axis):
+def test_set_band_structures(band_info_set, distances, colors, mock_plt_axis):
     mock_plt, _ = mock_plt_axis
-    band_defaults = BandPlotterDefaults()
     mock_plt.plot.assert_any_call(distances[0],
                                   band_info_set[0].band_energies[Spin.up][0][0],
-                                  **band_defaults.band_args)
+                                  color=colors[0], linewidth=1.0,
+                                  label="1th")
     mock_plt.plot.assert_any_call(distances[1],
                                   band_info_set[0].band_energies[Spin.up][1][0],
-                                  **band_defaults.band_args)
+                                  color=colors[0], linewidth=1.0)
     mock_plt.plot.assert_any_call(distances[0],
                                   band_info_set[0].band_energies[Spin.up][0][1],
-                                  **band_defaults.band_args)
+                                  color=colors[0], linewidth=1.0)
     mock_plt.plot.assert_any_call(distances[1],
                                   band_info_set[0].band_energies[Spin.up][1][1],
-                                  **band_defaults.band_args)
+                                  color=colors[0], linewidth=1.0)
 
 
 def test_set_band_edge_circles(band_info_set, mock_plt_axis):
@@ -134,6 +183,11 @@ def test_set_band_edge_circles(band_info_set, mock_plt_axis):
                                      **band_defaults.band_edge_circles_args)
     mock_plt.axhline.assert_any_call(y=band_edge.vbm)
     mock_plt.axhline.assert_any_call(y=band_edge.cbm)
+
+
+def test_figure_legends(mock_plt_axis):
+    mock_plt, _ = mock_plt_axis
+    mock_plt.legend.assert_called_once_with(loc="lower right")
 
 
 def test_set_fermi_level(band_info_set, mock_plt_axis):
@@ -153,8 +207,11 @@ def test_set_y_range(y_range, mock_plt_axis):
 
 def test_set_axes(mock_plt_axis):
     mock_plt, _ = mock_plt_axis
-    mock_plt.xlabel.assert_called_with("Wave vector")
-    mock_plt.ylabel.assert_called_with("Energy (eV)")
+    defaults = BandPlotterDefaults()
+    mock_plt.xlabel.assert_called_with("Wave vector",
+                                       size=defaults.label_font_size)
+    mock_plt.ylabel.assert_called_with("Energy (eV)",
+                                       size=defaults.label_font_size)
 
 
 def test_set_x_tics(x_ticks, mock_plt_axis):
@@ -164,6 +221,12 @@ def test_set_x_tics(x_ticks, mock_plt_axis):
     mock_axis.set_xticklabels.assert_called_once_with(x_ticks.labels)
     mock_plt.axvline.assert_any_call(x=x_ticks.distances[2], linestyle="-")
     mock_plt.axvline.assert_any_call(x=x_ticks.distances[1], linestyle="--")
+
+
+def test_set_title(title, mock_plt_axis):
+    mock_plt, _ = mock_plt_axis
+    defaults = BandPlotterDefaults()
+    mock_plt.title.assert_called_once_with(title, size=defaults.title_font_size)
 
 
 def test_set_float_to_int_formatter(mock_plt_axis):
@@ -178,62 +241,26 @@ def test_plot_tight_layout(mock_plt_axis):
 
 
 #@pytest.mark.skip()
-def test_draw_bands(band_info_set, distances, x_ticks, y_range):
-    band_plotter = BandPlotter(band_info_set, distances, x_ticks, y_range)
+def test_draw_bands(band_info_set, distances, x_ticks, y_range, title):
+    band_plotter = \
+        BandPlotter(band_info_set, distances, x_ticks, y_range, title)
     band_plotter.construct_plot()
     band_plotter.plt.show()
 
 
-def test_greek_to_unicode():
-    assert greek_to_unicode("GAMMA") == "Γ"
-    assert greek_to_unicode("SIGMA") == "Σ"
-    assert greek_to_unicode("DELTA") == "Δ"
+@pytest.mark.parametrize("reference_energy,subtracted_energy",
+                         [(1.0, 1.0), (None, -1.0)])
+def test_reference_energy(band_info_set, distances, x_ticks, y_range,
+                          title, reference_energy, subtracted_energy, mocker):
+    original_fermi_level = band_info_set[0].fermi_level
+    shifted_fermi_level = original_fermi_level - subtracted_energy
 
+    mock_plt = mocker.patch("vise.analyzer.plot_band.plt", auto_spec=True)
+    mock_axis = MagicMock()
+    mock_plt.gca.return_value = mock_axis
 
-def test_italic_to_roman():
-    assert italic_to_roman(r"S$\mid$$S_0$") == "S$\mid$${\\rm S}_0$"
-
-
-test_data = [(True,  None),
-             (False, BandEdge(vbm=-100, cbm=100,
-                              vbm_distances=[0], cbm_distances=[1, 2]))]
-
-
-@pytest.mark.parametrize("is_metal,expected", test_data)
-def test_vasp_band_plotter(is_metal, expected, mocker):
-    stub_vasprun = mocker.MagicMock(spec=Vasprun)
-    mock_bs = mocker.MagicMock()
-    mock_bs.efermi = 10
-    mock_bs.is_metal.return_value = is_metal
-
-    stub_vasprun.get_band_structure.return_value = mock_bs
-
-    mock_bsp = mocker.patch("vise.analyzer.plot_band.BSPlotter", auto_spec=True)
-    energy = [{Spin.up: [[0.1]]}]
-    distances = [[0.0, 0.1, 0.2]]
-    labels = ["A", "$A_0$", "GAMMA"]
-    label_distances = [0.0, 0.1, 0.2]
-    plot_data = {"ticks": {"label": labels, "distance": label_distances},
-                 "energy": energy,
-                 "distances": distances,
-                 "vbm": [[0, -100]],
-                 "cbm": [[1, 100], [2, 100]]}
-    mock_bsp().bs_plot_data.return_value = plot_data
-
-    plotter = VaspBandPlotter(stub_vasprun, "KPOINTS")
-
-    assert plotter.band_info_set == [BandInfo(band_energies={Spin.up: [[[0.1]]]},
-                                              band_edge=expected,
-                                              fermi_level=10)]
-    assert plotter.distances_by_branch == distances
-    assert plotter.x_ticks == XTicks(labels=["A", "${\\rm A}_0$", "Γ"],
-                                     distances=label_distances)
-    assert plotter.y_range == [-10, 10]
-
-
-def test_vasp_band_plotter_with_actual_files(test_data_files: Path):
-    vasprun = Vasprun(str(test_data_files / "KO2_band_vasprun.xml"))
-    plotter = VaspBandPlotter(vasprun, str(test_data_files / "KO2_band_KPOINTS"))
+    plotter = BandPlotter(band_info_set, distances, x_ticks, y_range, title,
+                          reference_energy)
     plotter.construct_plot()
-    plotter.plt.show()
 
+    mock_plt.axhline.assert_called_with(y=shifted_fermi_level)
