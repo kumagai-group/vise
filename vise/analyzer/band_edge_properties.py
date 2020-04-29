@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
-import numpy as np
-from typing import Tuple, Optional, List, Dict
-
 from dataclasses import dataclass
+from typing import List, Dict
 
+import numpy as np
 from pymatgen.electronic_structure.core import Spin
-from pymatgen.io.vasp.outputs import Vasprun, Outcar
+from vise.defaults import defaults
 
 
 @dataclass()
@@ -28,7 +27,7 @@ class BandEdgeProperties:
                  nelect: float,
                  magnetization: float,
                  kpoints: List[List[float]],
-                 integer_criterion: float = 0.1):
+                 integer_criterion: float = defaults.integer_criterion):
 
         assert 0 < integer_criterion < 0.5
 
@@ -43,32 +42,31 @@ class BandEdgeProperties:
         self._calculate_vbm_cbm()
 
         if self._is_metal():
-            self.vbm = None
-            self.cbm = None
+            self.vbm_info = None
+            self.cbm_info = None
 
     def _calculate_vbm_cbm(self):
-        self.vbm = BandEdge(float("-inf"))
-        self.cbm = BandEdge(float("inf"))
+        self.vbm_info = BandEdge(float("-inf"))
+        self.cbm_info = BandEdge(float("inf"))
         for spin, eigenvalues in self._eigenvalues.items():
             # ho = highest occupied
-            ho_band_index = self._hob_band_index(spin)
-            ho_eigenvalue = np.amax(eigenvalues[:, ho_band_index])
-            if ho_eigenvalue > self.vbm.energy:
-                self.vbm = self.band_edge(
-                    eigenvalues, ho_band_index, ho_eigenvalue, spin)
+            ho_eigenvalue = np.amax(eigenvalues[:, self._ho_band_index(spin)])
+            if ho_eigenvalue > self.vbm_info.energy:
+                self.vbm_info = self.band_edge(
+                    eigenvalues, self._ho_band_index(spin), ho_eigenvalue, spin)
 
             # lu = lowest unoccupied
-            lu_band_index = ho_band_index + 1
+            lu_band_index = self._ho_band_index(spin) + 1
             lu_eigenvalue = np.amin(eigenvalues[:, lu_band_index])
-            if lu_eigenvalue < self.cbm.energy:
-                self.cbm = self.band_edge(
+            if lu_eigenvalue < self.cbm_info.energy:
+                self.cbm_info = self.band_edge(
                     eigenvalues, lu_band_index, lu_eigenvalue, spin)
 
     def band_edge(self, eigenvalues, band_index, eigenvalue, spin):
         k_index = np.where(eigenvalues[:, band_index] == eigenvalue)[0][0]
         return BandEdge(eigenvalue, spin, band_index, self._kpoints[k_index])
 
-    def _hob_band_index(self, spin):
+    def _ho_band_index(self, spin):
         if spin == Spin.up:
             num_occupied_band = (self._nelect + self._magnetization) / 2
         else:
@@ -83,32 +81,16 @@ class BandEdgeProperties:
         mag_frac = abs(round(self._magnetization) - self._magnetization)
         is_mag_frac = mag_frac > self._integer_criterion
 
-        is_vbm_higher_than_cbm = self.vbm.energy > self.cbm.energy
+        is_vbm_higher_than_cbm = self.vbm_info.energy > self.cbm_info.energy
 
         return is_nelect_frac or is_mag_frac or is_vbm_higher_than_cbm
 
     @property
     def is_direct(self):
-        return self.vbm.is_direct(self.cbm) if self.vbm else None
+        return self.vbm_info.is_direct(self.cbm_info) if self.vbm_info else None
 
     @property
     def band_gap(self):
-        return self.cbm.energy - self.vbm.energy if self.vbm else None
+        return self.cbm_info.energy - self.vbm_info.energy if self.vbm_info else None
 
-
-class VaspBandEdgeProperties(BandEdgeProperties):
-    def __init__(self,
-                 vasprun: Vasprun,
-                 outcar: Outcar,
-                 integer_criterion: float = 0.1):
-
-        super().__init__(eigenvalues=eigenvalues_from_vasprun(vasprun),
-                         nelect=outcar.nelect,
-                         magnetization=outcar.total_mag,
-                         kpoints=vasprun.actual_kpoints,
-                         integer_criterion=integer_criterion)
-
-
-def eigenvalues_from_vasprun(vasprun):
-    return {spin: e[:, :, 0] for spin, e in vasprun.eigenvalues.items()}
 

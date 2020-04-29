@@ -1,18 +1,14 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
-from copy import deepcopy
 import numpy as np
 from pathlib import Path
-from unittest import mock
 import pytest
 
-from pymatgen.io.vasp.outputs import Vasprun, Outcar
 from pymatgen.electronic_structure.core import Spin
 
 from vise.analyzer.band_edge_properties import (
-    BandEdge, BandEdgeProperties, VaspBandEdgeProperties,
-    eigenvalues_from_vasprun)
+    BandEdge, BandEdgeProperties)
 
 parent_dir = Path(__file__).parent
 
@@ -45,8 +41,8 @@ def test_metal_by_occupation(actual_kpt):
 
     assert band_edge.band_gap is None
     assert band_edge.is_direct is None
-    assert band_edge.vbm is None
-    assert band_edge.cbm is None
+    assert band_edge.vbm_info is None
+    assert band_edge.cbm_info is None
 
 
 def test_metal_by_frac_nelect(actual_kpt):
@@ -60,8 +56,8 @@ def test_metal_by_frac_nelect(actual_kpt):
 
     assert band_edge.band_gap is None
     assert band_edge.is_direct is None
-    assert band_edge.vbm is None
-    assert band_edge.cbm is None
+    assert band_edge.vbm_info is None
+    assert band_edge.cbm_info is None
 
 
 def test_metal_by_frac_magnetization(actual_kpt):
@@ -76,8 +72,8 @@ def test_metal_by_frac_magnetization(actual_kpt):
 
     assert band_edge.band_gap is None
     assert band_edge.is_direct is None
-    assert band_edge.vbm is None
-    assert band_edge.cbm is None
+    assert band_edge.vbm_info is None
+    assert band_edge.cbm_info is None
 
 
 def test_nonmag_insulator(actual_kpt):
@@ -94,17 +90,17 @@ def test_nonmag_insulator(actual_kpt):
 
     assert band_edge.is_direct is False
 
-    assert pytest.approx(band_edge.vbm.energy) == 1.1
-    assert pytest.approx(band_edge.cbm.energy) == 2.0
+    assert pytest.approx(band_edge.vbm_info.energy) == 1.1
+    assert pytest.approx(band_edge.cbm_info.energy) == 2.0
 
-    assert band_edge.vbm.spin == Spin.up
-    assert band_edge.cbm.spin == Spin.up
+    assert band_edge.vbm_info.spin == Spin.up
+    assert band_edge.cbm_info.spin == Spin.up
 
-    assert band_edge.vbm.band_index == 1
-    assert band_edge.cbm.band_index == 2
+    assert band_edge.vbm_info.band_index == 1
+    assert band_edge.cbm_info.band_index == 2
 
-    assert band_edge.vbm.kpoint_coords == [10.4, 10.5, 10.6]
-    assert band_edge.cbm.kpoint_coords == [10.1, 10.2, 10.3]
+    assert band_edge.vbm_info.kpoint_coords == [10.4, 10.5, 10.6]
+    assert band_edge.cbm_info.kpoint_coords == [10.1, 10.2, 10.3]
 
 
 def test_mag_insulator(actual_kpt):
@@ -119,26 +115,16 @@ def test_mag_insulator(actual_kpt):
 
     assert band_edge.is_direct is False
 
-    assert pytest.approx(band_edge.vbm.energy) == 1.1
-    assert pytest.approx(band_edge.cbm.energy) == 1.4
+    assert pytest.approx(band_edge.vbm_info.energy) == 1.1
+    assert pytest.approx(band_edge.cbm_info.energy) == 1.4
 
-    assert band_edge.vbm.spin == Spin.up
-    assert band_edge.cbm.spin == Spin.down
+    assert band_edge.vbm_info.spin == Spin.up
+    assert band_edge.cbm_info.spin == Spin.down
 
-    assert band_edge.vbm.band_index == 1
-    assert band_edge.cbm.band_index == 1
+    assert band_edge.vbm_info.band_index == 1
+    assert band_edge.cbm_info.band_index == 1
 
-    assert band_edge.vbm.kpoint_coords == [10.4, 10.5, 10.6]
-    assert band_edge.cbm.kpoint_coords == [10.1, 10.2, 10.3]
-
-
-def test_eigenvalues_from_vasprun():
-    vasprun = Vasprun(parent_dir / "MnO_uniform_vasprun.xml")
-    assert eigenvalues_from_vasprun(vasprun)[Spin.up][1, 2] == -0.1397
+    assert band_edge.vbm_info.kpoint_coords == [10.4, 10.5, 10.6]
+    assert band_edge.cbm_info.kpoint_coords == [10.1, 10.2, 10.3]
 
 
-def test_band_edge_properties_from_vasp():
-    vasprun = Vasprun(parent_dir / "MnO_uniform_vasprun.xml")
-    outcar = Outcar(parent_dir / "MnO_uniform_OUTCAR")
-    band_edge = VaspBandEdgeProperties(vasprun, outcar)
-    assert pytest.approx(band_edge.band_gap) == 0.4702
