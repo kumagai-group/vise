@@ -33,31 +33,26 @@ def test_file_transfer_file_name(file_transfer_instance):
 
 
 def test_file_transfer_to(file_transfer_instance):
-    assert file_transfer_instance.to(Path("b")) == cwd / "b" / "a"
+    assert file_transfer_instance.to(cwd.absolute() / "b") == cwd / "b" / "a"
 
 
 @pytest.fixture
-def tmp_dirs():
-    print_string = "test"
+def tmp_dirs(tmpdir):
+    written_string = "written_string"
     filename = "a"
-    with tempfile.TemporaryDirectory() as tmp_from:
-        os.chdir(tmp_from)
-
-        with open(filename, "w") as f1:
-            print(print_string, end="", file=f1)
-
-        with tempfile.TemporaryDirectory() as tmp_to:
-            yield tmp_from, tmp_to, filename, print_string
+    tmp_from = tmpdir
+    tmp_from.join(filename).write(written_string)
+    tmp_to = tmp_from.mkdir("tmp_to")
+    yield tmp_from, tmp_to, filename, written_string
 
 
 def test_file_move(tmp_dirs):
-    tmp_from, tmp_to, filename, print_string = tmp_dirs
+    tmp_from, tmp_to, filename, written_string = tmp_dirs
     file_move = FileMove(abs_file_path=Path(tmp_from) / filename)
     file_move.transfer(Path(tmp_to))
     os.chdir(Path(tmp_to))
-
     with open(Path(tmp_to) / filename, 'r') as f2:
-        assert f2.read() == print_string
+        assert f2.read() == written_string
 
 
 def test_file_copy(tmp_dirs):
@@ -65,7 +60,6 @@ def test_file_copy(tmp_dirs):
     file_copy = FileCopy(abs_file_path=Path(tmp_from) / filename)
     file_copy.transfer(Path(tmp_to))
     os.chdir(Path(tmp_to))
-
     with open(Path(tmp_to) / filename, 'r') as f_to:
         with open(Path(tmp_from) / filename, 'r') as f_from:
             assert f_to.read() == f_from.read()
@@ -75,7 +69,6 @@ def test_file_link(tmp_dirs):
     tmp_from, tmp_to, filename, _ = tmp_dirs
     file_link = FileLink(abs_file_path=Path(tmp_from) / filename)
     file_link.transfer(Path(tmp_to))
-
     assert (Path(tmp_to) / filename).is_symlink()
 
     os.chdir(Path(tmp_to))
@@ -84,74 +77,65 @@ def test_file_link(tmp_dirs):
             assert f_to.read() == f_from.read()
 
 
-def test_transfer_files():
+def test_transfer_files(tmpdir):
     test_string = "test"
-    with tempfile.TemporaryDirectory() as tmp_from:
-        os.chdir(tmp_from)
-        for i in ["file1", "file2", "file3", "file4"]:
-            with open(i, "w") as f1:
-                print(test_string, end="", file=f1)
-        file_transfers = FileTransfers(
-            {"file1": "m", "file2": "c", "file3": "l", "file4": "m"},
-            path=Path(tmp_from))
+    tmp_from = tmpdir
+    os.chdir(tmp_from)
+    for i in ["file1", "file2", "file3", "file4"]:
+        with open(i, "w") as f1:
+            print(test_string, end="", file=f1)
+    file_transfers = FileTransfers(
+        {"file1": "m", "file2": "c", "file3": "l", "file4": "m"},
+        path=Path(tmp_from))
 
-        with tempfile.TemporaryDirectory() as tmp_to:
-            file_transfers.transfer(Path(tmp_to))
-            # Test copied and linked files
-            for i in ["file2", "file3"]:
-                with open(Path(tmp_to) / i, 'r') as f_to:
-                    with open(Path(tmp_from) / i, 'r') as f_from:
-                        assert f_to.read() == f_from.read()
-            # Test moved files
-            for i in ["file1", "file4"]:
-                with open(Path(tmp_to) / i, 'r') as f2:
-                    assert f2.read() == test_string
+    tmp_to = tmp_from.mkdir("tmp_to")
+    file_transfers.transfer(Path(tmp_to))
+    # Test copied and linked files
+    for i in ["file2", "file3"]:
+        with open(Path(tmp_to) / i, 'r') as f_to:
+            with open(Path(tmp_from) / i, 'r') as f_from:
+                assert f_to.read() == f_from.read()
+
+    # Test moved files
+    for i in ["file1", "file4"]:
+        with open(Path(tmp_to) / i, 'r') as f2:
+            assert f2.read() == test_string
 
 
-def test_transfer_files_logger_non_exist(mocker):
+def test_transfer_files_logger_non_exist(tmpdir, mocker):
     mock = mocker.patch("vise.util.file_transfer.logger.warning")
-    non_exist_filename = "a"
+    non_exist_filename = "non_exist_file"
+    tmp_from = tmpdir
+    os.chdir(tmp_from)
+    FileTransfers({non_exist_filename: "m"}, path=Path(tmp_from))
+    mock.assert_called_once_with(
+        f"{Path(tmp_from) / non_exist_filename} does not exist.")
 
-    with tempfile.TemporaryDirectory() as tmp_from:
-        os.chdir(tmp_from)
-        FileTransfers({non_exist_filename: "m"}, path=Path(tmp_from))
-        mock.assert_called_once_with(
-            f"{Path(tmp_from) / non_exist_filename} does not exist.")
 
-
-def test_transfer_files_logger_empty(mocker):
+def test_transfer_files_logger_empty(tmpdir, mocker):
     mock = mocker.patch("vise.util.file_transfer.logger.warning")
-    empty_filename = "b"
-
-    with tempfile.TemporaryDirectory() as tmp_from:
-        os.chdir(tmp_from)
-        with open(empty_filename, "w") as f1:
-            print("", end="", file=f1)
-        FileTransfers({empty_filename: "m"}, path=Path(tmp_from))
-        mock.assert_called_once_with(
-            f"{Path(tmp_from) / empty_filename} is empty.")
+    empty_filename = "empty_file"
+    tmp_from = tmpdir
+    tmp_from.join(empty_filename).write("")
+    FileTransfers({empty_filename: "m"}, path=Path(tmp_from))
+    mock.assert_called_once_with(
+        f"{Path(tmp_from) / empty_filename} is empty.")
 
 
-def test_raise_error_for_incorrect_transfer_type():
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        os.chdir(tmp_dir)
-        with open("filename", "w") as f1:
-            print("a", end="", file=f1)
-        with pytest.raises(ViseFileTransferError):
-            FileTransfers({"filename": "x"}, path=Path(tmp_dir))
+def test_raise_error_for_incorrect_transfer_type(tmpdir):
+    tmp_from = tmpdir
+    os.chdir(tmp_from)
+    tmp_from.join("filename").write("test")
+    with pytest.raises(ViseFileTransferError):
+        FileTransfers({"filename": "x"}, path=Path(tmp_from))
 
 
-def test_transfer_delete():
-    with tempfile.TemporaryDirectory() as tmp_from:
-        os.chdir(tmp_from)
-        for i in ["a", "bbb", "cbb", "bd", "bda"]:
-            with open(i, "w") as f1:
-                print("test", end="", file=f1)
-        file_transfers = FileTransfers({"a":   "m",
-                                        "bbb": "c",
-                                        "cbb": "l",
-                                        "bd":  "m",
-                                        "bda": "m"},
-                                       path=Path(tmp_from))
-        file_transfers.delete_file_transfers_w_keywords(["bb", "a"])
-        assert len(file_transfers.file_transfers) == 1
+def test_transfer_delete(tmpdir):
+    tmp_from = tmpdir
+    for i in ["a", "bbb", "cbb", "bd", "bda"]:
+        tmp_from.join(i).write("test")
+    file_transfers = FileTransfers(
+        {"a":   "m", "bbb": "c", "cbb": "l", "bd":  "m", "bda": "m"},
+        path=Path(tmp_from))
+    file_transfers.delete_file_transfers(["bb", "a"])
+    assert len(file_transfers.file_transfers) == 1

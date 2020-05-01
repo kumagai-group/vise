@@ -28,7 +28,7 @@ class FileTransfer(ABC):
         pass
 
     def to(self, abs_output_dir: Path) -> Path:
-        return Path(abs_output_dir.absolute()) / self.file_name
+        return abs_output_dir / self.file_name
 
 
 class FileMove(FileTransfer):
@@ -48,7 +48,9 @@ class FileLink(FileTransfer):
         os.symlink(self.abs_in_file, self.to(abs_output_dir))
 
 
-def transfer_instance(initial, filename):
+def transfer_instance(transfer_type: str, filename: Path):
+    initial = transfer_type[0].lower()
+
     if initial == "m":
         result = FileMove
     elif initial == "c":
@@ -61,27 +63,26 @@ def transfer_instance(initial, filename):
 
 
 class FileTransfers:
-    def __init__(self, transfer_manner_by_file: Dict[str, str], path: Path):
+    def __init__(self, transfer_types: Dict[str, str], path: Path):
 
         file_transfers = []
-        for filename, transfer_manner in transfer_manner_by_file.items():
+        for filename, transfer_type in transfer_types.items():
             f = path.absolute() / filename
-            initial = transfer_manner[0].lower()
 
             if not f.is_file():
                 logger.warning(f"{f} does not exist.")
             elif f.stat().st_size == 0:
                 logger.warning(f"{f} is empty.")
             else:
-                file_transfers.append(transfer_instance(initial, f))
+                file_transfers.append(transfer_instance(transfer_type, f))
 
         self.file_transfers = file_transfers
 
-    def delete_file_transfers_w_keywords(self, keywords: List[str]):
+    def delete_file_transfers(self, keywords: List[str]):
         pattern = re.compile("|".join(keywords))
-        for a_file_transfer in list(self.file_transfers):
-            if pattern.search(a_file_transfer.file_name):
-                self.file_transfers.remove(a_file_transfer)
+        for file_transfer in list(self.file_transfers):
+            if pattern.search(file_transfer.file_name):
+                self.file_transfers.remove(file_transfer)
 
     def transfer(self, output_dir: Path) -> None:
         for transfer in self.file_transfers:
