@@ -44,7 +44,7 @@ def test_vasp_band_plotter(is_metal, expected_band_edge, mocker):
     labels = ["A", "$A_0$", "GAMMA"]
     label_distances = [0.0, 0.1, 0.2]
     plot_data = {"ticks": {"label": labels, "distance": label_distances},
-                 "energy": energy,
+                 "energies": energy,
                  "distances": distances,
                  "vbm": [[0, -100]],
                  "cbm": [[1, 100], [2, 100]]}

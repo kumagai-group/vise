@@ -14,7 +14,7 @@ from vise.util.matplotlib import float_to_int_formatter
 TODO:
 + Raise error when 5 bands are drawn
 + Set band gap arrow(s).
-+ Enable multiple bands (distances and x_ticks must be the same)
++ Check multiple bands with the same distances and x_ticks?
 + To csv
 + Brillouin zone
 + Add spin info to band edge 
@@ -142,63 +142,62 @@ def colors():
 def test_defaults_class(colors):
     band_defaults = BandPlotterDefaults()
 
-    assert band_defaults.band_colors == colors
-    assert band_defaults.band_linewidth == 1.0
-    assert band_defaults.band_edge_circle_size == 100
+    assert band_defaults.colors == colors
+    assert band_defaults.linewidth == 1.0
+    assert band_defaults.circle_size == 70
+    assert band_defaults.circle_colors == ["pink", "green"]
     assert band_defaults.title_font_size == 15
     assert band_defaults.label_font_size == 15
 
-    generator = band_defaults.band_args
-    assert next(generator) == {"color": colors[0], "linewidth": 1.0}
-    assert next(generator) == {"color": colors[1], "linewidth": 1.0}
-    assert next(generator) == {"color": colors[2], "linewidth": 1.0}
-    assert next(generator) == {"color": colors[3], "linewidth": 1.0}
-
-    band_defaults = BandPlotterDefaults(band_colors=["black"],
-                                        band_linewidth=2.0,
-                                        band_edge_circle_size=200,
+    band_defaults = BandPlotterDefaults(colors=["black"],
+                                        linewidth=2.0,
+                                        circle_size=200,
+                                        circle_colors=["blue"],
                                         title_font_size=30,
                                         label_font_size=40)
 
-    assert band_defaults.band_colors == ["black"]
-    assert band_defaults.band_linewidth == 2.0
-    assert band_defaults.band_edge_circle_size == 200
+    assert band_defaults.colors == ["black"]
+    assert band_defaults.linewidth == 2.0
+    assert band_defaults.circle_size == 200
+    assert band_defaults.circle_colors == ["blue"]
     assert band_defaults.title_font_size == 30
     assert band_defaults.label_font_size == 40
 
 
 def test_set_band_structures(band_info_set, distances, colors, mock_plt_axis):
     mock_plt, _ = mock_plt_axis
+    linewidth = BandPlotterDefaults().linewidth
     mock_plt.plot.assert_any_call(distances[0],
                                   band_info_set[0].band_energies[Spin.up][0][0],
-                                  color=colors[0], linewidth=1.0,
+                                  color=colors[0], linewidth=linewidth,
                                   label="1th")
     mock_plt.plot.assert_any_call(distances[1],
                                   band_info_set[0].band_energies[Spin.up][1][0],
-                                  color=colors[0], linewidth=1.0)
+                                  color=colors[0], linewidth=linewidth)
     mock_plt.plot.assert_any_call(distances[0],
                                   band_info_set[0].band_energies[Spin.up][0][1],
-                                  color=colors[0], linewidth=1.0)
+                                  color=colors[0], linewidth=linewidth)
     mock_plt.plot.assert_any_call(distances[1],
                                   band_info_set[0].band_energies[Spin.up][1][1],
-                                  color=colors[0], linewidth=1.0)
+                                  color=colors[0], linewidth=linewidth)
 
 
 def test_set_band_edge_circles(band_info_set, mock_plt_axis):
     mock_plt, _ = mock_plt_axis
     band_edge = band_info_set[0].band_edge
-    band_defaults = BandPlotterDefaults()
+    defaults = BandPlotterDefaults()
+    circle_args = next(defaults.circle_args)
 
     mock_plt.scatter.assert_any_call(band_edge.vbm_distances[0], band_edge.vbm,
-                                     **band_defaults.band_edge_circles_args)
+                                     **circle_args)
     mock_plt.scatter.assert_any_call(band_edge.cbm_distances[0], band_edge.cbm,
-                                     **band_defaults.band_edge_circles_args)
+                                     **circle_args)
     mock_plt.scatter.assert_any_call(band_edge.cbm_distances[1], band_edge.cbm,
-                                     **band_defaults.band_edge_circles_args)
+                                     **circle_args)
     mock_plt.axhline.assert_any_call(y=band_edge.vbm,
-                                     **band_defaults.horizontal_line_args)
+                                     **defaults.horizontal_line_args)
     mock_plt.axhline.assert_any_call(y=band_edge.cbm,
-                                     **band_defaults.horizontal_line_args)
+                                     **defaults.horizontal_line_args)
 
 
 def test_figure_legends(mock_plt_axis):

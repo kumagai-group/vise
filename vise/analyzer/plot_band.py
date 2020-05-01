@@ -60,6 +60,10 @@ class BandInfo:
         self.band_edge.vbm -= reference_energy
         self.band_edge.cbm -= reference_energy
 
+    @property
+    def is_magnetic(self):
+        return len(self.band_energies) == 2
+
 
 class ViseBandInfoError(Exception):
     pass
@@ -67,9 +71,10 @@ class ViseBandInfoError(Exception):
 
 class BandPlotterDefaults:
     def __init__(self,
-                 band_colors: Optional[List[str]] = None,
-                 band_linewidth: float = 1.0,
-                 band_edge_circle_size: int = 100,
+                 colors: Optional[List[str]] = None,
+                 linewidth: float = 1.0,
+                 circle_size: int = 70,
+                 circle_colors: Optional[List[str]] = None,
                  band_edge_line_width: float = 0.75,
                  band_edge_line_color: str = "black",
                  band_edge_line_style: str = "-.",
@@ -77,11 +82,10 @@ class BandPlotterDefaults:
                  label_font_size: int = 15,
                  legend_location: str = "lower right"
                  ):
-        self.band_colors = \
-            band_colors or ['#E15759', '#4E79A7', '#F28E2B', '#76B7B2']
-        self.band_linewidth = band_linewidth
+        self.colors = colors or ['#E15759', '#4E79A7', '#F28E2B', '#76B7B2']
+        self.linewidth = linewidth
 
-        self.band_edge_circle_size = band_edge_circle_size
+        self.circle_size = circle_size
         self.horizontal_line_args = {"linewidth": band_edge_line_width,
                                      "color": band_edge_line_color,
                                      "linestyle": band_edge_line_style}
@@ -89,13 +93,20 @@ class BandPlotterDefaults:
         self.title_font_size = title_font_size
         self.label_font_size = label_font_size
 
-        self.band_edge_circles_args = {"marker": "o", "s": band_edge_circle_size}
+        self.circle_colors = circle_colors or ["pink", "green"]
+        self.circle_size = circle_size
+
         self.figure_legend = {"loc": legend_location}
 
     @property
     def band_args(self):
-        for color in self.band_colors:
-            yield {"color": color, "linewidth": self.band_linewidth}
+        for color in self.colors:
+            yield {"color": color, "linewidth": self.linewidth}
+
+    @property
+    def circle_args(self):
+        for color in self.circle_colors:
+            yield {"color": color, "marker": "o", "s": self.circle_size}
 
 
 class BandPlotter:
@@ -133,7 +144,7 @@ class BandPlotter:
         self.band_info_set[0].slide_energies(reference_energy)
 
     def construct_plot(self):
-        self._set_band_set()
+        self._add_band_set()
         self._set_figure_legend()
         self._set_x_range()
         self._set_y_range()
@@ -143,47 +154,52 @@ class BandPlotter:
         self._set_formatter()
         self.plt.tight_layout()
 
-    def _set_band_set(self):
+    def _add_band_set(self):
         band_args = self.defaults.band_args
-        for set_index, band_info in enumerate(self.band_info_set):
-            self._set_band_structures(band_info.band_energies,
-                                      set_index, band_args)
+        circle_args = self.defaults.circle_args
+        self._band_set_index = 0
+        for band_info in self.band_info_set:
+            self._band_set_index += 1
+            self._add_band_structures(band_info, band_args)
             if band_info.band_edge:
-                self._set_band_edge(band_info.band_edge)
+                self._add_band_edge(band_info.band_edge, circle_args)
             if band_info.fermi_level:
-                self._set_fermi_level(band_info.fermi_level)
+                self._add_fermi_level(band_info.fermi_level)
 
-    def _set_band_structures(self, energies, set_index, band_args):
-        for spin, energies_by_branch in energies.items():
-            args_per_band = next(band_args)
-            label = str(set_index + 1) + "th"
-            if len(energies) == 2:
-                label += " " + spin.name
-            args_per_band["label"] = label
+    def _add_band_structures(self, band_info, band_args):
+        for spin, energies_by_branch in band_info.band_energies.items():
+            mpl_args = self.band_args(band_args, band_info, spin)
+
             for distances_of_a_branch, energies_of_a_branch \
                     in zip(self.distances_by_branch, energies_by_branch):
 
                 for energies_of_a_band in energies_of_a_branch:
-                    self.plt.plot(distances_of_a_branch, energies_of_a_band,
-                                  **args_per_band)
-                    args_per_band.pop("label", None)
+                    self.plt.plot(
+                        distances_of_a_branch, energies_of_a_band, **mpl_args)
+                    mpl_args.pop("label", None)
 
-    def _set_band_edge(self, band_edge):
+    def band_args(self, band_args, band_info, spin):
+        result = next(band_args)
+        result["label"] = f"{self._band_set_index}th"
+        if band_info.is_magnetic:
+            result["label"] += f" {spin.name}"
+        return result
+
+    def _add_band_edge(self, band_edge, circle_args):
+        args_per_band = next(circle_args)
         self.plt.axhline(y=band_edge.vbm, **self.defaults.horizontal_line_args)
-        for dist in band_edge.vbm_distances:
-            self.plt.scatter(dist, band_edge.vbm,
-                             **self.defaults.band_edge_circles_args)
-
         self.plt.axhline(y=band_edge.cbm, **self.defaults.horizontal_line_args)
+
+        for dist in band_edge.vbm_distances:
+            self.plt.scatter(dist, band_edge.vbm, **args_per_band)
         for dist in band_edge.cbm_distances:
-            self.plt.scatter(dist, band_edge.cbm,
-                             **self.defaults.band_edge_circles_args)
+            self.plt.scatter(dist, band_edge.cbm, **args_per_band)
+
+    def _add_fermi_level(self, fermi_level):
+        self.plt.axhline(y=fermi_level, **self.defaults.horizontal_line_args)
 
     def _set_figure_legend(self):
         self.plt.legend(**self.defaults.figure_legend)
-
-    def _set_fermi_level(self, fermi_level):
-        self.plt.axhline(y=fermi_level, **self.defaults.horizontal_line_args)
 
     def _set_x_range(self):
         self.plt.xlim(self.distances_by_branch[0][0],
