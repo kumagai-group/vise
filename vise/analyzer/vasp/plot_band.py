@@ -9,7 +9,6 @@ from pymatgen import Spin
 from pymatgen.electronic_structure.plotter import BSPlotter
 from pymatgen.io.vasp import Vasprun
 from pymatgen.util.string import latexify
-
 from vise.analyzer.plot_band import BandPlotter, BandInfo, XTicks, BandEdge
 
 

@@ -18,7 +18,7 @@ class Defaults:
         self.band_mesh_distance = 0.025
         self.str_opt_encut_factor = 1.3
         self.band_gap_criterion = 0.2  # in eV
-        self.magnetization_criterion = 0.05
+        self.integer_criterion = 0.1
         self.default_num_nodes = 1
         self.task = str(Task.structure_opt)
         self.xc = str(Xc.pbe)
@@ -30,7 +30,7 @@ class Defaults:
         self.contcar = "CONTCAR"
         self.vasprun = "vasprun.xml"
         self.procar = "PROCAR"
-        self.potcar_dict = {}
+        self.potcar_list = []
         self.potcar_set_name = str(PotcarSet.normal)
 
         user_settings = UserSettings(yaml_filename="vise.yaml")

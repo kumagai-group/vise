@@ -19,9 +19,9 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.plotting import pretty_plot
 from pymatgen.util.string import latexify_spacegroup, latexify
 
-from vise.defaults import SYMMETRY_TOLERANCE, ANGLE_TOL
+from vise.defaults import defaults
 from vise.util.logger import get_logger
-from vise.util.matplotlib import formatter
+from vise.util.matplotlib import float_to_int_formatter
 
 
 logger = get_logger(__name__)
@@ -85,8 +85,9 @@ class PrettyBSPlotter:
                  absolute: bool = False,
                  y_range: List[float] = None,
                  legend: bool = False,
-                 symprec: float = SYMMETRY_TOLERANCE,
-                 angle_tolerance: float = ANGLE_TOL) -> None:
+                 symprec: float = defaults.symmetry_length_tolerance,
+                 angle_tolerance: float = defaults.symmetry_angle_tolerance
+                 ) -> None:
         """Band structure plotter class
 
         Two bands are plotted in the same figure.
@@ -95,9 +96,9 @@ class PrettyBSPlotter:
             bands (List[BandStructureSymmLine]):
                 List of BandStructureSymmLine object.
             absolute (bool):
-                Whether to show the band structure in the absolute energy scale.
+                Whether to show the band structure in the absolute energies scale.
             y_range (List[float, float]):
-                The min and max of energy range.
+                The min and max of energies range.
             legend (bool):
                 Whether to show te figure legend.
             symprec (float):
@@ -136,9 +137,9 @@ class PrettyBSPlotter:
 
         Args:
             ylim (list):
-                Specify the y-axis (energy) limits; by default None let the code
+                Specify the y-axis (energies) limits; by default None let the code
                 choose. It is vbm-4 and cbm+4 if insulator efermi-10 and
-                efermi+10 if metal.
+                efermi+10 if set_metal_condition.
             vbm_cbm_marker (bool):
                 Whether to show the VBM and CBM markers.
         Returns:
@@ -146,27 +147,28 @@ class PrettyBSPlotter:
         """
         plt = pretty_plot(12, 8)
         bs_plotter = BSPlotter(self.bs[0])
+
         plt = bs_plotter._maketicks(plt)  # add vertical tics
 
         for b in self.bs:
             bs_data = bs_plotter.bs_plot_data(zero_to_efermi=not self.absolute)
             spin = [Spin.up, Spin.down] if b.is_spin_polarized else [Spin.up]
             num_distance = len(bs_data["distances"])
-            num_band = len(bs_data["energy"])
+            num_band = len(bs_data["energies"])
 
-            # bs_data["energy"][distance][spin][band]
+            # bs_data["energies"][distance][spin][band]
             for d, e, s in product(range(num_distance), range(num_band), spin):
                 data_x = bs_data["distances"][num_distance]
-                data_y = [e[str(s)][num_band] for e in bs_data['energy'][d]]
+                data_y = [e[str(s)][num_band] for e in bs_data['energies'][d]]
                 line_style = "b-" if s == Spin.up else "r--"
                 plt.plot(data_x, data_y, line_style, linewidth=1)
 
-            # Draw Fermi level, only if not zero and metal
+            # Draw Fermi level, only if not zero and set_metal_condition
             if self._bs.is_metal():
                 efermi = 0.0 if zero_to_efermi else self._bs.efermi
                 plt.axhline(efermi, linewidth=0.75, color='k')
             else:
-                band_gap = self._bs.get_band_gap()["energy"]
+                band_gap = self._bs.get_band_gap()["energies"]
                 x_position = (plt.xlim()[0] + plt.xlim()[1]) / 2
                 # plot the band gap with an arrow.
                 vbm = self.bs_plot_data(zero_to_efermi=zero_to_efermi)["vbm"][0][1]
@@ -209,7 +211,7 @@ class PrettyBSPlotter:
             plt.title(self.title, size=24)
 
         # Modify 3.0 -> 3 in the axes.
-        ax.yaxis.set_major_formatter(formatter)
+        ax.yaxis.set_major_formatter(float_to_int_formatter)
 
         plt.tight_layout()
         return plt
@@ -252,7 +254,7 @@ class PrettyBSPlotter:
             legend (bool):
                 If the figure legend is shown or not.
             zero_to_efermi (bool):
-                If the energy is aligned to the Fermi level or not.
+                If the energies is aligned to the Fermi level or not.
             title (str):
                 Title of the plot.
 
@@ -274,13 +276,13 @@ class PrettyBSPlotter:
             for d in range(len(data_orig['distances'])):
                 for s in spin:
                     data_x = data_orig['distances'][d]
-                    data_y = [e[str(s)][i] for e in another_bs_data['energy']][d]
+                    data_y = [e[str(s)][i] for e in another_bs_data['energies']][d]
                     plt.plot(data_x, data_y, second_line_style[s],
                              linewidth=second_band_line_width)
 
         # add second band gap and its arrow.
         if another_plotter._bs.is_metal() is False:
-            band_gap = another_plotter._bs.get_band_gap()["energy"]
+            band_gap = another_plotter._bs.get_band_gap()["energies"]
             x = (plt.xlim()[0] * 0.35 + plt.xlim()[1] * 0.65)
             vbm = another_plotter.bs_plot_data(
                 zero_to_efermi=zero_to_efermi)["vbm"][0][1]

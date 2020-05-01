@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+#  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
 from inspect import signature, _empty
 from pathlib import Path
@@ -117,33 +118,6 @@ def list2dict(flattened_list: Optional[list], key_candidates: list) -> dict:
             insert()
 
     return d
-
-
-def dict2list(d: dict) -> list:
-    """Flatten dict to list w/ string keys. String is also separated by space.
-
-    Example:
-        dict2list({"a": 1, "b": "2 3 4", "c": True}) =
-                                 ["a", "1", "b", "2", "3", "4", "c", "True"]
-
-    Args:
-         d (dict):
-            Input dict.
-
-    Returns:
-         List of flattened dict.
-    """
-
-    d = d or {}
-    flattened_list = []
-    for k, v in d.items():
-        flattened_list.append(k)
-        if isinstance(v, str):
-            flattened_list.extend(v.split())
-        else:
-            flattened_list.append(str(v))
-
-    return flattened_list
 
 
 def get_default_args(function: Callable) -> dict:

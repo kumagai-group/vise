@@ -18,7 +18,7 @@ from pymatgen.io.vasp import Vasprun
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.string import latexify_spacegroup, latexify
 
-from vise.defaults import SYMMETRY_TOLERANCE, ANGLE_TOL
+from vise.defaults import defaults
 from vise.util.logger import get_logger
 
 
@@ -187,8 +187,8 @@ def get_dos_plot(vasprun: str,
                  legend: bool = True,
                  crop_first_value: bool = True,
                  show_spg: bool = True,
-                 symprec: float = SYMMETRY_TOLERANCE,
-                 angle_tolerance: float = ANGLE_TOL):
+                 symprec: float = defaults.symmetry_length_tolerance,
+                 angle_tolerance: float = defaults.symmetry_angle_tolerancde):
     """Get
 
     Args:
@@ -373,7 +373,7 @@ def get_dos_plot(vasprun: str,
     if len(ylims) == 2:
         y_str += f", pdos: {ylims[1][0]:7.2f} ~{ylims[1][1]:6.2f}"
 
-    logger.info(f"Dos plot, x-range (energy) {x_str}")
+    logger.info(f"Dos plot, x-range (energies) {x_str}")
     logger.info(f"Dos plot, y-range (dos) {y_str}")
 
     comp = latexify(structure.composition.get_reduced_formula_and_factor()[0])
@@ -405,7 +405,7 @@ def max_density(density: dict,
                 energies: list,
                 xlim: list,
                 crop_first_value: bool = True) -> float:
-    """Evaluate max value of the density of states in the given energy range.
+    """Evaluate max value of the density of states in the given energies range.
 
     Args:
         density (dict):
@@ -433,7 +433,7 @@ def max_density(density: dict,
                 values.append(d)
 
     if not values:
-        raise ValueError("DOS is empty at the given energy {0[0]} - {0[1]} "
+        raise ValueError("DOS is empty at the given energies {0[0]} - {0[1]} "
                          "range.".format(xlim))
 
     return max(values)

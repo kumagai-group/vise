@@ -18,7 +18,7 @@ class PriorInfo(MSONable):
     total_magnetization: float = None
     data_source: str = None
     is_cluster: bool = None
-    magnetization_criterion: float = defaults.magnetization_criterion
+    magnetization_criterion: float = defaults.integer_criterion
     band_gap_criterion: float = defaults.band_gap_criterion
     incar: dict = None
 
