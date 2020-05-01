@@ -21,7 +21,7 @@ def my_formatter(tick_value, pos):
         else:
             return rounded_value
     else:
-        return tick_value
+        return str(tick_value)
 
 
 float_to_int_formatter = FuncFormatter(my_formatter)
