@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
+from copy import deepcopy
 from dataclasses import dataclass
 from typing import List, Dict, Optional
-from copy import deepcopy
 
 import matplotlib.pyplot as plt
-
 from pymatgen import Spin
-
 from vise.util.matplotlib import float_to_int_formatter
 
 
@@ -69,7 +67,7 @@ class ViseBandInfoError(Exception):
     pass
 
 
-class BandPlotterDefaults:
+class BandMplDefaults:
     def __init__(self,
                  colors: Optional[List[str]] = None,
                  linewidth: float = 1.0,
@@ -86,9 +84,9 @@ class BandPlotterDefaults:
         self.linewidth = linewidth
 
         self.circle_size = circle_size
-        self.horizontal_line_args = {"linewidth": band_edge_line_width,
-                                     "color": band_edge_line_color,
-                                     "linestyle": band_edge_line_style}
+        self.hline = {"linewidth": band_edge_line_width,
+                      "color": band_edge_line_color,
+                      "linestyle": band_edge_line_style}
 
         self.title_font_size = title_font_size
         self.label_font_size = label_font_size
@@ -96,15 +94,15 @@ class BandPlotterDefaults:
         self.circle_colors = circle_colors or ["pink", "green"]
         self.circle_size = circle_size
 
-        self.figure_legend = {"loc": legend_location}
+        self.legend = {"loc": legend_location}
 
     @property
-    def band_args(self):
+    def band_structure(self):
         for color in self.colors:
             yield {"color": color, "linewidth": self.linewidth}
 
     @property
-    def circle_args(self):
+    def circle(self):
         for color in self.circle_colors:
             yield {"color": color, "marker": "o", "s": self.circle_size}
 
@@ -118,7 +116,7 @@ class BandPlotter:
                  y_range: List[float],
                  title: str = None,
                  reference_energy: float = None,
-                 defaults: Optional[BandPlotterDefaults] = BandPlotterDefaults()
+                 defaults: Optional[BandMplDefaults] = BandMplDefaults()
                  ):
 
         assert distances_by_branch[0][0] == x_ticks.distances[0]
@@ -129,7 +127,7 @@ class BandPlotter:
         self.x_ticks = x_ticks
         self.y_range = y_range
         self.title = title
-        self.defaults = defaults
+        self.mpl_defaults = defaults
         self.plt = plt
 
         self._slide_energies(reference_energy)
@@ -155,13 +153,13 @@ class BandPlotter:
         self.plt.tight_layout()
 
     def _add_band_set(self):
-        band_args = self.defaults.band_args
-        circle_args = self.defaults.circle_args
+        band_args = self.mpl_defaults.band_structure
         self._band_set_index = 0
         for band_info in self.band_info_set:
             self._band_set_index += 1
             self._add_band_structures(band_info, band_args)
             if band_info.band_edge:
+                circle_args = next(self.mpl_defaults.circle)
                 self._add_band_edge(band_info.band_edge, circle_args)
             if band_info.fermi_level:
                 self._add_fermi_level(band_info.fermi_level)
@@ -186,31 +184,29 @@ class BandPlotter:
         return result
 
     def _add_band_edge(self, band_edge, circle_args):
-        args_per_band = next(circle_args)
-        self.plt.axhline(y=band_edge.vbm, **self.defaults.horizontal_line_args)
-        self.plt.axhline(y=band_edge.cbm, **self.defaults.horizontal_line_args)
+        self.plt.axhline(y=band_edge.vbm, **self.mpl_defaults.hline)
+        self.plt.axhline(y=band_edge.cbm, **self.mpl_defaults.hline)
 
         for dist in band_edge.vbm_distances:
-            self.plt.scatter(dist, band_edge.vbm, **args_per_band)
+            self.plt.scatter(dist, band_edge.vbm, **circle_args)
         for dist in band_edge.cbm_distances:
-            self.plt.scatter(dist, band_edge.cbm, **args_per_band)
+            self.plt.scatter(dist, band_edge.cbm, **circle_args)
 
     def _add_fermi_level(self, fermi_level):
-        self.plt.axhline(y=fermi_level, **self.defaults.horizontal_line_args)
+        self.plt.axhline(y=fermi_level, **self.mpl_defaults.hline)
 
     def _set_figure_legend(self):
-        self.plt.legend(**self.defaults.figure_legend)
+        self.plt.legend(**self.mpl_defaults.legend)
 
     def _set_x_range(self):
-        self.plt.xlim(self.distances_by_branch[0][0],
-                      self.distances_by_branch[-1][-1])
+        self.plt.xlim(self.x_ticks.distances[0], self.x_ticks.distances[-1])
 
     def _set_y_range(self):
         self.plt.ylim(self.y_range[0], self.y_range[1])
 
     def _set_labels(self):
-        self.plt.xlabel("Wave vector", size=self.defaults.label_font_size)
-        self.plt.ylabel("Energy (eV)", size=self.defaults.label_font_size)
+        self.plt.xlabel("Wave vector", size=self.mpl_defaults.label_font_size)
+        self.plt.ylabel("Energy (eV)", size=self.mpl_defaults.label_font_size)
 
     def _set_x_ticks(self):
         axis = self.plt.gca()
@@ -222,8 +218,7 @@ class BandPlotter:
             plt.axvline(x=distance, linestyle=linestyle)
 
     def _set_title(self):
-        self.plt.title(self.title,
-                       size=self.defaults.title_font_size)
+        self.plt.title(self.title, size=self.mpl_defaults.title_font_size)
 
     def _set_formatter(self):
         axis = self.plt.gca()
