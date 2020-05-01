@@ -18,12 +18,17 @@ all_incar_flags: Dict[str, Any] = \
     loadfn(Path(__file__).parent / "incar_flags.yaml")
 
 
+def has_f_elements(symbol_list: List[str]):
+    return any([Element(el).Z > 56 for el in symbol_list])
+
+
 class LDAU:
     def __init__(self,
                  symbol_list: List[str],
                  override_ldauu: Optional[Dict[str, float]] = None,
                  override_ldaul: Optional[Dict[str, float]] = None):
 
+        self.symbol_list = symbol_list
         ldau_set = loadfn(Path(__file__).parent / "u_parameter_set.yaml")
 
         ldauu_set = ldau_set["LDAUU"]
@@ -34,11 +39,9 @@ class LDAU:
         ldaul_set.update(override_ldaul or {})
         self.ldaul = [ldaul_set.get(el, -1) for el in symbol_list]
 
-        self.lmaxmix = 6 if self.contain_f_elements(symbol_list) else 4
-
-    @staticmethod
-    def contain_f_elements(symbol_list: List[str]):
-        return any([Element(el).Z > 56 for el in symbol_list])
+    @property
+    def lmaxmix(self):
+        return 6 if has_f_elements(self.symbol_list) else 4
 
     @property
     def is_ldau_needed(self) -> bool:
@@ -50,15 +53,16 @@ class PotcarSet(ExtendedEnum):
     mp_relax_set = "mp_relax_set"
     gw = "gw"
 
-    def potcar_dict(self, override_potcar_set: Optional[dict] = None
-                    ) -> Dict[str, str]:
-        result = deepcopy(self.potcar_list())
+    def overridden_potcar_dict(self,
+                               override_potcar_set: Optional[dict] = None
+                               ) -> Dict[str, str]:
+        result = deepcopy(self.potcar_dict())
         if override_potcar_set:
             result.update(override_potcar_set)
 
         return result  # e.g. {"Zr": "Zr_pv", ...}
 
-    def potcar_list(self) -> Dict[str, str]:
+    def potcar_dict(self) -> Dict[str, str]:
         _potcar_list = loadfn(Path(__file__).parent / "potcar_set.yaml")
         set_names = _potcar_list.pop("set_names")
         result = {}
