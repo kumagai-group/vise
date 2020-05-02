@@ -49,13 +49,15 @@ class VaspBandPlotter(BandPlotter):
 
     @property
     def _order_changed_energies(self):
-        result = defaultdict(list)
-        for idx, branch_energies in enumerate(self._plot_data["energies"]):
-            for spin, energy_of_a_spin in branch_energies.items():
-                spin = Spin.up if spin == "1" else Spin.down
-                result[spin].append(energy_of_a_spin)
+        result = []
+        print(self._plot_data.keys())
+        for idx, branch_energies in enumerate(self._plot_data["energy"]):
+            a = []
+            for energy_of_a_spin in branch_energies.values():
+                a.append(energy_of_a_spin)
+            result.append(a)
 
-        return dict(result)
+        return result
 
     @property
     def _x_ticks(self):

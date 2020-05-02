@@ -44,7 +44,7 @@ def test_vasp_band_plotter(is_metal, expected_band_edge, mocker):
     labels = ["A", "$A_0$", "GAMMA"]
     label_distances = [0.0, 0.1, 0.2]
     plot_data = {"ticks": {"label": labels, "distance": label_distances},
-                 "energies": energy,
+                 "energy": energy,
                  "distances": distances,
                  "vbm": [[0, -100]],
                  "cbm": [[1, 100], [2, 100]]}
@@ -54,7 +54,7 @@ def test_vasp_band_plotter(is_metal, expected_band_edge, mocker):
 
     plotter = VaspBandPlotter(stub_vasprun, "KPOINTS", reference_energy=0)
 
-    expected_band_info = BandInfo(band_energies={Spin.up: [[[0.1]]]},
+    expected_band_info = BandInfo(band_energies=[[[[0.1]]]],
                                   band_edge=expected_band_edge,
                                   fermi_level=10)
     expected_x_ticks = XTicks(labels=["A", "${\\rm A}_0$", "Γ"],
