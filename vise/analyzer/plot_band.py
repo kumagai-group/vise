@@ -4,10 +4,11 @@
 from copy import deepcopy
 from dataclasses import dataclass
 from typing import List, Dict, Optional
-
+import numpy as np
 import matplotlib.pyplot as plt
 from pymatgen import Spin
 from vise.util.matplotlib import float_to_int_formatter
+from num2words import num2words
 
 
 @dataclass(frozen=True)
@@ -26,7 +27,7 @@ class BandEdge:
 
 @dataclass
 class BandInfo:
-    band_energies: Dict[Spin, List[List[List[float]]]]
+    band_energies: List[List[List[List[float]]]]
     band_edge: Optional[BandEdge] = None
     fermi_level: Optional[float] = None
 
@@ -36,31 +37,27 @@ class BandInfo:
 
     def slide_energies(self, reference_energy):
         self._slide_band_energies(reference_energy)
-        if self.band_edge:
-            self._slide_band_edge(reference_energy)
-        if self.fermi_level:
-            self._slide_fermi_level(reference_energy)
+        self._slide_band_edge(reference_energy)
+        self._slide_fermi_level(reference_energy)
 
     def _slide_band_energies(self, reference_energy):
-        new_energies = deepcopy(self.band_energies)
-        for spin, energies_each_spin in self.band_energies.items():
-            for i, energies_each_branch in enumerate(energies_each_spin):
-                for j, energies_each_band in enumerate(energies_each_branch):
-                    for k in range(len(energies_each_band)):
-                        new_energies[spin][i][j][k] -= reference_energy
-
-        self.band_energies = new_energies
+        new_array = []
+        for band_energies_each_branch in self.band_energies:
+            a = np.array(band_energies_each_branch)
+            new_array.append((a - reference_energy).tolist())
 
     def _slide_fermi_level(self, reference_energy):
-        self.fermi_level -= reference_energy
+        if self.fermi_level:
+            self.fermi_level -= reference_energy
 
     def _slide_band_edge(self, reference_energy):
-        self.band_edge.vbm -= reference_energy
-        self.band_edge.cbm -= reference_energy
+        if self.band_edge:
+            self.band_edge.vbm -= reference_energy
+            self.band_edge.cbm -= reference_energy
 
     @property
     def is_magnetic(self):
-        return len(self.band_energies) == 2
+        return len(self.band_energies[0]) == 2
 
 
 class ViseBandInfoError(Exception):
@@ -96,15 +93,15 @@ class BandMplDefaults:
 
         self.legend = {"loc": legend_location}
 
-    @property
-    def band_structure(self):
-        for color in self.colors:
-            yield {"color": color, "linewidth": self.linewidth}
+    def band_structure(self, index):
+        return {"color": self.colors[index],
+                "linewidth": self.linewidth,
+                "label": num2words(index + 1, ordinal=True)}
 
-    @property
-    def circle(self):
-        for color in self.circle_colors:
-            yield {"color": color, "marker": "o", "s": self.circle_size}
+    def circle(self, index):
+        return {"color": self.colors[index],
+                "marker": "o",
+                "s": self.circle_size}
 
 
 class BandPlotter:
@@ -153,44 +150,41 @@ class BandPlotter:
         self.plt.tight_layout()
 
     def _add_band_set(self):
-        band_args = self.mpl_defaults.band_structure
-        self._band_set_index = 0
-        for band_info in self.band_info_set:
-            self._band_set_index += 1
-            self._add_band_structures(band_info, band_args)
+        for index, band_info in enumerate(self.band_info_set):
+            self._add_band_structures(band_info, index)
+
             if band_info.band_edge:
-                circle_args = next(self.mpl_defaults.circle)
-                self._add_band_edge(band_info.band_edge, circle_args)
+                self._add_band_edge(band_info.band_edge, index)
+
             if band_info.fermi_level:
                 self._add_fermi_level(band_info.fermi_level)
 
-    def _add_band_structures(self, band_info, band_args):
-        for spin, energies_by_branch in band_info.band_energies.items():
-            mpl_args = self.band_args(band_args, band_info, spin)
-
-            for distances_of_a_branch, energies_of_a_branch \
-                    in zip(self.distances_by_branch, energies_by_branch):
-
-                for energies_of_a_band in energies_of_a_branch:
-                    self.plt.plot(
-                        distances_of_a_branch, energies_of_a_band, **mpl_args)
+    def _add_band_structures(self, band_info, index):
+        mpl_args = self.mpl_defaults.band_structure(index)
+        for distances, energies_each_branch \
+                in zip(self.distances_by_branch,  band_info.band_energies):
+            for i, energies_of_each_spin in enumerate(energies_each_branch):
+                self._set_linestyle(i, mpl_args)
+                for energies_of_a_band in energies_of_each_spin:
+                    self.plt.plot(distances, energies_of_a_band, **mpl_args)
                     mpl_args.pop("label", None)
 
-    def band_args(self, band_args, band_info, spin):
-        result = next(band_args)
-        result["label"] = f"{self._band_set_index}th"
-        if band_info.is_magnetic:
-            result["label"] += f" {spin.name}"
-        return result
+    def _set_linestyle(self, i, mpl_args):
+        if i == 0:
+            mpl_args.pop("linestyle", None)
+        else:
+            mpl_args["linestyle"] = ":"
 
-    def _add_band_edge(self, band_edge, circle_args):
+    def _add_band_edge(self, band_edge, index):
         self.plt.axhline(y=band_edge.vbm, **self.mpl_defaults.hline)
         self.plt.axhline(y=band_edge.cbm, **self.mpl_defaults.hline)
 
         for dist in band_edge.vbm_distances:
-            self.plt.scatter(dist, band_edge.vbm, **circle_args)
+            self.plt.scatter(dist, band_edge.vbm,
+                             **self.mpl_defaults.circle(index))
         for dist in band_edge.cbm_distances:
-            self.plt.scatter(dist, band_edge.cbm, **circle_args)
+            self.plt.scatter(dist, band_edge.cbm,
+                             **self.mpl_defaults.circle(index))
 
     def _add_fermi_level(self, fermi_level):
         self.plt.axhline(y=fermi_level, **self.mpl_defaults.hline)
