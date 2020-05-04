@@ -9,33 +9,33 @@ import numpy as np
 
 
 @dataclass
-class OrbitalDos:
+class NamedSingleDos:
     name: str
     dos: List[List[float]]
 
-    def max_each_dos(self):
+    def max_dos(self):
         return np.max(np.array(self.dos))
 
 
-class DosInfo:
+class DosPlotInfo:
 
     def __init__(self,
                  energies: List[float],
-                 doses: List[List[OrbitalDos]],
+                 doses: List[List[NamedSingleDos]],
                  xlim: Optional[List[float]] = None,
                  ylim_set: Optional[List[List[float]]] = None):
         self.energies = energies
-        self.doses = doses
+        self.doses = doses  # [ax][orbital]
         self.xlim = xlim or [-10, 10]
         self.ylim_set = ylim_set or [[-y, y] for y in self.max_y_ranges()]
 
     def max_y_ranges(self, multi=1.1, round_digit=2):
-        return [round(i * multi, round_digit) for i in self.max_abs_doses()]
+        return [round(i * multi, round_digit) for i in self.max_modulus_dos()]
 
-    def max_abs_doses(self):
+    def max_modulus_dos(self):
         result = []
         for dos in self.doses:
-            result.append(np.max([orb_dos.max_each_dos() for orb_dos in dos]))
+            result.append(np.max([orb_dos.max_dos() for orb_dos in dos]))
         return result
 
 
@@ -67,7 +67,7 @@ class DosMplDefaults:
 
 class DosPlotter:
     def __init__(self,
-                 dos_info: DosInfo,
+                 dos_info: DosPlotInfo,
                  mpl_defaults: Optional[DosMplDefaults] = DosMplDefaults()):
         self._dos_info = dos_info
         self.mpl_defaults = mpl_defaults
@@ -75,6 +75,8 @@ class DosPlotter:
         self.plt = plt
         num_axs = len(self._dos_info.doses)
         _, self._axs = self.plt.subplots(num_axs, 1, sharex=True)
+        if num_axs == 1:
+            self._axs = [self._axs]
 
     def construct_plot(self):
         self._axs[0].set_xlim(self._dos_info.xlim)

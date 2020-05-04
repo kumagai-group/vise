@@ -6,15 +6,18 @@ from collections import OrderedDict
 
 from pymatgen import Spin
 
-from vise.analyzer.plot_dos import OrbitalDos, DosInfo, DosPlotter, DosMplDefaults
+from vise.analyzer.plot_dos import NamedSingleDos, DosPlotInfo, DosPlotter, DosMplDefaults
 
 """
 TODO:
-+ Add labels
++ Fix bug when num_axs is 1.
 
++ Create PDos class composed of orbital-decomposed pdos
++ Create from FullDos instance with total and atom- and orbital-decomposed pdos
++ Add labels
 + Allow to set vbm, cbm, efermi
 + Shift energy zero to vbm or efermi.
-
++ Create DosInfo from vasp output.
 
 DONE:
 + Show one spectrum.
@@ -43,6 +46,11 @@ def total_down():
 
 
 @pytest.fixture
+def total_list(total_up, total_down):
+    return [total_up, total_down]
+
+
+@pytest.fixture
 def h_s_up():
     return [0.0] * 2 + [2] * 8 + [0]
 
@@ -63,20 +71,21 @@ def h_p_down():
 
 
 @pytest.fixture
-def doses(total_up, total_down, h_s_up, h_s_down, h_p_up, h_p_down):
+def doses(total_list, h_s_up, h_s_down, h_p_up, h_p_down):
 
-    total_dos = [OrbitalDos("total", [total_up, total_down])]
+    total_dos = [NamedSingleDos("total", total_list)]
 
-    h_s = OrbitalDos("H-s", [h_s_up, h_s_down])
-    h_p = OrbitalDos("H-p", [h_p_up, h_p_down])
+    h_s = NamedSingleDos("H-s", [h_s_up, h_s_down])
+    h_p = NamedSingleDos("H-p", [h_p_up, h_p_down])
     h_dos = [h_s, h_p]
 
     return [total_dos, h_dos]
 
 
+
 @pytest.fixture
 def dos_info(doses, energies):
-    return DosInfo(energies=energies, doses=doses)
+    return DosPlotInfo(energies=energies, doses=doses)
 
 
 @pytest.fixture
@@ -91,12 +100,12 @@ def ylim_set():
 
 @pytest.fixture
 def dos_info_manual_axis(doses, energies, xlim, ylim_set):
-    return DosInfo(energies=energies, doses=doses, xlim=xlim, ylim_set=ylim_set)
+    return DosPlotInfo(energies=energies, doses=doses, xlim=xlim, ylim_set=ylim_set)
 
 
 def test_orbital_dos(total_up, total_down):
-    orbital_dos = OrbitalDos("total", [total_up, total_down])
-    assert orbital_dos.max_each_dos() == 6.0
+    orbital_dos = NamedSingleDos("total", [total_up, total_down])
+    assert orbital_dos.max_dos() == 6.0
 
 
 def test_doses(dos_info, energies, total_up, total_down):
@@ -182,6 +191,15 @@ def test_plot_dos(energies, total_up, total_down, h_s_up, h_p_down, dos_info,
 
     args = DosMplDefaults().dos_line(1)
     mock_2nd_ax.plot.assert_any_call(energies, reversed_h_p_down, **args)
+
+
+def test_axs_is_list_when_single_dos_passed():
+    single_dos = [[NamedSingleDos("total", total_list)]]
+    dos_info = DosPlotInfo(energies=energies, doses=single_dos, xlim=xlim,
+                           ylim_set=ylim_set)
+    plotter = DosPlotter(dos_info=dos_info)
+    assert isinstance(plotter._axs, list)
+    assert len(plotter._axs) == 1
 
 
 def test_set_figure_legend(mock_plt_1st_ax):
