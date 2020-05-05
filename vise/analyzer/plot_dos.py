@@ -1,42 +1,10 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
-from dataclasses import dataclass
-from typing import List, Dict, Optional
+from typing import List, Optional
 
 import matplotlib.pyplot as plt
-import numpy as np
-
-
-@dataclass
-class NamedSingleDos:
-    name: str
-    dos: List[List[float]]
-
-    def max_dos(self):
-        return np.max(np.array(self.dos))
-
-
-class DosPlotInfo:
-
-    def __init__(self,
-                 energies: List[float],
-                 doses: List[List[NamedSingleDos]],
-                 xlim: Optional[List[float]] = None,
-                 ylim_set: Optional[List[List[float]]] = None):
-        self.energies = energies
-        self.doses = doses  # [ax][orbital]
-        self.xlim = xlim or [-10, 10]
-        self.ylim_set = ylim_set or [[-y, y] for y in self.max_y_ranges()]
-
-    def max_y_ranges(self, multi=1.1, round_digit=2):
-        return [round(i * multi, round_digit) for i in self.max_modulus_dos()]
-
-    def max_modulus_dos(self):
-        result = []
-        for dos in self.doses:
-            result.append(np.max([orb_dos.max_dos() for orb_dos in dos]))
-        return result
+from vise.analyzer.dos_info import DosPlotData
 
 
 class DosMplDefaults:
@@ -67,14 +35,15 @@ class DosMplDefaults:
 
 class DosPlotter:
     def __init__(self,
-                 dos_info: DosPlotInfo,
+                 dos_data: DosPlotData,
                  mpl_defaults: Optional[DosMplDefaults] = DosMplDefaults()):
-        self._dos_info = dos_info
+
+        self._dos_info = dos_data
         self.mpl_defaults = mpl_defaults
 
         self.plt = plt
         num_axs = len(self._dos_info.doses)
-        _, self._axs = self.plt.subplots(num_axs, 1, sharex=True)
+        fig, self._axs = self.plt.subplots(num_axs, 1, sharex=True)
         if num_axs == 1:
             self._axs = [self._axs]
 
@@ -89,14 +58,15 @@ class DosPlotter:
         self._set_dos_zero_line(i)
 
     def _add_dos(self, i):
-        for j, dos_each_name in enumerate(self._dos_info.doses[i]):
-            for k, dos_each_spin in enumerate(dos_each_name.dos):
+        for j, by_name_dos in enumerate(self._dos_info.doses[i]):
+            for k, by_spin_dos in enumerate(by_name_dos.dos):
                 sign = - (2 * k) + 1
-                dos_for_plot = [d * sign for d in dos_each_spin]
+                dos_for_plot = [d * sign for d in by_spin_dos]
                 args = self.mpl_defaults.dos_line(j)
                 if k == 0:
                     args["label"] = self._dos_info.doses[i][j].name
-                self._axs[i].plot(self._dos_info.energies, dos_for_plot, **args)
+                self._axs[i].plot(self._dos_info.relative_energies,
+                                  dos_for_plot, **args)
 
         self._axs[i].legend(loc="best", markerscale=0.1)
 
