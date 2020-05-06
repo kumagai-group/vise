@@ -68,25 +68,23 @@ class DosData:
     def __init__(self,
                  energies: List[float],
                  total: np.ndarray,
-                 pdos: List[PDos],  # [by atom index]
-                 grouped_atom_indices: Dict[str, List[int]],
-                 xlim: Optional[List[float]] = None,
-                 ylim_set: Optional[List[List[float]]] = None):
-
-        if ylim_set is not None:
-            assert len(grouped_atom_indices) + 1 == len(ylim_set)  # total+pdos
+                 pdos: List[PDos]):  # [by atom index]
 
         self.energies = energies
         self.total = total
         self.pdos = pdos
-        self.grouped_atom_indices = grouped_atom_indices
-        self.xlim = xlim
-        self.ylim_set = ylim_set
-        self.dos_plot_data = self._dos_plot_data()
 
-    def _dos_plot_data(self) -> "DosPlotData":
+    def dos_plot_data(self,
+                          grouped_atom_indices: Dict[str, List[int]],
+                          xlim: Optional[List[float]] = None,
+                          ylim_set: Optional[List[List[float]]] = None
+                          ) -> "DosPlotData":
+
+        if ylim_set is not None:
+            assert len(grouped_atom_indices) + 1 == len(ylim_set)  # total+pdos
+
         doses = [[DosBySpinEnergy("total", self.total)]]
-        for name, atom_indices_by_group in self.grouped_atom_indices.items():
+        for name, atom_indices_by_group in grouped_atom_indices.items():
             pdos_list = [self.pdos[idx] for idx in atom_indices_by_group]
             pdos = reduce(lambda x, y: x + y, pdos_list)
             pdos_by_ax = [DosBySpinEnergy(f"{name}-s", pdos.s),
@@ -97,11 +95,11 @@ class DosData:
 
             doses.append(pdos_by_ax)
 
-        self.xlim = self.xlim or [-10, 10]
-        self.ylim_set = (self.ylim_set or
-                         [[-y, y] for y in self.max_y_ranges(doses)])
+        xlim = xlim or [-10, 10]
+        ylim_set = ylim_set or [[-y, y] for y in self.max_y_ranges(doses)]
 
-        return DosPlotData(self.energies, doses, self.xlim, self.ylim_set)
+        return DosPlotData(self.energies, doses, xlim, ylim_set)
+
 
     @staticmethod
     def max_y_ranges(doses, multi=1.1, round_digit=2):

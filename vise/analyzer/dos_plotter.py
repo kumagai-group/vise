@@ -309,7 +309,7 @@ def get_dos_plot(vasprun: str,
     # efermi is set to VBM if exists.
     efermi = cbm_vbm[1] if cbm_vbm else complete_dos.efermi
     complete_dos.efermi = efermi
-    energies = complete_dos.energies
+    energies = complete_dos.relative_energies
 
     for key, value in grouped_indices.items():
         for indices in value:
@@ -346,7 +346,7 @@ def get_dos_plot(vasprun: str,
         else:
             ylims = [[0, y] for y in ymaxs]
     else:
-        energies = complete_dos.energies - efermi
+        energies = complete_dos.relative_energies - efermi
         tdos_max = 1.1 * max_density(density=complete_dos.densities,
                                      energies=energies,
                                      xlim=xlim,

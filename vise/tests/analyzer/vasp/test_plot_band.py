@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
 from pathlib import Path
-from unittest.mock import MagicMock
 
 import pytest
-from pymatgen import Composition, Spin
+from pymatgen import Composition
 from pymatgen.io.vasp import Vasprun
 
-from vise.analyzer.plot_band import BandEdge, BandInfo, XTicks
+from vise.analyzer.plot_band import BandEdge, XTicks
 from vise.analyzer.vasp.plot_band import greek_to_unicode, italic_to_roman, \
     VaspBandPlotter
 
@@ -54,13 +52,10 @@ def test_vasp_band_plotter(is_metal, expected_band_edge, mocker):
 
     plotter = VaspBandPlotter(stub_vasprun, "KPOINTS", reference_energy=0)
 
-    expected_band_info = BandInfo(band_energies=[[[[0.1]]]],
-                                  band_edge=expected_band_edge,
-                                  fermi_level=10)
     expected_x_ticks = XTicks(labels=["A", "${\\rm A}_0$", "Γ"],
                               distances=label_distances)
 
-    assert plotter.band_info_set == [expected_band_info]
+    assert plotter.band_info_set[0].band_energies == [[[[0.1]]]]
     assert plotter.distances_by_branch == distances
     assert plotter.x_ticks == expected_x_ticks
     assert plotter.y_range == [-10, 10]

@@ -50,7 +50,6 @@ class VaspBandPlotter(BandPlotter):
     @property
     def _order_changed_energies(self):
         result = []
-        print(self._plot_data.keys())
         for idx, branch_energies in enumerate(self._plot_data["energy"]):
             a = []
             for energy_of_a_spin in branch_energies.values():
