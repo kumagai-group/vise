@@ -25,13 +25,15 @@ class BandEdge:
     cbm_distances: List[float]
 
 
-@dataclass
 class BandInfo:
-    band_energies: List[List[List[List[float]]]]
-    band_edge: Optional[BandEdge] = None
-    fermi_level: Optional[float] = None
+    def __init__(self,
+                 band_energies: List[List[List[List[float]]]],
+                 band_edge: Optional[BandEdge] = None,
+                 fermi_level: Optional[float] = None):
+        self.band_energies = deepcopy(band_energies)
+        self.band_edge = deepcopy(band_edge)
+        self.fermi_level = fermi_level
 
-    def __post_init__(self):
         if self.band_edge is None and self.fermi_level is None:
             raise ViseBandInfoError
 
@@ -113,7 +115,7 @@ class BandPlotter:
                  y_range: List[float],
                  title: str = None,
                  reference_energy: float = None,
-                 defaults: Optional[BandMplDefaults] = BandMplDefaults()
+                 mpl_defaults: Optional[BandMplDefaults] = BandMplDefaults()
                  ):
 
         assert distances_by_branch[0][0] == x_ticks.distances[0]
@@ -124,7 +126,7 @@ class BandPlotter:
         self.x_ticks = x_ticks
         self.y_range = y_range
         self.title = title
-        self.mpl_defaults = defaults
+        self.mpl_defaults = mpl_defaults
         self.plt = plt
 
         self._slide_energies(reference_energy)
@@ -169,7 +171,8 @@ class BandPlotter:
                     self.plt.plot(distances, energies_of_a_band, **mpl_args)
                     mpl_args.pop("label", None)
 
-    def _set_linestyle(self, i, mpl_args):
+    @staticmethod
+    def _set_linestyle(i, mpl_args):
         if i == 0:
             mpl_args.pop("linestyle", None)
         else:
