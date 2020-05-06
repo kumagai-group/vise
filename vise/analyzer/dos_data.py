@@ -79,7 +79,6 @@ class DosData:
         self.energies = energies
         self.total = total
         self.pdos = pdos
-        print("sdljfdjl", grouped_atom_indices)
         self.grouped_atom_indices = grouped_atom_indices
         self.xlim = xlim
         self.ylim_set = ylim_set
@@ -123,14 +122,9 @@ class DosBySpinEnergy:
         return np.max(self.dos)
 
 
+@dataclass()
 class DosPlotData:
-
-    def __init__(self,
-                 relative_energies: List[float],
-                 doses: List[List[DosBySpinEnergy]],  # [by ax][by orbital]
-                 xlim: List[float],
-                 ylim_set: List[List[float]]):
-        self.relative_energies = relative_energies
-        self.doses = doses  # [ax][orbital]
-        self.xlim = xlim
-        self.ylim_set = ylim_set
+    relative_energies: List[float]
+    doses: List[List[DosBySpinEnergy]]  # [by ax][by orbital]
+    xlim: List[float]
+    ylim_set: List[List[float]]

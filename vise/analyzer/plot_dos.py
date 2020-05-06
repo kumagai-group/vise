@@ -4,10 +4,10 @@
 from typing import List, Optional
 
 import matplotlib.pyplot as plt
-from vise.analyzer.dos_info import DosPlotData
+from vise.analyzer.dos_data import DosPlotData
 
 
-class DosMplDefaults:
+class DosMplSettings:
     def __init__(self,
                  colors: Optional[List[str]] = None,
                  linewidth: float = 1.0,
@@ -36,7 +36,7 @@ class DosMplDefaults:
 class DosPlotter:
     def __init__(self,
                  dos_data: DosPlotData,
-                 mpl_defaults: Optional[DosMplDefaults] = DosMplDefaults()):
+                 mpl_defaults: Optional[DosMplSettings] = DosMplSettings()):
 
         self._dos_info = dos_data
         self.mpl_defaults = mpl_defaults
