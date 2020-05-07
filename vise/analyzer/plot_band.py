@@ -48,6 +48,7 @@ class BandInfo:
         for band_energies_each_branch in self.band_energies:
             a = np.array(band_energies_each_branch)
             new_array.append((a - base_energy).tolist())
+        self.band_energies = new_array
 
     def _slide_fermi_level(self, base_energy):
         if self.fermi_level:
@@ -107,26 +108,33 @@ class BandMplSettings:
                 "s": self.circle_size}
 
 
+@dataclass
+class BandPlotInfo:
+    band_info_set: List[BandInfo]
+    distances_by_branch: List[List[float]]
+    x_ticks: XTicks
+    title: str = None
+
+    def __post_init__(self):
+        assert self.distances_by_branch[0][0] == self.x_ticks.distances[0]
+        assert self.distances_by_branch[-1][-1] == self.x_ticks.distances[-1]
+
+
 class BandPlotter:
 
     def __init__(self,
-                 band_info_set: List[BandInfo],
-                 distances_by_branch: List[List[float]],
-                 x_ticks: XTicks,
+                 band_plot_info: BandPlotInfo,
                  y_range: List[float],
-                 title: str = None,
                  base_energy: float = None,
                  mpl_defaults: Optional[BandMplSettings] = BandMplSettings()
                  ):
 
-        assert distances_by_branch[0][0] == x_ticks.distances[0]
-        assert distances_by_branch[-1][-1] == x_ticks.distances[-1]
+        self.band_info_set = band_plot_info.band_info_set
+        self.distances_by_branch = band_plot_info.distances_by_branch
+        self.x_ticks = band_plot_info.x_ticks
 
-        self.band_info_set = band_info_set
-        self.distances_by_branch = distances_by_branch
-        self.x_ticks = x_ticks
         self.y_range = y_range
-        self.title = title
+        self.title = band_plot_info.title
         self.mpl_defaults = mpl_defaults
         self.plt = plt
 
@@ -174,6 +182,8 @@ class BandPlotter:
                     mpl_args["linestyle"] = ":"
 
                 for energies_of_a_band in energies_by_spin:
+                    # print(distances, energies_of_a_band)
+                    # print(mpl_args)
                     self.plt.plot(distances, energies_of_a_band, **mpl_args)
                     mpl_args.pop("label", None)
 

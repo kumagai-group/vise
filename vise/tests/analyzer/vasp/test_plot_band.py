@@ -9,7 +9,8 @@ from pymatgen.io.vasp import Vasprun
 
 from vise.analyzer.plot_band import BandEdge, XTicks
 from vise.analyzer.vasp.plot_band import greek_to_unicode, italic_to_roman, \
-    VaspBandPlotter
+    VaspBandPlotInfo
+from vise.analyzer.plot_band import BandPlotter
 
 
 def test_greek_to_unicode():
@@ -50,22 +51,22 @@ def test_vasp_band_plotter(is_metal, expected_band_edge, mocker):
     mock_bsp = mocker.patch("vise.analyzer.vasp.plot_band.BSPlotter", auto_spec=True)
     mock_bsp().bs_plot_data.return_value = plot_data
 
-    plotter = VaspBandPlotter(stub_vasprun, "KPOINTS", base_energy=0)
+    plot_info = VaspBandPlotInfo(stub_vasprun, "KPOINTS", base_energy=0)
 
     expected_x_ticks = XTicks(labels=["A", "${\\rm A}_0$", "Γ"],
                               distances=label_distances)
 
-    assert plotter.band_info_set[0].band_energies == [[[[0.1]]]]
-    assert plotter.distances_by_branch == distances
-    assert plotter.x_ticks == expected_x_ticks
-    assert plotter.y_range == [-10, 10]
-    assert plotter.title == "MgO$_{2}$"
+    assert plot_info.band_info_set[0].band_energies == [[[[0.1]]]]
+    assert plot_info.distances_by_branch == distances
+    assert plot_info.x_ticks == expected_x_ticks
+    assert plot_info.title == "MgO$_{2}$"
 
 
 def test_draw_band_plotter_with_actual_vasp_files(test_data_files: Path):
     vasprun_file = str(test_data_files / "KO2_band_vasprun.xml")
     kpoints_file = str(test_data_files / "KO2_band_KPOINTS")
     vasprun = Vasprun(vasprun_file)
-    plotter = VaspBandPlotter(vasprun, kpoints_file)
+    plot_info = VaspBandPlotInfo(vasprun, kpoints_file)
+    plotter = BandPlotter(plot_info, [-10, 10])
     plotter.construct_plot()
     plotter.plt.show()

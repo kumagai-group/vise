@@ -3,12 +3,13 @@
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
 import re
+from collections import defaultdict
 
+from pymatgen import Spin
 from pymatgen.electronic_structure.plotter import BSPlotter
 from pymatgen.io.vasp import Vasprun
 from pymatgen.util.string import latexify
-
-from vise.analyzer.plot_band import BandPlotter, BandInfo, XTicks, BandEdge
+from vise.analyzer.plot_band import BandPlotInfo, BandInfo, XTicks, BandEdge
 
 
 def greek_to_unicode(label: str) -> str:
@@ -22,11 +23,12 @@ def italic_to_roman(label: str) -> str:
     return re.sub(r"([A-Z])_([0-9])", r"{\\rm \1}_\2", label)
 
 
-class VaspBandPlotter(BandPlotter):
+class VaspBandPlotInfo(BandPlotInfo):
     def __init__(self,
                  vasprun: Vasprun,
                  kpoints_filename: str,
-                 base_energy: float = None):
+                 base_energy: float = None,
+                 ):
 
         self._bs = vasprun.get_band_structure(kpoints_filename, line_mode=True)
         self._plot_data = BSPlotter(self._bs).bs_plot_data(zero_to_efermi=False)
@@ -35,8 +37,6 @@ class VaspBandPlotter(BandPlotter):
         super().__init__(band_info_set=[self._band_info],
                          distances_by_branch=self._plot_data["distances"],
                          x_ticks=self._x_ticks,
-                         y_range=[-10, 10],
-                         base_energy=base_energy,
                          title=self._title)
 
     @property
