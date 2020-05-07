@@ -182,8 +182,6 @@ class BandPlotter:
                     mpl_args["linestyle"] = ":"
 
                 for energies_of_a_band in energies_by_spin:
-                    # print(distances, energies_of_a_band)
-                    # print(mpl_args)
                     self.plt.plot(distances, energies_of_a_band, **mpl_args)
                     mpl_args.pop("label", None)
 

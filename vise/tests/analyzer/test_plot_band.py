@@ -3,6 +3,7 @@
 
 from unittest.mock import MagicMock
 import numpy as np
+from copy import deepcopy
 
 import pytest
 from pymatgen import Spin
@@ -29,11 +30,11 @@ distances = [[0, 1, 2, 3, 4, 5, 6], [6, 7, 8, 9]]
 x_ticks = XTicks(["A", "B", "C$\\mid$D", "E"], [0.0, 5.0, 6.0, 9.0])
 y_range = [-10, 10]
 title = "Title"
-base_energy = 1.0
+base_energy = -1.0
 # [by branch][by spin][by band idx][by k-path idx]
 band_energies = [[[[-3.0, -2, -1, -1, -1, -2, -3], [7.0, 6, 5, 4, 3, 2, 3]]],
                  [[[-4.0, -5, -6, -7], [5, 2, 7, 8]]]]
-shifted_band_energies = [(np.array(e) - 1.0).tolist() for e in band_energies]
+shifted_band_energies = [(np.array(e) + 1.0).tolist() for e in band_energies]
 
 band_edge = BandEdge(vbm=-1, cbm=2, vbm_distances=[2, 3, 4], cbm_distances=[5, 7])
 fermi_level = 1.5
@@ -46,7 +47,7 @@ colors = ['#E15759', '#4E79A7', '#F28E2B', '#76B7B2']
 
 @pytest.fixture
 def band_info():
-    return BandInfo(band_energies=band_energies, band_edge=band_edge,
+    return BandInfo(band_energies=deepcopy(band_energies), band_edge=band_edge,
                     fermi_level=fermi_level)
 
 
@@ -72,12 +73,12 @@ def mock_plt_list(mocker, band_info_set, band_plot_info):
 
 def test_band_info_slide_energies(band_info):
     band_info.slide_energies(base_energy=base_energy)
-    expected_band_edge = BandEdge(vbm=-2, cbm=1,
+    expected_band_edge = BandEdge(vbm=0, cbm=3,
                                   vbm_distances=[2, 3, 4], cbm_distances=[5, 7])
 
     assert band_info.band_energies == shifted_band_energies
     assert band_info.band_edge == expected_band_edge
-    assert band_info.fermi_level == fermi_level - 1.0
+    assert band_info.fermi_level == fermi_level - base_energy
 
 
 def test_raise_error_when_both_band_edge_fermi_level_absent():
@@ -123,22 +124,22 @@ def test_band_mpl_defaults():
     assert band_defaults.label_font_size == 40
 
 
-# def test_add_band_structures(mock_plt_list):
-#     mock_plt, _ = mock_plt_list
-#     linewidth = BandMplSettings().linewidth
-#     # 1st branch, 1st band
-#     args = {"color": colors[0], "linewidth": linewidth, "label": "first"}
-#     # mock_plt.plot.assert_any_call(distances[0], shifted_band_energies[0][0][0], **args)
+def test_add_band_structures(mock_plt_list):
+    mock_plt, _ = mock_plt_list
+    linewidth = BandMplSettings().linewidth
+    # 1st branch, 1st band
+    args = {"color": colors[0], "linewidth": linewidth, "label": "first"}
+    mock_plt.plot.assert_any_call(distances[0], shifted_band_energies[0][0][0], **args)
 
-    # # 2nd branch, 1st band
-    # args.pop("label")
-    # mock_plt.plot.assert_any_call(distances[1], shifted_band_energies[1][0][0], **args)
+    # 2nd branch, 1st band
+    args.pop("label")
+    mock_plt.plot.assert_any_call(distances[1], shifted_band_energies[1][0][0], **args)
 
-    # # 1st branch, 2nd band
-    # mock_plt.plot.assert_any_call(distances[0], shifted_band_energies[0][0][1], **args)
+    # 1st branch, 2nd band
+    mock_plt.plot.assert_any_call(distances[0], shifted_band_energies[0][0][1], **args)
 
-    # # 2nd branch, 2nd band
-    # mock_plt.plot.assert_any_call(distances[1], shifted_band_energies[1][0][1], **args)
+    # 2nd branch, 2nd band
+    mock_plt.plot.assert_any_call(distances[1], shifted_band_energies[1][0][1], **args)
 
 
 def test_add_band_edge_circles(mock_plt_list, band_info_set):
