@@ -2,6 +2,7 @@
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
 from monty.design_patterns import singleton
+
 from vise.input_set.datasets.dataset_util import PotcarSet
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc

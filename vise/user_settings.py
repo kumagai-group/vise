@@ -13,10 +13,8 @@ class UserSettings:
     def __init__(self, yaml_filename: str):
         self._cwd = Path.cwd()
         self.yaml_filename = yaml_filename
-        self.yaml_files_from_root_dir = self._make_yaml_file_list
-        self.user_settings = self._user_settings_from_yaml_files
+        self.yaml_files_from_root_dir = self._make_yaml_file_list()
 
-    @property
     def _make_yaml_file_list(self) -> List[Path]:
         result = []
 
@@ -36,13 +34,14 @@ class UserSettings:
         return list(reversed(result))
 
     @property
-    def _user_settings_from_yaml_files(self) -> dict:
+    def user_settings(self) -> dict:
         result = {}
 
         for file_path in self.yaml_files_from_root_dir:
+            print(file_path)
             try:
                 with open(str(file_path), "r") as fin:
-                    settings = yaml.load(fin, Loader=yaml.FullLoader)
+                    settings = yaml.load(fin, Loader=yaml.SafeLoader)
                     result.update(self._add_absolute_path(settings, file_path))
             except AttributeError:
                 pass
