@@ -20,7 +20,7 @@ logger = get_logger(__name__)
 def potcar_str2dict(potcar_list: Union[str, List[str], None]) -> dict:
     """Sanitize potcar names to dict.
 
-    If potcar_list is None, {} is returned.
+    If potcar_dict is None, {} is returned.
     Examples
         ["Mg_pv", O_h"] -> {"Mg": "Mg_pv", "O": "O_h"}
         "Mg_pv" -> {"Mg": "Mg_pv"}

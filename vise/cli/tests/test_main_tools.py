@@ -7,7 +7,7 @@ import tempfile
 from unittest.mock import patch
 
 from vise.cli.main_tools import (
-    potcar_str2dict, list2dict, dict2list, get_default_args)
+    potcar_str2dict, list2dict, get_default_args)
 from vise.util.testing import ViseTest
 
 
@@ -54,12 +54,6 @@ class List2DictTest(ViseTest):
         with self.assertRaises(ValueError):
             list2dict(flattened_list, self.key_candidates)
 
-
-class Dict2ListTest(ViseTest):
-    def test_dict2list(self):
-        actual = dict2list({"a": 1, "b": "2 3 4", "c": True})
-        expected = ["a", "1", "b", "2", "3", "4", "c", "True"]
-        self.assertEqual(expected, actual)
 
 
 class GetDefaultArgsTest(ViseTest):

@@ -13,14 +13,10 @@ from pymatgen.core.structure import IStructure
 
 from vise.util.testing import ViseTest
 from vise.cli.main_function import (
-    vasp_settings_from_args, get_poscar_from_mp, vasp_set,
-    chempotdiag, plot_band, plot_dos, band_gap)
-from vise.cli.tests.test_main import default_vasp_args, symprec_args
+    vasp_settings_from_args, get_poscar_from_mp, vasp_set)
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc
-from vise.config import INSULATOR_KPT_DENSITY
-
-vasp_args = default_vasp_args
+from vise.defaults import defaults
 
 
 class VaspSettingsFromArgsTest(ViseTest):
@@ -30,7 +26,7 @@ class VaspSettingsFromArgsTest(ViseTest):
                 "vise_opts": ["only_even", "True"],
                 "user_incar_settings": ["POTIM", "0.4"],
                 "additional_user_incar_settings": ["ALGO", "Fast"],
-                "potcar_set": ["Mn_pv"],
+                "overridden_potcar_dict": ["Mn_pv"],
                 "potcar_set_name": "normal"}
         self.args = Namespace(**vasp)
 
@@ -49,19 +45,12 @@ class VaspSettingsFromArgsTest(ViseTest):
         self.assertEqual(expected, vis_base_kwargs)
 
 
-class GetPoscarFromMpTest(ViseTest):
-    def setUp(self) -> None:
-        self.args_num = Namespace(number=110, poscar="POSCAR")
-        self.kwargs = {"elements": ["Mg", "O"],
-                       "e_above_hull": 1.5,
-                       "molecules": True}
-        self.args_elements = Namespace(**self.kwargs)
-        self.args_none = Namespace()
+#        self.args_num =
 
-    @unittest.skipIf(not ViseTest.PMG_MAPI_KEY, ViseTest.no_mapi_key)
-    def test_number(self):
-        get_poscar_from_mp(self.args_num)
-        expected = IStructure.from_str("""Mg1
+#@unittest.skipIf(not ViseTest.PMG_MAPI_KEY, ViseTest.no_mapi_key)
+def test_number():
+    get_poscar_from_mp(Namespace(number=110, poscar="POSCAR"))
+    expected = IStructure.from_str("""Mg1
 1.0
 2.922478 0.000000 -1.033252
 -1.461239 2.530940 -1.033252
@@ -70,18 +59,18 @@ Mg
 1
 direct
 0.000000 0.000000 0.000000 Mg""", fmt="poscar")
-        actual = IStructure.from_file("POSCAR")
-        self.assertEqual(expected, actual)
+    actual = IStructure.from_file("POSCAR")
+    assert actual == expected
+    if os.path.exists("POSCAR"):
+        os.remove("POSCAR")
 
-    def test_warning(self):
-        expected = ["WARNING:vise.cli.main_function:Set mp number"]
-        with self.assertLogs(level="WARNING") as cm:
-            get_poscar_from_mp(self.args_none)
-            self.assertEqual(expected, cm.output)
 
-    def tearDown(self) -> None:
-        if os.path.exists("POSCAR"):
-            os.remove("POSCAR")
+def test_warning(self):
+    expected = ["WARNING:vise.cli.main_function:Set mp number"]
+    with self.assertLogs(level="WARNING") as cm:
+        get_poscar_from_mp(self.args_none)
+        self.assertEqual(expected, cm.output)
+
 
 
 class VaspSetTest(ViseTest):
@@ -117,7 +106,7 @@ class VaspSetTest(ViseTest):
     @patch('vise.cli.main_function.ViseInputSet.from_prev_calc')
     def test_prev_dir(self, mock):
         vasp_set(self.args_prev)
-        kwargs = {"override_potcar_set": vasp_args["potcar_set"] or {},
+        kwargs = {"override_potcar_set": vasp_args["overridden_potcar_dict"] or {},
                   "potcar_set_name": vasp_args["potcar_set_name"],
                   "ldauu": vasp_args["ldauu"] or {},
                   "ldaul": vasp_args["ldaul"] or {},
@@ -142,7 +131,7 @@ class VaspSetTest(ViseTest):
         user_incar_settings = {}
 
         kwargs = {"structure": mock_structure(),
-                  "override_potcar_set": vasp_args["potcar_set"] or {},
+                  "override_potcar_set": vasp_args["overridden_potcar_dict"] or {},
                   "potcar_set_name": vasp_args["potcar_set_name"],
                   "ldauu": vasp_args["ldauu"] or {},
                   "ldaul": vasp_args["ldaul"] or {},

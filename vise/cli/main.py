@@ -88,7 +88,7 @@ Version: {__version__}
         "-d", "--prev_dir", type=str,
         help="Parse the previous calculations for better input settings.")
     parser_vasp_set.add_argument(
-        "--potcar", default=defaults.potcar_list, type=str, nargs="+",
+        "--potcar", default=defaults.potcar_dict, type=str, nargs="+",
         help="User specifying POTCAR set. E.g., Mg_pv O_h")
     parser_vasp_set.add_argument(
         "--potcar_set_name",
@@ -172,7 +172,7 @@ Version: {__version__}
         "-f", dest="filename", type=str, help="pdf file name.")
     parser_plot_band.add_argument(
         "-a", dest="absolute", action="store_true",
-        help="Show in the absolute energy scale.")
+        help="Show in the absolute energies scale.")
     parser_plot_band.add_argument(
         "--legend", type=str2bool, default=True,
         help="Not show the legend.")
@@ -211,7 +211,7 @@ Version: {__version__}
         help="Whether to decompose orbital components.")
     parser_plot_dos.add_argument(
         "-x", "--x_range", nargs="+", type=float,
-        help="Set energy minimum and maximum.")
+        help="Set energies minimum and maximum.")
     parser_plot_dos.add_argument(
         "-y", "--ymaxs", nargs="+", type=float,
         help="Set max values of y ranges. Support two ways."
@@ -222,7 +222,7 @@ Version: {__version__}
         help="Pdf file name.")
     parser_plot_dos.add_argument(
         "-a", "--absolute", action="store_true",
-        help="Set when showing the figure in the absolute energy scale.")
+        help="Set when showing the figure in the absolute energies scale.")
     parser_plot_dos.add_argument(
         "-l", "--legend", type=str2bool, default=True,
         help="Whether to show the figure legend.")

@@ -49,7 +49,7 @@ def test_vasp_set_wo_options():
         length_tol=defaults.symmetry_length_tolerance,
         ldaul=defaults.ldaul,
         ldauu=defaults.ldauu,
-        potcar=defaults.potcar_list,
+        potcar=defaults.potcar_dict,
         potcar_set_name=defaults.potcar_set_name,
         poscar="POSCAR",
         prev_dir=None,
