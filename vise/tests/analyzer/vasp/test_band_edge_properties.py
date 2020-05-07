@@ -10,13 +10,17 @@ from vise.analyzer.vasp.band_edge_properties import eigenvalues_from_vasprun, \
 from vise.tests.analyzer.test_band_edge_properties import parent_dir
 
 
-def test_eigenvalues_from_vasprun():
-    vasprun = Vasprun(parent_dir / "MnO_uniform_vasprun.xml")
+def test_eigenvalues_from_vasprun(test_data_files):
+    vasprun_file = str(test_data_files / "MnO_uniform_vasprun.xml")
+    vasprun = Vasprun(vasprun_file)
     assert eigenvalues_from_vasprun(vasprun)[Spin.up][1, 2] == -0.1397
 
 
-def test_band_edge_properties_from_vasp():
-    vasprun = Vasprun(parent_dir / "MnO_uniform_vasprun.xml")
-    outcar = Outcar(parent_dir / "MnO_uniform_OUTCAR")
+def test_band_edge_properties_from_vasp(test_data_files):
+    vasprun_file = str(test_data_files / "MnO_uniform_vasprun.xml")
+    vasprun = Vasprun(vasprun_file)
+    outcar_file = str(test_data_files / "MnO_uniform_OUTCAR")
+    outcar = Outcar(outcar_file)
     band_edge = VaspBandEdgeProperties(vasprun, outcar)
+
     assert pytest.approx(band_edge.band_gap) == 0.4702
