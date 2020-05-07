@@ -3,12 +3,11 @@
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
 import re
-from collections import defaultdict
 
-from pymatgen import Spin
 from pymatgen.electronic_structure.plotter import BSPlotter
 from pymatgen.io.vasp import Vasprun
 from pymatgen.util.string import latexify
+
 from vise.analyzer.plot_band import BandPlotter, BandInfo, XTicks, BandEdge
 
 
@@ -27,8 +26,7 @@ class VaspBandPlotter(BandPlotter):
     def __init__(self,
                  vasprun: Vasprun,
                  kpoints_filename: str,
-                 reference_energy: float = None,
-                 ):
+                 base_energy: float = None):
 
         self._bs = vasprun.get_band_structure(kpoints_filename, line_mode=True)
         self._plot_data = BSPlotter(self._bs).bs_plot_data(zero_to_efermi=False)
@@ -38,7 +36,7 @@ class VaspBandPlotter(BandPlotter):
                          distances_by_branch=self._plot_data["distances"],
                          x_ticks=self._x_ticks,
                          y_range=[-10, 10],
-                         reference_energy=reference_energy,
+                         base_energy=base_energy,
                          title=self._title)
 
     @property

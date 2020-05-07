@@ -50,7 +50,7 @@ def test_vasp_band_plotter(is_metal, expected_band_edge, mocker):
     mock_bsp = mocker.patch("vise.analyzer.vasp.plot_band.BSPlotter", auto_spec=True)
     mock_bsp().bs_plot_data.return_value = plot_data
 
-    plotter = VaspBandPlotter(stub_vasprun, "KPOINTS", reference_energy=0)
+    plotter = VaspBandPlotter(stub_vasprun, "KPOINTS", base_energy=0)
 
     expected_x_ticks = XTicks(labels=["A", "${\\rm A}_0$", "Γ"],
                               distances=label_distances)
