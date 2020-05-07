@@ -9,7 +9,7 @@ from pymatgen.io.vasp.sets import Poscar, Kpoints, Potcar
 from vise import __version__
 from vise.input_set.incar import ViseIncar
 from vise.input_set.incar_settings_generator import IncarSettingsGenerator
-from vise.input_set.input_options import ClassifiedInputOptions
+from vise.input_set.input_options import CategorizedInputOptions
 from vise.input_set.potcar_generator import generate_potcar
 from vise.input_set.structure_kpoints_generator import StructureKpointsGenerator
 from vise.util.logger import get_logger
@@ -20,7 +20,7 @@ logger = get_logger(__name__)
 
 class VaspInputFiles:
     def __init__(self,
-                 input_options: ClassifiedInputOptions,
+                 input_options: CategorizedInputOptions,
                  overwritten_incar_settings: Optional[dict] = None):
 
         self._version = __version__

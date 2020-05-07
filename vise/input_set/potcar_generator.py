@@ -17,7 +17,7 @@ def generate_potcar(symbol_list: list,
                     potcar_set: PotcarSet = PotcarSet.normal,
                     override_potcar_set: Optional[dict] = None):
 
-    potcar_dict = potcar_set.potcar_dict(override_potcar_set)
+    potcar_dict = potcar_set.overridden_potcar_dict(override_potcar_set)
     try:
         potcar_symbols = [potcar_dict[el] for el in symbol_list]
     except KeyError as e:

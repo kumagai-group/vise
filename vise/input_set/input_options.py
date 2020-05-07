@@ -17,7 +17,7 @@ from vise.util.logger import get_logger
 logger = get_logger(__name__)
 
 
-class ClassifiedInputOptions:
+class CategorizedInputOptions:
     def __init__(self,
                  input_structure: Structure,
                  task: Task,

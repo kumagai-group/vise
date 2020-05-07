@@ -158,8 +158,8 @@ class StructureKpointsGenerator:
         k_path = self._symmetrizer.seekpath_data["explicit_kpoints_rel"]
         k_labels = self._symmetrizer.seekpath_data["explicit_kpoints_labels"]
         formula = self._structure.composition.reduced_formula
-        self.kpoints.comment += \
-           f"k-path added by seekpath. Formula: {formula} SG: {self.sg}"
+        # self.kpoints.comment += \
+        #    f"k-path added by seekpath. Formula: {formula} SG: {self.sg}"
         self._kpoints.num_kpts += len(k_path)
         self._kpoints.kpts += list(k_path)
         self._kpoints.labels += k_labels

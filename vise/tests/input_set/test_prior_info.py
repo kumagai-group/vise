@@ -9,9 +9,10 @@ from pathlib import Path
 import pytest
 from pymatgen.core.structure import Structure
 
-from vise.input_set.prior_info import PriorInfo, PriorInfoFromCalcDir
+from vise.input_set.prior_info import PriorInfo #  , PriorInfoFromCalcDir
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc
+from vise.defaults import defaults
 
 
 @pytest.fixture
@@ -52,23 +53,6 @@ def test_properties(nonmagnetic_insulator):
     assert nonmagnetic_insulator.is_metal is False
 
 
-"""
-TODO
-* Allow to set directory Path.
-* Construct FileTransfers. 
-* Parse all the previous options.
-* Consider if parse_prev_calc is changed to a function or not.
-
-DONE
-* Extract fixture from the test.
-* Parse the cwd and get a structure from an existing POSCAR
-* Parse previous directory and get structure
-* Allow the different POSCAR name.
-* Parse cwd, get band gap and set vbm_cbm
-* Parse cwd, get magnetic moment and set is_magnetization.
-"""
-
-
 @pytest.fixture()
 def sc_structure():
     lattice = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
@@ -77,28 +61,29 @@ def sc_structure():
 
     return results
 
+
 @pytest.fixture
-def input_options(sc_structure):
-    with tempfile.TemporaryDirectory() as prev_calc_dir:
-        os.chdir(prev_calc_dir)
-        sc_structure.to(fmt="POSCAR", filename="CONTCAR-relaxed")
-        vasp_files = PriorInfoFromCalcDir(contcar="CONTCAR-relaxed",
-                                          prev_dir_path=Path(prev_calc_dir))
-        return vasp_files.generate_input_options(task=Task.structure_opt,
-                                                 xc=Xc.pbe,
-                                                 charge=1.0)
+def input_options(sc_structure, tmpdir):
+    prev_calc_dir = tmpdir
+    os.chdir(prev_calc_dir)
+    sc_structure.to(fmt="POSCAR", filename="CONTCAR-relaxed")
+    vasp_files = PriorInfoFromCalcDir(contcar="CONTCAR-relaxed",
+                                      prev_dir_path=Path(prev_calc_dir))
+    return vasp_files.generate_input_options(task=Task.structure_opt,
+                                             xc=Xc.pbe,
+                                             charge=1.0)
 
-
-def test_get_structure_from_prev_dir(input_options, sc_structure, mocker):
-    # mock = mocker.patch("vise.input_set.input_options.vbm_cbm_from_vasprun")
-    # mock.return_value = [0.0, 1.0]
-    # mock_mag = mocker.patch("vise.input_set.input_options.is_magnetic_from_outcar")
-    # mock_mag.return_value = True
-
-    assert input_options.initial_structure == sc_structure
-    assert input_options.incar_settings_options["charge"] == 1.0
-    assert input_options.incar_settings_options["vbm_cbm"] == [0.0, 1.0]
-    assert input_options.incar_settings_options["is_magnetization"] is True
+#
+# def test_get_structure_from_prev_dir(input_options, sc_structure, mocker):
+#
+#     mock = mocker.patch("vise.input_set.prior_info.Outcar")
+#     mock.return_value = [0.0, 1.0]
+#     mock_mag = mocker.patch("vise.input_set.input_options.is_magnetic_from_outcar")
+#     mock_mag.total_mag = defaults.integer_criterion + 1e-5
+#
+#     assert input_options.incar_settings_options["charge"] == 1.0
+#     assert input_options.incar_settings_options["vbm_cbm"] == [0.0, 1.0]
+#     assert input_options.incar_settings_options["is_magnetization"] is True
 
 
 # def test_get_structure_from_prev_dir(sc_structure):
@@ -113,4 +98,16 @@ def test_get_structure_from_prev_dir(input_options, sc_structure, mocker):
 
 # assert opts.initial_structure == sc_structure
 # assert opts.incar_settings_options["charge"] == 1.0
+
+"""
+TODO
+* Allow to set directory Path.
+* Construct FileTransfers. 
+* Parse all the previous options.
+* Consider if parse_prev_calc is changed to a function or not.
+
+DONE
+
+"""
+
 
