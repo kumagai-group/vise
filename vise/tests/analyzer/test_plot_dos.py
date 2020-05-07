@@ -65,7 +65,7 @@ def test_dos_mpl_settings_defaults():
     assert mpl_settings.colors == ['#36454f', '#E15759', '#4E79A7', '#F28E2B', '#76B7B2']
     assert mpl_settings.linewidth == 1.0
     assert mpl_settings.title_font_size == 15
-    assert mpl_settings.label_font_size == 15
+    assert mpl_settings.label_font_size == 12
     assert mpl_settings.vline == {"linewidth": 0.75, "color": "black", "linestyle": "-."}
 
 
@@ -128,6 +128,17 @@ def test_set_x_and_y_range(mock_plt_list):
     _, mock_1st_ax, _ = mock_plt_list
     mock_1st_ax.set_ylim.assert_called_with([-10, 10])
     mock_1st_ax.set_xlim.assert_called_with([-6, 6])
+
+
+def test_set_labels(mock_plt_list):
+    mock_plt, mock_1st_ax, mock_2nd_ax = mock_plt_list
+    defaults = DosMplSettings()
+    mock_plt.xlabel.assert_called_with("Energy (eV)",
+                                       size=defaults.label_font_size)
+    mock_1st_ax.set_ylabel.assert_called_with("Dos (1/eV)",
+                                       size=defaults.label_font_size)
+    mock_2nd_ax.set_ylabel.assert_called_with("Dos (1/eV)",
+                                       size=defaults.label_font_size)
 
 
 def test_actual_plot():

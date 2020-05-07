@@ -3,12 +3,13 @@
 
 from copy import deepcopy
 from dataclasses import dataclass
-from typing import List, Dict, Optional
-import numpy as np
+from typing import List, Optional
+
 import matplotlib.pyplot as plt
-from pymatgen import Spin
-from vise.util.matplotlib import float_to_int_formatter
+import numpy as np
 from num2words import num2words
+
+from vise.util.matplotlib import float_to_int_formatter
 
 
 @dataclass(frozen=True)
@@ -37,25 +38,25 @@ class BandInfo:
         if self.band_edge is None and self.fermi_level is None:
             raise ViseBandInfoError
 
-    def slide_energies(self, reference_energy):
-        self._slide_band_energies(reference_energy)
-        self._slide_band_edge(reference_energy)
-        self._slide_fermi_level(reference_energy)
+    def slide_energies(self, base_energy):
+        self._slide_band_energies(base_energy)
+        self._slide_band_edge(base_energy)
+        self._slide_fermi_level(base_energy)
 
-    def _slide_band_energies(self, reference_energy):
+    def _slide_band_energies(self, base_energy):
         new_array = []
         for band_energies_each_branch in self.band_energies:
             a = np.array(band_energies_each_branch)
-            new_array.append((a - reference_energy).tolist())
+            new_array.append((a - base_energy).tolist())
 
-    def _slide_fermi_level(self, reference_energy):
+    def _slide_fermi_level(self, base_energy):
         if self.fermi_level:
-            self.fermi_level -= reference_energy
+            self.fermi_level -= base_energy
 
-    def _slide_band_edge(self, reference_energy):
+    def _slide_band_edge(self, base_energy):
         if self.band_edge:
-            self.band_edge.vbm -= reference_energy
-            self.band_edge.cbm -= reference_energy
+            self.band_edge.vbm -= base_energy
+            self.band_edge.cbm -= base_energy
 
     @property
     def is_magnetic(self):
@@ -66,7 +67,7 @@ class ViseBandInfoError(Exception):
     pass
 
 
-class BandMplDefaults:
+class BandMplSettings:
     def __init__(self,
                  colors: Optional[List[str]] = None,
                  linewidth: float = 1.0,
@@ -114,8 +115,8 @@ class BandPlotter:
                  x_ticks: XTicks,
                  y_range: List[float],
                  title: str = None,
-                 reference_energy: float = None,
-                 mpl_defaults: Optional[BandMplDefaults] = BandMplDefaults()
+                 base_energy: float = None,
+                 mpl_defaults: Optional[BandMplSettings] = BandMplSettings()
                  ):
 
         assert distances_by_branch[0][0] == x_ticks.distances[0]
@@ -129,16 +130,17 @@ class BandPlotter:
         self.mpl_defaults = mpl_defaults
         self.plt = plt
 
-        self._slide_energies(reference_energy)
+        self._slide_energies(base_energy)
 
-    def _slide_energies(self, reference_energy):
-        if reference_energy is None:
+    def _slide_energies(self, base_energy):
+        if base_energy is None:
             if self.band_info_set[0].band_edge is not None:
-                reference_energy = self.band_info_set[0].band_edge.vbm
+                base_energy = self.band_info_set[0].band_edge.vbm
             elif self.band_info_set[0].fermi_level:
-                reference_energy = self.band_info_set[0].fermi_level
+                base_energy = self.band_info_set[0].fermi_level
 
-        self.band_info_set[0].slide_energies(reference_energy)
+        for band_info in self.band_info_set:
+            band_info.slide_energies(base_energy)
 
     def construct_plot(self):
         self._add_band_set()
@@ -165,18 +167,15 @@ class BandPlotter:
         mpl_args = self.mpl_defaults.band_structure(index)
         for distances, energies_each_branch \
                 in zip(self.distances_by_branch,  band_info.band_energies):
-            for i, energies_of_each_spin in enumerate(energies_each_branch):
-                self._set_linestyle(i, mpl_args)
-                for energies_of_a_band in energies_of_each_spin:
+            for spin_index, energies_by_spin in enumerate(energies_each_branch):
+                if spin_index == 0:
+                    mpl_args.pop("linestyle", None)
+                else:
+                    mpl_args["linestyle"] = ":"
+
+                for energies_of_a_band in energies_by_spin:
                     self.plt.plot(distances, energies_of_a_band, **mpl_args)
                     mpl_args.pop("label", None)
-
-    @staticmethod
-    def _set_linestyle(i, mpl_args):
-        if i == 0:
-            mpl_args.pop("linestyle", None)
-        else:
-            mpl_args["linestyle"] = ":"
 
     def _add_band_edge(self, band_edge, index):
         self.plt.axhline(y=band_edge.vbm, **self.mpl_defaults.hline)

@@ -7,7 +7,7 @@ import numpy as np
 import pytest
 from pymatgen import Spin
 from vise.analyzer.plot_band import (
-    BandPlotter, BandInfo, BandEdge, XTicks, BandMplDefaults,
+    BandPlotter, BandInfo, BandEdge, XTicks, BandMplSettings,
     ViseBandInfoError)
 from vise.util.matplotlib import float_to_int_formatter
 
@@ -29,7 +29,7 @@ distances = [[0, 1, 2, 3, 4, 5, 6], [6, 7, 8, 9]]
 x_ticks = XTicks(["A", "B", "C$\\mid$D", "E"], [0.0, 5.0, 6.0, 9.0])
 y_range = [-10, 10]
 title = "Title"
-reference_energy = 1.0
+base_energy = 1.0
 # [by branch][by spin][by band idx][by k-path idx]
 band_energies = [[[[-3.0, -2, -1, -1, -1, -2, -3], [7.0, 6, 5, 4, 3, 2, 3]]],
                  [[[-4.0, -5, -6, -7], [5, 2, 7, 8]]]]
@@ -54,7 +54,7 @@ def band_info_set(band_info):
 
 
 @pytest.fixture
-def mock_plt_axis(mocker, band_info_set):
+def mock_plt_list(mocker, band_info_set):
     mock_plt = mocker.patch("vise.analyzer.plot_band.plt", auto_spec=True)
     mock_axis = MagicMock()
     mock_plt.gca.return_value = mock_axis
@@ -64,7 +64,7 @@ def mock_plt_axis(mocker, band_info_set):
 
 
 def test_band_info_slide_energies(band_info):
-    band_info.slide_energies(reference_energy=reference_energy)
+    band_info.slide_energies(base_energy=base_energy)
     expected_band_edge = BandEdge(vbm=-2, cbm=1,
                                   vbm_distances=[2, 3, 4], cbm_distances=[5, 7])
     expected_fermi_level = 0.5
@@ -81,19 +81,19 @@ def test_raise_error_when_both_band_edge_fermi_level_absent():
 
 
 def test_slide_energies_when_band_edge_is_none():
-    band_info_fermi.slide_energies(reference_energy=reference_energy)
+    band_info_fermi.slide_energies(base_energy=base_energy)
     assert band_info_fermi.band_edge is None
-    assert band_info_fermi.fermi_level == fermi_level - reference_energy
+    assert band_info_fermi.fermi_level == fermi_level - base_energy
 
 
 def test_slide_energies_when_fermi_is_none():
-    band_info_edge.slide_energies(reference_energy=reference_energy)
-    assert band_info_edge.band_edge.vbm == band_edge.vbm - reference_energy
+    band_info_edge.slide_energies(base_energy=base_energy)
+    assert band_info_edge.band_edge.vbm == band_edge.vbm - base_energy
     assert band_info_edge.fermi_level is None
 
 
 def test_band_mpl_defaults():
-    band_defaults = BandMplDefaults()
+    band_defaults = BandMplSettings()
 
     assert band_defaults.colors == colors
     assert band_defaults.linewidth == 1.0
@@ -102,7 +102,7 @@ def test_band_mpl_defaults():
     assert band_defaults.title_font_size == 15
     assert band_defaults.label_font_size == 15
 
-    band_defaults = BandMplDefaults(colors=["black"],
+    band_defaults = BandMplSettings(colors=["black"],
                                     linewidth=2.0,
                                     circle_size=200,
                                     circle_colors=["blue"],
@@ -117,9 +117,9 @@ def test_band_mpl_defaults():
     assert band_defaults.label_font_size == 40
 
 
-def test_add_band_structures(mock_plt_axis):
-    mock_plt, _ = mock_plt_axis
-    linewidth = BandMplDefaults().linewidth
+def test_add_band_structures(mock_plt_list):
+    mock_plt, _ = mock_plt_list
+    linewidth = BandMplSettings().linewidth
     # 1st branch, 1st band
     args = {"color": colors[0], "linewidth": linewidth, "label": "first"}
     mock_plt.plot.assert_any_call(distances[0], band_energies[0][0][0], **args)
@@ -135,10 +135,10 @@ def test_add_band_structures(mock_plt_axis):
     mock_plt.plot.assert_any_call(distances[1], band_energies[1][0][1], **args)
 
 
-def test_add_band_edge_circles(mock_plt_axis, band_info_set):
-    mock_plt, _ = mock_plt_axis
+def test_add_band_edge_circles(mock_plt_list, band_info_set):
+    mock_plt, _ = mock_plt_list
     edge = band_info_set[0].band_edge
-    defaults = BandMplDefaults()
+    defaults = BandMplSettings()
 
     mock_plt.scatter.assert_any_call(edge.vbm_distances[0], edge.vbm,
                                      **defaults.circle(0))
@@ -150,39 +150,39 @@ def test_add_band_edge_circles(mock_plt_axis, band_info_set):
     mock_plt.axhline.assert_any_call(y=edge.cbm, **defaults.hline)
 
 
-def test_figure_legends(mock_plt_axis):
-    mock_plt, _ = mock_plt_axis
+def test_figure_legends(mock_plt_list):
+    mock_plt, _ = mock_plt_list
     mock_plt.legend.assert_called_once_with(loc="lower right")
 
 
-def test_set_fermi_level(mock_plt_axis, band_info_set):
-    band_defaults = BandMplDefaults()
-    mock_plt, _ = mock_plt_axis
+def test_set_fermi_level(mock_plt_list, band_info_set):
+    band_defaults = BandMplSettings()
+    mock_plt, _ = mock_plt_list
     mock_plt.axhline.assert_called_with(y=band_info_set[0].fermi_level,
                                         **band_defaults.hline)
 
 
-def test_set_x_range(mock_plt_axis):
-    mock_plt, _ = mock_plt_axis
+def test_set_x_range(mock_plt_list):
+    mock_plt, _ = mock_plt_list
     mock_plt.xlim.assert_called_with(distances[0][0], distances[-1][-1])
 
 
-def test_set_y_range(mock_plt_axis):
-    mock_plt, _ = mock_plt_axis
+def test_set_y_range(mock_plt_list):
+    mock_plt, _ = mock_plt_list
     mock_plt.ylim.assert_called_with(y_range[0], y_range[1])
 
 
-def test_set_labels(mock_plt_axis):
-    mock_plt, _ = mock_plt_axis
-    defaults = BandMplDefaults()
+def test_set_labels(mock_plt_list):
+    mock_plt, _ = mock_plt_list
+    defaults = BandMplSettings()
     mock_plt.xlabel.assert_called_with("Wave vector",
                                        size=defaults.label_font_size)
     mock_plt.ylabel.assert_called_with("Energy (eV)",
                                        size=defaults.label_font_size)
 
 
-def test_set_x_tics(mock_plt_axis):
-    mock_plt, mock_axis = mock_plt_axis
+def test_set_x_tics(mock_plt_list):
+    mock_plt, mock_axis = mock_plt_list
 
     mock_axis.set_xticks.assert_called_once_with(x_ticks.distances)
     mock_axis.set_xticklabels.assert_called_once_with(x_ticks.labels)
@@ -190,20 +190,20 @@ def test_set_x_tics(mock_plt_axis):
     mock_plt.axvline.assert_any_call(x=x_ticks.distances[1], linestyle="--")
 
 
-def test_set_title(mock_plt_axis):
-    mock_plt, _ = mock_plt_axis
-    defaults = BandMplDefaults()
+def test_set_title(mock_plt_list):
+    mock_plt, _ = mock_plt_list
+    defaults = BandMplSettings()
     mock_plt.title.assert_called_once_with(title, size=defaults.title_font_size)
 
 
-def test_set_float_to_int_formatter(mock_plt_axis):
-    _, mock_axis = mock_plt_axis
+def test_set_float_to_int_formatter(mock_plt_list):
+    _, mock_axis = mock_plt_list
     mock_axis.yaxis.set_major_formatter.assert_called_once_with(
         float_to_int_formatter)
 
 
-def test_plot_tight_layout(mock_plt_axis):
-    mock_plt, _ = mock_plt_axis
+def test_plot_tight_layout(mock_plt_list):
+    mock_plt, _ = mock_plt_list
     mock_plt.tight_layout.assert_called_once_with()
 
 
@@ -226,7 +226,7 @@ def test_reference_energy(ref_energy, subtracted_energy, mocker, band_info_set):
                           ref_energy)
     plotter.construct_plot()
 
-    band_defaults = BandMplDefaults()
+    band_defaults = BandMplSettings()
     mock_plt.axhline.assert_called_with(y=fermi_level - subtracted_energy,
                                         **band_defaults.hline)
 

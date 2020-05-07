@@ -4,6 +4,7 @@
 from typing import List, Optional
 
 import matplotlib.pyplot as plt
+
 from vise.analyzer.dos_data import DosPlotData
 
 
@@ -15,7 +16,7 @@ class DosMplSettings:
                  band_edge_line_color: str = "black",
                  band_edge_line_style: str = "-.",
                  title_font_size: int = 15,
-                 label_font_size: int = 15,
+                 label_font_size: int = 12,
                  ):
         self.colors = colors or ['#36454f', '#E15759', '#4E79A7', '#F28E2B',
                                  '#76B7B2']
@@ -51,6 +52,7 @@ class DosPlotter:
         self._axs[0].set_xlim(self._dos_info.xlim)
         for i in range(len(self._dos_info.doses)):
             self._add_ax(i)
+        self._set_x_labels()
 
     def _add_ax(self, i):
         self._add_dos(i)
@@ -69,10 +71,14 @@ class DosPlotter:
                                   dos_for_plot, **args)
 
         self._axs[i].legend(loc="best", markerscale=0.1)
+        self._axs[i].set_ylabel("Dos (1/eV)", size=self.mpl_defaults.label_font_size)
 
     def _set_dos_zero_line(self, i):
         self._axs[i].axhline(0, linestyle=":", color="black")
 
     def _set_y_range(self, i):
         self._axs[i].set_ylim(self._dos_info.ylim_set[i])
+
+    def _set_x_labels(self):
+        self.plt.xlabel("Energy (eV)", size=self.mpl_defaults.label_font_size)
 

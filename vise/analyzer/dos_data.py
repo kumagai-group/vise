@@ -2,9 +2,10 @@
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
 from dataclasses import dataclass
-from typing import Dict, Optional, List
-import numpy as np
 from functools import reduce
+from typing import Dict, Optional, List
+
+import numpy as np
 
 
 class PDos:
@@ -15,7 +16,7 @@ class PDos:
                  pz:  np.ndarray,
                  dxy: np.ndarray,
                  dyz: np.ndarray,
-                 dzx: np.ndarray,
+                 dxz: np.ndarray,
                  dx2: np.ndarray,
                  dz2: np.ndarray,
                  f_3: Optional[np.ndarray] = None,
@@ -32,7 +33,7 @@ class PDos:
         self.pz = pz
         self.dxy = dxy
         self.dyz = dyz
-        self.dzx = dzx
+        self.dxz = dxz
         self.dx2 = dx2
         self.dz2 = dz2
         self.f_3 = f_3
@@ -49,7 +50,7 @@ class PDos:
 
     @property
     def d(self):
-        return self.dxy + self.dyz + self.dzx + self.dx2 + self.dz2
+        return self.dxy + self.dyz + self.dxz + self.dx2 + self.dz2
 
     @property
     def f(self):
@@ -68,17 +69,17 @@ class DosData:
     def __init__(self,
                  energies: List[float],
                  total: np.ndarray,
-                 pdos: List[PDos]):  # [by atom index]
+                 pdos: List[PDos]):
 
         self.energies = energies
         self.total = total
         self.pdos = pdos
 
     def dos_plot_data(self,
-                          grouped_atom_indices: Dict[str, List[int]],
-                          xlim: Optional[List[float]] = None,
-                          ylim_set: Optional[List[List[float]]] = None
-                          ) -> "DosPlotData":
+                      grouped_atom_indices: Dict[str, List[int]],
+                      xlim: Optional[List[float]] = None,
+                      ylim_set: Optional[List[List[float]]] = None,
+                      base_energy: Optional[float] = None) -> "DosPlotData":
 
         if ylim_set is not None:
             assert len(grouped_atom_indices) + 1 == len(ylim_set)  # total+pdos
@@ -98,8 +99,12 @@ class DosData:
         xlim = xlim or [-10, 10]
         ylim_set = ylim_set or [[-y, y] for y in self.max_y_ranges(doses)]
 
-        return DosPlotData(self.energies, doses, xlim, ylim_set)
+        if base_energy:
+            energies = [e - base_energy for e in self.energies]
+        else:
+            energies = self.energies
 
+        return DosPlotData(energies, doses, xlim, ylim_set)
 
     @staticmethod
     def max_y_ranges(doses, multi=1.1, round_digit=2):
