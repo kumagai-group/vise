@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Dict
 
 import yaml
 from monty.json import MSONable
@@ -11,9 +11,10 @@ from monty.serialization import loadfn
 from pymatgen import Structure
 from pymatgen.io.vasp import Vasprun, Outcar
 
-from vise.analyzer.vasp.band_edge_properties import VaspBandEdgeProperties
 from vise.defaults import defaults
 from vise.input_set.input_options import CategorizedInputOptions
+from vise.analyzer.vasp.band_edge_properties import VaspBandEdgeProperties
+from vise.util.file_transfer import FileTransfers
 
 
 @dataclass()
@@ -21,6 +22,7 @@ class PriorInfo(MSONable):
     structure: Structure = None
     energy_per_atom: float = None
     band_gap: float = None
+    vbm_cbm: list = field(default_factory=list)
     total_magnetization: float = None
     data_source: str = None
     is_cluster: bool = None
@@ -62,29 +64,34 @@ class PriorInfo(MSONable):
     def is_metal(self) -> bool:
         return not self.has_band_gap
 
-#
-# class PriorInfoFromCalcDir:
-#     def __init__(self,
-#                  prev_dir_path: Path,
-#                  contcar: str = "CONTCAR",
-#                  vasprun: str = "vasprun.xml",
-#                  outcar: str = "OUTCAR",
-#                  integer_criterion: float = defaults.integer_criterion):
-#         self._vasprun = Vasprun(str(prev_dir_path / vasprun))
-#         self._outcar = Outcar(str(prev_dir_path / outcar))
-#         self._integer_criterion = integer_criterion
-#
-#         self.structure = Structure.from_file(str(prev_dir_path / contcar))
-#
-#     def vbm_cbm(self):
-#         band_edges = VaspBandEdgeProperties(self._vasprun, self._outcar)
-#         return [band_edges.vbm_info.energy, band_edges.cbm_info.energy]
-#
-#     def is_magnetic(self):
-#         return self._outcar.total_mag > self._integer_criterion
-#
-#     def generate_input_options(self, **input_options_w_task_xc):
-#         input_options_w_task_xc.update({"input_structure": self.structure,
-#                                         "vbm_cbm": self.vbm_cbm,
-#                                         "is_magnetization": self.is_magnetic})
-#         return CategorizedInputOptions(**input_options_w_task_xc)
+    def input_options_kwargs(self):
+        return {"input_structure": self.structure,
+                "band_gap": self.band_gap,
+                "vbm_cbm": self.vbm_cbm,
+                "is_magnetization": self.is_magnetic}
+
+
+class PriorInfoFromCalcDir(PriorInfo):
+    def __init__(self,
+                 prev_dir_path: Path,
+                 vasprun: str = "vasprun.xml",
+                 outcar: str = "OUTCAR",
+                 file_transfer_type: Optional[Dict[str, str]] = None):
+
+        vasprun = Vasprun(str(prev_dir_path / vasprun))
+        outcar = Outcar(str(prev_dir_path / outcar))
+
+        structure = vasprun.final_structure.copy()
+        energy_per_atom = vasprun.final_energy / len(structure)
+        band_edge_property = VaspBandEdgeProperties(vasprun, outcar)
+        total_magnetization = outcar.total_mag
+
+        super().__init__(structure=structure,
+                         energy_per_atom=energy_per_atom,
+                         band_gap=band_edge_property.band_gap,
+                         vbm_cbm=band_edge_property.vbm_cbm,
+                         total_magnetization=total_magnetization)
+
+        self.file_transfer_type = FileTransfers(file_transfer_type,
+                                                path=prev_dir_path)
+
