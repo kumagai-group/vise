@@ -136,9 +136,9 @@ def test_set_labels(mock_plt_list):
     mock_plt.xlabel.assert_called_with("Energy (eV)",
                                        size=defaults.label_font_size)
     mock_1st_ax.set_ylabel.assert_called_with("Dos (1/eV)",
-                                       size=defaults.label_font_size)
+                                              size=defaults.label_font_size)
     mock_2nd_ax.set_ylabel.assert_called_with("Dos (1/eV)",
-                                       size=defaults.label_font_size)
+                                              size=defaults.label_font_size)
 
 
 def test_actual_plot():

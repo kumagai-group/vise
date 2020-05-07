@@ -1,1 +1,1 @@
-__version__ = "0.1.13"
+from vise.version import __version__

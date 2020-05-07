@@ -21,13 +21,13 @@ logger = get_logger(__name__)
 class VaspInputFiles:
     def __init__(self,
                  input_options: CategorizedInputOptions,
-                 overwritten_incar_settings: Optional[dict] = None):
+                 overridden_incar_settings: Optional[dict] = None):
 
         self._version = __version__
         self._initial_structure = input_options.initial_structure
         self._generate_structure_kpoints(input_options)
         self._generate_potcar_incar_settings(input_options)
-        self._incar_settings.update(overwritten_incar_settings or {})
+        self._incar_settings.update(overridden_incar_settings or {})
 
     def _generate_structure_kpoints(self, input_options):
         str_kpoints_generator = StructureKpointsGenerator(
