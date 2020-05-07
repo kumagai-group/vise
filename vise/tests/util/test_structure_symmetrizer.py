@@ -104,58 +104,32 @@ def test_structure_symmetrizer_bcc_irreducible_kpoints(symmetrizer_bcc):
     assert actual == expected
 
 
-@pytest.fixture()
-def symmetrizer_sc():
+def test_structure_symmetrizer_sc_irreducible_kpoints():
     lattice = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
     coords = [[0.0, 0.0, 0.0]]
-    structure = Structure(lattice=lattice, species=["H"],
-                          coords=coords)
+    structure = Structure(lattice=lattice, species=["H"], coords=coords)
     symmetrizer = StructureSymmetrizer(structure)
-    return symmetrizer
 
-
-def test_structure_symmetrizer_sc_irreducible_kpoints(symmetrizer_sc):
     num_kpt_list = [2, 2, 2]
     kpt_shift = [0.5, 0.5, 0.5]
-    actual = symmetrizer_sc.irreducible_kpoints(num_kpt_list, kpt_shift)
+    actual = symmetrizer.irreducible_kpoints(num_kpt_list, kpt_shift)
     expected = [([0.25, 0.25, 0.25], 8)]
     assert actual == expected
 
 
-# def test_seekpath(symmetrizer_mc):
-#     """
-#     str(symmetrizer_mc.band_primitive)
-#     >> Full Formula (H1)
-# Reduced Formula: H2
-# abc   :   6.708204   6.708204   8.062258
-# angles:  63.655959 116.344041 126.869898
-# Sites (1)
-#   #  SP      a    b    c
-# ---  ----  ---  ---  ---
-#   0  H       0    0    0
-#
-#
-#     """
-#     print(symmetrizer_mc.band_primitive)
-#     print(symmetrizer_mc.seekpath_data["path"])
-# #    for i, v in symmetrizer_mc.seekpath_data.items():
-# #        print(i,v)
-#
-#
-# @pytest.fixture()
-# def symmetrizer_ap():
-#     lattice = [[10.0,  5.0, 1.0],
-#                [ 3.0, 12.0, 0.0],
-#                [ 1.0,  4.0, 40.0]]
-#     coords = [[0.4, 0.2, 0.1], [0.1, 0.2, 0.5]]
-#     structure = Structure(lattice=lattice, species=["H", "He"], coords=coords)
-# #    symmetrizer = StructureSymmetrizer(structure)
-#     symmetrizer = StructureSymmetrizer(structure, time_reversal=False)
-#     return symmetrizer
-#
-#
-# def test_seekpath_p1(symmetrizer_ap):
-# #    print(symmetrizer_ap.seekpath_data["has_inversion_symmetry"])
-#     for i, v in symmetrizer_ap.seekpath_data.items():
-#            print(items)
+# def test_grouped_atom_indices():
+#     lattice = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 3.0]]
+#     coords = [[0.0, 0.0, 0.0], [0.5, 0.0, 0.0], [0.0, 0.5, 0.0]]
+#     structure = Structure(lattice=lattice, species=["H", "He", "He"], coords=coords)
+#     symmetrizer = StructureSymmetrizer(structure)
+#     print(symmetrizer.spglib_sym_data)
+#    assert symmetrizer.grouped_atom_indices == {"H": [0], }
+
+"""
+TODO: 
+- Add grouped_atom_indices to structure symmetrizer.
+
+"""
+
+
 
