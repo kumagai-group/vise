@@ -63,10 +63,10 @@ def transfer_instance(transfer_type: str, filename: Path):
 
 
 class FileTransfers:
-    def __init__(self, transfer_types: Dict[str, str], path: Path):
+    def __init__(self, file_transfer_types: Dict[str, str], path: Path):
 
         file_transfers = []
-        for filename, transfer_type in transfer_types.items():
+        for filename, transfer_type in file_transfer_types.items():
             f = path.absolute() / filename
 
             if not f.is_file():
