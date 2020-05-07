@@ -2,6 +2,7 @@
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
 import pytest
+from math import ceil
 
 from pymatgen import Composition
 from pymatgen.io.vasp import Potcar
@@ -64,8 +65,13 @@ def test_unoccupied_bands():
 def test_nbands():
     composition = Composition("KH2")
     potcar = Potcar(symbols=["K_pv", "H"], functional="PBE")
-    # Nelect of K_pv is 7, so (7 + 1 * 2) / 2 + (9 + 4 * 2) = 22
-    assert num_bands(composition, potcar) == 22
+    nelect_k_pv = 7
+    nelect_h = 1
+    unoccupied_band_k = 9
+    unoccupied_band_h = 4
+    expected = (ceil((nelect_k_pv + nelect_h * 2) / 2)
+                + unoccupied_band_k + unoccupied_band_h * 2)
+    assert num_bands(composition, potcar) == expected
 
 
 def test_npar_kpar():
