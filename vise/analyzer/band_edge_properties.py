@@ -93,4 +93,7 @@ class BandEdgeProperties:
     def band_gap(self):
         return self.cbm_info.energy - self.vbm_info.energy if self.vbm_info else None
 
+    @property
+    def vbm_cbm(self):
+        return [self.vbm_info.energy, self.cbm_info.energy] if self.vbm_info else None
 
