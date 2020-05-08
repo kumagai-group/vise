@@ -6,8 +6,9 @@ from typing import List, Dict
 from monty.serialization import loadfn
 from vise.util.enum import ExtendedEnum
 from vise.util.structure_symmetrizer import StructureSymmetrizer
+
 hermann_mauguin_list: Dict[int, str] = \
-    loadfn(Path(__file__).parent / "Hermann–Mauguin.yaml")
+    loadfn(Path(__file__).parent / "Hermann-Mauguin.yaml")
 
 """
 Test with vasp.5.4.4 for body-centered tetragonal.
