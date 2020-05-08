@@ -17,13 +17,13 @@ parent_dir = Path(__file__).parent
 
 
 def test_get_poscars_wo_options():
-    actual = parse_args(["gp"])
+    parsed_args = parse_args(["gp"])
     # func is a pointer so need to point the same address.
     expected = Namespace(
         poscar="POSCAR",
         mpid=None,
-        func=actual.func)
-    assert actual == expected
+        func=parsed_args.func)
+    assert parsed_args == expected
 
 
 def test_get_poscars_w_options():
@@ -53,6 +53,7 @@ def test_vasp_set_wo_options():
         options=None,
         uniform_kpt_mode=False,
         file_transfer_type=None,
+        func=parsed_args.func,
         )
     assert parsed_args == expected
 
@@ -83,7 +84,8 @@ def test_vasp_set_w_options():
         prev_dir=Path("c"),
         options=["encut", "800"],
         uniform_kpt_mode=True,
-        file_transfer_type=["WAVECAR", "C"]
+        file_transfer_type=["WAVECAR", "C"],
+        func=parsed_args.func,
     )
 
     assert parsed_args == expected

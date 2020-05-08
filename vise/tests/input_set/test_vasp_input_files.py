@@ -15,7 +15,7 @@ def test_integration(tmpdir):
     tmpdir.chdir()
     lattice = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
     coords = [[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]]
-    structure = Structure(lattice=lattice, species=["H", "Li"], coords=coords)
+    structure = Structure(lattice=lattice, species=["Mn", "O"], coords=coords)
     input_options = CategorizedInputOptions(
         structure=structure, task=Task.structure_opt, xc=Xc.pbe)
 

@@ -52,9 +52,9 @@ def test_structure_kpoints_options(sc_structure):
 
 def test_potcar_options(sc_structure):
     opts = CategorizedInputOptions(sc_structure, task=Task.structure_opt, xc=Xc.pbe,
-                                   override_potcar_set={"A": "B"})
+                                   overridden_potcar={"A": "B"})
 
-    assert opts.potcar_options["override_potcar_set"] == {"A": "B"}
+    assert opts.potcar_options["overridden_potcar"] == {"A": "B"}
 
 
 def test_incar_settings_options(sc_structure):

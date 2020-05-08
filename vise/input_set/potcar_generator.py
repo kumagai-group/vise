@@ -15,9 +15,9 @@ logger = get_logger(__name__)
 def generate_potcar(symbol_list: list,
                     xc: Xc,
                     potcar_set: PotcarSet = PotcarSet.normal,
-                    override_potcar_set: Optional[dict] = None):
+                    overridden_potcar: Optional[dict] = None):
 
-    potcar_dict = potcar_set.overridden_potcar_dict(override_potcar_set)
+    potcar_dict = potcar_set.overridden_potcar_dict(overridden_potcar)
     try:
         potcar_symbols = [potcar_dict[el] for el in symbol_list]
     except KeyError as e:

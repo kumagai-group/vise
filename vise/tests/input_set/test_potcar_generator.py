@@ -26,7 +26,7 @@ def Bk_symbol():
 
 def test_normal_mg(mg_symbol):
     potcar = generate_potcar(mg_symbol, Xc.pbe)
-    expected = "  PAW_PBE Mg 13Apr2007                   "
+    expected = "  PAW_PBE Mg 13Apr2007"
     assert str(potcar).split("\n")[0] == expected
 
 
@@ -34,7 +34,7 @@ def test_mp_relax_set_mg(mg_symbol):
     potcar = generate_potcar(mg_symbol,
                              Xc.pbe,
                              potcar_set=PotcarSet.mp_relax_set)
-    expected = "  PAW_PBE Mg_pv 13Apr2007                "
+    expected = "  PAW_PBE Mg_pv 13Apr2007"
     assert str(potcar).split("\n")[0] == expected
 
 

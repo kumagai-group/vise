@@ -126,12 +126,13 @@ class StructureKpointsGenerator:
         else:
             kpt_shift = self.bravais.kpt_centering
 
-        active_positions = [self._num_kpt_list[i] % 2 == 0 for i in range(3)]
-        self._kpt_shift = [s * a for s, a in zip(kpt_shift, active_positions)]
+        even_num_kpt_pos = [self._num_kpt_list[i] % 2 == 0 for i in range(3)]
+        self._kpt_shift = [s * a for s, a in zip(kpt_shift, even_num_kpt_pos)]
 
     def _set_kpoints(self):
-        irreducible_kpoints = self._symmetrizer.irreducible_kpoints(
-            self._num_kpt_list, self._kpt_shift)
+        irreducible_kpoints = \
+            self._symmetrizer.irreducible_kpoints(self._num_kpt_list,
+                                                  self._kpt_shift)
         self.comment = ""
         if self._kpt_mode is KpointsMode.band:
             self._add_weighted_kpts(irreducible_kpoints)

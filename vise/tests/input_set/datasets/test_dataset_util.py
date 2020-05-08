@@ -64,13 +64,13 @@ def test_unoccupied_bands():
 
 def test_nbands():
     composition = Composition("KH2")
-    potcar = Potcar(symbols=["K_pv", "H"], functional="PBE")
-    nelect_k_pv = 7
-    nelect_h = 1
-    unoccupied_band_k = 9
-    unoccupied_band_h = 4
-    expected = (ceil((nelect_k_pv + nelect_h * 2) / 2)
-                + unoccupied_band_k + unoccupied_band_h * 2)
+    potcar = Potcar(symbols=["Mn", "O"])
+    nelect_mn_pv = 7
+    nelect_o = 6
+    unoccupied_band_mn = 9
+    unoccupied_band_o = 4
+    expected = (ceil((nelect_mn_pv + nelect_o * 2) / 2)
+                + unoccupied_band_mn + unoccupied_band_o * 2)
     assert num_bands(composition, potcar) == expected
 
 

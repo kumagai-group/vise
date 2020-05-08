@@ -17,6 +17,24 @@ from vise.util.logger import get_logger
 logger = get_logger(__name__)
 
 
+def function_args(func) -> List[str]:
+    return getfullargspec(func).args
+
+
+def constructor_args(target_class) -> List[str]:
+    result = function_args(target_class.__init__)
+    result.remove("self")
+    return result
+
+
+potcar_args = function_args(generate_potcar)
+incar_settings_args = constructor_args(IncarSettingsGenerator)
+structure_kpoints_args = constructor_args(StructureKpointsGenerator)
+
+assignable_option_set = \
+    set(structure_kpoints_args) | set(potcar_args) | set(incar_settings_args)
+
+
 class CategorizedInputOptions:
     def __init__(self,
                  structure: Structure,
@@ -32,7 +50,7 @@ class CategorizedInputOptions:
         self._raise_error_when_unknown_options_exist()
 
     def _raise_error_when_unknown_options_exist(self) -> None:
-        unknown_args_set = self.input_option_set - self.assignable_option_set
+        unknown_args_set = self.input_option_set - assignable_option_set
         if unknown_args_set:
             raise ViseInputOptionsError(
                 f"Options {unknown_args_set} are invalid")
@@ -40,33 +58,6 @@ class CategorizedInputOptions:
     @property
     def input_option_set(self) -> set:
         return set(self._input_options.keys())
-
-    @property
-    def assignable_option_set(self) -> set:
-        return (set(self.structure_kpoints_args)
-                | set(self.potcar_args)
-                | set(self.incar_settings_args))
-
-    @property
-    def structure_kpoints_args(self) -> List[str]:
-        return self.constructor_args(StructureKpointsGenerator)
-
-    @property
-    def potcar_args(self) -> List[str]:
-        return self.function_args(generate_potcar)
-
-    @property
-    def incar_settings_args(self) -> List[str]:
-        return self.constructor_args(IncarSettingsGenerator)
-
-    @staticmethod
-    def function_args(func) -> List[str]:
-        return getfullargspec(func).args
-
-    def constructor_args(self, target_class) -> List[str]:
-        result = self.function_args(target_class.__init__)
-        result.remove("self")
-        return result
 
     def pick_target_options(self, target_args: List[str]) -> Dict[str, Any]:
         result = {}
@@ -77,15 +68,15 @@ class CategorizedInputOptions:
 
     @property
     def structure_kpoints_options(self) -> Dict[str, Any]:
-        return self.pick_target_options(target_args=self.structure_kpoints_args)
+        return self.pick_target_options(target_args=structure_kpoints_args)
 
     @property
     def potcar_options(self) -> Dict[str, Any]:
-        return self.pick_target_options(target_args=self.potcar_args)
+        return self.pick_target_options(target_args=potcar_args)
 
     @property
     def incar_settings_options(self) -> Dict[str, Any]:
-        return self.pick_target_options(target_args=self.incar_settings_args)
+        return self.pick_target_options(target_args=incar_settings_args)
 
     @property
     def initial_structure(self) -> Structure:
