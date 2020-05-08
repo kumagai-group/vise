@@ -66,7 +66,6 @@ class PriorInfo(MSONable):
 
     def input_options_kwargs(self):
         return {"input_structure": self.structure,
-                "band_gap": self.band_gap,
                 "vbm_cbm": self.vbm_cbm,
                 "is_magnetization": self.is_magnetic}
 
