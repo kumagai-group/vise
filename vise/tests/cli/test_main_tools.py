@@ -7,7 +7,7 @@ import tempfile
 from unittest.mock import patch
 
 from vise.cli.main_tools import (
-    potcar_str2dict, list2dict, get_default_args)
+    potcar_str2dict, list2dict)
 from vise.util.testing import ViseTest
 
 
@@ -55,30 +55,30 @@ class List2DictTest(ViseTest):
             list2dict(flattened_list, self.key_candidates)
 
 
-
-class GetDefaultArgsTest(ViseTest):
-    def setUp(self) -> None:
-        def test_func(a, b=1, c=True):
-            pass
-
-        class test_cls:
-            def __init__(self, d, e=2, f=None):
-                pass
-            def test_method(self, g, h=3.0):
-                pass
-
-        self.default_func = get_default_args(test_func)
-        self.default_cls = get_default_args(test_cls)
-        self.default_method = get_default_args(test_cls.test_method)
-
-    def test_func(self):
-        expected = {"b": 1, "c": True}
-        self.assertEqual(expected, self.default_func)
-
-    def test_cls(self):
-        expected = {"e": 2, "f": None}
-        self.assertEqual(expected, self.default_cls)
-
-    def test_method(self):
-        expected = {"h": 3.0}
-        self.assertEqual(expected, self.default_method)
+#
+# class GetDefaultArgsTest(ViseTest):
+#     def setUp(self) -> None:
+#         def test_func(a, b=1, c=True):
+#             pass
+#
+#         class test_cls:
+#             def __init__(self, d, e=2, f=None):
+#                 pass
+#             def test_method(self, g, h=3.0):
+#                 pass
+#
+#         self.default_func = get_default_args(test_func)
+#         self.default_cls = get_default_args(test_cls)
+#         self.default_method = get_default_args(test_cls.test_method)
+#
+#     def test_func(self):
+#         expected = {"b": 1, "c": True}
+#         self.assertEqual(expected, self.default_func)
+#
+#     def test_cls(self):
+#         expected = {"e": 2, "f": None}
+#         self.assertEqual(expected, self.default_cls)
+#
+#     def test_method(self):
+#         expected = {"h": 3.0}
+#         self.assertEqual(expected, self.default_method)

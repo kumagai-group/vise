@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
-from inspect import signature, _empty
+from inspect import signature
 from pathlib import Path
 import re
-from typing import Optional, Callable, List, Union, Tuple
+from typing import Optional, Callable, List, Union, Tuple, Iterable
 
 import yaml
 
@@ -55,7 +55,7 @@ def potcar_str2dict(potcar_list: Union[str, List[str], None]) -> dict:
     return d
 
 
-def list2dict(flattened_list: Optional[list], key_candidates: list) -> dict:
+def list2dict(flattened_list: Optional[list], key_candidates: Iterable) -> dict:
     """Sanitize a list to a dict with keys in the flags
 
     If a string in list does not exist in key_candidates, raise ValueError.
@@ -120,22 +120,22 @@ def list2dict(flattened_list: Optional[list], key_candidates: list) -> dict:
     return d
 
 
-def get_default_args(function: Callable) -> dict:
-    """Get the default values of the arguments in the method/function.
+# def get_default_args(function: Callable) -> dict:
+#     """Get the default values of the arguments in the method/function.
 
-    inspect._empty means no default.
+    # inspect._empty means no default.
 
-    Args:
-        function (Callable):
-            Method or function. when class is inserted, cls.__init__ is called.
+    # Args:
+    #     function (Callable):
+    #         Method or function. when class is inserted, cls.__init__ is called.
 
-    Returns:
-        Dict of default values.
-    """
-    defaults = {}
-    signature_obj = signature(function)
-    for name, param in signature_obj.parameters.items():
-        if param.default != _empty:
-            defaults[name] = param.default
+    # Returns:
+    #     Dict of default values.
+    # """
+    # defaults = {}
+    # signature_obj = signature(function)
+    # for name, param in signature_obj.parameters.items():
+    #     if param.default != _empty:
+    #         defaults[name] = param.default
 
-    return defaults
+    # return defaults

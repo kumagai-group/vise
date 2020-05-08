@@ -8,12 +8,12 @@ from copy import deepcopy
 from pymatgen.ext.matproj import MPRester
 from pymatgen import Structure
 
-from vise.input_set.input_options import CategorizedInputOptions
+from vise.input_set.input_options import CategorizedInputOptions, assignable_option_set
 from vise.input_set.vasp_input_files import VaspInputFiles
 from vise.defaults import defaults
 from vise.input_set.prior_info import PriorInfoFromCalcDir
 from vise.input_set.kpoints_mode import KpointsMode
-from vise.cli.main_tools import potcar_str2dict
+from vise.cli.main_tools import potcar_str2dict, list2dict
 
 
 def get_poscar_from_mp(args: Namespace) -> None:
@@ -65,7 +65,8 @@ class VaspSet:
             self._file_transfers = pi.file_transfers
 
         if self.args.options:
-            result.update(self.args.options)
+            args = list2dict(self.args.options, assignable_option_set)
+            result.update(args)
         if self.args.uniform_kpt_mode:
             result["kpt_mode"] = KpointsMode.uniform
 
