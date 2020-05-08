@@ -143,6 +143,8 @@ class StructureKpointsGenerator:
                                     kpts_shift=self._kpt_shift)
             self._num_kpts = len(irreducible_kpoints)
 
+            self.kpoints.comment += f"Num irrep kpoints: {self._num_kpts}"
+
     def _add_weighted_kpts(self, irreducible_kpoints):
         kpts = [k[0] for k in irreducible_kpoints]
         weights = [k[1] for k in irreducible_kpoints]
@@ -158,8 +160,9 @@ class StructureKpointsGenerator:
         k_path = self._symmetrizer.seekpath_data["explicit_kpoints_rel"]
         k_labels = self._symmetrizer.seekpath_data["explicit_kpoints_labels"]
         formula = self._structure.composition.reduced_formula
-        # self.kpoints.comment += \
-        #    f"k-path added by seekpath. Formula: {formula} SG: {self.sg}"
+        sg = self._symmetrizer.sg_number
+        self.kpoints.comment += \
+            f"k-path added by seekpath. Formula: {formula} SG: {sg} "
         self._kpoints.num_kpts += len(k_path)
         self._kpoints.kpts += list(k_path)
         self._kpoints.labels += k_labels
