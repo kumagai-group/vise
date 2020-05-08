@@ -17,7 +17,7 @@ def test_integration(tmpdir):
     coords = [[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]]
     structure = Structure(lattice=lattice, species=["H", "Li"], coords=coords)
     input_options = CategorizedInputOptions(
-        input_structure=structure, task=Task.structure_opt, xc=Xc.pbe)
+        structure=structure, task=Task.structure_opt, xc=Xc.pbe)
 
     input_set = VaspInputFiles(input_options)
     input_set.create_input_files(Path.cwd())

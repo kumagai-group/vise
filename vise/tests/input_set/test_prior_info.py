@@ -81,7 +81,7 @@ def test_get_structure_from_prev_dir_actual_files(test_data_files, tmpdir):
                                       vasprun="MnO_uniform_vasprun.xml",
                                       outcar="MnO_uniform_OUTCAR",
                                       file_transfer_type={"test_one_line": "c"})
-    prior_info.file_transfer_type.transfer(Path(tmpdir))
+    prior_info.file_transfers.transfer(Path(tmpdir))
 
     assert prior_info.energy_per_atom == -8.024678125
     assert pytest.approx(prior_info.band_gap) == 0.4702

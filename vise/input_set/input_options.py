@@ -19,14 +19,14 @@ logger = get_logger(__name__)
 
 class CategorizedInputOptions:
     def __init__(self,
-                 input_structure: Structure,
+                 structure: Structure,
                  task: Task,
                  xc: Xc,
                  **input_options):
 
         self._input_options = deepcopy(input_options)
         self._input_options.update(
-            {"initial_structure": input_structure.copy(),
+            {"initial_structure": structure.copy(),
              "task": task,
              "xc": xc})
         self._raise_error_when_unknown_options_exist()

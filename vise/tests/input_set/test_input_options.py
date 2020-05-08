@@ -70,3 +70,4 @@ def test_initial_structure(sc_structure):
 
     assert opts.initial_structure == sc_structure
 
+

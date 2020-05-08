@@ -64,6 +64,7 @@ class PriorInfo(MSONable):
     def is_metal(self) -> bool:
         return not self.has_band_gap
 
+    @property
     def input_options_kwargs(self):
         return {"input_structure": self.structure,
                 "vbm_cbm": self.vbm_cbm,
@@ -91,6 +92,6 @@ class PriorInfoFromCalcDir(PriorInfo):
                          vbm_cbm=band_edge_property.vbm_cbm,
                          total_magnetization=total_magnetization)
 
-        self.file_transfer_type = FileTransfers(file_transfer_type,
-                                                path=prev_dir_path)
+        self.file_transfers = FileTransfers(file_transfer_type,
+                                            path=prev_dir_path)
 
