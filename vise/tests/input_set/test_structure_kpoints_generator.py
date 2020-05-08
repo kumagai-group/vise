@@ -130,7 +130,7 @@ def test_manual_kpts():
     generator = StructureKpointsGenerator(structure,
                                           task=Task.structure_opt,
                                           kpt_mode=KpointsMode.uniform,
-                                          gamma_centered=[0.0, 0.0, 0.0])
+                                          gamma_centered=True)
     generator.generate_input()
     assert generator.kpoints.kpts_shift == [0.0, 0.0, 0.0]
 
