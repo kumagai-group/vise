@@ -21,8 +21,8 @@ class Defaults:
         self.band_gap_criterion = 0.2  # in eV
         self.integer_criterion = 0.1
         self.default_num_nodes = 1
-        self.task = str(Task.structure_opt)
-        self.xc = str(Xc.pbe)
+        self.task = Task.structure_opt
+        self.xc = Xc.pbe
         self.vise_opts = {}
         self.user_incar_settings = {}
         self.ldauu = {}
@@ -31,7 +31,7 @@ class Defaults:
         self.contcar = "CONTCAR"
         self.vasprun = "vasprun.xml"
         self.procar = "PROCAR"
-        self.potcar_list = []
+        self.potcar_dict = {}
         self.potcar_set_name = str(PotcarSet.normal)
 
         user_settings = UserSettings(yaml_filename="vise.yaml")
