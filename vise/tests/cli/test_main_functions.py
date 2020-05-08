@@ -8,7 +8,7 @@ from pathlib import Path
 from argparse import Namespace
 from pymatgen.core.structure import Structure
 
-from vise.cli.main_functions import get_poscar_from_mp, vasp_set
+from vise.cli.main_functions import get_poscar_from_mp, VaspSet
 
 from vise.input_set.input_options import CategorizedInputOptions
 from vise.input_set.vasp_input_files import VaspInputFiles
@@ -45,14 +45,14 @@ def structure():
     return results
 
 
-option_args = {"structure": structure,
-               "task": Task.structure_opt,
-               "xc": Xc.pbe,
-               "kpt_density": 1.0,
-               "override_potcar_set": {"Mn": "Mn_pv"},
-               "charge": 2.0}
+default_option_args = {"poscar": "POSCAR",
+                       "task": Task.structure_opt,
+                       "xc": Xc.pbe,
+                       "kpt_density": 1.0,
+                       "overridden_potcar": ["Mn_pv"],
+                       "charge": 2.0}
 
-default_args = deepcopy(option_args)
+default_args = deepcopy(default_option_args)
 default_args.update({"user_incar_settings": None,
                      "prev_dir": None,
                      "options": None,
@@ -94,6 +94,7 @@ def test_user_incar_settings(mocker,
     args = deepcopy(default_args)
     args.update(modified_settings)
 
+    structure = mocker.patch("vise.cli.main_functions.Structure")
     prior_info = mocker.patch("vise.cli.main_functions.PriorInfoFromCalcDir")
     options = mocker.patch("vise.cli.main_functions.CategorizedInputOptions")
     vif = mocker.patch("vise.cli.main_functions.VaspInputFiles")
@@ -101,16 +102,20 @@ def test_user_incar_settings(mocker,
     prior_info.return_value.input_options_kwargs = prior_info
 
     name_space = Namespace(**args)
-    vasp_set(name_space)
+    VaspSet(name_space)
+
+    option_args = deepcopy(default_option_args)
+    option_args.update(overridden_options_args)
+    option_args.update(prior_info)
+    option_args["overridden_potcar"] = {"Mn": "Mn_pv"}
+    option_args.pop("poscar")
+    option_args["structure"] = structure.from_file.return_value
+
+    options.assert_called_once_with(**option_args)
 
     incar_settings = defaults.user_incar_settings
     incar_settings.update(overridden_incar_settings)
 
-    options_args = deepcopy(option_args)
-    options_args.update(overridden_options_args)
-    options_args.update(prior_info)
-
     vif.assert_called_once_with(options.return_value, incar_settings)
-    options.assert_called_once_with(**options_args)
 
 

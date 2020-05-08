@@ -23,7 +23,7 @@ class Defaults:
         self.default_num_nodes = 1
         self.task = Task.structure_opt
         self.xc = Xc.pbe
-        self.vise_opts = {}
+        self.options = {}
         self.user_incar_settings = {}
         self.ldauu = {}
         self.ldaul = {}
@@ -31,7 +31,7 @@ class Defaults:
         self.contcar = "CONTCAR"
         self.vasprun = "vasprun.xml"
         self.procar = "PROCAR"
-        self.potcar_dict = {}
+        self.overridden_potcar = {}
         self.potcar_set_name = str(PotcarSet.normal)
 
         user_settings = UserSettings(yaml_filename="vise.yaml")
