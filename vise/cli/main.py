@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 
 from vise import __version__
-from vise.cli.main_functions import get_poscar_from_mp, VaspSet
+from vise.cli.main_functions import get_poscar_from_mp, VaspSet, plot_band
 from vise.cli.main_tools import potcar_str2dict
 from vise.defaults import defaults
 from vise.input_set.task import Task
@@ -122,6 +122,39 @@ Version: {__version__}
              "primitive cell.")
 
     parser_vasp_set.set_defaults(func=VaspSet)
+
+    # -- plot_band -------------------------------------------------------------
+    parser_plot_band = subparsers.add_parser(
+        name="plot_band",
+        description="Tools for plotting band structures",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        aliases=['pb'])
+
+    parser_plot_band.add_argument(
+        "-v", "--vasprun",
+        dest="vasprun_filepath",
+        type=Path,
+        default=defaults.vasprun,
+        help="vasprun.xml file name.")
+    parser_plot_band.add_argument(
+        "-k", "--kpoints",
+        dest="kpoints_filename",
+        default="KPOINTS",
+        type=str,
+        help="Kpoints file name.")
+    parser_plot_band.add_argument(
+        "-y", "--y_range",
+        nargs="+",
+        default=[-10, 10],
+        type=float,
+        help="Energy range, requiring two values.")
+    parser_plot_band.add_argument(
+        "-f", "--filename",
+        type=str,
+        default="band.pdf",
+        help="pdf file name.")
+
+    parser_plot_band.set_defaults(func=plot_band)
 
 
 #     # # try:

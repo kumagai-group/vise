@@ -8,7 +8,7 @@ from pathlib import Path
 from argparse import Namespace
 from pymatgen.core.structure import Structure
 
-from vise.cli.main_functions import get_poscar_from_mp, VaspSet
+from vise.cli.main_functions import get_poscar_from_mp, VaspSet, plot_band
 
 from vise.input_set.input_options import CategorizedInputOptions
 from vise.input_set.vasp_input_files import VaspInputFiles
@@ -16,6 +16,7 @@ from vise.defaults import defaults
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc
 from vise.input_set.kpoints_mode import KpointsMode
+
 
 
 def test_get_poscar_from_mp(tmpdir):
@@ -35,14 +36,6 @@ direct
 0.000000 0.000000 0.000000 Mg
 """
     assert file.read() == expected
-
-
-@pytest.fixture
-def structure():
-    lattice = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
-    coords = [[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]]
-    results = Structure(lattice=lattice, species=["Mn", "Mn"], coords=coords)
-    return results
 
 
 default_option_args = {"poscar": "POSCAR",
@@ -119,3 +112,11 @@ def test_user_incar_settings(mocker,
     vif.assert_called_once_with(options.return_value, incar_settings)
 
 
+def test_plot_band(tmpdir, test_data_files):
+    tmpdir.chdir()  # comment out when one wants to see the figure
+    args = Namespace(vasprun_filepath=test_data_files / "KO2_band_vasprun.xml",
+                     kpoints_filename=str(test_data_files / "KO2_band_KPOINTS"),
+                     y_range=[-10, 10],
+                     filename="test.pdf")
+
+    plot_band(args)

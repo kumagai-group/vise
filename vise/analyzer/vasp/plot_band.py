@@ -26,9 +26,7 @@ def italic_to_roman(label: str) -> str:
 class VaspBandPlotInfo(BandPlotInfo):
     def __init__(self,
                  vasprun: Vasprun,
-                 kpoints_filename: str,
-                 base_energy: float = None,
-                 ):
+                 kpoints_filename: str):
 
         self._bs = vasprun.get_band_structure(kpoints_filename, line_mode=True)
         self._plot_data = BSPlotter(self._bs).bs_plot_data(zero_to_efermi=False)

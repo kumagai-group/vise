@@ -9,3 +9,4 @@ seekpath
 numpy
 PyYAML
 pytest-mock
+num2words

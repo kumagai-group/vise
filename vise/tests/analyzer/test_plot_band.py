@@ -128,11 +128,11 @@ def test_add_band_structures(mock_plt_list):
     mock_plt, _ = mock_plt_list
     linewidth = BandMplSettings().linewidth
     # 1st branch, 1st band
-    args = {"color": colors[0], "linewidth": linewidth, "label": "first"}
+    args = {"color": colors[0], "linewidth": linewidth}
     mock_plt.plot.assert_any_call(distances[0], shifted_band_energies[0][0][0], **args)
 
     # 2nd branch, 1st band
-    args.pop("label")
+    args.pop("label", None)
     mock_plt.plot.assert_any_call(distances[1], shifted_band_energies[1][0][0], **args)
 
     # 1st branch, 2nd band
@@ -159,14 +159,8 @@ def test_add_band_edge_circles(mock_plt_list, band_info_set):
 
 def test_figure_legends(mock_plt_list):
     mock_plt, _ = mock_plt_list
-    mock_plt.legend.assert_called_once_with(loc="lower right")
-
-
-def test_set_fermi_level(mock_plt_list, band_info_set):
-    band_defaults = BandMplSettings()
-    mock_plt, _ = mock_plt_list
-    mock_plt.axhline.assert_called_with(y=band_info_set[0].fermi_level,
-                                        **band_defaults.hline)
+#    mock_plt.legend.assert_called_once_with(loc="lower right")
+    mock_plt.legend.assert_not_called()
 
 
 def test_set_x_range(mock_plt_list):
@@ -232,7 +226,7 @@ def test_reference_energy(ref_energy, subtracted_energy, mocker, band_plot_info)
     plotter.construct_plot()
 
     band_defaults = BandMplSettings()
-    mock_plt.axhline.assert_called_with(y=fermi_level - subtracted_energy,
+    mock_plt.axhline.assert_called_with(y=band_edge.cbm - subtracted_energy,
                                         **band_defaults.hline)
 
 

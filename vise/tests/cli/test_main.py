@@ -91,3 +91,35 @@ def test_vasp_set_w_options():
     assert parsed_args == expected
 
 
+def test_plot_band_wo_options():
+    parsed_args = parse_args(["pb"])
+    # func is a pointer so need to point the same address.
+    expected = Namespace(
+        vasprun_filepath=Path(defaults.vasprun),
+        kpoints_filename="KPOINTS",
+        y_range=[-10.0, 10.0],
+        filename="band.pdf",
+        func=parsed_args.func,
+    )
+    assert parsed_args == expected
+
+
+def test_plot_band_w_options():
+    parsed_args = parse_args(["pb",
+                              "--vasprun", "vasprun_1",
+                              "--kpoints", "KPOINTS_1",
+                              "--y_range", "-1.0", "1.0",
+                              "--filename", "band_1.pdf",
+                              ])
+
+    expected = Namespace(
+        vasprun_filepath=Path("vasprun_1"),
+        kpoints_filename="KPOINTS_1",
+        y_range=[-1.0, 1.0],
+        filename="band_1.pdf",
+        func=parsed_args.func,
+    )
+
+    assert parsed_args == expected
+
+

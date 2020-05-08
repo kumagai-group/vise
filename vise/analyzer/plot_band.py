@@ -98,9 +98,11 @@ class BandMplSettings:
         self.legend = {"loc": legend_location}
 
     def band_structure(self, index):
-        return {"color": self.colors[index],
-                "linewidth": self.linewidth,
-                "label": num2words(index + 1, ordinal=True)}
+        result = {"color": self.colors[index],
+                  "linewidth": self.linewidth}
+        if index > 0:
+            result["label"] = num2words(index + 1, ordinal=True)
+        return result
 
     def circle(self, index):
         return {"color": self.colors[index],
@@ -167,9 +169,9 @@ class BandPlotter:
 
             if band_info.band_edge:
                 self._add_band_edge(band_info.band_edge, index)
-
-            if band_info.fermi_level:
-                self._add_fermi_level(band_info.fermi_level)
+            else:
+                if band_info.fermi_level:
+                    self._add_fermi_level(band_info.fermi_level)
 
     def _add_band_structures(self, band_info, index):
         mpl_args = self.mpl_defaults.band_structure(index)
@@ -200,7 +202,8 @@ class BandPlotter:
         self.plt.axhline(y=fermi_level, **self.mpl_defaults.hline)
 
     def _set_figure_legend(self):
-        self.plt.legend(**self.mpl_defaults.legend)
+        if len(self.band_info_set) > 1:
+            self.plt.legend(**self.mpl_defaults.legend)
 
     def _set_x_range(self):
         self.plt.xlim(self.x_ticks.distances[0], self.x_ticks.distances[-1])

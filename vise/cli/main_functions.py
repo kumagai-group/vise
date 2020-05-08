@@ -7,6 +7,7 @@ from copy import deepcopy
 
 from pymatgen.ext.matproj import MPRester
 from pymatgen import Structure
+from pymatgen.io.vasp import Vasprun
 
 from vise.input_set.input_options import CategorizedInputOptions, assignable_option_set
 from vise.input_set.vasp_input_files import VaspInputFiles
@@ -15,6 +16,8 @@ from vise.input_set.prior_info import PriorInfoFromCalcDir
 from vise.input_set.kpoints_mode import KpointsMode
 from vise.cli.main_tools import potcar_str2dict, list2dict
 
+from vise.analyzer.vasp.plot_band import VaspBandPlotInfo
+from vise.analyzer.plot_band import BandPlotter
 
 def get_poscar_from_mp(args: Namespace) -> None:
     s = MPRester().get_structure_by_material_id(args.mpid)
@@ -71,3 +74,12 @@ class VaspSet:
             result["kpt_mode"] = KpointsMode.uniform
 
         return result
+
+
+def plot_band(args: Namespace):
+    plot_info = VaspBandPlotInfo(vasprun=Vasprun(args.vasprun_filepath),
+                                 kpoints_filename=args.kpoints_filename)
+    plotter = BandPlotter(plot_info, y_range=args.y_range)
+    plotter.construct_plot()
+    plotter.plt.savefig(args.filename, format="pdf")
+
