@@ -77,9 +77,11 @@ class DosData:
 
     def dos_plot_data(self,
                       grouped_atom_indices: Dict[str, List[int]],
+                      vertical_lines: List[float],
+                      base_energy: Optional[float] = 0.0,
                       xlim: Optional[List[float]] = None,
                       ylim_set: Optional[List[List[float]]] = None,
-                      base_energy: Optional[float] = None) -> "DosPlotData":
+                      ) -> "DosPlotData":
 
         if ylim_set is not None:
             assert len(grouped_atom_indices) + 1 == len(ylim_set)  # total+pdos
@@ -99,12 +101,10 @@ class DosData:
         xlim = xlim or [-10, 10]
         ylim_set = ylim_set or [[-y, y] for y in self.max_y_ranges(doses)]
 
-        if base_energy:
-            energies = [e - base_energy for e in self.energies]
-        else:
-            energies = self.energies
+        energies = [e - base_energy for e in self.energies]
+        shifted_vertical_lines = [e - base_energy for e in vertical_lines]
 
-        return DosPlotData(energies, doses, xlim, ylim_set)
+        return DosPlotData(energies, doses, xlim, ylim_set, shifted_vertical_lines)
 
     @staticmethod
     def max_y_ranges(doses, multi=1.1, round_digit=2):
@@ -131,3 +131,4 @@ class DosPlotData:
     doses: List[List[DosBySpinEnergy]]  # [by ax][by orbital]
     xlim: List[float]
     ylim_set: List[List[float]]
+    vertical_lines: List[float]

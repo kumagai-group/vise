@@ -44,9 +44,11 @@ def dos_data_list():
         grouped_atom_indices={"H": [0], "He": [1, 2]},
         xlim=[-100, 100],
         ylim_set=[[-20, 20], [-30, 30], [-40, 40]],
-        base_energy=reference_energy)
+        base_energy=reference_energy,
+        vertical_lines=[0.0, 1.0])
     dos_plot_data_wo_lims = dos_data.dos_plot_data(
-        grouped_atom_indices={"H": [0], "He": [1, 2]})
+        grouped_atom_indices={"H": [0], "He": [1, 2]},
+        vertical_lines=[0.0, 1.0])
 
     return dos_data, dos_plot_data_w_lims, dos_plot_data_wo_lims
 
@@ -96,6 +98,11 @@ def test_dos_data_total_dos(dos_data_list):
     assert_array_equal(dos_plot_data_w_lim.doses[0][0].dos, total)
 
 
+def test_dos_data_vertical_lines(dos_data_list):
+    _, dos_plot_data_w_lim, _ = dos_data_list
+    assert dos_plot_data_w_lim.vertical_lines == [-0.5, 0.5]
+
+
 def test_dos_data_pdos_single(dos_data_list):
     _, dos_plot_data_w_lim, _ = dos_data_list
     pdos_sum = pdos_list[1] + pdos_list[2]
@@ -125,9 +132,6 @@ def test_orbital_dos():
 TODO:
 + Allow to set vbm, cbm, efermi
 + Shift energy zero to vbm or efermi.
-
-+ Create DosPlotInfo with PDOS grouped by elements
-+ Create DosPlotInfo with PDOS grouped by inequivalent sites
 
 - + Shift energy zero to manual value
 + Create from FullDosInfo instance with total and atom- and orbital-decomposed pdos

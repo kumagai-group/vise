@@ -42,7 +42,8 @@ doses = [[DosBySpinEnergy("total", [total_up, total_down])],
 dos_plot_data = DosPlotData(relative_energies=relative_energies,
                             doses=doses,
                             xlim=xlim,
-                            ylim_set=ylim_set)
+                            ylim_set=ylim_set,
+                            vertical_lines=[0.0, 1.0])
 dos_data_len = len(dos_plot_data.doses)
 
 
@@ -114,7 +115,7 @@ def test_plot_dos(mock_plt_list):
 def test_axs_is_list_when_single_dos_passed():
     single_dos = [[DosBySpinEnergy("total", [total_up, total_down])]]
     dos_info = DosPlotData(relative_energies=relative_energies, doses=single_dos, xlim=xlim,
-                           ylim_set=ylim_set)
+                           ylim_set=ylim_set, vertical_lines=[0.0, 1.0])
     plotter = DosPlotter(dos_data=dos_info)
     assert isinstance(plotter._axs, list)
     assert len(plotter._axs) == 1
@@ -122,14 +123,20 @@ def test_axs_is_list_when_single_dos_passed():
 
 def test_set_figure_legend(mock_plt_list):
     _, mock_1st_ax, mock_2nd_ax = mock_plt_list
-    mock_1st_ax.legend.assert_called_with(bbox_to_anchor=(1.01, 1), loc='upper left', borderaxespad=0, markerscale=0.1)
-    mock_2nd_ax.legend.assert_called_with(bbox_to_anchor=(1.01, 1), loc='upper left', borderaxespad=0, markerscale=0.1)
+    mock_1st_ax.legend.assert_called_with(bbox_to_anchor=(0.9, 1), loc='upper left', borderaxespad=0, markerscale=0.1)
+    mock_2nd_ax.legend.assert_called_with(bbox_to_anchor=(0.9, 1), loc='upper left', borderaxespad=0, markerscale=0.1)
 
 
 def test_set_x_and_y_range(mock_plt_list):
     _, mock_1st_ax, _ = mock_plt_list
     mock_1st_ax.set_ylim.assert_called_with([-10, 10])
     mock_1st_ax.set_xlim.assert_called_with([-6, 6])
+
+
+def test_set_vlines(mock_plt_list):
+    _, mock_1st_ax, _ = mock_plt_list
+    mpl_settings = DosMplSettings()
+    mock_1st_ax.axvline(x=0.0, **mpl_settings.vline)
 
 
 def test_set_labels(mock_plt_list):

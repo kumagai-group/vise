@@ -46,7 +46,8 @@ class DosPlotter:
 
         self.plt = plt
         num_axs = len(self._dos_info.doses)
-        fig, self._axs = self.plt.subplots(num_axs, 1, sharex=True, gridspec_kw={'hspace':0.05})
+        fig, self._axs = self.plt.subplots(num_axs, 1, sharex=True,
+                                           gridspec_kw={'hspace': 0.05})
         if num_axs == 1:
             self._axs = [self._axs]
 
@@ -60,7 +61,7 @@ class DosPlotter:
         self._add_dos(i)
         self._set_y_range(i)
         self._set_dos_zero_line(i)
-        self.plt.tight_layout()
+        self._set_vline(i)
 
     def _add_dos(self, i):
         for j, by_name_dos in enumerate(self._dos_info.doses[i]):
@@ -73,14 +74,20 @@ class DosPlotter:
                 self._axs[i].plot(self._dos_info.relative_energies,
                                   dos_for_plot, **args)
 
-        self._axs[i].legend(bbox_to_anchor=(0.90, 1), loc='upper left', borderaxespad=0, markerscale=0.1)
-        self._axs[i].set_ylabel("Dos (1/eV)", size=self.mpl_defaults.label_font_size)
+        self._axs[i].legend(bbox_to_anchor=(0.9, 1), loc='upper left',
+                            borderaxespad=0, markerscale=0.1)
+        self._axs[i].set_ylabel("Dos (1/eV)",
+                                size=self.mpl_defaults.label_font_size)
 
     def _set_dos_zero_line(self, i):
         self._axs[i].axhline(0, linestyle=":", color="black")
 
     def _set_y_range(self, i):
         self._axs[i].set_ylim(self._dos_info.ylim_set[i])
+
+    def _set_vline(self, i):
+        for line_energy in self._dos_info.vertical_lines:
+            self._axs[i].axvline(x=line_energy, **self.mpl_defaults.vline)
 
     def _set_x_labels(self):
         self.plt.xlabel("Energy (eV)", size=self.mpl_defaults.label_font_size)
