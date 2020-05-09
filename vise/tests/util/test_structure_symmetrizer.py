@@ -117,13 +117,10 @@ def test_structure_symmetrizer_sc_irreducible_kpoints():
     assert actual == expected
 
 
-# def test_grouped_atom_indices():
-#     lattice = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 3.0]]
-#     coords = [[0.0, 0.0, 0.0], [0.5, 0.0, 0.0], [0.0, 0.5, 0.0]]
-#     structure = Structure(lattice=lattice, species=["H", "He", "He"], coords=coords)
-#     symmetrizer = StructureSymmetrizer(structure)
-#     print(symmetrizer.spglib_sym_data)
-#    assert symmetrizer.grouped_atom_indices == {"H": [0], }
+def test_grouped_atom_indices(complex_ortho_structure):
+    symmetrizer = StructureSymmetrizer(complex_ortho_structure)
+    actual = symmetrizer.grouped_atom_indices()
+    assert actual == {'H_a1': [0], 'He_m1': [1, 2], 'He_m2': [3, 4]}
 
 """
 TODO: 

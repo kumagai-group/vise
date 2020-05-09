@@ -185,9 +185,7 @@ class StructureSymmetrizer:
             wyckoff = wyckoffs[index]
             elem_wyckoff = "_".join([elem, wyckoff])
             elem_wyckoff_idx[elem_wyckoff] += 1
-            site_symm = site_symmetries[index]
-            name = "_".join([elem_wyckoff + str(elem_wyckoff_idx[elem_wyckoff]),
-                             site_symm])
+            name = elem_wyckoff + str(elem_wyckoff_idx[elem_wyckoff])
             result[name] = [i[0] for i in list(same_sites_index_list)]
 
         return result
