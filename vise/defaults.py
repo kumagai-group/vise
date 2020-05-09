@@ -40,7 +40,7 @@ class Defaults:
 
         for k, v in self.user_settings.items():
             if hasattr(self, k):
-                self.__setattr__(k, v)
+                self.__setattr__("_" + k, v)
 
     @property
     def symmetry_length_tolerance(self):
