@@ -12,27 +12,27 @@ from vise.user_settings import UserSettings
 @singleton
 class Defaults:
     def __init__(self):
-        self.symmetry_length_tolerance = 0.01
-        self.symmetry_angle_tolerance = 5.0
-        self.dos_step_size = 0.01
-        self.kpoint_density = 5.0  # for insulator 2.5 is okay.
-        self.band_mesh_distance = 0.025
-        self.str_opt_encut_factor = 1.3
-        self.band_gap_criterion = 0.2  # in eV
-        self.integer_criterion = 0.1
-        self.default_num_nodes = 1
-        self.task = Task.structure_opt
-        self.xc = Xc.pbe
-        self.options = {}
-        self.user_incar_settings = {}
-        self.ldauu = {}
-        self.ldaul = {}
-        self.outcar = "OUTCAR"
-        self.contcar = "CONTCAR"
-        self.vasprun = "vasprun.xml"
-        self.procar = "PROCAR"
-        self.overridden_potcar = {}
-        self.potcar_set_name = str(PotcarSet.normal)
+        self._symmetry_length_tolerance = 0.01
+        self._symmetry_angle_tolerance = 5.0
+        self._dos_step_size = 0.01
+        self._kpoint_density = 5.0  # for insulator 2.5 is okay.
+        self._band_mesh_distance = 0.025
+        self._str_opt_encut_factor = 1.3
+        self._band_gap_criterion = 0.2  # in eV
+        self._integer_criterion = 0.1
+        self._default_num_nodes = 1
+        self._task = Task.structure_opt
+        self._xc = Xc.pbe
+        self._options = {}
+        self._user_incar_settings = {}
+        self._ldauu = {}
+        self._ldaul = {}
+        self._outcar = "OUTCAR"
+        self._contcar = "CONTCAR"
+        self._vasprun = "vasprun.xml"
+        self._procar = "PROCAR"
+        self._overridden_potcar = {}
+        self._potcar_set_name = str(PotcarSet.normal)
 
         user_settings = UserSettings(yaml_filename="vise.yaml")
         self.yaml_files = user_settings.yaml_files_from_root_dir
@@ -41,6 +41,90 @@ class Defaults:
         for k, v in self.user_settings.items():
             if hasattr(self, k):
                 self.__setattr__(k, v)
+
+    @property
+    def symmetry_length_tolerance(self):
+        return self._symmetry_length_tolerance
+
+    @property
+    def symmetry_angle_tolerance(self):
+        return self._symmetry_angle_tolerance
+
+    @property
+    def dos_step_size(self):
+        return self._dos_step_size
+
+    @property
+    def kpoint_density(self):
+        return self._kpoint_density
+
+    @property
+    def band_mesh_distance(self):
+        return self._band_mesh_distance
+
+    @property
+    def str_opt_encut_factor(self):
+        return self._str_opt_encut_factor
+
+    @property
+    def band_gap_criterion(self):
+        return self._band_gap_criterion
+
+    @property
+    def integer_criterion(self):
+        return self._integer_criterion
+
+    @property
+    def default_num_nodes(self):
+        return self._default_num_nodes
+
+    @property
+    def task(self):
+        return self._task
+
+    @property
+    def xc(self):
+        return self._xc
+
+    @property
+    def options(self):
+        return self._options
+
+    @property
+    def user_incar_settings(self):
+        return self._user_incar_settings
+
+    @property
+    def ldauu(self):
+        return self._ldauu
+
+    @property
+    def ldaul(self):
+        return self._ldaul
+
+    @property
+    def outcar(self):
+        return self._outcar
+
+    @property
+    def contcar(self):
+        return self._contcar
+
+    @property
+    def vasprun(self):
+        return self._vasprun
+
+    @property
+    def procar(self):
+        return self._procar
+
+    @property
+    def overridden_potcar(self):
+        return self._overridden_potcar
+
+    @property
+    def potcar_set_name(self):
+        return self._potcar_set_name
 
 
 defaults = Defaults()
