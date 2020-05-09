@@ -18,8 +18,12 @@ class ExtendedEnum(Enum):
             if m.value == s:
                 return m
         raise AttributeError(f"{str(s)} is not proper member for {cls}.\n",
-                             f"Supported names:\n {cls.name_list()}")
+                             f"Supported names:\n {cls.names_string()}")
+
+    @classmethod
+    def names_string(cls):
+        return ", ".join([e.name for e in cls])
 
     @classmethod
     def name_list(cls):
-        return ", ".join([e.name for e in cls])
+        return [e for e in cls]
