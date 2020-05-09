@@ -18,7 +18,7 @@ def test_group_by_elements(complex_ortho_structure):
     target = ["H", "He"]
     group = class_type.grouped_atom_indices(structure=complex_ortho_structure,
                                             target=target)
-    assert group == {"H": [0], "He": [1, 2]}
+    assert group == {"H": [0], "He": [1, 2, 3, 4]}
 
 
 def test_group_by_non_equiv_sites(complex_ortho_structure):
@@ -26,7 +26,7 @@ def test_group_by_non_equiv_sites(complex_ortho_structure):
     target = None
     group = class_type.grouped_atom_indices(structure=complex_ortho_structure,
                                             target=target)
-    assert group == {"H_a1_2/m": [0], "He_m1_m": [1, 2], "He_m2_m": [3, 4]}
+    assert group == {"H_a1": [0], "He_m1": [1, 2], "He_m2": [3, 4]}
 
 
 """

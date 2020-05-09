@@ -119,7 +119,10 @@ def test_plot_band(tmpdir, test_data_files):
 
 def test_plot_dos(tmpdir, test_data_files):
     args = Namespace(vasprun=test_data_files / "MnO_uniform_vasprun.xml",
+                     outcar=test_data_files / "MnO_uniform_OUTCAR",
                      type=AtomGroupingType.non_equiv_sites,
+                     legend=True,
+                     x_range=[-5, 5],
                      target=["Mn", "O"],
                      filename="test.pdf")
 
@@ -127,6 +130,7 @@ def test_plot_dos(tmpdir, test_data_files):
 
 """
 TODO:
+- Add y_range
 - Parse band edge and shift zero energy to the vbm 
 - If band gap is absent, shift zero energy to the Fermi level
 - Draw per non-equivalent sites.

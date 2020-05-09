@@ -56,7 +56,9 @@ def test_actual_vasp_files(test_data_files: Path):
     vasprun_file = str(test_data_files / "MgO_dos_vasprun.xml")
     vasprun = Vasprun(vasprun_file)
     vasp_dos_data = VaspDosData(vasprun)
-    plot_data = vasp_dos_data.dos_plot_data({"Mg": [0], "O": [1]}, base_energy=1)
+    plot_data = vasp_dos_data.dos_plot_data({"Mg": [0], "O": [1]},
+                                            base_energy=1,
+                                            vertical_lines=[0.0])
     plotter = DosPlotter(plot_data)
     plotter.construct_plot()
     plotter.plt.show()

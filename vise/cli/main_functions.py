@@ -7,7 +7,6 @@ from copy import deepcopy
 
 from pymatgen.ext.matproj import MPRester
 from pymatgen import Structure
-from pymatgen.io.vasp import Vasprun
 
 from vise.input_set.input_options import CategorizedInputOptions, assignable_option_set
 from vise.input_set.vasp_input_files import VaspInputFiles
@@ -21,7 +20,8 @@ from vise.analyzer.plot_band import BandPlotter
 
 from vise.analyzer.vasp.dos_data import VaspDosData
 from vise.analyzer.plot_dos import DosPlotter
-from pymatgen.io.vasp import Vasprun
+from vise.analyzer.vasp.band_edge_properties import VaspBandEdgeProperties
+from pymatgen.io.vasp import Vasprun, Outcar
 
 
 def get_poscar_from_mp(args: Namespace) -> None:
@@ -91,11 +91,21 @@ def plot_band(args: Namespace):
 
 def plot_dos(args: Namespace):
     vasprun = Vasprun(args.vasprun)
+    outcar = Outcar(args.outcar)
+    band_edge = VaspBandEdgeProperties(vasprun, outcar)
+    if band_edge.band_gap:
+        vertical_lines = [band_edge.vbm_info.energy, band_edge.cbm_info.energy]
+    else:
+        vertical_lines = [vasprun.efermi]
+
     dos_data = VaspDosData(vasprun)
     structure = vasprun.final_structure
     grouped_atom_indices = args.type.grouped_atom_indices(structure, args.target)
-    plot_data = dos_data.dos_plot_data(grouped_atom_indices)
-    plotter = DosPlotter(plot_data)
+    plot_data = dos_data.dos_plot_data(grouped_atom_indices,
+                                       vertical_lines=vertical_lines,
+                                       xlim=args.x_range)
+#                                       ylim_set=args.y_range)
+    plotter = DosPlotter(plot_data, args.legend)
     plotter.construct_plot()
     plotter.plt.show()
 
