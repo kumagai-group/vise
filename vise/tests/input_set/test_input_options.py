@@ -10,15 +10,6 @@ from vise.input_set.task import Task
 from vise.input_set.xc import Xc
 
 
-@pytest.fixture()
-def sc_structure():
-    lattice = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
-    coords = [[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]]
-    results = Structure(lattice=lattice, species=["H", "Li"], coords=coords)
-
-    return results
-
-
 def test_no_options(sc_structure):
     opts = CategorizedInputOptions(sc_structure, task=Task.structure_opt, xc=Xc.pbe)
 
@@ -34,7 +25,7 @@ def test_no_options(sc_structure):
 
 def test_initial_structures(sc_structure):
     opts = CategorizedInputOptions(sc_structure, task=Task.structure_opt, xc=Xc.pbe)
-    assert str(opts.initial_structure.composition) == "H1 Li1"
+    assert str(opts.initial_structure.composition) == "H1"
 
 
 def test_raise_error(sc_structure):

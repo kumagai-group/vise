@@ -11,27 +11,6 @@ from vise.input_set.structure_kpoints_generator import \
 from vise.input_set.task import Task
 
 
-@pytest.fixture()
-def sc_structure():
-    lattice = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
-    coords = [[0.0, 0.0, 0.0]]
-    results = Structure(lattice=lattice, species=["H"], coords=coords)
-
-    return results
-
-
-@pytest.fixture()
-def mc_structure():
-    lattice =[[ 6.0, 3.0, 0.0],
-              [ 6.0,-3.0, 0.0],
-              [-4.0, 0.0, 7.0]]
-    coords = [[0.0, 0.0, 0.0]]
-    structure = Structure(lattice=lattice, species=["H"], coords=coords)
-    return structure
-
-
-# constructor related unittests.
-
 def test_constructor_num_kpt_multiplication_factor(sc_structure):
     generator = StructureKpointsGenerator(sc_structure,
                                           task=Task.dielectric_function)
