@@ -19,6 +19,11 @@ from vise.cli.main_tools import potcar_str2dict, list2dict
 from vise.analyzer.vasp.plot_band import VaspBandPlotInfo
 from vise.analyzer.plot_band import BandPlotter
 
+from vise.analyzer.vasp.dos_data import VaspDosData
+from vise.analyzer.plot_dos import DosPlotter
+from pymatgen.io.vasp import Vasprun
+
+
 def get_poscar_from_mp(args: Namespace) -> None:
     s = MPRester().get_structure_by_material_id(args.mpid)
     s.to(fmt="poscar", filename=args.poscar)
@@ -82,4 +87,16 @@ def plot_band(args: Namespace):
     plotter = BandPlotter(plot_info, y_range=args.y_range)
     plotter.construct_plot()
     plotter.plt.savefig(args.filename, format="pdf")
+
+
+def plot_dos(args: Namespace):
+    vasprun = Vasprun(args.vasprun)
+    dos_data = VaspDosData(vasprun)
+    structure = vasprun.final_structure
+    grouped_atom_indices = args.type.grouped_atom_indices(structure, args.target)
+    plot_data = dos_data.dos_plot_data(grouped_atom_indices)
+    plotter = DosPlotter(plot_data)
+    plotter.construct_plot()
+    plotter.plt.show()
+
 

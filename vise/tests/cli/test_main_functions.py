@@ -1,22 +1,17 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
-from copy import deepcopy
-import pytest
-from pathlib import Path
-
 from argparse import Namespace
-from pymatgen.core.structure import Structure
+from copy import deepcopy
 
-from vise.cli.main_functions import get_poscar_from_mp, VaspSet, plot_band
+import pytest
 
-from vise.input_set.input_options import CategorizedInputOptions
-from vise.input_set.vasp_input_files import VaspInputFiles
+from vise.analyzer.atom_grouping_type import AtomGroupingType
+from vise.cli.main_functions import get_poscar_from_mp, VaspSet, plot_band, plot_dos
 from vise.defaults import defaults
+from vise.input_set.kpoints_mode import KpointsMode
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc
-from vise.input_set.kpoints_mode import KpointsMode
-
 
 
 def test_get_poscar_from_mp(tmpdir):
@@ -120,3 +115,23 @@ def test_plot_band(tmpdir, test_data_files):
                      filename="test.pdf")
 
     plot_band(args)
+
+
+def test_plot_dos(tmpdir, test_data_files):
+    args = Namespace(vasprun=test_data_files / "MnO_uniform_vasprun.xml",
+                     type=AtomGroupingType.non_equiv_sites,
+                     target=["Mn", "O"],
+                     filename="test.pdf")
+
+    plot_dos(args)
+
+"""
+TODO:
+- Parse band edge and shift zero energy to the vbm 
+- If band gap is absent, shift zero energy to the Fermi level
+- Draw per non-equivalent sites.
+- Orbital decomposed dos
+
+                     x_range=[-10, 10],
+                     y_range_set=[[-10, 10], []]
+"""
