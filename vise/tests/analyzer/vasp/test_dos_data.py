@@ -20,24 +20,31 @@ energies = [-1, 0, 1]
 tdos = [3, 4, 5]
 pdos = [1, 2, 3]
 
+total_dos = Dos(efermi=efermi, energies=energies,
+                densities={Spin.up: tdos})
+pdoses = {Site("H", [0, 0, 0]): {Orbital.s: {Spin.up: pdos},
+                                 Orbital.px: {Spin.up: pdos},
+                                 Orbital.py: {Spin.up: pdos},
+                                 Orbital.pz: {Spin.up: pdos},
+                                 Orbital.dxy: {Spin.up: pdos},
+                                 Orbital.dyz: {Spin.up: pdos},
+                                 Orbital.dxz: {Spin.up: pdos},
+                                 Orbital.dz2: {Spin.up: pdos},
+                                 Orbital.dx2: {Spin.up: pdos}}}
+
 
 @pytest.fixture
 def vasp_dos_data(mocker):
-    total_dos = Dos(efermi=efermi, energies=energies,
-                    densities={Spin.up: tdos})
-    pdoses = {Site("H", [0, 0, 0]): {Orbital.s: {Spin.up: pdos},
-                                     Orbital.px: {Spin.up: pdos},
-                                     Orbital.py: {Spin.up: pdos},
-                                     Orbital.pz: {Spin.up: pdos},
-                                     Orbital.dxy: {Spin.up: pdos},
-                                     Orbital.dyz: {Spin.up: pdos},
-                                     Orbital.dxz: {Spin.up: pdos},
-                                     Orbital.dz2: {Spin.up: pdos},
-                                     Orbital.dx2: {Spin.up: pdos}}}
-
     stub_vasprun = mocker.Mock(spec=Vasprun)
     stub_vasprun.complete_dos = CompleteDos(None, total_dos, pdoses)
     return VaspDosData(stub_vasprun)
+
+
+@pytest.fixture
+def vasp_dos_data_crop_first_value(mocker):
+    stub_vasprun = mocker.Mock(spec=Vasprun)
+    stub_vasprun.complete_dos = CompleteDos(None, total_dos, pdoses)
+    return VaspDosData(stub_vasprun, crop_first_value=True)
 
 
 def test_energies(vasp_dos_data):
@@ -50,6 +57,13 @@ def test_total_dos(vasp_dos_data):
 
 def test_pdos(vasp_dos_data):
     assert_array_equal(vasp_dos_data.pdos[0].s, np.array([pdos]))
+
+
+def test_dos_for_crop_first_value(vasp_dos_data_crop_first_value):
+    assert_array_equal(vasp_dos_data_crop_first_value.total,
+                       np.array([tdos[1:]]))
+    assert_array_equal(vasp_dos_data_crop_first_value.pdos[0].s,
+                       np.array([pdos[1:]]))
 
 
 def test_actual_vasp_files(test_data_files: Path):
