@@ -39,8 +39,10 @@ doses = [[DosBySpinEnergy("total", [total_up, total_down])],
          [DosBySpinEnergy("H-s", np.array([h_s_up, h_s_down])),
           DosBySpinEnergy("H-p", np.array([h_p_up, h_p_down]))]]
 
-dos_plot_data = DosPlotData(relative_energies=relative_energies, doses=doses,
-                            xlim=xlim, ylim_set=ylim_set)
+dos_plot_data = DosPlotData(relative_energies=relative_energies,
+                            doses=doses,
+                            xlim=xlim,
+                            ylim_set=ylim_set)
 dos_data_len = len(dos_plot_data.doses)
 
 
@@ -87,7 +89,7 @@ def test_dos_mpl_settings_modify():
 
 def test_plot_dos(mock_plt_list):
     mock_plt, mock_1st_ax, mock_2nd_ax = mock_plt_list
-    mock_plt.subplots.assert_called_once_with(dos_data_len, 1, sharex=True)
+    mock_plt.subplots.assert_called_once_with(dos_data_len, 1, sharex=True, gridspec_kw={'hspace': 0.05})
 
     reversed_total_down = [dos * -1 for dos in total_down]
     reversed_h_p_down = [dos * -1 for dos in h_p_down]
@@ -120,8 +122,8 @@ def test_axs_is_list_when_single_dos_passed():
 
 def test_set_figure_legend(mock_plt_list):
     _, mock_1st_ax, mock_2nd_ax = mock_plt_list
-    mock_1st_ax.legend.assert_called_with(loc="best", markerscale=0.1)
-    mock_2nd_ax.legend.assert_called_with(loc="best", markerscale=0.1)
+    mock_1st_ax.legend.assert_called_with(bbox_to_anchor=(1.01, 1), loc='upper left', borderaxespad=0, markerscale=0.1)
+    mock_2nd_ax.legend.assert_called_with(bbox_to_anchor=(1.01, 1), loc='upper left', borderaxespad=0, markerscale=0.1)
 
 
 def test_set_x_and_y_range(mock_plt_list):

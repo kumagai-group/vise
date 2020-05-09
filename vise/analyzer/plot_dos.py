@@ -37,14 +37,16 @@ class DosMplSettings:
 class DosPlotter:
     def __init__(self,
                  dos_data: DosPlotData,
+                 show_legend: bool = True,
                  mpl_defaults: Optional[DosMplSettings] = DosMplSettings()):
 
         self._dos_info = dos_data
+        self._show_legend = show_legend
         self.mpl_defaults = mpl_defaults
 
         self.plt = plt
         num_axs = len(self._dos_info.doses)
-        fig, self._axs = self.plt.subplots(num_axs, 1, sharex=True)
+        fig, self._axs = self.plt.subplots(num_axs, 1, sharex=True, gridspec_kw={'hspace':0.05})
         if num_axs == 1:
             self._axs = [self._axs]
 
@@ -58,6 +60,7 @@ class DosPlotter:
         self._add_dos(i)
         self._set_y_range(i)
         self._set_dos_zero_line(i)
+        self.plt.tight_layout()
 
     def _add_dos(self, i):
         for j, by_name_dos in enumerate(self._dos_info.doses[i]):
@@ -65,12 +68,12 @@ class DosPlotter:
                 sign = - (2 * k) + 1
                 dos_for_plot = [d * sign for d in by_spin_dos]
                 args = self.mpl_defaults.dos_line(j)
-                if k == 0:
+                if k == 0 and self._show_legend:
                     args["label"] = self._dos_info.doses[i][j].name
                 self._axs[i].plot(self._dos_info.relative_energies,
                                   dos_for_plot, **args)
 
-        self._axs[i].legend(loc="best", markerscale=0.1)
+        self._axs[i].legend(bbox_to_anchor=(0.90, 1), loc='upper left', borderaxespad=0, markerscale=0.1)
         self._axs[i].set_ylabel("Dos (1/eV)", size=self.mpl_defaults.label_font_size)
 
     def _set_dos_zero_line(self, i):
