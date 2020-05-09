@@ -7,13 +7,14 @@ import sys
 from pathlib import Path
 
 from vise import __version__
-from vise.cli.main_functions import get_poscar_from_mp, VaspSet, plot_band
+from vise.cli.main_functions import get_poscar_from_mp, VaspSet, plot_band, plot_dos
 from vise.cli.main_tools import potcar_str2dict
 from vise.defaults import defaults
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc
 from vise.util.logger import get_logger
 from vise.util.tools import str2bool
+from vise.analyzer.atom_grouping_type import AtomGroupingType
 
 logger = get_logger(__name__)
 
@@ -59,20 +60,20 @@ Version: {__version__}
     parser_vasp_set.add_argument(
         "-p", "--poscar",
         default="POSCAR",
-        type=str,
+        type=Path,
         help="POSCAR-type input structure file name.")
     parser_vasp_set.add_argument(
         "-t", "--task",
         default=defaults.task,
         type=Task,
-        choices=[t for t in Task],
-        help=f"Task name from {Task.name_list()}.")
+        choices=Task.name_list(),
+        help=f"Task name from {Task.names_string()}.")
     parser_vasp_set.add_argument(
         "-x", "--xc",
         default=defaults.xc,
         type=Xc,
-        choices=[xc for xc in Xc],
-        help="Exchange-correlation (XC) interaction from {Xc.name_list()}.")
+        choices=Xc.name_list(),
+        help=f"Exchange-correlation (XC) interaction from {Xc.names_string()}.")
     parser_vasp_set.add_argument(
         "-k", "--kpt_density",
         default=defaults.kpoint_density,
@@ -156,6 +157,71 @@ Version: {__version__}
 
     parser_plot_band.set_defaults(func=plot_band)
 
+    # -- plot_dos -----------------------------------------------------------
+    parser_plot_dos = subparsers.add_parser(
+        name="plot_dos",
+        description="Tools for plotting density of states",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        aliases=['pd'])
+
+    parser_plot_dos.add_argument(
+        "-v", "--vasprun",
+        type=Path,
+        default=defaults.vasprun,
+        help="vasprun.xml file name.")
+    parser_plot_dos.add_argument(
+        "-o", "--outcar",
+        type=Path,
+        default=defaults.outcar,
+        help="OUTCAR file name.")
+    parser_plot_dos.add_argument(
+        "-t", "--type",
+        type=AtomGroupingType,
+        default=AtomGroupingType.non_equiv_sites,
+        choices=AtomGroupingType.name_list(),
+        help="How to group atoms for pdos.")
+    parser_plot_dos.add_argument(
+        "-l", "--legend",
+        type=str2bool,
+        default=True,
+        help="Whether to show the figure legend.")
+    parser_plot_dos.add_argument(
+        "-c", "--crop_first_value",
+        type=str2bool,
+        default=True,
+        help="Whether to crop the first value in DOS.")
+    parser_plot_dos.add_argument(
+        "-x", "--x_range",
+        nargs="+",
+        type=float,
+        help="Set energies minimum and maximum.")
+    parser_plot_dos.add_argument(
+        "--target",
+        type=str,
+        nargs="+",
+        help="""
+        Show specific PDOS. The input depends on AtomGroupingType.
+        AtomGroupingType.atoms: ["1", "2"] 
+        AtomGroupingType.elements: ["Mg", "O"] 
+        """)
+    parser_plot_dos.add_argument(
+        "-f", "--filename",
+        type=str,
+        default="dos.pdf",
+        help="Pdf file name.")
+    parser_plot_dos.add_argument(
+        "-b", "--base_energy",
+        type=float,
+        help="Set when showing the figure in the absolute energies scale.")
+    parser_plot_dos.set_defaults(func=plot_dos)
+
+#     parser_plot_dos.add_argument(
+#         "-y", "--ymaxs", nargs="+", type=float,
+#         help="Set max values of y ranges. Support two ways."
+#              "1st: total_max, all_the_atoms"
+#              "2nd: total_max, 1st_atom, 2nd_atom, ...")
+#
+#
 
 #     # # try:
 #     # #     import argcomplete

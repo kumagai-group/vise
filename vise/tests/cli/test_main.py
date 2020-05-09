@@ -12,6 +12,7 @@ from vise.util.testing import ViseTest
 from vise.defaults import defaults
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc
+from vise.analyzer.atom_grouping_type import AtomGroupingType
 
 parent_dir = Path(__file__).parent
 
@@ -42,7 +43,7 @@ def test_vasp_set_wo_options():
     parsed_args = parse_args(["vs"])
     # func is a pointer so need to point the same address.
     expected = Namespace(
-        poscar="POSCAR",
+        poscar=Path("POSCAR"),
         task=defaults.task,
         xc=defaults.xc,
         kpt_density=defaults.kpoint_density,
@@ -95,7 +96,7 @@ def test_plot_band_wo_options():
     parsed_args = parse_args(["pb"])
     # func is a pointer so need to point the same address.
     expected = Namespace(
-        vasprun_filepath=Path(defaults.vasprun),
+        vasprun_filepath=defaults.vasprun,
         kpoints_filename="KPOINTS",
         y_range=[-10.0, 10.0],
         filename="band.pdf",
@@ -123,3 +124,48 @@ def test_plot_band_w_options():
     assert parsed_args == expected
 
 
+def test_plot_dos_wo_options():
+    parsed_args = parse_args(["pd"])
+    # func is a pointer so need to point the same address.
+    expected = Namespace(
+        vasprun=defaults.vasprun,
+        outcar=defaults.outcar,
+        type=AtomGroupingType.non_equiv_sites,
+        legend=True,
+        crop_first_value=True,
+        x_range=None,
+        target=None,
+        filename="dos.pdf",
+        base_energy=None,
+        func=parsed_args.func,
+    )
+    assert parsed_args == expected
+
+
+def test_plot_dos_w_options():
+    parsed_args = parse_args(["pd",
+                              "--vasprun", "vasprun_1",
+                              "--outcar", "OUTCAR_1",
+                              "-t", "atoms",
+                              "-l", "False",
+                              "-c", "False",
+                              "--x_range", "-1.0", "1.0",
+                              "--target", "1", "2",
+                              "--filename", "dos_1.pdf",
+                              "-b", "-1"
+                              ])
+
+    expected = Namespace(
+        vasprun=Path("vasprun_1"),
+        outcar=Path("OUTCAR_1"),
+        type=AtomGroupingType.atoms,
+        legend=False,
+        crop_first_value=False,
+        x_range=[-1.0, 1.0],
+        target=["1", "2"],
+        filename="dos_1.pdf",
+        base_energy=-1.0,
+        func=parsed_args.func,
+    )
+
+    assert parsed_args == expected
