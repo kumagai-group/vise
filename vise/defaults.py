@@ -2,7 +2,7 @@
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
 from monty.design_patterns import singleton
-
+from pathlib import Path
 from vise.input_set.datasets.dataset_util import PotcarSet
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc
@@ -27,10 +27,10 @@ class Defaults:
         self._user_incar_settings = {}
         self._ldauu = {}
         self._ldaul = {}
-        self._outcar = "OUTCAR"
-        self._contcar = "CONTCAR"
-        self._vasprun = "vasprun.xml"
-        self._procar = "PROCAR"
+        self._outcar = Path("OUTCAR")
+        self._contcar = Path("CONTCAR")
+        self._vasprun = Path("vasprun.xml")
+        self._procar = Path("PROCAR")
         self._overridden_potcar = {}
         self._potcar_set_name = str(PotcarSet.normal)
 
