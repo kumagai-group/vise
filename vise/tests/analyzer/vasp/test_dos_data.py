@@ -60,6 +60,7 @@ def test_pdos(vasp_dos_data):
 
 
 def test_dos_for_crop_first_value(vasp_dos_data_crop_first_value):
+    assert_array_equal(vasp_dos_data_crop_first_value.energies, energies[1:])
     assert_array_equal(vasp_dos_data_crop_first_value.total,
                        np.array([tdos[1:]]))
     assert_array_equal(vasp_dos_data_crop_first_value.pdos[0].s,

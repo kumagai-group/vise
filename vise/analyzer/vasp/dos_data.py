@@ -14,7 +14,10 @@ class VaspDosData(DosData):
     def __init__(self, vasprun: Vasprun, crop_first_value=False):
         self.complete_dos = vasprun.complete_dos
         self.crop_first_value = crop_first_value
-        super().__init__(energies=self.complete_dos.energies.tolist(),
+        energies = self.complete_dos.energies.tolist()
+        if self.crop_first_value:
+            energies = energies[1:]
+        super().__init__(energies=energies,
                          total=np.array(self._total),
                          pdos=self._pdos)
 
