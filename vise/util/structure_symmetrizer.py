@@ -6,6 +6,8 @@ import numpy as np
 import seekpath
 import spglib
 from pymatgen import Structure, Element
+from collections import defaultdict
+from itertools import groupby
 
 from vise.defaults import defaults
 from vise.util.logger import get_logger
@@ -168,6 +170,27 @@ class StructureSymmetrizer:
             results.append((normalized_grid_point.tolist(), count))
 
         return results  # [(irreducible kpoint in fractional coords, weight)]
+
+    def grouped_atom_indices(self):
+        result = {}
+        wyckoffs = self.spglib_sym_data["wyckoffs"]
+        site_symmetries = self.spglib_sym_data["site_symmetry_symbols"]
+        equivalent_atom_set = \
+            enumerate(self.spglib_sym_data["equivalent_atoms"].tolist())
+        elem_wyckoff_idx = defaultdict(int)
+
+        for index, same_sites_index_list in groupby(equivalent_atom_set,
+                                                    key=lambda x: x[1]):
+            elem = str(self.structure[index].specie)
+            wyckoff = wyckoffs[index]
+            elem_wyckoff = "_".join([elem, wyckoff])
+            elem_wyckoff_idx[elem_wyckoff] += 1
+            site_symm = site_symmetries[index]
+            name = "_".join([elem_wyckoff + str(elem_wyckoff_idx[elem_wyckoff]),
+                             site_symm])
+            result[name] = [i[0] for i in list(same_sites_index_list)]
+
+        return result
 
 
 class ViseSymmetryError(Exception):
