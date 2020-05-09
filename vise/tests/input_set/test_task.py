@@ -24,7 +24,7 @@ def test_task_name_list():
     expected = 'structure_opt, structure_opt_rough, structure_opt_tight, ' \
                'cluster_opt, phonon_force, defect, band, dos, ' \
                'dielectric_dfpt, dielectric_finite_field, dielectric_function'
-    assert Task.name_list() == expected
+    assert Task.names_string() == expected
 
 
 def test_is_atom_relaxed_lattice_fixed():

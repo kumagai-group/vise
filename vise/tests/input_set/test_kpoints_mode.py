@@ -18,4 +18,4 @@ def test_kpoints_mode_from_string_raise_error():
 
 def test_kpoints_mode_name_list():
     expected = "band, primitive, uniform"
-    assert KpointsMode.name_list() == expected
+    assert KpointsMode.names_string() == expected
