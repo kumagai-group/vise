@@ -7,6 +7,8 @@ from copy import deepcopy
 
 from pymatgen.core.structure import Structure
 
+from vise.analyzer.band_edge_properties import is_band_gap
+from vise.defaults import defaults
 from vise.input_set.incar_settings_generator import IncarSettingsGenerator
 from vise.input_set.potcar_generator import generate_potcar
 from vise.input_set.structure_kpoints_generator import StructureKpointsGenerator
@@ -47,6 +49,7 @@ class CategorizedInputOptions:
             {"initial_structure": structure.copy(),
              "task": task,
              "xc": xc})
+        self._set_insulator_kpt_density()
         self._raise_error_when_unknown_options_exist()
 
     def _raise_error_when_unknown_options_exist(self) -> None:
@@ -54,6 +57,13 @@ class CategorizedInputOptions:
         if unknown_args_set:
             raise ViseInputOptionsError(
                 f"Options {unknown_args_set} are invalid")
+
+    def _set_insulator_kpt_density(self):
+        if (is_band_gap(self._input_options.get("vbm_cbm", None))
+                and "kpt_density" not in self._input_options):
+            kpt_density = defaults.insulator_kpoint_density
+            logger.info(f"Kpoint density is set to {kpt_density}.")
+            self._input_options["kpt_density"] = kpt_density
 
     @property
     def input_option_set(self) -> set:

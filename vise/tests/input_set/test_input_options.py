@@ -8,6 +8,7 @@ from vise.input_set.input_options import (
     CategorizedInputOptions, ViseInputOptionsError)
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc
+from vise.defaults import defaults
 
 
 def test_no_options(sc_structure):
@@ -62,3 +63,14 @@ def test_initial_structure(sc_structure):
     assert opts.initial_structure == sc_structure
 
 
+def test_insulator_kpt_density(sc_structure):
+    opts = CategorizedInputOptions(sc_structure, task=Task.structure_opt,
+                                   xc=Xc.pbe, vbm_cbm=[0, 0.5])
+    actual = opts.structure_kpoints_options["kpt_density"]
+    expected = defaults._insulator_kpoint_density
+    assert actual == expected
+
+    opts = CategorizedInputOptions(sc_structure, task=Task.structure_opt,
+                                   xc=Xc.pbe, vbm_cbm=[0, 0.5],
+                                   kpt_density=100)
+    assert opts.structure_kpoints_options["kpt_density"] == 100
