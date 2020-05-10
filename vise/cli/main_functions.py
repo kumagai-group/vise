@@ -22,6 +22,7 @@ from vise.input_set.kpoints_mode import KpointsMode
 from vise.input_set.prior_info import prior_info_from_calc_dir
 from vise.input_set.vasp_input_files import VaspInputFiles
 from vise.util.file_transfer import FileTransfers
+from vise.input_set.datasets.dataset_util import all_incar_flags
 
 
 def get_poscar_from_mp(args: Namespace) -> None:
@@ -54,7 +55,8 @@ class VaspSet:
     def _overridden_incar_settings(self):
         result = deepcopy(defaults.user_incar_settings)
         if self.args.user_incar_settings:
-            result.update(self.args.user_incar_settings)
+            args = list2dict(self.args.user_incar_settings, all_incar_flags)
+            result.update(args)
 
         return result
 

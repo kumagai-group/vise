@@ -55,8 +55,8 @@ default_args.update({"user_incar_settings": None,
 
 test_data = [
     ({}, {}, {}, {}),
-    ({"user_incar_settings": {"key": "value"}},
-     {"key": "value"},
+    ({"user_incar_settings": ["ISPIN", "2"]},
+     {"ISPIN": 2},
      {},
      {}),
     ({"options": ["only_even_num_kpts", "True"]},

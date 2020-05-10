@@ -13,7 +13,7 @@ from pymatgen.electronic_structure.core import Magmom
 from pymatgen.io.vasp import Incar
 from tabulate import tabulate
 
-from vise.input_set.datasets.dataset_util import all_incar_flags
+from vise.input_set.datasets.dataset_util import incar_categories
 from vise.util.logger import get_logger
 
 MODULE_DIR = Path(os.path.dirname(os.path.abspath(__file__)))
@@ -74,7 +74,7 @@ class ViseIncar(Incar):
         lines = OrderedDict()
         input_incar_flags = list(self.keys())
 
-        for category, flags_by_category in all_incar_flags.items():
+        for category, flags_by_category in incar_categories.items():
             settings_by_category = []
 
             for flag in flags_by_category:

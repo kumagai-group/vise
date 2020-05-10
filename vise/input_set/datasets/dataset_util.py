@@ -14,8 +14,9 @@ unoccupied_bands = loadfn(Path(__file__).parent / "unoccupied_bands.yaml")
 
 # This incar_flags should be OrderedDict, but from python 3.6, dict uses
 # order-preserving semantics. Besides, it does not affect vasp result.
-all_incar_flags: Dict[str, Any] = \
+incar_categories: Dict[str, Any] = \
     loadfn(Path(__file__).parent / "incar_flags.yaml")
+all_incar_flags: List[str] = sum(incar_categories.values(), [])
 
 
 def has_f_elements(symbol_list: List[str]):
