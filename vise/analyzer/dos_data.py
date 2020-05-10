@@ -73,6 +73,7 @@ class DosData:
 
         self.energies = energies
         self.total = total
+        self.spin = False if len(self.total) == 1 else True
         self.pdos = pdos
 
     def dos_plot_data(self,
@@ -101,10 +102,10 @@ class DosData:
         xlim = xlim or [-10, 10]
 
         if ylim_set is None:
-            if len(self.total) == 1:
-                ylim_set = [[0, y] for y in self.max_y_ranges(doses, xlim)]
-            else:
+            if self.spin:
                 ylim_set = [[-y, y] for y in self.max_y_ranges(doses, xlim)]
+            else:
+                ylim_set = [[0, y] for y in self.max_y_ranges(doses, xlim)]
 
         energies = [e - base_energy for e in self.energies]
         shifted_vertical_lines = [e - base_energy for e in vertical_lines]
