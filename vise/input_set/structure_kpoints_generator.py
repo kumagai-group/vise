@@ -24,7 +24,7 @@ class StructureKpointsGenerator:
             initial_structure: Structure,
             task: Task,
             kpt_mode: Optional[KpointsMode] = None,  # None for default setting
-            kpt_density: float = defaults.kpoint_density,  # in Å
+            kpt_density: Optional[float] = None,  # in Å
             gamma_centered: Optional[bool] = None,  # Vasp definition
             only_even_num_kpts: bool = False,  # If ceil kpt numbers to be even.
             num_kpt_factor: Optional[int] = None,  # NKRED, too
@@ -35,7 +35,7 @@ class StructureKpointsGenerator:
 
         self._initial_structure = initial_structure.copy()
         self._task = task
-        self._kpt_density = kpt_density
+        self._kpt_density = kpt_density or defaults.kpoint_density
         self._is_magnetization = is_magnetization
         self._num_kpt_factor = num_kpt_factor or self._task.default_kpt_factor
         self._symmetrizer = \

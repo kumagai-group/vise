@@ -93,8 +93,9 @@ Version: {__version__}
         choices=Xc.name_list(),
         help=f"Exchange-correlation (XC) interaction from {Xc.names_string()}.")
     parser_vasp_set.add_argument(
+        # Default must be None to use the insulator_kpoint_density.
+        # defaults.kpoints_density is used at structure_kpoints_generator.py
         "-k", "--kpt_density",
-        default=defaults.kpoint_density,
         type=float,
         help="K-point density in Angstrom along each direction .")
     parser_vasp_set.add_argument(

@@ -45,6 +45,7 @@ class CategorizedInputOptions:
                  **input_options):
 
         self._input_options = deepcopy(input_options)
+        print(self._input_options)
         self._input_options.update(
             {"initial_structure": structure.copy(),
              "task": task,
@@ -60,7 +61,7 @@ class CategorizedInputOptions:
 
     def _set_insulator_kpt_density(self):
         if (is_band_gap(self._input_options.get("vbm_cbm", None))
-                and "kpt_density" not in self._input_options):
+                and self._input_options.get("kpt_density", None) is None):
             kpt_density = defaults.insulator_kpoint_density
             logger.info(f"Kpoint density is set to {kpt_density}.")
             self._input_options["kpt_density"] = kpt_density
