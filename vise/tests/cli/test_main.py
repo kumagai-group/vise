@@ -172,3 +172,29 @@ def test_plot_dos_w_options():
     )
 
     assert parsed_args == expected
+
+
+def test_band_edge_wo_options():
+    parsed_args = parse_args(["be"])
+    # func is a pointer so need to point the same address.
+    expected = Namespace(
+        vasprun=defaults.vasprun,
+        outcar=defaults.outcar,
+        func=parsed_args.func,
+    )
+    assert parsed_args == expected
+
+
+def test_band_edge_w_options():
+    parsed_args = parse_args(["be",
+                              "--vasprun", "vasprun_1",
+                              "--outcar", "OUTCAR_1",
+                              ])
+
+    expected = Namespace(
+        vasprun=Path("vasprun_1"),
+        outcar=Path("OUTCAR_1"),
+        func=parsed_args.func,
+    )
+
+    assert parsed_args == expected

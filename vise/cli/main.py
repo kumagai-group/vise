@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 
 from vise import __version__
-from vise.cli.main_functions import get_poscar_from_mp, VaspSet, plot_band, plot_dos
+from vise.cli.main_functions import get_poscar_from_mp, VaspSet, plot_band, plot_dos, band_edge_properties
 from vise.cli.main_tools import potcar_str2dict
 from vise.defaults import defaults
 from vise.input_set.task import Task
@@ -221,13 +221,24 @@ Version: {__version__}
         help="Set when showing the figure in the absolute energies scale.")
     parser_plot_dos.set_defaults(func=plot_dos)
 
-#     parser_plot_dos.add_argument(
-#         "-y", "--ymaxs", nargs="+", type=float,
-#         help="Set max values of y ranges. Support two ways."
-#              "1st: total_max, all_the_atoms"
-#              "2nd: total_max, 1st_atom, 2nd_atom, ...")
-#
-#
+    # -- band_edge --------------------------------------------------------------
+    parser_band_edge = subparsers.add_parser(
+        name="band_edge",
+        description="Calculate the band edge properties",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        aliases=['be'])
+
+    parser_band_edge.add_argument(
+        "-v", "--vasprun",
+        type=Path,
+        default=defaults.vasprun,
+        help="vasprun.xml file name.")
+    parser_band_edge.add_argument(
+        "-o", "--outcar",
+        type=Path,
+        default=defaults.outcar,
+        help="OUTCAR file name.")
+    parser_band_edge.set_defaults(func=band_edge_properties)
 
 #     # # try:
 #     # #     import argcomplete
