@@ -134,6 +134,7 @@ def test_plot_dos_wo_options():
         legend=True,
         crop_first_value=True,
         x_range=None,
+        y_max_ranges=None,
         target=None,
         filename="dos.pdf",
         base_energy=None,
@@ -150,6 +151,7 @@ def test_plot_dos_w_options():
                               "-l", "False",
                               "-c", "False",
                               "--x_range", "-1.0", "1.0",
+                              "-y", "-5.0", "5.0",
                               "--target", "1", "2",
                               "--filename", "dos_1.pdf",
                               "-b", "-1"
@@ -162,6 +164,7 @@ def test_plot_dos_w_options():
         legend=False,
         crop_first_value=False,
         x_range=[-1.0, 1.0],
+        y_max_ranges=[-5.0, 5.0],
         target=["1", "2"],
         filename="dos_1.pdf",
         base_energy=-1.0,

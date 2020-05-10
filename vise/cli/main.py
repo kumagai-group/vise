@@ -194,7 +194,13 @@ Version: {__version__}
         "-x", "--x_range",
         nargs="+",
         type=float,
-        help="Set energies minimum and maximum.")
+        help="Set minimum and maximum energies.")
+    parser_plot_dos.add_argument(
+        "-y", "--y_max_ranges",
+        nargs="+",
+        type=float,
+        help="Set max energies for each plot. Assertion error is raised when"
+             "the number of ranges does not fit to the number of figures.")
     parser_plot_dos.add_argument(
         "--target",
         type=str,
