@@ -75,7 +75,7 @@ def test_vasp_set_w_options():
                               ])
 
     expected = Namespace(
-        poscar="POSCAR-tmp",
+        poscar=Path("POSCAR-tmp"),
         task=Task.band,
         xc=Xc.pbesol,
         kpt_density=4.2,
