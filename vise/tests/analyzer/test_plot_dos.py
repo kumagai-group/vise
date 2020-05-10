@@ -67,11 +67,12 @@ def mock_plt_list(mocker):
 
 def test_dos_mpl_settings_defaults():
     mpl_settings = DosMplSettings()
-    assert mpl_settings.colors == ['#36454f', '#E15759', '#4E79A7', '#F28E2B', '#76B7B2']
+    assert mpl_settings.colors == ['#36454f', '#E15759', '#4E79A7', '#F28E2B']
     assert mpl_settings.linewidth == 1.0
     assert mpl_settings.title_font_size == 15
     assert mpl_settings.label_font_size == 12
-    assert mpl_settings.vline == {"linewidth": 0.75, "color": "black", "linestyle": "-."}
+    assert mpl_settings.vline == {"linewidth": 0.75, "color": "black",
+                                  "linestyle": "-."}
 
 
 def test_dos_mpl_settings_modify():
@@ -87,12 +88,14 @@ def test_dos_mpl_settings_modify():
     assert mpl_settings.linewidth == 2.0
     assert mpl_settings.title_font_size == 30
     assert mpl_settings.label_font_size == 40
-    assert mpl_settings.vline == {"linewidth": 1.0, "color": "blue", "linestyle": ":"}
+    assert mpl_settings.vline == \
+           {"linewidth": 1.0, "color": "blue", "linestyle": ":"}
 
 
 def test_plot_dos(mock_plt_list):
     mock_plt, mock_1st_ax, mock_2nd_ax = mock_plt_list
-    mock_plt.subplots.assert_called_once_with(dos_data_len, 1, sharex=True, gridspec_kw={'hspace': 0.1})
+    mock_plt.subplots.assert_called_once_with(dos_data_len, 1, sharex=True,
+                                              gridspec_kw={'hspace': 0.1})
 
     reversed_total_down = [dos * -1 for dos in total_down]
     reversed_h_p_down = [dos * -1 for dos in h_p_down]
@@ -102,7 +105,8 @@ def test_plot_dos(mock_plt_list):
     mock_1st_ax.plot.assert_any_call(relative_energies, total_up, **args)
 
     args = DosMplSettings().dos_line(0)
-    mock_1st_ax.plot.assert_any_call(relative_energies, reversed_total_down, **args)
+    mock_1st_ax.plot.assert_any_call(
+        relative_energies, reversed_total_down, **args)
 
     mock_1st_ax.axhline.assert_called_once_with(0, linestyle=":", color="black")
 
@@ -111,12 +115,14 @@ def test_plot_dos(mock_plt_list):
     mock_2nd_ax.plot.assert_any_call(relative_energies, h_s_up, **args)
 
     args = DosMplSettings().dos_line(1)
-    mock_2nd_ax.plot.assert_any_call(relative_energies, reversed_h_p_down, **args)
+    mock_2nd_ax.plot.assert_any_call(
+        relative_energies, reversed_h_p_down, **args)
 
 
 def test_axs_is_list_when_single_dos_passed():
     single_dos = [[DosBySpinEnergy("total", [total_up, total_down])]]
-    dos_info = DosPlotData(relative_energies=relative_energies, doses=single_dos, xlim=xlim,
+    dos_info = DosPlotData(relative_energies=relative_energies,
+                           doses=single_dos, xlim=xlim,
                            ylim_set=ylim_set, vertical_lines=[0.0, 1.0])
     plotter = DosPlotter(dos_data=dos_info)
     assert isinstance(plotter._axs, list)
@@ -125,8 +131,14 @@ def test_axs_is_list_when_single_dos_passed():
 
 def test_set_figure_legend(mock_plt_list):
     _, mock_1st_ax, mock_2nd_ax = mock_plt_list
-    mock_1st_ax.legend.assert_called_with(bbox_to_anchor=(0.9, 1), loc='upper left', borderaxespad=0, markerscale=0.1)
-    mock_2nd_ax.legend.assert_called_with(bbox_to_anchor=(0.9, 1), loc='upper left', borderaxespad=0, markerscale=0.1)
+    mock_1st_ax.legend.assert_called_with(bbox_to_anchor=(0.9, 1),
+                                          loc='upper left',
+                                          borderaxespad=0,
+                                          markerscale=0.1)
+    mock_2nd_ax.legend.assert_called_with(bbox_to_anchor=(0.9, 1),
+                                          loc='upper left',
+                                          borderaxespad=0,
+                                          markerscale=0.1)
 
 
 def test_set_x_and_y_range(mock_plt_list):

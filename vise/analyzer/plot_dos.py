@@ -19,8 +19,7 @@ class DosMplSettings:
                  title_font_size: int = 15,
                  label_font_size: int = 12,
                  ):
-        self.colors = colors or ['#36454f', '#E15759', '#4E79A7', '#F28E2B',
-                                 '#76B7B2']
+        self.colors = colors or ['#36454f', '#E15759', '#4E79A7', '#F28E2B']
         self.linewidth = linewidth
 
         self.vline = {"linewidth": band_edge_line_width,
@@ -44,8 +43,8 @@ class DosPlotter:
         self._dos_info = dos_data
         self._show_legend = show_legend
         self.mpl_defaults = mpl_defaults
-
         self.plt = plt
+
         num_axs = len(self._dos_info.doses)
         fig, self._axs = self.plt.subplots(num_axs, 1,
                                            sharex=True,
@@ -70,7 +69,7 @@ class DosPlotter:
     def _add_dos(self, i):
         for j, by_name_dos in enumerate(self._dos_info.doses[i]):
             for k, by_spin_dos in enumerate(by_name_dos.dos):
-                sign = - (2 * k) + 1
+                sign = - (2 * k) + 1  # up: 1, down: -1
                 dos_for_plot = [d * sign for d in by_spin_dos]
                 args = self.mpl_defaults.dos_line(j)
                 if k == 0 and self._show_legend:
