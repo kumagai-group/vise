@@ -122,20 +122,18 @@ def test_plot_dos(tmpdir, test_data_files):
                      outcar=test_data_files / "MnO_uniform_OUTCAR",
                      type=AtomGroupingType.non_equiv_sites,
                      legend=True,
+                     base_energy=None,
+                     crop_first_value=True,
                      x_range=[-5, 5],
+                     y_max_ranges=[10, 5, 7],
                      target=["Mn", "O"],
                      filename="test.pdf")
 
     plot_dos(args)
 
+
 """
 TODO:
 - Add y_range
-- Parse band edge and shift zero energy to the vbm 
-- If band gap is absent, shift zero energy to the Fermi level
-- Draw per non-equivalent sites.
 - Orbital decomposed dos
-
-                     x_range=[-10, 10],
-                     y_range_set=[[-10, 10], []]
 """

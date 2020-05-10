@@ -93,18 +93,33 @@ def plot_dos(args: Namespace):
     vasprun = Vasprun(args.vasprun)
     outcar = Outcar(args.outcar)
     band_edge = VaspBandEdgeProperties(vasprun, outcar)
+
     if band_edge.band_gap:
         vertical_lines = [band_edge.vbm_info.energy, band_edge.cbm_info.energy]
     else:
         vertical_lines = [vasprun.efermi]
 
-    dos_data = VaspDosData(vasprun)
+    if args.base_energy is None:
+        base = vertical_lines[0]
+    else:
+        base = args.base_energy
+
+    dos_data = VaspDosData(vasprun, crop_first_value=args.crop_first_value)
+
+    ylim_set = None
+    if args.y_max_ranges:
+        if dos_data.spin:
+            ylim_set = [[-y_max, y_max] for y_max in args.y_max_ranges]
+        else:
+            ylim_set = [[0, y_max] for y_max in args.y_max_ranges]
+
     structure = vasprun.final_structure
     grouped_atom_indices = args.type.grouped_atom_indices(structure, args.target)
     plot_data = dos_data.dos_plot_data(grouped_atom_indices,
                                        vertical_lines=vertical_lines,
-                                       xlim=args.x_range)
-#                                       ylim_set=args.y_range)
+                                       base_energy=base,
+                                       xlim=args.x_range,
+                                       ylim_set=ylim_set)
     plotter = DosPlotter(plot_data, args.legend)
     plotter.construct_plot()
     plotter.plt.show()
