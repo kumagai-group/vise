@@ -73,7 +73,7 @@ class VaspSet:
             pi.dump_json()
             result.update(pi.input_options_kwargs)
 
-            file_transfer = self.args.file_transfer_type or {}
+            file_transfer = self._file_transfer()
             self._file_transfers = FileTransfers(file_transfer,
                                                  path=self.args.prev_dir)
 
@@ -84,6 +84,16 @@ class VaspSet:
             result["kpt_mode"] = KpointsMode.uniform
 
         return result
+
+    def _file_transfer(self):
+        if not self.args.file_transfer_type:
+            return {}
+        else:
+            result = {}
+            for filename, transfer in zip(self.args.file_transfer_type[0::2],
+                                          self.args.file_transfer_type[1::2]):
+                result[filename] = transfer
+            return result
 
 
 def plot_band(args: Namespace):
