@@ -121,9 +121,9 @@ class DosData:
 
         total_dos_max = max_dos_by_ax[0]
         pdos_max = max(max_dos_by_ax[1:])
-        plot_max = [total_dos_max] + [pdos_max] * (len(doses) - 1)
+        plot_maxes = [total_dos_max] + [pdos_max] * (len(doses) - 1)
 
-        return [round(i * multi, round_digit) for i in plot_max]
+        return [round(i * multi, round_digit) for i in plot_maxes]
 
 
 @dataclass
@@ -132,7 +132,8 @@ class DosBySpinEnergy:
     dos: np.array  # [by spin][by energy]
 
     def max_dos(self, mask: List[bool] = None):
-        return np.max(np.ma.masked_array(self.dos, mask).compressed())
+        return max([np.max(np.ma.masked_array(d, mask).compressed())
+                    for d in self.dos])
 
 
 @dataclass()
