@@ -11,6 +11,7 @@ from itertools import groupby
 
 from vise.defaults import defaults
 from vise.util.logger import get_logger
+from vise.error import ViseError
 
 logger = get_logger(__name__)
 
@@ -191,5 +192,5 @@ class StructureSymmetrizer:
         return result
 
 
-class ViseSymmetryError(Exception):
+class ViseSymmetryError(ViseError):
     pass

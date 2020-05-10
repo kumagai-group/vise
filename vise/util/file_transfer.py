@@ -11,7 +11,7 @@ from typing import List, Dict
 from monty.io import zopen
 
 from vise.util.logger import get_logger
-
+from vise.error import ViseError
 logger = get_logger(__name__)
 
 
@@ -89,5 +89,5 @@ class FileTransfers:
             transfer.transfer(output_dir.absolute())
 
 
-class ViseFileTransferError(Exception):
+class ViseFileTransferError(ViseError):
     pass

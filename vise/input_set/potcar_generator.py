@@ -8,6 +8,7 @@ from pymatgen.io.vasp.sets import Potcar
 from vise.input_set.datasets.dataset_util import PotcarSet
 from vise.input_set.xc import Xc
 from vise.util.logger import get_logger
+from vise.error import ViseError
 
 logger = get_logger(__name__)
 
@@ -26,6 +27,6 @@ def generate_potcar(symbol_list: list,
     return Potcar(potcar_symbols, functional=xc.potcar_functional)
 
 
-class ViseNoPotcarError(Exception):
+class ViseNoPotcarError(ViseError):
     pass
 

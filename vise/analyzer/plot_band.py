@@ -10,6 +10,7 @@ import numpy as np
 from num2words import num2words
 
 from vise.util.matplotlib import float_to_int_formatter
+from vise.error import ViseError
 
 
 @dataclass(frozen=True)
@@ -64,7 +65,7 @@ class BandInfo:
         return len(self.band_energies[0]) == 2
 
 
-class ViseBandInfoError(Exception):
+class ViseBandInfoError(ViseError):
     pass
 
 
