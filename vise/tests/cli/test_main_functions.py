@@ -4,10 +4,10 @@
 from argparse import Namespace
 from copy import deepcopy
 from pathlib import Path
+
 import pytest
 
 from vise.analyzer.atom_grouping_type import AtomGroupingType
-from vise.analyzer.vasp.band_edge_properties import VaspBandEdgeProperties
 from vise.cli.main_functions import get_poscar_from_mp, VaspSet, plot_band, \
     plot_dos, band_edge_properties
 from vise.defaults import defaults

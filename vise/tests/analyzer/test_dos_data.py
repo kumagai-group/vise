@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 import numpy as np
-from numpy.testing import assert_array_equal
 import pytest
-
-from pymatgen import Structure, Orbital
+from numpy.testing import assert_array_equal
 
 from vise.analyzer.dos_data import PDos, DosData, DosBySpinEnergy
 from vise.analyzer.plot_dos import DosPlotter

@@ -2,14 +2,11 @@
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
 from collections import OrderedDict, defaultdict
-from itertools import groupby
-import matplotlib.pyplot as plt
 from typing import Dict, List
 
+import matplotlib.pyplot as plt
 import numpy as np
-
 import palettable
-
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.dos import Dos
 from pymatgen.electronic_structure.dos import add_densities
@@ -20,7 +17,6 @@ from pymatgen.util.string import latexify_spacegroup, latexify
 
 from vise.defaults import defaults
 from vise.util.logger import get_logger
-
 
 logger = get_logger(__name__)
 

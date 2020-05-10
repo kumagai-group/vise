@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import pytest
 from pathlib import Path
+
+import pytest
 from pymatgen.core.structure import Structure
 
 

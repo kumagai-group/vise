@@ -3,12 +3,11 @@
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
 import re
-from collections import defaultdict
 
-from pymatgen import Spin
 from pymatgen.electronic_structure.plotter import BSPlotter
 from pymatgen.io.vasp import Vasprun
 from pymatgen.util.string import latexify
+
 from vise.analyzer.plot_band import BandPlotInfo, BandInfo, XTicks, BandEdge
 
 

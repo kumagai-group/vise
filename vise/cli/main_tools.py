@@ -1,18 +1,12 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
-from inspect import signature
-from pathlib import Path
-import re
-from typing import Optional, Callable, List, Union, Tuple, Iterable
-
-import yaml
+from typing import Optional, List, Union, Iterable
 
 from pymatgen.core.periodic_table import Element
 
-from vise.util.tools import is_str_int, is_str_digit, str2bool
 from vise.util.logger import get_logger
-
+from vise.util.tools import is_str_int, is_str_digit, str2bool
 
 logger = get_logger(__name__)
 

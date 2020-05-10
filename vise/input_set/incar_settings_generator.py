@@ -8,11 +8,11 @@ from pymatgen import Composition
 from pymatgen.io.vasp.sets import Potcar
 
 from vise.analyzer.band_edge_properties import is_band_gap
+from vise.defaults import defaults
 from vise.input_set.datasets.dataset_util import num_bands, npar_kpar, LDAU
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc
 from vise.util.logger import get_logger
-from vise.defaults import defaults
 
 logger = get_logger(__name__)
 

@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
+from copy import deepcopy
 from inspect import getfullargspec
 from typing import Dict, Any, List
-from copy import deepcopy
 
 from pymatgen.core.structure import Structure
 
@@ -45,7 +45,6 @@ class CategorizedInputOptions:
                  **input_options):
 
         self._input_options = deepcopy(input_options)
-        print(self._input_options)
         self._input_options.update(
             {"initial_structure": structure.copy(),
              "task": task,

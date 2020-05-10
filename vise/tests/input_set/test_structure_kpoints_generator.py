@@ -2,7 +2,6 @@
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
 import numpy as np
-import pytest
 from pymatgen.core.structure import Structure
 
 from vise.input_set.kpoints_mode import KpointsMode

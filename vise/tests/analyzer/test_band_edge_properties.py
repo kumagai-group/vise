@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
-import numpy as np
 from pathlib import Path
-import pytest
 
+import numpy as np
+import pytest
 from pymatgen.electronic_structure.core import Spin
 
 from vise.analyzer.band_edge_properties import (

@@ -3,7 +3,7 @@
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional, Dict
+from typing import Optional
 
 import yaml
 from monty.json import MSONable
@@ -11,8 +11,8 @@ from monty.serialization import loadfn
 from pymatgen import Structure
 from pymatgen.io.vasp import Vasprun, Outcar
 
-from vise.defaults import defaults
 from vise.analyzer.vasp.band_edge_properties import VaspBandEdgeProperties
+from vise.defaults import defaults
 
 
 @dataclass()

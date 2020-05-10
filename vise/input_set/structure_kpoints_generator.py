@@ -11,9 +11,9 @@ from pymatgen.io.vasp.sets import Kpoints
 from vise.defaults import defaults
 from vise.input_set.kpoints_mode import KpointsMode
 from vise.input_set.task import Task
+from vise.util.bravais_lattice import BravaisLattice
 from vise.util.logger import get_logger
 from vise.util.structure_symmetrizer import StructureSymmetrizer
-from vise.util.bravais_lattice import BravaisLattice
 
 logger = get_logger(__name__)
 

@@ -1,16 +1,12 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
-from typing import List, Optional
-
-import numpy as np
 import re
-import scipy.interpolate as scint
 from itertools import product
+from typing import List
 
-from matplotlib import pyplot
 from matplotlib import lines as mlines
-
+from matplotlib import pyplot
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.plotter import BSPlotter, plot_brillouin_zone
@@ -22,7 +18,6 @@ from pymatgen.util.string import latexify_spacegroup, latexify
 from vise.defaults import defaults
 from vise.util.logger import get_logger
 from vise.util.matplotlib import float_to_int_formatter
-
 
 logger = get_logger(__name__)
 

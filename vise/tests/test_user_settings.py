@@ -2,9 +2,9 @@
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
 import os
-import tempfile
-from pathlib import Path
+
 import pytest
+
 from vise.defaults import UserSettings
 
 

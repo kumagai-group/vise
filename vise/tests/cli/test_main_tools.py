@@ -1,11 +1,6 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
-import os
-from pathlib import Path
-import tempfile
-from unittest.mock import patch
-
 from vise.cli.main_tools import (
     potcar_str2dict, list2dict)
 from vise.util.testing import ViseTest

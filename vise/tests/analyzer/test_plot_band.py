@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
-from unittest.mock import MagicMock
-import numpy as np
 from copy import deepcopy
+from unittest.mock import MagicMock
 
+import numpy as np
 import pytest
-from pymatgen import Spin
+
 from vise.analyzer.plot_band import (
     BandPlotter, BandInfo, BandEdge, XTicks, BandMplSettings,
     BandPlotInfo, ViseBandInfoError)

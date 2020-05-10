@@ -1,18 +1,11 @@
 # -*- coding: utf-8 -*-
-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
-import os
 import tempfile
-from pathlib import Path
 
 import pytest
-from pymatgen.core.structure import Structure
 
 from vise.input_set.prior_info import PriorInfo, prior_info_from_calc_dir
-from vise.input_set.task import Task
-from vise.input_set.xc import Xc
-from vise.defaults import defaults
 
 
 @pytest.fixture
@@ -53,27 +46,6 @@ def test_properties(nonmagnetic_insulator):
     assert nonmagnetic_insulator.has_band_gap is True
     assert nonmagnetic_insulator.is_metal is False
 
-#
-# @pytest.fixture()
-# def sc_structure():
-#     lattice = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
-#     coords = [[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]]
-#     results = Structure(lattice=lattice, species=["H", "Li"], coords=coords)
-#
-#     return results
-#
-#
-# @pytest.fixture
-# def input_options(sc_structure, tmpdir):
-#     prev_calc_dir = tmpdir
-#     os.chdir(prev_calc_dir)
-#     sc_structure.to(fmt="POSCAR", filename="CONTCAR-relaxed")
-#     vasp_files = PriorInfoFromCalcDir(contcar="CONTCAR-relaxed",
-#                                       prev_dir_path=Path(prev_calc_dir))
-#     return vasp_files.generate_input_options(task=Task.structure_opt,
-#                                              xc=Xc.pbe,
-#                                              charge=1.0)
-
 
 def test_get_structure_from_prev_dir_actual_files(test_data_files):
     prior_info = prior_info_from_calc_dir(prev_dir_path=test_data_files,
@@ -86,14 +58,5 @@ def test_get_structure_from_prev_dir_actual_files(test_data_files):
     assert prior_info.total_magnetization == 5.0000019
 
 
-"""
-TODO
-* Construct FileTransfers. 
-* Parse all the previous options.
-* Consider if parse_prev_calc is changed to a function or not.
-
-DONE
-
-"""
 
 

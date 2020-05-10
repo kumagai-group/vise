@@ -5,10 +5,10 @@ from typing import Optional
 
 from pymatgen.io.vasp.sets import Potcar
 
+from vise.error import ViseError
 from vise.input_set.datasets.dataset_util import PotcarSet
 from vise.input_set.xc import Xc
 from vise.util.logger import get_logger
-from vise.error import ViseError
 
 logger = get_logger(__name__)
 

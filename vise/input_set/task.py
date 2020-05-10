@@ -3,8 +3,8 @@
 
 from typing import Optional, List
 
-from vise.util.enum import ExtendedEnum
 from vise.input_set.kpoints_mode import KpointsMode
+from vise.util.enum import ExtendedEnum
 
 
 class Task(ExtendedEnum):

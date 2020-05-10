@@ -9,8 +9,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from num2words import num2words
 
-from vise.util.matplotlib import float_to_int_formatter
 from vise.error import ViseError
+from vise.util.matplotlib import float_to_int_formatter
 
 
 @dataclass(frozen=True)

@@ -2,13 +2,9 @@
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 import numpy as np
 import pytest
-from collections import OrderedDict
 
-from pymatgen import Spin
-
-from vise.analyzer.plot_dos import DosPlotter, DosMplSettings
 from vise.analyzer.dos_data import DosBySpinEnergy, DosPlotData
-
+from vise.analyzer.plot_dos import DosPlotter, DosMplSettings
 from vise.util.matplotlib import float_to_int_formatter
 
 """

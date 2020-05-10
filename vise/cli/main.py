@@ -7,14 +7,14 @@ import sys
 from pathlib import Path
 
 from vise import __version__
-from vise.cli.main_functions import get_poscar_from_mp, VaspSet, plot_band, plot_dos, band_edge_properties
-from vise.cli.main_tools import potcar_str2dict
+from vise.analyzer.atom_grouping_type import AtomGroupingType
+from vise.cli.main_functions import get_poscar_from_mp, VaspSet, plot_band, \
+    plot_dos, band_edge_properties
 from vise.defaults import defaults
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc
 from vise.util.logger import get_logger
 from vise.util.tools import str2bool
-from vise.analyzer.atom_grouping_type import AtomGroupingType
 
 logger = get_logger(__name__)
 

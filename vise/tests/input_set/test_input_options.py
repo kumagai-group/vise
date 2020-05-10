@@ -2,13 +2,12 @@
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
 import pytest
-from pymatgen.core.structure import Structure
 
+from vise.defaults import defaults
 from vise.input_set.input_options import (
     CategorizedInputOptions, ViseInputOptionsError)
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc
-from vise.defaults import defaults
 
 
 def test_no_options(sc_structure):

@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
-from vise.util.matplotlib import my_formatter, float_to_int_formatter
 import matplotlib.pyplot as plt
+
+from vise.util.matplotlib import my_formatter, float_to_int_formatter
 
 
 def test_formatter():

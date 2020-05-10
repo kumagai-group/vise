@@ -1,18 +1,14 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
-import os
-import shutil
 
 from argparse import Namespace
 from pathlib import Path
-from unittest.mock import patch
 
+from vise.analyzer.atom_grouping_type import AtomGroupingType
 from vise.cli.main import parse_args
-from vise.util.testing import ViseTest
 from vise.defaults import defaults
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc
-from vise.analyzer.atom_grouping_type import AtomGroupingType
 
 parent_dir = Path(__file__).parent
 

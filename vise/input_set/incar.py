@@ -12,6 +12,7 @@ from monty.io import zopen
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.io.vasp import Incar
 from tabulate import tabulate
+
 from vise.input_set.datasets.dataset_util import all_incar_flags
 from vise.util.logger import get_logger
 

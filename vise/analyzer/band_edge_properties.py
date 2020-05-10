@@ -6,9 +6,9 @@ from typing import List, Dict, Optional
 
 import numpy as np
 from pymatgen.electronic_structure.core import Spin
+
 from vise.defaults import defaults
 from vise.util.logger import get_logger
-
 
 logger = get_logger(__name__)
 
