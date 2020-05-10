@@ -92,7 +92,7 @@ def test_dos_mpl_settings_modify():
 
 def test_plot_dos(mock_plt_list):
     mock_plt, mock_1st_ax, mock_2nd_ax = mock_plt_list
-    mock_plt.subplots.assert_called_once_with(dos_data_len, 1, sharex=True, gridspec_kw={'hspace': 0.05})
+    mock_plt.subplots.assert_called_once_with(dos_data_len, 1, sharex=True, gridspec_kw={'hspace': 0.1})
 
     reversed_total_down = [dos * -1 for dos in total_down]
     reversed_h_p_down = [dos * -1 for dos in h_p_down]

@@ -49,7 +49,7 @@ class DosPlotter:
         num_axs = len(self._dos_info.doses)
         fig, self._axs = self.plt.subplots(num_axs, 1,
                                            sharex=True,
-                                           gridspec_kw={'hspace': 0.05})
+                                           gridspec_kw={'hspace': 0.1})
         if num_axs == 1:
             self._axs = [self._axs]
 
