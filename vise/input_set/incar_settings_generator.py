@@ -7,6 +7,7 @@ from typing import Optional, Union, List, Dict
 from pymatgen import Composition
 from pymatgen.io.vasp.sets import Potcar
 
+from vise.analyzer.band_edge_properties import is_band_gap
 from vise.input_set.datasets.dataset_util import num_bands, npar_kpar, LDAU
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc
@@ -224,14 +225,6 @@ class IncarSettingsGenerator:
     @property
     def incar_settings(self) -> Dict[str, Union[str, bool, int, float]]:
         return self._incar_settings
-
-
-def is_band_gap(vbm_cbm: Optional[List[float]]) -> bool:
-    band_gap = vbm_cbm[1] - vbm_cbm[0] if vbm_cbm else None
-    if band_gap:
-        logger.info(f"Band gap: {round(band_gap, 3)} eV.")
-        return band_gap > defaults.band_gap_criterion
-    return False
 
 
 class TaskIncarSettings:

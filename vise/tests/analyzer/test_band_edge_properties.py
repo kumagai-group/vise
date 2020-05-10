@@ -7,7 +7,9 @@ import pytest
 
 from pymatgen.electronic_structure.core import Spin
 
-from vise.analyzer.band_edge_properties import BandEdge, BandEdgeProperties
+from vise.analyzer.band_edge_properties import (
+    BandEdge, BandEdgeProperties, is_band_gap)
+from vise.defaults import defaults
 
 parent_dir = Path(__file__).parent
 
@@ -131,3 +133,9 @@ def test_repr(band_edge):
 VBM energy position: 1.1, spin:   up, band index 1, k-point coords 10.400 10.500 10.600
 CBM energy position: 1.4, spin: down, band index 1, k-point coords 10.100 10.200 10.300"""
     assert repr(band_edge) == expected
+
+
+def test_is_band_gap():
+    assert is_band_gap([1.0, 1.0 + defaults.band_gap_criterion + 1e-5]) is True
+    assert is_band_gap([1.0, 1.0 + defaults.band_gap_criterion - 1e-5]) is False
+    assert is_band_gap(None) is False

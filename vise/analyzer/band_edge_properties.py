@@ -2,11 +2,15 @@
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
 from dataclasses import dataclass
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 import numpy as np
 from pymatgen.electronic_structure.core import Spin
 from vise.defaults import defaults
+from vise.util.logger import get_logger
+
+
+logger = get_logger(__name__)
 
 
 @dataclass()
@@ -26,6 +30,7 @@ class BandEdge:
                      f"{self.kpoint_coords[2]:5.3f}"
         return f"energy position: {self.energy}, spin: {self.spin.name:>4}, " \
                f"band index {self.band_index}, k-point coords {kpt_coords}"
+
 
 class BandEdgeProperties:
     def __init__(self,
@@ -109,3 +114,11 @@ class BandEdgeProperties:
                  f"CBM {self.cbm_info}"]
 
         return "\n".join(lines)
+
+
+def is_band_gap(vbm_cbm: Optional[List[float]]) -> bool:
+    band_gap = vbm_cbm[1] - vbm_cbm[0] if vbm_cbm else None
+    if band_gap:
+        logger.info(f"Band gap: {round(band_gap, 3)} eV.")
+        return band_gap > defaults.band_gap_criterion
+    return False
