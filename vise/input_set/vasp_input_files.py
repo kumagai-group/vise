@@ -14,6 +14,7 @@ from vise.input_set.potcar_generator import generate_potcar
 from vise.input_set.structure_kpoints_generator import StructureKpointsGenerator
 from vise.util.logger import get_logger
 from vise.util.structure_handler import create_symbol_list
+from vise.input_set.kpoints import ViseKpoints
 
 logger = get_logger(__name__)
 
@@ -88,8 +89,12 @@ class VaspInputFiles:
         dirname.mkdir(exist_ok=True)
         for filename, obj in self.input_files.items():
             if isinstance(obj, Poscar):
+                # Need to show more digit than pymatgen one.
                 obj.write_file(dirname / filename,
                                significant_figures=poscar_significant_figures)
+            elif isinstance(obj, Kpoints):
+                kpoints = ViseKpoints.from_dict(obj.as_dict())
+                kpoints.write_file(dirname / filename)
             else:
                 obj.write_file(dirname / filename)
 
