@@ -9,6 +9,8 @@ from pymatgen import Spin
 from vise.analyzer.plot_dos import DosPlotter, DosMplSettings
 from vise.analyzer.dos_data import DosBySpinEnergy, DosPlotData
 
+from vise.util.matplotlib import float_to_int_formatter
+
 """
 TODO:
 + Create PDos class composed of orbital-decomposed pdos
@@ -148,6 +150,16 @@ def test_set_labels(mock_plt_list):
                                               size=defaults.label_font_size)
     mock_2nd_ax.set_ylabel.assert_called_with("Dos (1/eV)",
                                               size=defaults.label_font_size)
+
+
+def test_set_float_to_int_formatter(mock_plt_list):
+    _, mock_1st_ax, mock_2nd_ax = mock_plt_list
+    mock_1st_ax.xaxis.set_major_formatter.assert_called_once_with(
+        float_to_int_formatter)
+    mock_1st_ax.yaxis.set_major_formatter.assert_called_once_with(
+        float_to_int_formatter)
+    mock_2nd_ax.yaxis.set_major_formatter.assert_called_once_with(
+        float_to_int_formatter)
 
 
 def test_actual_plot():

@@ -6,6 +6,7 @@ from typing import List, Optional
 import matplotlib.pyplot as plt
 
 from vise.analyzer.dos_data import DosPlotData
+from vise.util.matplotlib import float_to_int_formatter
 
 
 class DosMplSettings:
@@ -46,13 +47,15 @@ class DosPlotter:
 
         self.plt = plt
         num_axs = len(self._dos_info.doses)
-        fig, self._axs = self.plt.subplots(num_axs, 1, sharex=True,
+        fig, self._axs = self.plt.subplots(num_axs, 1,
+                                           sharex=True,
                                            gridspec_kw={'hspace': 0.05})
         if num_axs == 1:
             self._axs = [self._axs]
 
     def construct_plot(self):
         self._axs[0].set_xlim(self._dos_info.xlim)
+        self._axs[0].xaxis.set_major_formatter(float_to_int_formatter)
         for i in range(len(self._dos_info.doses)):
             self._add_ax(i)
         self._set_x_labels()
@@ -62,6 +65,7 @@ class DosPlotter:
         self._set_y_range(i)
         self._set_dos_zero_line(i)
         self._set_vline(i)
+        self._set_formatter(i)
 
     def _add_dos(self, i):
         for j, by_name_dos in enumerate(self._dos_info.doses[i]):
@@ -88,6 +92,9 @@ class DosPlotter:
     def _set_vline(self, i):
         for line_energy in self._dos_info.vertical_lines:
             self._axs[i].axvline(x=line_energy, **self.mpl_defaults.vline)
+
+    def _set_formatter(self, i):
+        self._axs[i].yaxis.set_major_formatter(float_to_int_formatter)
 
     def _set_x_labels(self):
         self.plt.xlabel("Energy (eV)", size=self.mpl_defaults.label_font_size)
