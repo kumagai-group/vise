@@ -32,7 +32,7 @@ class Defaults:
         self._contcar = Path("CONTCAR")
         self._vasprun = Path("vasprun.xml")
         self._procar = Path("PROCAR")
-        self._overridden_potcar = {}
+        self._overridden_potcar = []
         self._potcar_set_name = str(PotcarSet.normal)
 
         user_settings = UserSettings(yaml_filename="vise.yaml")

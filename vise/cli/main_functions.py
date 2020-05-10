@@ -61,7 +61,7 @@ class VaspSet:
         return result
 
     def _overridden_potcar(self):
-        result = deepcopy(defaults.overridden_potcar)
+        result = {}
         if self.args.overridden_potcar:
             result.update(potcar_str2dict(self.args.overridden_potcar))
         return result
