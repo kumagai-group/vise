@@ -1,0 +1,9 @@
+  PAW_PBE H 15Jun2001                    
+   1.00000000000000     
+ parameters from PSCTR are:
+   VRHFIN =H: ultrasoft test
+   TITEL  = PAW_PBE H 15Jun2001
+   POMASS =    1.000; ZVAL   =    1.000    mass and valenz
+   ENMAX  =  250.000; ENMIN  =  200.000 eV
+
+   END of PSCTR-controll parameters

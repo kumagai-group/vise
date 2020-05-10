@@ -1,0 +1,9 @@
+  PAW_PBE U 06Sep2000                    
+   14.0000000000000     
+ parameters from PSCTR are:
+   VRHFIN =U:  [Xe,5d,4f]
+   TITEL  = PAW_PBE U 06Sep2000
+   POMASS =  238.029; ZVAL   =   14.000    mass and valenz
+   ENMAX  =  252.502; ENMIN  =  189.376 eV
+
+   END of PSCTR-controll parameters
