@@ -20,6 +20,12 @@ class BandEdge:
         return (self.spin == other.spin and
                 self.kpoint_coords == other.kpoint_coords)
 
+    def __repr__(self):
+        kpt_coords = f"{self.kpoint_coords[0]:5.3f} " \
+                     f"{self.kpoint_coords[1]:5.3f} " \
+                     f"{self.kpoint_coords[2]:5.3f}"
+        return f"energy position: {self.energy}, spin: {self.spin.name:>4}, " \
+               f"band index {self.band_index}, k-point coords {kpt_coords}"
 
 class BandEdgeProperties:
     def __init__(self,
@@ -97,3 +103,9 @@ class BandEdgeProperties:
     def vbm_cbm(self):
         return [self.vbm_info.energy, self.cbm_info.energy] if self.vbm_info else None
 
+    def __repr__(self):
+        lines = [f"Band gap {self.band_gap:5.3f} eV",
+                 f"VBM {self.vbm_info}",
+                 f"CBM {self.cbm_info}"]
+
+        return "\n".join(lines)

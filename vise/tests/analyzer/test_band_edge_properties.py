@@ -97,13 +97,17 @@ def test_nonmagnetic_insulator():
     assert band_edge.cbm_info.kpoint_coords == [10.1, 10.2, 10.3]
 
 
-def test_magnetic_insulator():
+@pytest.fixture
+def band_edge():
     eigenvalues = {Spin.up:   np.array([[0.0, 1.0, 10.0], [0.0, 1.1, 10.0]]),
                    Spin.down: np.array([[0.0, 1.4, 10.0], [0.0, 1.5, 10.0]])}
-    band_edge = BandEdgeProperties(eigenvalues=eigenvalues,
-                                   nelect=3.0,
-                                   magnetization=1.0,
-                                   kpoints=actual_kpt)
+    return BandEdgeProperties(eigenvalues=eigenvalues,
+                              nelect=3.0,
+                              magnetization=1.0,
+                              kpoints=actual_kpt)
+
+
+def test_magnetic_insulator(band_edge):
 
     assert pytest.approx(band_edge.band_gap) == 0.3
 
@@ -122,3 +126,8 @@ def test_magnetic_insulator():
     assert band_edge.cbm_info.kpoint_coords == [10.1, 10.2, 10.3]
 
 
+def test_repr(band_edge):
+    expected = """Band gap 0.300 eV
+VBM energy position: 1.1, spin:   up, band index 1, k-point coords 10.400 10.500 10.600
+CBM energy position: 1.4, spin: down, band index 1, k-point coords 10.100 10.200 10.300"""
+    assert repr(band_edge) == expected
