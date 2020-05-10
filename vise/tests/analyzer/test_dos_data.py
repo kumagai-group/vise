@@ -152,6 +152,14 @@ def test_max_y_range():
     assert dos_plot_data.ylim_set == [[0, 3.3], [0, 165.0]]
 
 
+def test_dos_by_spin_energy():
+    dos = DosBySpinEnergy(name="test",
+                          dos=np.array([[-3, -2, -1, 0],
+                                        [ 1,  2,  3, 4]], dtype=float))
+    mask = [True, False, False, True]
+    assert dos.max_dos(mask) == 3.0
+
+
 """
 TODO:
 + Allow to set vbm, cbm, efermi
