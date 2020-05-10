@@ -32,8 +32,6 @@ class IncarSettingsGenerator:
             # [vbm, cbm] in absolute eV
             vbm_cbm: Optional[List[float]] = None,
             exchange_ratio: float = 0.25,
-            ldauu: Optional[Dict[str, float]] = None,
-            ldaul: Optional[Dict[str, float]] = None,
             set_hubbard_u: Optional[bool] = None,
             auto_npar_kpar: bool = True,
             cutoff_energy: Optional[float] = None,
@@ -52,8 +50,6 @@ class IncarSettingsGenerator:
         self._charge = charge
         self._vbm_cbm = vbm_cbm
         self._exchange_ratio = exchange_ratio
-        self._ldauu = ldauu
-        self._ldaul = ldaul
         self._auto_npar_kpar = auto_npar_kpar
         self._cutoff_energy = cutoff_energy
         self._is_magnetization = is_magnetization
@@ -124,8 +120,6 @@ class IncarSettingsGenerator:
     def _need_hubbard_u(self, set_hubbard_u):
         if isinstance(set_hubbard_u, bool):
             return set_hubbard_u
-        if self._ldauu is not None:
-            return True
         if self._xc.is_lda_or_gga:
             return True
         return False
@@ -202,7 +196,7 @@ class IncarSettingsGenerator:
             self._incar_settings["HFSCREEN"] = 0.208
 
     def _set_hubbard_u_related_settings(self) -> None:
-        ldau = LDAU(self._symbol_list, self._ldauu, self._ldaul)
+        ldau = LDAU(self._symbol_list)
         if ldau.is_ldau_needed:
             self._incar_settings["LDAU"] = True
             self._incar_settings["LDAUTYPE"] = 2

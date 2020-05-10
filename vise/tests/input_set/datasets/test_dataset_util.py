@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
-import pytest
 from math import ceil
 
 from pymatgen import Composition
 from pymatgen.io.vasp import Potcar
 
 from vise.input_set.datasets.dataset_util import (
-    LDAU, PotcarSet, unoccupied_bands, num_bands, npar_kpar)
+    LDAU, unoccupied_bands, num_bands, npar_kpar)
 
 
 def test_ldau_3d_transition_metal():
@@ -26,36 +25,10 @@ def test_ldau_rare_earth():
 
 
 def test_ldau_3d_override():
-    actual = LDAU(symbol_list=["Mn", "Cu"],
-                  override_ldauu={"Mn": 10}, override_ldaul={"Cu": 100})
-    assert actual.ldauu == [10, 5]
-    assert actual.ldaul == [2, 100]
+    actual = LDAU(symbol_list=["Mn", "Cu"])
+    assert actual.ldauu == [3, 5]
+    assert actual.ldaul == [2, 2]
     assert actual.lmaxmix == 4
-
-
-def test_potcar_list_normal():
-    potcar_list = PotcarSet.normal.potcar_dict()
-    assert potcar_list["H"] == "H"
-
-
-def test_potcar_list_gw():
-    potcar_list = PotcarSet.gw.potcar_dict()
-    assert potcar_list["Li"] == "Li_GW"
-
-
-def test_potcar_list_non():
-    potcar_list = PotcarSet.mp_relax_set.potcar_dict()
-    assert potcar_list["Fr"] is None
-    assert potcar_list["Sr"] == "Sr_sv"
-
-
-def test_potcar_set():
-    assert PotcarSet.normal.overridden_potcar_dict()["Li"] == "Li"
-
-
-def test_potcar_set_override():
-    actual = PotcarSet.normal.overridden_potcar_dict({"Li": "Li_test"})["Li"]
-    assert actual == "Li_test"
 
 
 def test_unoccupied_bands():

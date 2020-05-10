@@ -3,7 +3,7 @@
 
 from monty.design_patterns import singleton
 from pathlib import Path
-from vise.input_set.datasets.dataset_util import PotcarSet
+from vise.input_set.datasets.potcar_set import PotcarSet
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc
 from vise.user_settings import UserSettings

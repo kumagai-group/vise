@@ -62,8 +62,6 @@ def test_hse_structure_opt(default_dict):
                          "symbol_list": ["U", "O"],
                          "potcar": Potcar(["U", "O"]),
                          "exchange_ratio": 0.5,
-                         "ldauu": {"O": 10},
-                         "ldaul": {"O": 100},
                          "set_hubbard_u": True})
 
     generator = IncarSettingsGenerator(**default_dict)
@@ -95,8 +93,8 @@ def test_hse_structure_opt(default_dict):
         "LDAUTYPE": 2,
         "LMAXMIX": 6,
         "LDAUPRINT": 1,
-        "LDAUU": [5, 10],
-        "LDAUL": [3, 100],
+        "LDAUU": [5, 0],
+        "LDAUL": [3, -1],
         "KPAR": 1,
     }
     assert generator.incar_settings == expected

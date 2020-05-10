@@ -4,7 +4,7 @@
 import pytest
 from pymatgen import Element
 
-from vise.input_set.datasets.dataset_util import PotcarSet
+from vise.input_set.datasets.potcar_set import PotcarSet
 from vise.input_set.potcar_generator import generate_potcar, ViseNoPotcarError
 from vise.input_set.xc import Xc
 
