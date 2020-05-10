@@ -19,8 +19,9 @@ from vise.defaults import defaults
 from vise.input_set.input_options import CategorizedInputOptions, \
     assignable_option_set
 from vise.input_set.kpoints_mode import KpointsMode
-from vise.input_set.prior_info import PriorInfoFromCalcDir
+from vise.input_set.prior_info import prior_info_from_calc_dir
 from vise.input_set.vasp_input_files import VaspInputFiles
+from vise.util.file_transfer import FileTransfers
 
 
 def get_poscar_from_mp(args: Namespace) -> None:
@@ -66,11 +67,15 @@ class VaspSet:
     def _option_kwargs(self):
         result = deepcopy(defaults.options)
         if self.args.prev_dir:
-            pi = PriorInfoFromCalcDir(self.args.prev_dir,
-                                      self.args.file_transfer_type)
-            pi.dump_yaml()
+            pi = prior_info_from_calc_dir(prev_dir_path=self.args.prev_dir,
+                                          vasprun=self.args.vasprun,
+                                          outcar=self.args.outcar)
+            pi.dump_json()
             result.update(pi.input_options_kwargs)
-            self._file_transfers = pi.file_transfers
+
+            file_transfer = self.args.file_transfer_type or {}
+            self._file_transfers = FileTransfers(file_transfer,
+                                                 path=self.args.prev_dir)
 
         if self.args.options:
             args = list2dict(self.args.options, assignable_option_set)

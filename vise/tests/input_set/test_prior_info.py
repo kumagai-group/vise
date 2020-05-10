@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 from pymatgen.core.structure import Structure
 
-from vise.input_set.prior_info import PriorInfo, PriorInfoFromCalcDir
+from vise.input_set.prior_info import PriorInfo, prior_info_from_calc_dir
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc
 from vise.defaults import defaults
@@ -75,19 +75,15 @@ def test_properties(nonmagnetic_insulator):
 #                                              charge=1.0)
 
 
-def test_get_structure_from_prev_dir_actual_files(test_data_files, tmpdir):
-    tmpdir.chdir()
-    prior_info = PriorInfoFromCalcDir(prev_dir_path=test_data_files,
-                                      vasprun="MnO_uniform_vasprun.xml",
-                                      outcar="MnO_uniform_OUTCAR",
-                                      file_transfer_type={"test_one_line": "c"})
-    prior_info.file_transfers.transfer(Path(tmpdir))
+def test_get_structure_from_prev_dir_actual_files(test_data_files):
+    prior_info = prior_info_from_calc_dir(prev_dir_path=test_data_files,
+                                          vasprun="MnO_uniform_vasprun.xml",
+                                          outcar="MnO_uniform_OUTCAR")
 
     assert prior_info.energy_per_atom == -8.024678125
     assert pytest.approx(prior_info.band_gap) == 0.4702
     assert prior_info.vbm_cbm == [4.6666, 5.1368]
     assert prior_info.total_magnetization == 5.0000019
-    assert tmpdir.join("test_one_line").read() == "test"
 
 
 """

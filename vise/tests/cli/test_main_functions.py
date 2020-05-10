@@ -3,7 +3,7 @@
 
 from argparse import Namespace
 from copy import deepcopy
-
+from pathlib import Path
 import pytest
 
 from vise.analyzer.atom_grouping_type import AtomGroupingType
@@ -48,6 +48,8 @@ default_args.update({"user_incar_settings": None,
                      "options": None,
                      "file_transfer_type": None,
                      "uniform_kpt_mode": False,
+                     "vasprun": Path("vasprun.xml"),
+                     "outcar": Path("outcar.xml"),
                      })
 
 
@@ -85,11 +87,11 @@ def test_user_incar_settings(mocker,
     args.update(modified_settings)
 
     structure = mocker.patch("vise.cli.main_functions.Structure")
-    prior_info = mocker.patch("vise.cli.main_functions.PriorInfoFromCalcDir")
+    prior_info_mock = mocker.patch("vise.cli.main_functions.PriorInfoFromCalcDir")
     options = mocker.patch("vise.cli.main_functions.CategorizedInputOptions")
     vif = mocker.patch("vise.cli.main_functions.VaspInputFiles")
 
-    prior_info.return_value.input_options_kwargs = prior_info
+    prior_info_mock.return_value.input_options_kwargs = prior_info
 
     name_space = Namespace(**args)
     VaspSet(name_space)
@@ -107,6 +109,7 @@ def test_user_incar_settings(mocker,
     incar_settings.update(overridden_incar_settings)
 
     vif.assert_called_once_with(options.return_value, incar_settings)
+
 
 
 def test_plot_band(tmpdir, test_data_files):
