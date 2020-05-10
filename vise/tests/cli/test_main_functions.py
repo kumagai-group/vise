@@ -111,7 +111,7 @@ def test_user_incar_settings(mocker,
 
 def test_plot_band(tmpdir, test_data_files):
     tmpdir.chdir()  # comment out when one wants to see the figure
-    args = Namespace(vasprun_filepath=test_data_files / "KO2_band_vasprun.xml",
+    args = Namespace(vasprun=test_data_files / "KO2_band_vasprun.xml",
                      kpoints_filename=str(test_data_files / "KO2_band_KPOINTS"),
                      y_range=[-10, 10],
                      filename="test.pdf")

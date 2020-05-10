@@ -68,6 +68,7 @@ class VaspSet:
         if self.args.prev_dir:
             pi = PriorInfoFromCalcDir(self.args.prev_dir,
                                       self.args.file_transfer_type)
+            pi.dump_yaml()
             result.update(pi.input_options_kwargs)
             self._file_transfers = pi.file_transfers
 
@@ -81,7 +82,7 @@ class VaspSet:
 
 
 def plot_band(args: Namespace):
-    plot_info = VaspBandPlotInfo(vasprun=Vasprun(args.vasprun_filepath),
+    plot_info = VaspBandPlotInfo(vasprun=Vasprun(args.vasprun),
                                  kpoints_filename=args.kpoints_filename)
     plotter = BandPlotter(plot_info, y_range=args.y_range)
     plotter.construct_plot()
