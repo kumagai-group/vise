@@ -46,7 +46,7 @@ def test_vasp_set_wo_options():
         poscar=Path("POSCAR"),
         task=defaults.task,
         xc=defaults.xc,
-        kpt_density=defaults.kpoint_density,
+        kpt_density=None,
         overridden_potcar=defaults.overridden_potcar,
         charge=0.0,
         user_incar_settings=None,
