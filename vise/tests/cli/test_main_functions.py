@@ -67,7 +67,7 @@ test_data = [
      {},
      {"kpt_mode": KpointsMode.uniform},
      {}),
-    ({"prev_dir": "a", "file_transfer_type": {"file": "c"}},
+    ({"prev_dir": Path("a"), "file_transfer_type": ["file", "c"]},
      {},
      {},
      {"x": "y"})
@@ -87,7 +87,7 @@ def test_user_incar_settings(mocker,
     args.update(modified_settings)
 
     structure = mocker.patch("vise.cli.main_functions.Structure")
-    prior_info_mock = mocker.patch("vise.cli.main_functions.PriorInfoFromCalcDir")
+    prior_info_mock = mocker.patch("vise.cli.main_functions.prior_info_from_calc_dir")
     options = mocker.patch("vise.cli.main_functions.CategorizedInputOptions")
     vif = mocker.patch("vise.cli.main_functions.VaspInputFiles")
 
@@ -109,7 +109,6 @@ def test_user_incar_settings(mocker,
     incar_settings.update(overridden_incar_settings)
 
     vif.assert_called_once_with(options.return_value, incar_settings)
-
 
 
 def test_plot_band(tmpdir, test_data_files):
