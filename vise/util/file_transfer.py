@@ -84,7 +84,7 @@ class FileTransfers:
             if pattern.search(file_transfer.file_name):
                 self.file_transfers.remove(file_transfer)
 
-    def transfer(self, output_dir: Path) -> None:
+    def transfer(self, output_dir: Path = Path(".")) -> None:
         for transfer in self.file_transfers:
             transfer.transfer(output_dir.absolute())
 
