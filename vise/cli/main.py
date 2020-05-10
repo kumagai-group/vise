@@ -200,8 +200,8 @@ Version: {__version__}
         type=str,
         nargs="+",
         help="""
-        Show specific PDOS. The input depends on AtomGroupingType.
-        AtomGroupingType.atoms: ["1", "2"] 
+        Show specific PDOS. The input depends on AtomGroupingType.\n
+        AtomGroupingType.atoms: ["1", "2"] \n
         AtomGroupingType.elements: ["Mg", "O"] 
         """)
     parser_plot_dos.add_argument(

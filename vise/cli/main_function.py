@@ -14,7 +14,6 @@ from pymatgen.ext.matproj import MPRester
 from pymatgen.io.vasp.outputs import Vasprun, Outcar
 
 
-from vise.analyzer.band_edge_properties import band_gap_properties
 from vise.analyzer.band_plotter import PrettyBSPlotter
 from vise.analyzer.dos_plotter import get_dos_plot
 from vise.input_set.incar import all_incar_flags

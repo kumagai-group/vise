@@ -7,7 +7,6 @@ from typing import Optional, Union, List, Dict
 from pymatgen import Composition
 from pymatgen.io.vasp.sets import Potcar
 
-from vise.defaults import defaults
 from vise.input_set.datasets.dataset_util import num_bands, npar_kpar, LDAU
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc
@@ -168,6 +167,7 @@ class IncarSettingsGenerator:
         return
 
     def _set_spectrum_related_settings(self) -> None:
+        # Need one more step for vasp to remove weired huge value.
         if self._vbm_cbm:
             emin = ceil(self._vbm_cbm[0]) - 15 - self._dos_step_size
             emax = ceil(self._vbm_cbm[1]) + 15

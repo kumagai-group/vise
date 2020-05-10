@@ -22,6 +22,7 @@ class ViseKpoints(Kpoints):
                 if i % 2 == 1:
                     lines[-1] += "\n"
             elif self.num_kpts > 0:
+                # The following four lines are modified
                 if self.labels is not None:
                     lines[-1] += f"{self.kpts_weights[i]:4} {self.labels[i]}"
                 else:

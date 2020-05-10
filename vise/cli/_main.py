@@ -98,20 +98,20 @@ logger = get_logger(__name__)
 #         "--potcar_set_name",
 #         default=defaults.potcar_set_name,
 #         type=str,
-#         help=f"User specifying POTCAR set, from {PotcarSet.name_list()}.")
+#         help=f"User specifying POTCAR set, from {PotcarSet.names_string()}.")
 #     parser_vasp_set.add_argument(
 #         "-x", "--xc",
 #         default=defaults.xc,
 #         type=str,
 #         choices=[e.value for e in Xc],
 #         help="Specify exchange-correlation (XC) interaction treatment "
-#              f"from {Xc.name_list()}.")
+#              f"from {Xc.names_string()}.")
 #     parser_vasp_set.add_argument(
 #         "-t", "--task",
 #         default=defaults.task,
 #         type=str,
 #         choices=[t.value for t in Task],
-#         help=f"Specify task name from {Task.name_list()}.")
+#         help=f"Specify task name from {Task.names_string()}.")
 #     parser_vasp_set.add_argument(
 #         "--vise_opts",
 #         type=str,
