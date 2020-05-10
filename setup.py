@@ -37,10 +37,10 @@ setup(
     long_description_content_type="text/markdown",
 
     classifiers=[
-        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
         "License :: OSI Approved :: MIT License"
     ],
-    python_requires='>=3.6',
+    python_requires='>=3.7',
     install_requires=reqs_list,
     cmdclass=cmdclass,
     ext_modules=ext_modules,

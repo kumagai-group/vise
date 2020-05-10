@@ -8,13 +8,15 @@ Vasp Integrated Simulation Environment (vise) is a collection of tools that
 supports VASP users to prepare input files for the VASP calculations, handle its calculation errors, and analyze its results.
 
 **Note1: Only ensure VASP ver5.4.4 so far.**
+
 **Note2: Units used in pydefect are eV for energy and angstrom for length following the vasp convention.**
+
 **Note3: When transforming the structure to the primitive one, antiferromagnetic magnetization is not supported.**
 
 Installation instructions
 ---------------------------------------------------------
 1. Requirements
-  - Python 3.6 or higher
+  - Python 3.7 or higher
   - pymatgen
   - spglib
   - seekpath
@@ -79,7 +81,7 @@ If vise has been used in your research, please consider citing our Github repo!
 Contact info
 ------------
 Yu Kumagai<br>
-yuuukuma@gmail.co.jp
+yuuukuma@gmail.com
 
 Tokyo Institute of Technology (Japan)
 

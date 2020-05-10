@@ -8,16 +8,16 @@ jobs:
         - develop
     working_directory: ~/vise
     docker:
-      - image: circleci/python:3.6.9
+      - image: circleci/python:3.7.7
         user: root
     steps:
       - checkout
       - run:
           command: |
-            ls $HOME/vise/vise/test_files/potcars
+            ls ~/vise/vise/tests/test_data_files/fake_potcars
       - run:
           command: |
-            echo 'PMG_VASP_PSP_DIR: ~/vise/vise/test_files/potcars' > $HOME/.pmgrc.yaml
+            echo 'PMG_VASP_PSP_DIR: ~/vise/vise/tests/test_data_files/fake_potcars' > $HOME/.pmgrc.yaml
             echo 'PMG_DEFAULT_FUNCTIONAL: PBE_54' >> $HOME/.pmgrc.yaml
             echo "PMG_MAPI_KEY: ${PMG_MAPI_KEY}" >> $HOME/.pmgrc.yaml
       - run:
@@ -28,33 +28,33 @@ jobs:
             sudo pip install --upgrade pip
             sudo pip install -r requirements.txt
             sudo pip install --quiet pytest
-            pytest vise
+            pytest vise/tests
 
-
-      - deploy:
-          name: pypi deploy
-          command: |
-            if [[ $CIRCLE_BRANCH == "master" && ${DEPLOY} == "true" ]]; then
-                echo "Deploy to the pypi and its test"
-                sudo pip install wheel twine
-
-                sudo touch ~/.pypirc
-                sudo echo "[distutils]" >> ~/.pypirc
-                sudo echo "index-servers = pypi pypi-test" >> ~/.pypirc
-
-                sudo echo "[pypi]" >> ~/.pypirc
-                sudo echo "username: ${PYPI_USERNAME}" >> ~/.pypirc
-                sudo echo "password: ${PYPI_PASSWORD}" >> ~/.pypirc
-
-                sudo echo "[pypi-test]" >> ~/.pypirc
-                sudo echo "repository: https://test.pypi.org/legacy/" >> ~/.pypirc
-                sudo echo "username: ${PYPI_USERNAME}" >> ~/.pypirc
-                sudo echo "password: ${PYPI_PASSWORD}" >> ~/.pypirc
-
-                sudo python setup.py sdist bdist_wheel
-                sudo twine upload --repository pypi-test dist/*
-                sudo twine upload --repository pypi dist/*
-            fi
+#
+#      - deploy:
+#          name: pypi deploy
+#          command: |
+#            if [[ $CIRCLE_BRANCH == "master" && ${DEPLOY} == "true" ]]; then
+#                echo "Deploy to the pypi and its test"
+#                sudo pip install wheel twine
+#
+#                sudo touch ~/.pypirc
+#                sudo echo "[distutils]" >> ~/.pypirc
+#                sudo echo "index-servers = pypi pypi-test" >> ~/.pypirc
+#
+#                sudo echo "[pypi]" >> ~/.pypirc
+#                sudo echo "username: ${PYPI_USERNAME}" >> ~/.pypirc
+#                sudo echo "password: ${PYPI_PASSWORD}" >> ~/.pypirc
+#
+#                sudo echo "[pypi-test]" >> ~/.pypirc
+#                sudo echo "repository: https://test.pypi.org/legacy/" >> ~/.pypirc
+#                sudo echo "username: ${PYPI_USERNAME}" >> ~/.pypirc
+#                sudo echo "password: ${PYPI_PASSWORD}" >> ~/.pypirc
+#
+#                sudo python setup.py sdist bdist_wheel
+#                sudo twine upload --repository pypi-test dist/*
+#                sudo twine upload --repository pypi dist/*
+#            fi
 
 
 #            pytest vise --cov=vise --cov-report=xml --cov=vise tests/
