@@ -51,6 +51,8 @@ def test_vasp_set_wo_options():
         charge=0.0,
         user_incar_settings=None,
         prev_dir=None,
+        vasprun=defaults.vasprun,
+        outcar=defaults.outcar,
         options=None,
         uniform_kpt_mode=False,
         file_transfer_type=None,
@@ -69,6 +71,8 @@ def test_vasp_set_w_options():
                               "-c", "10",
                               "--user_incar_settings", "LREAD", "F",
                               "-d", "c",
+                              "--vasprun", "vasprun_1",
+                              "--outcar", "OUTCAR_1",
                               "--options", "encut", "800",
                               "--uniform_kpt_mode",
                               "--file_transfer_type", "WAVECAR", "C",
@@ -83,6 +87,8 @@ def test_vasp_set_w_options():
         charge=10.0,
         user_incar_settings=["LREAD", "F"],
         prev_dir=Path("c"),
+        vasprun=Path("vasprun_1"),
+        outcar=Path("OUTCAR_1"),
         options=["encut", "800"],
         uniform_kpt_mode=True,
         file_transfer_type=["WAVECAR", "C"],
@@ -96,7 +102,7 @@ def test_plot_band_wo_options():
     parsed_args = parse_args(["pb"])
     # func is a pointer so need to point the same address.
     expected = Namespace(
-        vasprun_filepath=defaults.vasprun,
+        vasprun=defaults.vasprun,
         kpoints_filename="KPOINTS",
         y_range=[-10.0, 10.0],
         filename="band.pdf",
@@ -114,7 +120,7 @@ def test_plot_band_w_options():
                               ])
 
     expected = Namespace(
-        vasprun_filepath=Path("vasprun_1"),
+        vasprun=Path("vasprun_1"),
         kpoints_filename="KPOINTS_1",
         y_range=[-1.0, 1.0],
         filename="band_1.pdf",

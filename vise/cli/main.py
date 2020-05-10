@@ -34,6 +34,23 @@ Version: {__version__}
 
     subparsers = parser.add_subparsers()
 
+    # -- parent parser: vasprun
+    vasprun_parser = argparse.ArgumentParser(
+        description="", add_help=False)
+    vasprun_parser.add_argument(
+        "-v", "--vasprun",
+        type=Path,
+        default=defaults.vasprun,
+        help="vasprun.xml file name.")
+    # -- parent parser: outcar
+    outcar_parser = argparse.ArgumentParser(
+        description="", add_help=False)
+    outcar_parser.add_argument(
+        "-o", "--outcar",
+        type=Path,
+        default=defaults.outcar,
+        help="OUTCAR file name.")
+
     # -- get_poscars -----------------------------------------------------------
     parser_get_poscar = subparsers.add_parser(
         name="get_poscars",
@@ -54,6 +71,7 @@ Version: {__version__}
     parser_vasp_set = subparsers.add_parser(
         name="vasp_set",
         description="Tools for constructing vasp input set",
+        parents=[vasprun_parser, outcar_parser],
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         aliases=['vs'])
 
@@ -105,7 +123,7 @@ Version: {__version__}
         type=Path,
         help="Parse the previous calculations for better input settings.")
     parser_vasp_set.add_argument(
-        "-o", "--options",
+        "--options",
         type=str,
         nargs="+",
         help="Additional Keyword args for options in make_input classmethod of "
@@ -128,15 +146,10 @@ Version: {__version__}
     parser_plot_band = subparsers.add_parser(
         name="plot_band",
         description="Tools for plotting band structures",
+        parents=[vasprun_parser],
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         aliases=['pb'])
 
-    parser_plot_band.add_argument(
-        "-v", "--vasprun",
-        dest="vasprun_filepath",
-        type=Path,
-        default=defaults.vasprun,
-        help="vasprun.xml file name.")
     parser_plot_band.add_argument(
         "-k", "--kpoints",
         dest="kpoints_filename",
@@ -161,19 +174,10 @@ Version: {__version__}
     parser_plot_dos = subparsers.add_parser(
         name="plot_dos",
         description="Tools for plotting density of states",
+        parents=[vasprun_parser, outcar_parser],
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         aliases=['pd'])
 
-    parser_plot_dos.add_argument(
-        "-v", "--vasprun",
-        type=Path,
-        default=defaults.vasprun,
-        help="vasprun.xml file name.")
-    parser_plot_dos.add_argument(
-        "-o", "--outcar",
-        type=Path,
-        default=defaults.outcar,
-        help="OUTCAR file name.")
     parser_plot_dos.add_argument(
         "-t", "--type",
         type=AtomGroupingType,
@@ -221,23 +225,14 @@ Version: {__version__}
         help="Set when showing the figure in the absolute energies scale.")
     parser_plot_dos.set_defaults(func=plot_dos)
 
-    # -- band_edge --------------------------------------------------------------
+    # -- band_edge -------------------------------------------------------------
     parser_band_edge = subparsers.add_parser(
         name="band_edge",
         description="Calculate the band edge properties",
+        parents=[vasprun_parser, outcar_parser],
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         aliases=['be'])
 
-    parser_band_edge.add_argument(
-        "-v", "--vasprun",
-        type=Path,
-        default=defaults.vasprun,
-        help="vasprun.xml file name.")
-    parser_band_edge.add_argument(
-        "-o", "--outcar",
-        type=Path,
-        default=defaults.outcar,
-        help="OUTCAR file name.")
     parser_band_edge.set_defaults(func=band_edge_properties)
 
 #     # # try:
