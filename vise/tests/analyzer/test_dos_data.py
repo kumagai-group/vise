@@ -83,7 +83,7 @@ def test_dos_data_energies(dos_data_list):
 def test_dos_data_lim(dos_data_list):
     _, _, dos_plot_data_wo_lim = dos_data_list
     assert dos_plot_data_wo_lim.xlim == [-10, 10]
-    assert dos_plot_data_wo_lim.ylim_set == [[-5.5, 5.5], [-30.8, 30.8], [-154.0, 154.0]]
+    assert dos_plot_data_wo_lim.ylim_set == [[-5.5, 5.5], [-154.0, 154.0], [-154.0, 154.0]]
 
 
 def test_dos_data_manual_lim(dos_data_list):
@@ -126,6 +126,30 @@ def test_orbital_dos():
     total_array = np.array([total_up, total_down])
     orbital_dos = DosBySpinEnergy("total", total_array)
     assert orbital_dos.max_dos() == max([max(total_up), max(total_down)])
+
+
+def test_max_y_range():
+    pdos = [PDos(s=np.array([[0, 10, 20, 30, 40]], dtype=float),
+                 px=np.array([[0, 10, 20, 30, 40]], dtype=float),
+                 py=np.array([[0, 10, 20, 30, 40]], dtype=float),
+                 pz=np.array([[0, 10, 20, 30, 40]], dtype=float),
+                 dxy=np.array([[0, 10, 20, 30, 40]], dtype=float),
+                 dyz=np.array([[0, 10, 20, 30, 40]], dtype=float),
+                 dxz=np.array([[0, 10, 20, 30, 40]], dtype=float),
+                 dx2=np.array([[0, 10, 20, 30, 40]], dtype=float),
+                 dz2=np.array([[0, 10, 20, 30, 40]], dtype=float))]
+
+    dos_data_base_args = {"energies": list(range(-2, 3)),
+                          "total": np.array([[0, 1, 2, 3, 4]]),
+                          "pdos": pdos}
+    dos_data = DosData(**dos_data_base_args)
+
+    dos_plot_data = dos_data.dos_plot_data(
+        grouped_atom_indices={"H": [0]},
+        vertical_lines=[0.0],
+        xlim=[-1.1, 1.1])
+
+    assert dos_plot_data.ylim_set == [[0, 3.3], [0, 165.0]]
 
 
 """

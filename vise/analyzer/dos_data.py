@@ -99,21 +99,31 @@ class DosData:
             doses.append(pdos_by_ax)
 
         xlim = xlim or [-10, 10]
-        ylim_set = ylim_set or [[-y, y] for y in self.max_y_ranges(doses)]
+
+        if ylim_set is None:
+            if len(self.total) == 1:
+                ylim_set = [[0, y] for y in self.max_y_ranges(doses, xlim)]
+            else:
+                ylim_set = [[-y, y] for y in self.max_y_ranges(doses, xlim)]
 
         energies = [e - base_energy for e in self.energies]
         shifted_vertical_lines = [e - base_energy for e in vertical_lines]
 
-        return DosPlotData(energies, doses, xlim, ylim_set, shifted_vertical_lines)
+        return DosPlotData(energies, doses, xlim, ylim_set,
+                           shifted_vertical_lines)
 
-    @staticmethod
-    def max_y_ranges(doses, multi=1.1, round_digit=2):
-        max_modulus_dos_by_ax = []
+    def max_y_ranges(self, doses, xlim, multi=1.1, round_digit=2):
+        mask = np.ma.masked_outside(self.energies, xlim[0], xlim[1]).mask
+        max_dos_by_ax = []
         for dos_by_ax in doses:
-            max_dos_by_ax = np.max([dos_by_spin.max_dos()
-                                    for dos_by_spin in dos_by_ax])
-            max_modulus_dos_by_ax.append(max_dos_by_ax)
-        return [round(i * multi, round_digit) for i in max_modulus_dos_by_ax]
+            max_dos_by_ax.append(np.max([dos_by_spin.max_dos(mask)
+                                         for dos_by_spin in dos_by_ax]))
+
+        total_dos_max = max_dos_by_ax[0]
+        pdos_max = max(max_dos_by_ax[1:])
+        plot_max = [total_dos_max] + [pdos_max] * (len(doses) - 1)
+
+        return [round(i * multi, round_digit) for i in plot_max]
 
 
 @dataclass
@@ -121,8 +131,8 @@ class DosBySpinEnergy:
     name: str
     dos: np.array  # [by spin][by energy]
 
-    def max_dos(self):
-        return np.max(self.dos)
+    def max_dos(self, mask: List[bool] = None):
+        return np.max(np.ma.masked_array(self.dos, mask).compressed())
 
 
 @dataclass()
