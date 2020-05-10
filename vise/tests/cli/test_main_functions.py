@@ -7,7 +7,9 @@ from copy import deepcopy
 import pytest
 
 from vise.analyzer.atom_grouping_type import AtomGroupingType
-from vise.cli.main_functions import get_poscar_from_mp, VaspSet, plot_band, plot_dos
+from vise.analyzer.vasp.band_edge_properties import VaspBandEdgeProperties
+from vise.cli.main_functions import get_poscar_from_mp, VaspSet, plot_band, \
+    plot_dos, band_edge_properties
 from vise.defaults import defaults
 from vise.input_set.kpoints_mode import KpointsMode
 from vise.input_set.task import Task
@@ -132,8 +134,13 @@ def test_plot_dos(tmpdir, test_data_files):
     plot_dos(args)
 
 
+def test_band_edge_info(tmpdir, test_data_files):
+    args = Namespace(vasprun=test_data_files / "MnO_uniform_vasprun.xml",
+                     outcar=test_data_files / "MnO_uniform_OUTCAR")
+    band_edge_properties(args)
+
+
 """
 TODO:
-- Add y_range
 - Orbital decomposed dos
 """

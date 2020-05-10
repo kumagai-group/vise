@@ -2,26 +2,25 @@
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
 from argparse import Namespace
-from pathlib import Path
 from copy import deepcopy
+from pathlib import Path
 
-from pymatgen.ext.matproj import MPRester
 from pymatgen import Structure
+from pymatgen.ext.matproj import MPRester
+from pymatgen.io.vasp import Vasprun, Outcar
 
-from vise.input_set.input_options import CategorizedInputOptions, assignable_option_set
-from vise.input_set.vasp_input_files import VaspInputFiles
-from vise.defaults import defaults
-from vise.input_set.prior_info import PriorInfoFromCalcDir
-from vise.input_set.kpoints_mode import KpointsMode
-from vise.cli.main_tools import potcar_str2dict, list2dict
-
-from vise.analyzer.vasp.plot_band import VaspBandPlotInfo
 from vise.analyzer.plot_band import BandPlotter
-
-from vise.analyzer.vasp.dos_data import VaspDosData
 from vise.analyzer.plot_dos import DosPlotter
 from vise.analyzer.vasp.band_edge_properties import VaspBandEdgeProperties
-from pymatgen.io.vasp import Vasprun, Outcar
+from vise.analyzer.vasp.dos_data import VaspDosData
+from vise.analyzer.vasp.plot_band import VaspBandPlotInfo
+from vise.cli.main_tools import potcar_str2dict, list2dict
+from vise.defaults import defaults
+from vise.input_set.input_options import CategorizedInputOptions, \
+    assignable_option_set
+from vise.input_set.kpoints_mode import KpointsMode
+from vise.input_set.prior_info import PriorInfoFromCalcDir
+from vise.input_set.vasp_input_files import VaspInputFiles
 
 
 def get_poscar_from_mp(args: Namespace) -> None:
@@ -122,6 +121,11 @@ def plot_dos(args: Namespace):
                                        ylim_set=ylim_set)
     plotter = DosPlotter(plot_data, args.legend)
     plotter.construct_plot()
-    plotter.plt.show()
+    plotter.plt.savefig(args.filename, format="pdf")
 
 
+def band_edge_properties(args: Namespace):
+    vasprun = Vasprun(args.vasprun)
+    outcar = Outcar(args.outcar)
+    band_edge = VaspBandEdgeProperties(vasprun, outcar)
+    print(band_edge)
