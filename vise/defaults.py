@@ -22,8 +22,8 @@ class Defaults:
         self._band_gap_criterion = 0.2  # in eV
         self._integer_criterion = 0.1
         self._default_num_nodes = 1
-        self._task = Task.structure_opt
-        self._xc = Xc.pbe
+        self._task = str(Task.structure_opt)
+        self._xc = str(Xc.pbe)
         self._options = {}
         self._user_incar_settings = {}
         self._ldauu = {}
@@ -85,11 +85,11 @@ class Defaults:
 
     @property
     def task(self):
-        return self._task
+        return Task(self._task)
 
     @property
     def xc(self):
-        return self._xc
+        return Xc(self._xc)
 
     @property
     def options(self):
