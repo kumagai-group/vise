@@ -36,7 +36,7 @@
 
 set_names:
   - normal
-  - mp_relax_set
+  - mp
   - gw
 
 H:  H       ---     H_GW

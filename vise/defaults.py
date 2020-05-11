@@ -28,12 +28,12 @@ class Defaults:
         self._user_incar_settings = {}
         self._ldauu = {}
         self._ldaul = {}
-        self._outcar = Path("OUTCAR")
-        self._contcar = Path("CONTCAR")
-        self._vasprun = Path("vasprun.xml")
-        self._procar = Path("PROCAR")
+        self._outcar = "OUTCAR"
+        self._contcar = "CONTCAR"
+        self._vasprun = "vasprun.xml"
+        self._procar = "PROCAR"
         self._overridden_potcar = []
-        self._potcar_set_name = str(PotcarSet.normal)
+        self._potcar_set = str(PotcarSet.normal)
 
         user_settings = UserSettings(yaml_filename="vise.yaml")
         self.yaml_files = user_settings.yaml_files_from_root_dir
@@ -109,29 +109,27 @@ class Defaults:
 
     @property
     def outcar(self):
-        return self._outcar
+        return Path(self._outcar)
 
     @property
     def contcar(self):
-        return self._contcar
+        return Path(self._contcar)
 
     @property
     def vasprun(self):
-        return self._vasprun
+        return Path(self._vasprun)
 
     @property
     def procar(self):
-        return self._procar
+        return Path(self._procar)
 
     @property
     def overridden_potcar(self):
         return self._overridden_potcar
 
     @property
-    def potcar_set_name(self):
-        return self._potcar_set_name
+    def potcar_set(self):
+        return PotcarSet(self._potcar_set)
 
 
 defaults = Defaults()
-
-
