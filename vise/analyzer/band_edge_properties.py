@@ -116,8 +116,10 @@ class BandEdgeProperties:
         return "\n".join(lines)
 
 
-def is_band_gap(vbm_cbm: Optional[List[float]]) -> bool:
-    band_gap = vbm_cbm[1] - vbm_cbm[0] if vbm_cbm else None
+def is_band_gap(band_gap: Optional[float],
+                vbm_cbm: Optional[List[float]]) -> bool:
+    if not band_gap:
+        band_gap = vbm_cbm[1] - vbm_cbm[0] if vbm_cbm else None
     if band_gap:
         logger.info(f"Band gap: {round(band_gap, 3)} eV.")
         return band_gap > defaults.band_gap_criterion

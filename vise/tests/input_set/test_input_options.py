@@ -70,6 +70,12 @@ def test_insulator_kpt_density(sc_structure):
     assert actual == expected
 
     opts = CategorizedInputOptions(sc_structure, task=Task.structure_opt,
+                                   xc=Xc.pbe, band_gap=1.0)
+    actual = opts.structure_kpoints_options["kpt_density"]
+    expected = defaults._insulator_kpoint_density
+    assert actual == expected
+
+    opts = CategorizedInputOptions(sc_structure, task=Task.structure_opt,
                                    xc=Xc.pbe, vbm_cbm=[0, 0.5],
                                    kpt_density=100)
     assert opts.structure_kpoints_options["kpt_density"] == 100

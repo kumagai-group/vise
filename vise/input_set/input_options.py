@@ -59,8 +59,11 @@ class CategorizedInputOptions:
                 f"Options {unknown_args_set} are invalid")
 
     def _set_insulator_kpt_density(self):
-        if (is_band_gap(self._input_options.get("vbm_cbm", None))
-                and self._input_options.get("kpt_density", None) is None):
+        band_gap = self._input_options.get("band_gap", None)
+        vbm_cbm = self._input_options.get("vbm_cbm", None)
+        kpt_density = self._input_options.get("kpt_density", None)
+
+        if is_band_gap(band_gap, vbm_cbm) and kpt_density is None:
             kpt_density = defaults.insulator_kpoint_density
             logger.info(f"Kpoint density is set to {kpt_density}.")
             self._input_options["kpt_density"] = kpt_density

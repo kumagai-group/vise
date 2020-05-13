@@ -29,6 +29,7 @@ class IncarSettingsGenerator:
             xc: Xc,
             dos_step_size: float = defaults.dos_step_size,
             charge: float = 0.0,
+            band_gap: Optional[float] = None,
             # [vbm, cbm] in absolute eV
             vbm_cbm: Optional[List[float]] = None,
             exchange_ratio: float = 0.25,
@@ -48,6 +49,7 @@ class IncarSettingsGenerator:
         self._xc = xc
         self._dos_step_size = dos_step_size
         self._charge = charge
+        self._band_gap = band_gap
         self._vbm_cbm = vbm_cbm
         self._exchange_ratio = exchange_ratio
         self._auto_npar_kpar = auto_npar_kpar
@@ -137,7 +139,7 @@ class IncarSettingsGenerator:
     @property
     def _ismear(self) -> int:
         # Tetrahedron method fails for irrep. NKPT<4 in vasp.
-        if is_band_gap(self._vbm_cbm) and self._num_kpts >= 4:
+        if is_band_gap(self._band_gap, self._vbm_cbm) and self._num_kpts >= 4:
             return -5
         return 0
 

@@ -9,7 +9,7 @@ from vise.input_set.incar_settings_generator import (
     IncarSettingsGenerator)
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc
-
+from vise.defaults import defaults
 
 @pytest.fixture()
 def default_dict():
@@ -190,3 +190,7 @@ def test_dielectric_function(default_dict):
     assert generator.incar_settings == expected
 
 
+def test_with_band_gap(default_dict):
+    default_dict.update({"band_gap": defaults.band_gap_criterion + 1e-5})
+    generator = IncarSettingsGenerator(**default_dict)
+    assert generator.incar_settings["ISMEAR"] == -5
