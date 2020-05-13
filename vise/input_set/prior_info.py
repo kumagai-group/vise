@@ -26,7 +26,7 @@ class PriorInfo(MSONable):
     is_cluster: bool = None
     magnetization_criterion: float = defaults.integer_criterion
     band_gap_criterion: float = defaults.band_gap_criterion
-    incar: dict = None
+    incar: dict = field(default_factory=dict)
 
     def dump_yaml(self, filename: str = "prior_info.yaml") -> None:
         with open(filename, "w") as f:
@@ -64,8 +64,13 @@ class PriorInfo(MSONable):
 
     @property
     def input_options_kwargs(self):
-        return {"vbm_cbm": self.vbm_cbm,
-                "is_magnetization": self.is_magnetic}
+        result = {}
+        if self.vbm_cbm:
+            result["vbm_cbm"] = self.vbm_cbm
+        if isinstance(self.is_magnetic, bool):
+            result["is_magnetization"] = self.vbm_cbm
+
+        return result
 
 
 def prior_info_from_calc_dir(prev_dir_path: Path,

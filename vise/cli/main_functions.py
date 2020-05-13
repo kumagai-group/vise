@@ -19,10 +19,11 @@ from vise.defaults import defaults
 from vise.input_set.input_options import CategorizedInputOptions, \
     assignable_option_set
 from vise.input_set.kpoints_mode import KpointsMode
-from vise.input_set.prior_info import prior_info_from_calc_dir
+from vise.input_set.prior_info import prior_info_from_calc_dir, PriorInfo
 from vise.input_set.vasp_input_files import VaspInputFiles
 from vise.util.file_transfer import FileTransfers
 from vise.input_set.datasets.dataset_util import all_incar_flags
+from vise.input_set.task import Task
 
 
 def get_poscar_from_mp(args: Namespace) -> None:
@@ -35,9 +36,15 @@ class VaspSet:
         self.args = args
         self._file_transfers = None
 
+        try:
+            self._prior_info = PriorInfo.load_yaml()
+        except FileNotFoundError:
+            self._prior_info = PriorInfo()
+        task = Task.cluster_opt if self._prior_info.is_cluster else args.task
+
         options = CategorizedInputOptions(
             structure=self._structure(),
-            task=args.task,
+            task=task,
             xc=args.xc,
             kpt_density=args.kpt_density,
             overridden_potcar=self._overridden_potcar(),
@@ -54,6 +61,8 @@ class VaspSet:
 
     def _overridden_incar_settings(self):
         result = deepcopy(defaults.user_incar_settings)
+        result.update(self._prior_info.incar)
+
         if self.args.user_incar_settings:
             args = list2dict(self.args.user_incar_settings, all_incar_flags)
             result.update(args)
@@ -68,11 +77,15 @@ class VaspSet:
 
     def _option_kwargs(self):
         result = deepcopy(defaults.options)
+        if self._prior_info:
+            result.update(self._prior_info.input_options_kwargs)
+
+        print(result)
+
         if self.args.prev_dir:
             pi = prior_info_from_calc_dir(prev_dir_path=self.args.prev_dir,
                                           vasprun=self.args.vasprun,
                                           outcar=self.args.outcar)
-            pi.dump_json()
             result.update(pi.input_options_kwargs)
 
             file_transfer = self._file_transfer()
