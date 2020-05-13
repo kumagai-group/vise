@@ -36,7 +36,7 @@ class PriorInfo(MSONable):
     def load_yaml(cls, filename: str = "prior_info.yaml"):
         with open(filename, "r") as f:
             d = yaml.load(f, Loader=yaml.SafeLoader)
-        d["incar"] = d.get("incar", None)
+
         return cls.from_dict(d)
 
     def dump_json(self, filename: str = "prior_info.json") -> None:
@@ -69,7 +69,8 @@ class PriorInfo(MSONable):
             result["vbm_cbm"] = self.vbm_cbm
         if isinstance(self.is_magnetic, bool):
             result["is_magnetization"] = self.vbm_cbm
-
+        if self.band_gap:
+            result["band_gap"] = self.band_gap
         return result
 
 
