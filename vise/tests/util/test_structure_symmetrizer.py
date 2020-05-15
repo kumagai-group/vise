@@ -7,7 +7,7 @@ from pymatgen.core.structure import Structure
 
 from vise.util.structure_symmetrizer import (
     cell_to_structure, StructureSymmetrizer)
-
+from vise.util.bravais_lattice import BravaisLattice
 
 def test_cell_to_structure():
     lattice = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
@@ -121,6 +121,17 @@ def test_grouped_atom_indices(complex_ortho_structure):
     symmetrizer = StructureSymmetrizer(complex_ortho_structure)
     actual = symmetrizer.grouped_atom_indices()
     assert actual == {'H_a1': [0], 'He_m1': [1, 2], 'He_m2': [3, 4]}
+
+
+def test_bravais_lattice():
+    lattice =[[10.0,  0.0,  0.0],
+              [ 0.0, 10.0,  0.0],
+              [-2.0,  0.0, 10.0]]
+    coords = [[0.0, 0.0, 0.0], [0.5, 0.5, 0.0]]
+    structure = Structure(lattice=lattice, species=["H"] * 2, coords=coords)
+    symmetrizer = StructureSymmetrizer(structure)
+    assert symmetrizer.bravais == BravaisLattice.mC
+
 
 """
 TODO: 

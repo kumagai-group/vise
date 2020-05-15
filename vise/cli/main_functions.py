@@ -80,16 +80,13 @@ class VaspSet:
         if self._prior_info:
             result.update(self._prior_info.input_options_kwargs)
 
-        print(result)
-
         if self.args.prev_dir:
             pi = prior_info_from_calc_dir(prev_dir_path=self.args.prev_dir,
                                           vasprun=self.args.vasprun,
                                           outcar=self.args.outcar)
             result.update(pi.input_options_kwargs)
 
-            file_transfer = self._file_transfer()
-            self._file_transfers = FileTransfers(file_transfer,
+            self._file_transfers = FileTransfers(self._file_transfer(),
                                                  path=self.args.prev_dir)
 
         if self.args.options:

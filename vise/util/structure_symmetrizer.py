@@ -12,6 +12,7 @@ from itertools import groupby
 from vise.defaults import defaults
 from vise.util.logger import get_logger
 from vise.error import ViseError
+from vise.util.bravais_lattice import BravaisLattice
 
 logger = get_logger(__name__)
 
@@ -190,6 +191,10 @@ class StructureSymmetrizer:
             result[name] = [i[0] for i in list(same_sites_index_list)]
 
         return result
+
+    @property
+    def bravais(self):
+        return BravaisLattice.from_sg_num(self.spglib_sym_data["number"])
 
 
 class ViseSymmetryError(ViseError):

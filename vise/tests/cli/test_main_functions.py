@@ -55,18 +55,22 @@ default_args.update({"user_incar_settings": None,
 
 test_data = [
     ({}, {}, {}, {}),
+
     ({"user_incar_settings": ["ISPIN", "2"]},
      {"ISPIN": 2},
      {},
      {}),
+
     ({"options": ["only_even_num_kpts", "True"]},
      {},
      {"only_even_num_kpts": True},
      {}),
+
     ({"uniform_kpt_mode": True},
      {},
      {"kpt_mode": KpointsMode.uniform},
      {}),
+
     ({"prev_dir": Path("a"), "file_transfer_type": ["file", "c"]},
      {},
      {},
@@ -122,6 +126,7 @@ def test_plot_band(tmpdir, test_data_files):
 
 
 def test_plot_dos(tmpdir, test_data_files):
+    tmpdir.chdir()  # comment out when one wants to see the figure
     args = Namespace(vasprun=test_data_files / "MnO_uniform_vasprun.xml",
                      outcar=test_data_files / "MnO_uniform_OUTCAR",
                      type=AtomGroupingType.non_equiv_sites,
@@ -132,11 +137,10 @@ def test_plot_dos(tmpdir, test_data_files):
                      y_max_ranges=[10, 5, 7],
                      target=["Mn", "O"],
                      filename="test.pdf")
-
     plot_dos(args)
 
 
-def test_band_edge_info(tmpdir, test_data_files):
+def test_band_edge_info(test_data_files):
     args = Namespace(vasprun=test_data_files / "MnO_uniform_vasprun.xml",
                      outcar=test_data_files / "MnO_uniform_OUTCAR")
     band_edge_properties(args)

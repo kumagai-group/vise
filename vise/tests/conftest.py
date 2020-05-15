@@ -15,9 +15,7 @@ def test_data_files():
 def sc_structure():
     lattice = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
     coords = [[0.0, 0.0, 0.0]]
-    results = Structure(lattice=lattice, species=["H"], coords=coords)
-
-    return results
+    return Structure(lattice=lattice, species=["H"], coords=coords)
 
 
 @pytest.fixture(scope="session")
@@ -26,8 +24,7 @@ def mc_structure():
               [ 6.0,-3.0, 0.0],
               [-4.0, 0.0, 7.0]]
     coords = [[0.0, 0.0, 0.0]]
-    structure = Structure(lattice=lattice, species=["H"], coords=coords)
-    return structure
+    return Structure(lattice=lattice, species=["H"], coords=coords)
 
 
 @pytest.fixture(scope="session")
@@ -41,8 +38,7 @@ def complex_ortho_structure():
               [0.2, 0.0, 0.0],
               [0.8, 0.0, 0.0],
               ]
-    structure = Structure(lattice=lattice,
+    return Structure(lattice=lattice,
                           species=["H", "He", "He", "He", "He"],
                           coords=coords)
-    return structure
 

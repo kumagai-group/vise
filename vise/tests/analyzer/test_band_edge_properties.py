@@ -136,6 +136,6 @@ CBM energy position: 1.4, spin: down, band index 1, k-point coords 10.100 10.200
 
 
 def test_is_band_gap():
-    assert is_band_gap([1.0, 1.0 + defaults.band_gap_criterion + 1e-5]) is True
-    assert is_band_gap([1.0, 1.0 + defaults.band_gap_criterion - 1e-5]) is False
-    assert is_band_gap(None) is False
+    assert is_band_gap(None, [1.0, 1.0 + defaults.band_gap_criterion + 1e-5]) is True
+    assert is_band_gap(None, [1.0, 1.0 + defaults.band_gap_criterion - 1e-5]) is False
+    assert is_band_gap(None, None) is False
