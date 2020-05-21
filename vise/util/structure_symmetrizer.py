@@ -90,7 +90,8 @@ class StructureSymmetrizer:
                     "Spglib couldn't find the conventional cell. Change the "
                     "symprec and/or angle_tolerance.")
             else:
-                self._conventional = cell_to_structure(conventional)
+                self._conventional = \
+                    cell_to_structure(conventional).get_sorted_structure()
         return self._conventional
 
     @property
@@ -105,7 +106,8 @@ class StructureSymmetrizer:
                     "Spglib couldn't find the primitive cell. "
                     "Change the symprec and/or angle_tolerance.")
             else:
-                self._primitive = cell_to_structure(primitive)
+                self._primitive = \
+                    cell_to_structure(primitive).get_sorted_structure()
         return self._primitive
 
     def find_seekpath_data(self) -> None:
@@ -125,6 +127,10 @@ class StructureSymmetrizer:
     @property
     def sg_number(self):
         return self.spglib_sym_data["number"]
+
+    @property
+    def point_group(self):
+        return self.spglib_sym_data["pointgroup_symbol"]
 
     @property
     def seekpath_data(self):

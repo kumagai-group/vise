@@ -3,7 +3,9 @@
 
 import numpy as np
 import pytest
+from pymatgen import Lattice
 from pymatgen.core.structure import Structure
+from pymatgen import Element
 
 from vise.util.structure_symmetrizer import (
     cell_to_structure, StructureSymmetrizer)
@@ -117,8 +119,8 @@ def test_structure_symmetrizer_sc_irreducible_kpoints():
     assert actual == expected
 
 
-def test_grouped_atom_indices(complex_ortho_structure):
-    symmetrizer = StructureSymmetrizer(complex_ortho_structure)
+def test_grouped_atom_indices(complex_monoclinic_structure):
+    symmetrizer = StructureSymmetrizer(complex_monoclinic_structure)
     actual = symmetrizer.grouped_atom_indices()
     assert actual == {'H_a1': [0], 'He_m1': [1, 2], 'He_m2': [3, 4]}
 
@@ -132,6 +134,27 @@ def test_bravais_lattice():
     symmetrizer = StructureSymmetrizer(structure)
     assert symmetrizer.bravais == BravaisLattice.mC
 
+
+def test_species_order():
+    lattice = Lattice.orthorhombic(5, 6, 7)
+    coords = [
+        [0.0, 0.0, 0.0],
+        [0.5, 0.5, 0.0],
+        [0.5, 0.0, 0.5],
+        [0.0, 0.5, 0.5],
+
+        [0.0, 0.0, 0.5],
+        [0.0, 0.5, 0.0],
+        [0.5, 0.0, 0.0],
+        [0.5, 0.5, 0.5],
+    ]
+    structure = Structure(lattice=lattice,
+                          species=["H"] * 4 + ["He"] * 4,
+                          coords=coords)
+    supercell = structure * [1, 1, 2]
+    actual = [e.specie for e in StructureSymmetrizer(supercell).conventional]
+    expected = [Element.H] * 4 + [Element.He] * 4
+    assert actual == expected
 
 """
 TODO: 

@@ -3,6 +3,7 @@
 from pathlib import Path
 
 import pytest
+from pymatgen import Lattice
 from pymatgen.core.structure import Structure
 
 
@@ -13,32 +14,27 @@ def test_data_files():
 
 @pytest.fixture(scope="session")
 def sc_structure():
-    lattice = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
+    lattice = Lattice.cubic(1.0)
     coords = [[0.0, 0.0, 0.0]]
     return Structure(lattice=lattice, species=["H"], coords=coords)
 
 
 @pytest.fixture(scope="session")
 def mc_structure():
-    lattice =[[ 6.0, 3.0, 0.0],
-              [ 6.0,-3.0, 0.0],
-              [-4.0, 0.0, 7.0]]
+    lattice = Lattice.monoclinic(10, 20, 30, 75)
     coords = [[0.0, 0.0, 0.0]]
     return Structure(lattice=lattice, species=["H"], coords=coords)
 
 
 @pytest.fixture(scope="session")
-def complex_ortho_structure():
-    lattice =[[10.0,  0.0,  0.0],
-              [ 0.0, 20.0,  0.0],
-              [-4.0,  0.0, 30.0]]
+def complex_monoclinic_structure():
     coords = [[0.0, 0.0, 0.0],
               [0.1, 0.0, 0.0],
               [0.9, 0.0, 0.0],
               [0.2, 0.0, 0.0],
               [0.8, 0.0, 0.0],
               ]
-    return Structure(lattice=lattice,
-                          species=["H", "He", "He", "He", "He"],
-                          coords=coords)
+    return Structure(lattice=Lattice.monoclinic(10, 20, 30, 75),
+                     species=["H", "He", "He", "He", "He"],
+                     coords=coords)
 
