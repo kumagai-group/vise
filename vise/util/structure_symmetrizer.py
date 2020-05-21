@@ -130,7 +130,7 @@ class StructureSymmetrizer:
 
     @property
     def point_group(self):
-        return self.spglib_sym_data["pointgroup_symbol"]
+        return self.spglib_sym_data["pointgroup"]
 
     @property
     def seekpath_data(self):
