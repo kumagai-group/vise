@@ -22,7 +22,9 @@ def sc_structure():
 
 @pytest.fixture(scope="session")
 def mc_structure():
-    lattice = Lattice.monoclinic(10, 20, 30, 75)
+    lattice =[[ 6.0, 3.0, 0.0],
+              [ 6.0,-3.0, 0.0],
+              [-4.0, 0.0, 7.0]]
     coords = [[0.0, 0.0, 0.0]]
     return Structure(lattice=lattice, species=["H"], coords=coords)
 
