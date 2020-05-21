@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
-
+from copy import deepcopy
 from dataclasses import dataclass
 from typing import List, Dict, Optional
 
 import numpy as np
+from monty.json import MSONable
 from pymatgen.electronic_structure.core import Spin
 
 from vise.defaults import defaults
@@ -14,7 +15,7 @@ logger = get_logger(__name__)
 
 
 @dataclass()
-class BandEdge:
+class BandEdge(MSONable):
     energy: float
     spin: Spin = None
     band_index: int = None
@@ -30,6 +31,24 @@ class BandEdge:
                      f"{self.kpoint_coords[2]:5.3f}"
         return f"energy position: {self.energy}, spin: {self.spin.name:>4}, " \
                f"band index {self.band_index}, k-point coords {kpt_coords}"
+
+    def as_dict(self):
+        d = {"@module":       self.__class__.__module__,
+             "@class":        self.__class__.__name__,
+             "energy":        self.energy,
+             "spin":          int(self.spin),
+             "band_index":    self.band_index,
+             "kpoint_coords": self.kpoint_coords}
+
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        kwargs = deepcopy(d)
+        kwargs["spin"] = Spin(d["spin"])
+        kwargs.pop("@module", None)
+        kwargs.pop("@class", None)
+        return cls(**kwargs)
 
 
 class BandEdgeProperties:
