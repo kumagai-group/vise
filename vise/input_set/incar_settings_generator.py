@@ -288,7 +288,7 @@ class TaskIncarSettings:
 
     @property
     def nsw(self):
-        return 50 if self._task.is_atom_relaxed else 0
+        return 50 if self._task.is_atom_relaxed else 1
 
     @property
     def potim_optional(self):
