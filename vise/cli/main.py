@@ -62,7 +62,7 @@ Version: {__version__}
         "-p", "--poscar", type=str, default="POSCAR",
         help="POSCAR-type file name.", metavar="FILE")
     parser_get_poscar.add_argument(
-        "-m", "--mpid", type=str,
+        "-m", "--mpid", type=str, required=True,
         help="MP entry id without prefix, e.g., mp-1234.")
 
     parser_get_poscar.set_defaults(func=get_poscar_from_mp)
