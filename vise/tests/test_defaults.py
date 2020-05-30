@@ -100,7 +100,7 @@ LCHARG  =  False
 
 # analyzer
 NBANDS  =  23
-LORBIT  =  12
+LORBIT  =  10
 
 # hubbard u
 LDAU       =  True

@@ -84,7 +84,7 @@ class IncarSettingsGenerator:
             "NELM": 100,
             "SIGMA": 0.1,
             "LCHARG": False,
-            "LORBIT": 12,
+            "LORBIT": 10,
         })
 
     def _set_task_related_settings(self):

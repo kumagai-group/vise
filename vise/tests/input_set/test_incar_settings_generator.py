@@ -42,7 +42,7 @@ def test_pbe_structure_opt(default_dict):
         "SIGMA": 0.1,
         "LWAVE": False,
         "LCHARG": False,
-        "LORBIT": 12,
+        "LORBIT": 10,
         "KPAR": 1,
     }
     assert generator.incar_settings == expected
@@ -83,7 +83,7 @@ def test_hse_structure_opt(default_dict):
         "SIGMA": 0.1,
         "LWAVE": True,
         "LCHARG": False,
-        "LORBIT": 12,
+        "LORBIT": 10,
         "LHFCALC": True,
         "PRECFOCK": "Fast",
         "TIME": 0.4,
@@ -121,7 +121,7 @@ def test_dos(default_dict):
         "LWAVE": False,
         "LCHARG": False,
         "NBANDS": 19,
-        "LORBIT": 12,
+        "LORBIT": 10,
         "EMIN": -15.01,
         "EMAX": 16,
         "NEDOS": 3102,
@@ -152,7 +152,7 @@ def test_defect(default_dict):
         "ISPIN": 2,
         "LWAVE": False,
         "LCHARG": False,
-        "LORBIT": 12,
+        "LORBIT": 10,
         "KPAR": 1,
     }
     assert generator.incar_settings == expected
@@ -179,7 +179,7 @@ def test_dielectric_function(default_dict):
         "LWAVE": False,
         "LCHARG": False,
         "NBANDS": 19,
-        "LORBIT": 12,
+        "LORBIT": 10,
         "EMIN": -20.01,
         "EMAX": 20,
         "NEDOS": 4002,
