@@ -39,8 +39,7 @@ default_option_args = {"poscar": "POSCAR",
                        "task": Task.structure_opt,
                        "xc": Xc.pbe,
                        "kpt_density": 1.0,
-                       "overridden_potcar": ["Mn_pv"],
-                       "charge": 2.0}
+                       "overridden_potcar": ["Mn_pv"]}
 
 default_args = deepcopy(default_option_args)
 default_args.update({"user_incar_settings": None,

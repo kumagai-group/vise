@@ -48,7 +48,6 @@ class VaspSet:
             xc=args.xc,
             kpt_density=args.kpt_density,
             overridden_potcar=self._overridden_potcar(),
-            charge=args.charge,
             **self._option_kwargs())
 
         vif = VaspInputFiles(options, self._overridden_incar_settings())

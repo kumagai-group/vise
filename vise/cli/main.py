@@ -108,11 +108,6 @@ Version: {__version__}
         nargs="+",
         help="Additional User specifying POTCAR set. E.g., Mg_pv O_h")
     parser_vasp_set.add_argument(
-        "-c", "--charge",
-        type=float,
-        default=0.0,
-        help="Charge state.")
-    parser_vasp_set.add_argument(
         "-uis", "--user_incar_settings",
         type=str,
         nargs="+",
