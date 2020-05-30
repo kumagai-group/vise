@@ -2,8 +2,10 @@
    7.00000000000000     
  parameters from PSCTR are:
    VRHFIN =Mn: d6 s1
+   LEXCH  = PE
    TITEL  = PAW_PBE Mn 06Sep2000
    POMASS =   54.938; ZVAL   =    7.000    mass and valenz
    ENMAX  =  269.864; ENMIN  =  202.398 eV
 
    END of PSCTR-controll parameters
+ End of Dataset

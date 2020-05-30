@@ -2,6 +2,7 @@
    13.0000000000000     
  parameters from PSCTR are:
    VRHFIN =Mn: 3p4s3d
+   LEXCH  = PE
    TITEL  = PAW_PBE Mn_pv 02Aug2007
    POMASS =   54.938; ZVAL   =   13.000    mass and valenz
    ENMAX  =  269.864; ENMIN  =  202.398 eV

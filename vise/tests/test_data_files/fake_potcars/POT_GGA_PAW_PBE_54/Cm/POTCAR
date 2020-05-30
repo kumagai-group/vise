@@ -2,8 +2,10 @@
    18.0000000000000     
  parameters from PSCTR are:
    VRHFIN =Cm:  [Xe,5d,4f]
+   LEXCH  = PE
    TITEL  = PAW_PBE Cm 17Jan2011
    POMASS =  247.000; ZVAL   =   18.000    mass and valenz
    ENMAX  =  257.953; ENMIN  =  193.465 eV
 
    END of PSCTR-controll parameters
+ End of Dataset
