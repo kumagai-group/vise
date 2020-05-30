@@ -14,11 +14,11 @@ parent_dir = Path(__file__).parent
 
 
 def test_get_poscars_wo_options():
-    parsed_args = parse_args(["gp"])
+    parsed_args = parse_args(["gp", "-m", "mp-1234"])
     # func is a pointer so need to point the same address.
     expected = Namespace(
         poscar="POSCAR",
-        mpid=None,
+        mpid="mp-1234",
         func=parsed_args.func)
     assert parsed_args == expected
 
