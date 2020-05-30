@@ -9,7 +9,7 @@ import yaml
 from monty.json import MSONable
 from monty.serialization import loadfn
 from pymatgen import Structure
-from pymatgen.io.vasp import Vasprun, Outcar
+from pymatgen.io.vasp import Vasprun, Outcar, Potcar
 
 from vise.analyzer.vasp.band_edge_properties import VaspBandEdgeProperties
 from vise.defaults import defaults
@@ -24,6 +24,7 @@ class PriorInfo(MSONable):
     total_magnetization: float = None
     data_source: str = None
     is_cluster: bool = None
+    charge: int = None
     magnetization_criterion: float = defaults.integer_criterion
     band_gap_criterion: float = defaults.band_gap_criterion
     incar: dict = field(default_factory=dict)
@@ -68,29 +69,51 @@ class PriorInfo(MSONable):
         if self.vbm_cbm:
             result["vbm_cbm"] = self.vbm_cbm
         if isinstance(self.is_magnetic, bool):
-            result["is_magnetization"] = self.vbm_cbm
+            result["is_magnetization"] = self.is_magnetic
         if self.band_gap:
             result["band_gap"] = self.band_gap
+        if self.charge:
+            result["charge"] = self.charge
         return result
 
 
 def prior_info_from_calc_dir(prev_dir_path: Path,
                              vasprun: str = "vasprun.xml",
-                             outcar: str = "OUTCAR"):
+                             outcar: str = "OUTCAR",
+                             potcar: str = "POTCAR"):
 
     vasprun = Vasprun(str(prev_dir_path / vasprun))
     outcar = Outcar(str(prev_dir_path / outcar))
+    potcar = Potcar.from_file(str(prev_dir_path / potcar))
 
+    charge = get_defect_charge_from_vasp(vasprun.final_structure,
+                                         vasprun.parameters["NELECT"],
+                                         potcar)
     structure = vasprun.final_structure.copy()
     energy_per_atom = vasprun.final_energy / len(structure)
     band_edge_property = VaspBandEdgeProperties(vasprun, outcar)
     total_magnetization = outcar.total_mag
 
     return PriorInfo(structure=structure,
+                     charge=charge,
                      energy_per_atom=energy_per_atom,
                      band_gap=band_edge_property.band_gap,
                      vbm_cbm=band_edge_property.vbm_cbm,
                      total_magnetization=total_magnetization)
 
 
+def get_defect_charge_from_vasp(structure: Structure, nelect: int, potcar: Potcar):
+    """
+    Returns the defect charge by comparing nion, number of electrons in POTCAR,
+    and NELECT in INCAR.
+    """
+    nuclei_charge = 0
 
+    for elem, potcar in zip(structure.composition, potcar):
+        if potcar.element != str(elem):
+            raise ValueError("The sequence of elements in POTCAR and Structure "
+                             "is different.")
+        nuclei_charge += potcar.nelectrons * structure.composition[elem]
+
+    # charge is minus of difference of the electrons
+    return int(nuclei_charge - nelect)

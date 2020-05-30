@@ -16,6 +16,7 @@ def nonmagnetic_insulator():
                      total_magnetization=0.000001,
                      data_source="Materials Project",
                      is_cluster=False,
+                     charge=2,
                      magnetization_criterion=0.001,
                      band_gap_criterion=0.1,
                      incar={"NUPDOWN": 2})
@@ -47,15 +48,27 @@ def test_properties(nonmagnetic_insulator):
     assert nonmagnetic_insulator.is_metal is False
 
 
+def test_input_options_kwargs(nonmagnetic_insulator):
+    actual = nonmagnetic_insulator.input_options_kwargs
+    expected = {"vbm_cbm": [1.0, 2.0],
+                "is_magnetization": False,
+                "band_gap": 1.2,
+                "charge": 2}
+    assert actual == expected
+
+
 def test_get_structure_from_prev_dir_actual_files(test_data_files):
     prior_info = prior_info_from_calc_dir(prev_dir_path=test_data_files,
                                           vasprun="MnO_uniform_vasprun.xml",
-                                          outcar="MnO_uniform_OUTCAR")
+                                          outcar="MnO_uniform_OUTCAR",
+                                          potcar="MnO_fake_POTCAR")
+
 
     assert prior_info.energy_per_atom == -8.024678125
     assert pytest.approx(prior_info.band_gap) == 0.4702
     assert prior_info.vbm_cbm == [4.6666, 5.1368]
     assert prior_info.total_magnetization == 5.0000019
+    assert prior_info.charge == 1
 
 
 
