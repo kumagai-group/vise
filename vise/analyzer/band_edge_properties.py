@@ -14,7 +14,7 @@ from vise.util.logger import get_logger
 logger = get_logger(__name__)
 
 
-@dataclass()
+@dataclass
 class BandEdge(MSONable):
     energy: float
     spin: Spin = None
