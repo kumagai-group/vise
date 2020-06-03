@@ -5,10 +5,15 @@ import pytest
 
 from vise.input_set.kpoints_mode import KpointsMode
 from vise.input_set.task import Task
+from vise.tests.conftest import assert_msonable
 
 
 def test_task_str():
     assert "dos" == str(Task.dos)
+
+
+def test_task_msonable():
+    assert_msonable(Task.dos)
 
 
 def test_task_from_string():

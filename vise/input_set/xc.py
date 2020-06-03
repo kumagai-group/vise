@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
-
+from monty.json import MSONable
 from vise.util.enum import ExtendedEnum
 
 
-class Xc(ExtendedEnum):
+class Xc(MSONable, ExtendedEnum):
     pbe = "pbe"
     pbesol = "pbesol"
     lda = "lda"

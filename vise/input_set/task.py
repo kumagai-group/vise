@@ -3,11 +3,12 @@
 
 from typing import Optional, List
 
+from monty.json import MSONable
 from vise.input_set.kpoints_mode import KpointsMode
 from vise.util.enum import ExtendedEnum
 
 
-class Task(ExtendedEnum):
+class Task(MSONable, ExtendedEnum):
     structure_opt = "structure_opt"
     structure_opt_rough = "structure_opt_rough"
     structure_opt_tight = "structure_opt_tight"

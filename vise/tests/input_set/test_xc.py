@@ -4,10 +4,15 @@
 import pytest
 
 from vise.input_set.xc import Xc
+from vise.tests.conftest import assert_msonable
 
 
 def test_xc_str():
     assert "pbe" == str(Xc.pbe)
+
+
+def test_task_msonable():
+    assert_msonable(Xc.pbe)
 
 
 def test_xc_from_string():
