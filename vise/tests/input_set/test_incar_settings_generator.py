@@ -121,7 +121,7 @@ def test_dos(default_dict):
         "LWAVE": False,
         "LCHARG": False,
         "NBANDS": 19,
-        "LORBIT": 10,
+        "LORBIT": 11,
         "EMIN": -15.01,
         "EMAX": 16,
         "NEDOS": 3102,

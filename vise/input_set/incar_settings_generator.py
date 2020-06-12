@@ -84,7 +84,6 @@ class IncarSettingsGenerator:
             "NELM": 100,
             "SIGMA": 0.1,
             "LCHARG": False,
-            "LORBIT": 10,
         })
 
     def _set_task_related_settings(self):
@@ -98,7 +97,8 @@ class IncarSettingsGenerator:
             "IBRION": t.ibrion,
             "EDIFFG": t.ediffg_optional,
             "NSW": t.nsw,
-            "POTIM": t.potim_optional
+            "POTIM": t.potim_optional,
+            "LORBIT": t.lorbit,
         })
 
     def _set_xc_related_settings(self):
@@ -107,7 +107,7 @@ class IncarSettingsGenerator:
             "ALGO": x.algo,
             "LWAVE": x.lwave,
             "GGA": x.gga_optional,
-            "METAGGA": x.metagga_optional
+            "METAGGA": x.metagga_optional,
         })
 
     def _set_options_related_settings(self):
@@ -277,6 +277,10 @@ class TaskIncarSettings:
     @property
     def ibrion(self):
         return 8 if self._task is Task.dielectric_dfpt else 2
+
+    @property
+    def lorbit(self):
+        return 10 if self._task is not Task.dos else 11
 
     @property
     def lreal(self):
