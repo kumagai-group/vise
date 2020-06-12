@@ -35,7 +35,12 @@ class VaspDosData(DosData):
                             if s in dos_by_orbital]
 
                 pdos_kwargs[str(orbital)] = np.array(pdos)
-            result.append(PDos(**pdos_kwargs))
+            try:
+                result.append(PDos(**pdos_kwargs))
+            except TypeError:
+                print("Orbital doses are required. SET ISMEAR = 11.")
+                raise
+
         return result
 
     @property
