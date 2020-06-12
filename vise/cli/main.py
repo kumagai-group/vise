@@ -97,8 +97,8 @@ Version: {__version__}
         # defaults.kpoints_density is used at structure_kpoints_generator.py
         "-k", "--kpt_density",
         type=float,
-        help="K-point density in Angstrom along each direction ."
-             f"Defaults of metal and insulatro are {defaults.kpoint_density}, "
+        help="K-point density in Angstrom along each direction. "
+             f"Defaults of metal and insulators are {defaults.kpoint_density}, "
              f"and {defaults.insulator_kpoint_density}.")
     parser_vasp_set.add_argument(
         "--potcar",
