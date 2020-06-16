@@ -194,3 +194,10 @@ def test_with_band_gap(default_dict):
     default_dict.update({"band_gap": defaults.band_gap_criterion + 1e-5})
     generator = IncarSettingsGenerator(**default_dict)
     assert generator.incar_settings["ISMEAR"] == -5
+
+
+def test_with_band_gap_band(default_dict):
+    default_dict.update({"band_gap": defaults.band_gap_criterion + 1e-5,
+                         "task": Task.band})
+    generator = IncarSettingsGenerator(**default_dict)
+    assert generator.incar_settings["ISMEAR"] == 0

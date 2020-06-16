@@ -139,7 +139,9 @@ class IncarSettingsGenerator:
     @property
     def _ismear(self) -> int:
         # Tetrahedron method fails for irrep. NKPT<4 in vasp.
-        if is_band_gap(self._band_gap, self._vbm_cbm) and self._num_kpts >= 4:
+        if self._task is Task.band:
+            return 0
+        elif is_band_gap(self._band_gap, self._vbm_cbm) and self._num_kpts >= 4:
             return -5
         return 0
 
