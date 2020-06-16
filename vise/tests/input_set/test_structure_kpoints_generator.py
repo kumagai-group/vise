@@ -9,6 +9,7 @@ from vise.input_set.kpoints_mode import KpointsMode
 from vise.input_set.structure_kpoints_generator import \
     StructureKpointsGenerator
 from vise.input_set.task import Task
+from vise.util.structure_symmetrizer import StructureSymmetrizer
 
 
 def test_constructor_num_kpt_multiplication_factor(sc_structure):
@@ -165,18 +166,21 @@ def test_band_path(sc_structure):
 
 
 def test_oi_ti_bravais():
-    lattice =[[20.0, 0.0, 0.0],
-              [ 0.0, 8.0, 0.0],
-              [ 0.0, 0.0, 6.0]]
-    coords = [[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]]
-    # recipro_lat_abc = (0.85, 1.09, 1.31)
-    structure = Structure(lattice=lattice, species=["H", "H"], coords=coords)
+    structure = Structure(Lattice.orthorhombic(20, 8, 6), species=["H"]*2, coords=[[0.0]*3, [0.5]*3])
     generator = StructureKpointsGenerator(structure,
                                           task=Task.structure_opt,
                                           kpt_density=5)
     generator.generate_input()
-    assert generator.num_kpts == 27
-    assert generator.kpoints.kpts_shift == [0.5, 0.5, 0.5]
+
+    primitive_structure = StructureSymmetrizer(structure).primitive
+
+    expected_generator = StructureKpointsGenerator(primitive_structure,
+                                                   task=Task.structure_opt,
+                                                   kpt_density=5)
+    expected_generator.generate_input()
+
+    assert generator.num_kpts == expected_generator.num_kpts
+    assert generator.kpoints.kpts_shift == expected_generator.kpoints.kpts_shift
 
 
 def test_hexagonal():
