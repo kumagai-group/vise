@@ -130,9 +130,12 @@ class StructureKpointsGenerator:
         self._kpt_shift = [s * a for s, a in zip(kpt_shift, even_num_kpt_pos)]
 
     def _set_kpoints(self):
-        irreducible_kpoints = \
-            self._symmetrizer.irreducible_kpoints(self._num_kpt_list,
-                                                  self._kpt_shift)
+        # symmetrizer must be recreated since the fractional coordinates are
+        # different in different lattices.
+        symmetrizer = StructureSymmetrizer(self._structure)
+        irreducible_kpoints = symmetrizer.irreducible_kpoints(
+            self._num_kpt_list, self._kpt_shift)
+
         self.comment = ""
         if self._kpt_mode is KpointsMode.band:
             self._add_weighted_kpts(irreducible_kpoints)

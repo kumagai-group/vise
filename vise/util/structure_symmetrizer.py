@@ -162,6 +162,7 @@ class StructureSymmetrizer:
                             num_kpt_list: List[int],
                             kpt_shift: List[float]  # vasp convention
                             ) -> List[Tuple[List[float], int]]:
+        # evaluated at a given Brillouin zone.
         mapping, integer_grid_points = spglib.get_ir_reciprocal_mesh(
             mesh=num_kpt_list,
             cell=self.cell,

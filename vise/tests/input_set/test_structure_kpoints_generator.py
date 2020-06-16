@@ -2,6 +2,7 @@
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
 import numpy as np
+from pymatgen import Lattice
 from pymatgen.core.structure import Structure
 
 from vise.input_set.kpoints_mode import KpointsMode
@@ -192,3 +193,12 @@ def test_hexagonal():
     generator.generate_input()
     assert generator.kpoints.kpts_shift == [0.0, 0.0, 0.5]
 
+
+def test_conventional_input(tmpdir):
+    structure = Structure(Lattice.cubic(3.183372), species=["H"] * 2, coords=[[0] * 3, [0.5] * 3])
+    generator = StructureKpointsGenerator(initial_structure=structure,
+                                          task=Task.structure_opt,
+                                          kpt_density=2.5,
+                                          num_kpt_factor=2)
+    generator.generate_input()
+    assert generator.num_kpts == 104
