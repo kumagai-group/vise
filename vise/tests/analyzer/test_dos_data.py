@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
+from copy import deepcopy
+
 import numpy as np
 import pytest
 from numpy.testing import assert_array_equal
@@ -65,11 +67,16 @@ def test_pdos_s_p_d():
 def test_pdos_wo_f_orbital():
     orbitals.pop("f_3")
     assert PDos(**orbitals).f is None
+    pdos_sum = pdos_list[0] + pdos_list[1]
 
 
 def test_pdos_add():
-    pdos_sum = pdos_list[0] + pdos_list[1]
-    assert_array_equal(pdos_sum.s, pdos_list[0].s + pdos_list[1].s)
+    orbs = deepcopy(orbitals)
+    for pop_orb in ["f_3", "f_2", "f_1", "f0", "f1", "f2", "f3"]:
+        orbs.pop(pop_orb)
+    pdos = PDos(**orbs)
+    pdos_sum = pdos + pdos
+    assert_array_equal(pdos_sum.s, pdos.s * 2)
 
 
 def test_dos_data_energies(dos_data_list):

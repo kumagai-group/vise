@@ -61,7 +61,12 @@ class PDos:
             return None
 
     def __add__(self, other: "PDos"):
-        args = {k: v + getattr(other, k) for k, v in self.__dict__.items()}
+        args = {}
+        for k, v in self.__dict__.items():
+            if v is None:
+                args[k] = None
+            else:
+                args[k] = v + getattr(other, k)
         return PDos(**args)
 
 
