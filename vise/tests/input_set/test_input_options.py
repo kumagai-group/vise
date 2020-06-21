@@ -14,7 +14,7 @@ def test_no_options(sc_structure):
     opts = CategorizedInputOptions(sc_structure, task=Task.structure_opt, xc=Xc.pbe)
 
     structure_kpoints_keys = set(opts.structure_kpoints_options.keys())
-    assert structure_kpoints_keys == {'initial_structure', 'task'}
+    assert structure_kpoints_keys == {"initial_structure", "task"}
 
     potcar_keys = set(opts.potcar_options.keys())
     assert potcar_keys == {"xc"}

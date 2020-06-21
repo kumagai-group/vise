@@ -68,8 +68,9 @@ class CategorizedInputOptions:
         elif is_band_gap(band_gap, vbm_cbm) and kpt_density is None:
             kpt_density = defaults.insulator_kpoint_density
 
-        logger.info(f"Kpoint density is set to {kpt_density}.")
-        self._input_options["kpt_density"] = kpt_density
+        if kpt_density:
+            logger.info(f"Kpoint density is set to {kpt_density}.")
+            self._input_options["kpt_density"] = kpt_density
 
     @property
     def input_option_set(self) -> set:
