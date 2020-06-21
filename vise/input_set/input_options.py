@@ -49,7 +49,7 @@ class CategorizedInputOptions:
             {"initial_structure": structure.copy(),
              "task": task,
              "xc": xc})
-        self._set_insulator_kpt_density()
+        self._set_kpt_density()
         self._raise_error_when_unknown_options_exist()
 
     def _raise_error_when_unknown_options_exist(self) -> None:
@@ -58,15 +58,18 @@ class CategorizedInputOptions:
             raise ViseInputOptionsError(
                 f"Options {unknown_args_set} are invalid")
 
-    def _set_insulator_kpt_density(self):
+    def _set_kpt_density(self):
         band_gap = self._input_options.get("band_gap", None)
         vbm_cbm = self._input_options.get("vbm_cbm", None)
         kpt_density = self._input_options.get("kpt_density", None)
 
-        if is_band_gap(band_gap, vbm_cbm) and kpt_density is None:
+        if self._input_options["task"] == Task.defect:
+            kpt_density = defaults.defect_kpoint_density
+        elif is_band_gap(band_gap, vbm_cbm) and kpt_density is None:
             kpt_density = defaults.insulator_kpoint_density
-            logger.info(f"Kpoint density is set to {kpt_density}.")
-            self._input_options["kpt_density"] = kpt_density
+
+        logger.info(f"Kpoint density is set to {kpt_density}.")
+        self._input_options["kpt_density"] = kpt_density
 
     @property
     def input_option_set(self) -> set:

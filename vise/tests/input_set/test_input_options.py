@@ -66,16 +66,23 @@ def test_insulator_kpt_density(sc_structure):
     opts = CategorizedInputOptions(sc_structure, task=Task.structure_opt,
                                    xc=Xc.pbe, vbm_cbm=[0, 0.5])
     actual = opts.structure_kpoints_options["kpt_density"]
-    expected = defaults._insulator_kpoint_density
+    expected = defaults.insulator_kpoint_density
     assert actual == expected
 
     opts = CategorizedInputOptions(sc_structure, task=Task.structure_opt,
                                    xc=Xc.pbe, band_gap=1.0)
     actual = opts.structure_kpoints_options["kpt_density"]
-    expected = defaults._insulator_kpoint_density
+    expected = defaults.insulator_kpoint_density
     assert actual == expected
 
     opts = CategorizedInputOptions(sc_structure, task=Task.structure_opt,
                                    xc=Xc.pbe, vbm_cbm=[0, 0.5],
                                    kpt_density=100)
     assert opts.structure_kpoints_options["kpt_density"] == 100
+
+
+def test_defect_kpt_density(sc_structure):
+    opts = CategorizedInputOptions(sc_structure, task=Task.defect, xc=Xc.pbe)
+    actual = opts.structure_kpoints_options["kpt_density"]
+    expected = defaults.defect_kpoint_density
+    assert actual == expected

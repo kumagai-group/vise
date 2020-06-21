@@ -17,6 +17,7 @@ class Defaults:
         self._dos_step_size = 0.01
         self._kpoint_density = 5.0
         self._insulator_kpoint_density = 2.5
+        self._defect_kpoint_density = 1.8
         self._band_mesh_distance = 0.025
         self._str_opt_encut_factor = 1.3
         self._band_gap_criterion = 0.2  # in eV
@@ -62,6 +63,10 @@ class Defaults:
     @property
     def insulator_kpoint_density(self):
         return self._insulator_kpoint_density
+
+    @property
+    def defect_kpoint_density(self):
+        return self._defect_kpoint_density
 
     @property
     def band_mesh_distance(self):
