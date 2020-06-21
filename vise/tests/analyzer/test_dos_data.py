@@ -11,7 +11,11 @@ from vise.analyzer.plot_dos import DosPlotter
 
 energies = [-9, 0, 9]
 total = np.array([[0, 5, 0], [0, 5, 0]])
-orbitals = {"s":   np.array([[0, 0, 0], [1, 0, 0]], dtype=float),
+
+
+@pytest.fixture()
+def orbitals():
+    return {"s":   np.array([[0, 0, 0], [1, 0, 0]], dtype=float),
             "px":  np.array([[0, 0, 1], [1, 0, 0]], dtype=float),
             "py":  np.array([[0, 0, 2], [1, 0, 0]], dtype=float),
             "pz":  np.array([[0, 0, 3], [1, 0, 0]], dtype=float),
@@ -27,15 +31,28 @@ orbitals = {"s":   np.array([[0, 0, 0], [1, 0, 0]], dtype=float),
             "f1":  np.array([[5, 0, 0], [1, 0, 0]], dtype=float),
             "f2":  np.array([[6, 0, 0], [1, 0, 0]], dtype=float),
             "f3":  np.array([[7, 0, 0], [1, 0, 0]], dtype=float)}
-orbitals_2 = {k: v * 2 for k, v in orbitals.items()}
-orbitals_3 = {k: v * 3 for k, v in orbitals.items()}
 
-pdos_list = [PDos(**orbitals), PDos(**orbitals_2), PDos(**orbitals_3)]
+
+@pytest.fixture
+def orbitals_2(orbitals):
+    return {k: v * 2 for k, v in orbitals.items()}
+
+
+@pytest.fixture
+def orbitals_3(orbitals):
+    return {k: v * 3 for k, v in orbitals.items()}
+
+
+@pytest.fixture
+def pdos_list(orbitals, orbitals_2, orbitals_3):
+    return [PDos(**orbitals), PDos(**orbitals_2), PDos(**orbitals_3)]
+
+
 reference_energy = 0.5
 
 
 @pytest.fixture
-def dos_data_list():
+def dos_data_list(pdos_list):
     dos_data_base_args = {"energies": energies,
                           "total": total,
                           "pdos": pdos_list}
@@ -53,7 +70,7 @@ def dos_data_list():
     return dos_data, dos_plot_data_w_lims, dos_plot_data_wo_lims
 
 
-def test_pdos_s_p_d():
+def test_pdos_s_p_d(orbitals):
     p = sum([orbitals[orb] for orb in ["px", "py", "pz"]])
     d = sum([orbitals[orb] for orb in ["dxy", "dyz", "dxz", "dx2", "dz2"]])
     f = sum([orbitals[orb]
@@ -64,17 +81,15 @@ def test_pdos_s_p_d():
     assert_array_equal(pdos.f, f)
 
 
-def test_pdos_wo_f_orbital():
+def test_pdos_wo_f_orbital(orbitals):
     orbitals.pop("f_3")
     assert PDos(**orbitals).f is None
-    pdos_sum = pdos_list[0] + pdos_list[1]
 
 
-def test_pdos_add():
-    orbs = deepcopy(orbitals)
+def test_pdos_add(orbitals):
     for pop_orb in ["f_3", "f_2", "f_1", "f0", "f1", "f2", "f3"]:
-        orbs.pop(pop_orb)
-    pdos = PDos(**orbs)
+        orbitals.pop(pop_orb)
+    pdos = PDos(**orbitals)
     pdos_sum = pdos + pdos
     assert_array_equal(pdos_sum.s, pdos.s * 2)
 
@@ -108,7 +123,7 @@ def test_dos_data_vertical_lines(dos_data_list):
     assert dos_plot_data_w_lim.vertical_lines == [-0.5, 0.5]
 
 
-def test_dos_data_pdos_single(dos_data_list):
+def test_dos_data_pdos_single(pdos_list, dos_data_list):
     _, dos_plot_data_w_lim, _ = dos_data_list
     pdos_sum = pdos_list[1] + pdos_list[2]
 
