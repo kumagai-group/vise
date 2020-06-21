@@ -6,6 +6,7 @@ from copy import deepcopy
 from pathlib import Path
 
 import pytest
+from pymatgen import Structure
 
 from vise.analyzer.atom_grouping_type import AtomGroupingType
 from vise.cli.main_functions import get_poscar_from_mp, VaspSet, plot_band, \
@@ -21,18 +22,16 @@ def test_get_poscar_from_mp(tmpdir):
 
     tmpdir.chdir()
     get_poscar_from_mp(args)
-    file = tmpdir.join("POSCAR")
     expected = """Mg1
 1.0
-2.922478 0.000000 -1.033252
--1.461239 2.530940 -1.033252
-0.000000 0.000000 3.099756
-Mg
+-1.789645  1.789645  1.789645
+ 1.789645 -1.789645  1.789645
+ 1.789645  1.789645 -1.789645
 1
 direct
 0.000000 0.000000 0.000000 Mg
 """
-    assert file.read() == expected
+    assert Structure.from_file("POSCAR") == Structure.from_str(expected, fmt="POSCAR")
 
 
 default_option_args = {"poscar": "POSCAR",
