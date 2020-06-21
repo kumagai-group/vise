@@ -7,6 +7,8 @@ from pathlib import Path
 from typing import List
 
 import yaml
+from vise.util.logger import get_logger
+logger = get_logger(__name__)
 
 
 class UserSettings:
@@ -38,7 +40,7 @@ class UserSettings:
         result = {}
 
         for file_path in self.yaml_files_from_root_dir:
-            print(file_path)
+            logger.info(f"Setting file: {file_path} is parsed...")
             try:
                 with open(str(file_path), "r") as fin:
                     settings = yaml.load(fin, Loader=yaml.SafeLoader)

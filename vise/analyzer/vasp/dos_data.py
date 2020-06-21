@@ -7,6 +7,8 @@ from pymatgen.io.vasp import Vasprun
 
 from vise.analyzer.dos_data import DosData
 from vise.analyzer.dos_data import PDos
+from vise.util.logger import get_logger
+logger = get_logger(__name__)
 
 
 class VaspDosData(DosData):
@@ -38,7 +40,7 @@ class VaspDosData(DosData):
             try:
                 result.append(PDos(**pdos_kwargs))
             except TypeError:
-                print("Orbital doses are required. SET ISMEAR = 11.")
+                logger.warning("Orbital doses are required. SET ISMEAR = 11.")
                 raise
 
         return result
