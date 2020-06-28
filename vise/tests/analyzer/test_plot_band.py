@@ -103,21 +103,21 @@ def test_band_mpl_defaults():
     band_defaults = BandMplSettings()
 
     assert band_defaults.colors == colors
-    assert band_defaults.linewidth == 1.0
+    assert next(band_defaults.linewidth) == 1.0
     assert band_defaults.circle_size == 70
     assert band_defaults.circle_colors == ["pink", "green"]
     assert band_defaults.title_font_size == 15
     assert band_defaults.label_font_size == 15
 
     band_defaults = BandMplSettings(colors=["black"],
-                                    linewidth=2.0,
+                                    linewidth=[2.0],
                                     circle_size=200,
                                     circle_colors=["blue"],
                                     title_font_size=30,
                                     label_font_size=40)
 
     assert band_defaults.colors == ["black"]
-    assert band_defaults.linewidth == 2.0
+    assert next(band_defaults.linewidth) == 2.0
     assert band_defaults.circle_size == 200
     assert band_defaults.circle_colors == ["blue"]
     assert band_defaults.title_font_size == 30
@@ -128,7 +128,7 @@ def test_add_band_structures(mock_plt_list):
     mock_plt, _ = mock_plt_list
     linewidth = BandMplSettings().linewidth
     # 1st branch, 1st band
-    args = {"color": colors[0], "linewidth": linewidth}
+    args = {"color": colors[0], "linewidth": next(linewidth)}
     mock_plt.plot.assert_any_call(distances[0], shifted_band_energies[0][0][0], **args)
 
     # 2nd branch, 1st band

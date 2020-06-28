@@ -3,6 +3,7 @@
 
 from copy import deepcopy
 from dataclasses import dataclass
+from itertools import cycle
 from typing import List, Optional
 
 import matplotlib.pyplot as plt
@@ -72,7 +73,7 @@ class ViseBandInfoError(ViseError):
 class BandMplSettings:
     def __init__(self,
                  colors: Optional[List[str]] = None,
-                 linewidth: float = 1.0,
+                 linewidth: List[float] = None,
                  circle_size: int = 70,
                  circle_colors: Optional[List[str]] = None,
                  band_edge_line_width: float = 0.75,
@@ -80,10 +81,11 @@ class BandMplSettings:
                  band_edge_line_style: str = "-.",
                  title_font_size: int = 15,
                  label_font_size: int = 15,
+                 show_legend: bool = True,
                  legend_location: str = "lower right"
                  ):
         self.colors = colors or ['#E15759', '#4E79A7', '#F28E2B', '#76B7B2']
-        self.linewidth = linewidth
+        self.linewidth = cycle(linewidth) if linewidth else cycle([1.0])
 
         self.circle_size = circle_size
         self.hline = {"linewidth": band_edge_line_width,
@@ -96,11 +98,12 @@ class BandMplSettings:
         self.circle_colors = circle_colors or ["pink", "green"]
         self.circle_size = circle_size
 
+        self.show_legend = show_legend
         self.legend = {"loc": legend_location}
 
     def band_structure(self, index):
         result = {"color": self.colors[index],
-                  "linewidth": self.linewidth}
+                  "linewidth": next(self.linewidth)}
         if index > 0:
             result["label"] = num2words(index + 1, ordinal=True)
         return result
@@ -203,7 +206,7 @@ class BandPlotter:
         self.plt.axhline(y=fermi_level, **self.mpl_defaults.hline)
 
     def _set_figure_legend(self):
-        if len(self.band_info_set) > 1:
+        if self.mpl_defaults.show_legend and len(self.band_info_set) > 1:
             self.plt.legend(**self.mpl_defaults.legend)
 
     def _set_x_range(self):

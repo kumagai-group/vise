@@ -7,7 +7,7 @@ import pytest
 from pymatgen import Composition
 from pymatgen.io.vasp import Vasprun
 
-from vise.analyzer.plot_band import BandEdge, XTicks
+from vise.analyzer.plot_band import BandEdge, XTicks, BandMplSettings
 from vise.analyzer.vasp.plot_band import greek_to_unicode, italic_to_roman, \
     VaspBandPlotInfo
 from vise.analyzer.plot_band import BandPlotter
@@ -68,5 +68,21 @@ def test_draw_band_plotter_with_actual_vasp_files(test_data_files: Path):
     vasprun = Vasprun(vasprun_file)
     plot_info = VaspBandPlotInfo(vasprun, kpoints_file)
     plotter = BandPlotter(plot_info, [-10, 10])
+    plotter.construct_plot()
+    plotter.plt.show()
+
+
+def test_draw_two_bands(test_data_files: Path):
+    mpl_settings = BandMplSettings(linewidth=[0.3, 1.0],
+                                   circle_size=50,
+                                   show_legend=False)
+
+    vasprun_file = str(test_data_files / "CdAs2O6-vasprun1.xml")
+    vasprun2_file = str(test_data_files / "CdAs2O6-vasprun2.xml")
+    kpoints_file = str(test_data_files / "CdAs2O6-KPOINTS")
+    vasprun = Vasprun(vasprun_file)
+    vasprun2 = Vasprun(vasprun2_file)
+    plot_info = VaspBandPlotInfo(vasprun, kpoints_file, vasprun2)
+    plotter = BandPlotter(plot_info, [-10, 10], mpl_defaults=mpl_settings)
     plotter.construct_plot()
     plotter.plt.show()
