@@ -33,6 +33,7 @@ class IncarSettingsGenerator:
             # [vbm, cbm] in absolute eV
             vbm_cbm: Optional[List[float]] = None,
             exchange_ratio: float = 0.25,
+            ldau: bool = None,
             set_hubbard_u: Optional[bool] = None,
             auto_npar_kpar: bool = True,
             cutoff_energy: Optional[float] = None,
@@ -52,6 +53,7 @@ class IncarSettingsGenerator:
         self._band_gap = band_gap
         self._vbm_cbm = vbm_cbm
         self._exchange_ratio = exchange_ratio
+        self._ldau = ldau
         self._auto_npar_kpar = auto_npar_kpar
         self._cutoff_energy = cutoff_energy
         self._is_magnetization = is_magnetization
@@ -201,7 +203,7 @@ class IncarSettingsGenerator:
 
     def _set_hubbard_u_related_settings(self) -> None:
         ldau = LDAU(self._symbol_list)
-        if ldau.is_ldau_needed:
+        if self._ldau is True or (self._ldau is None and ldau.is_ldau_needed):
             self._incar_settings["LDAU"] = True
             self._incar_settings["LDAUTYPE"] = 2
             self._incar_settings["LMAXMIX"] = ldau.lmaxmix

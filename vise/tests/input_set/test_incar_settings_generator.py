@@ -201,3 +201,16 @@ def test_with_band_gap_band(default_dict):
                          "task": Task.band})
     generator = IncarSettingsGenerator(**default_dict)
     assert generator.incar_settings["ISMEAR"] == 0
+
+
+def test_ldau_option(default_dict):
+    generator = IncarSettingsGenerator(composition=Composition("Zn"),
+                                       symbol_list=["Zn"],
+                                       potcar=Potcar(["Zn"]),
+                                       num_kpts=5,
+                                       num_kpt_multiplication_factor=1,
+                                       xc=Xc.pbe,
+                                       task=Task.structure_opt,
+                                       ldau=False)
+    assert "LDAU" not in generator.incar_settings
+
