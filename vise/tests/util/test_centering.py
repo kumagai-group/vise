@@ -1,14 +1,46 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
-
 import pytest
-
-from pydefect.util.centering import Centering
+from pymatgen import Lattice, IStructure
+from vise.util.centering import Centering
 from vise.util.structure_symmetrizer import StructureSymmetrizer
 
 
 def test_names():
     assert Centering.names_string() == "P, A, C, R, I, F"
+
+
+@pytest.fixture(scope="session")
+def rhombohedral():
+    lattice = Lattice.rhombohedral(a=1, alpha=45)
+    coords = [[0.0, 0.0, 0.0]]
+    return IStructure(lattice=lattice, species=["H"], coords=coords)
+
+
+@pytest.fixture(scope="session")
+def a_centered_orthorhombic():
+    lattice = Lattice([[1,  0, 0],
+                       [0,  2, 3],
+                       [0, -2, 3]])
+    coords = [[0.5, 0.8, 0.8],
+              [0.0, 0.3, 0.0],
+              [0.0, 0.0, 0.3]]
+
+    return IStructure(lattice=lattice, species=["H"] * 3, coords=coords)
+
+
+@pytest.fixture(scope="session")
+def c_centered_monoclinic():
+    lattice = Lattice.monoclinic(3, 4, 5, 100)
+    coords = [[0.0, 0.0, 0.0], [0.5, 0.5, 0.0]]
+    return IStructure(lattice=lattice, species=["H", "H"], coords=coords)
+
+
+@pytest.fixture(scope="session")
+def bcc():
+    lattice = Lattice.cubic(1.0)
+    coords = [[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]]
+    return IStructure(lattice=lattice, species=["H"] * 2, coords=coords)
 
 
 def test_a_centering(a_centered_orthorhombic):

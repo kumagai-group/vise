@@ -11,6 +11,7 @@ from collections import defaultdict
 from itertools import groupby
 
 from vise.defaults import defaults
+from vise.util.centering import Centering
 from vise.util.logger import get_logger
 from vise.error import ViseError
 from vise.util.bravais_lattice import BravaisLattice
@@ -81,7 +82,8 @@ class StructureSymmetrizer:
 
     @property
     def conventional(self) -> Structure:
-        return self.primitive * transmat_primitive2standard(self.centering).T
+        center = Centering.from_string(self.centering)
+        return self.primitive * center.primitive_to_conv
 
         # # I don't know if this is fine for spglib cyclic behavior.
         # if self._conventional is None:
@@ -214,58 +216,6 @@ class StructureSymmetrizer:
     @property
     def centering(self):
         return self.spglib_sym_data["international"][0]
-
-
-def transmat_standard2primitive(centering: str) -> np.ndarray:
-    """Transformation matrix from standardized cell to primitive cell
-    Args:
-        centering (str):
-            Centering in one character.
-    Return:
-        Transformation matrix in numpy.ndarray.
-     """
-
-    if centering == "P":
-        matrix = np.eye(3)
-    elif centering == "A":
-        matrix = np.array([[   1,    0,    0],
-                           [   0,  1/2, -1/2],
-                           [   0,  1/2,  1/2]])
-    elif centering == "C":
-        matrix = np.array([[ 1/2,  1/2,    0],
-                           [-1/2,  1/2,    0],
-                           [   0,    0,    1]])
-    elif centering == "R":
-        matrix = np.array([[ 2/3,  1/3,  1/3],
-                           [-1/3,  1/3,  1/3],
-                           [-1/3, -2/3,  1/3]])
-    #        matrix = np.array([[ 2/3, -1/3, -1/3],
-    #                           [ 1/3,  1/3, -2/3],
-    #                           [ 1/3,  1/3,  1/3]])
-    elif centering == "I":
-        matrix = np.array([[-1/2,  1/2,  1/2],
-                           [ 1/2, -1/2,  1/2],
-                           [ 1/2,  1/2, -1/2]])
-    elif centering == "F":
-        matrix = np.array([[   0,  1/2,  1/2],
-                           [ 1/2,    0,  1/2],
-                           [ 1/2,  1/2,    0]])
-    else:
-        raise ValueError(f"Centering {centering} is invalid")
-
-    return matrix
-
-
-def transmat_primitive2standard(centering: str) -> np.ndarray:
-    """Transformation matrix from primitive cell to standardized cell
-    Args:
-        centering (str):
-            Centering in one character.
-    Return:
-        Transformation matrix in numpy.ndarray.
-    """
-    matrix = inv(transmat_standard2primitive(centering))
-    return matrix.astype(int)
 
 
 class ViseSymmetryError(ViseError):

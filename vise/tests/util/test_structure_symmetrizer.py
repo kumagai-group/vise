@@ -8,7 +8,7 @@ from pymatgen.core.structure import Structure
 from pymatgen import Element
 
 from vise.util.structure_symmetrizer import (
-    cell_to_structure, StructureSymmetrizer, transmat_primitive2standard)
+    cell_to_structure, StructureSymmetrizer)
 from vise.util.bravais_lattice import BravaisLattice
 
 
@@ -184,39 +184,6 @@ direct
 
     ss = StructureSymmetrizer(input_structure)
     assert ss.primitive == input_structure
-
-
-def test_symmetry():
-    expected = np.array([[ 1,  0,  0],
-                         [ 0,  1,  1],
-                         [ 0, -1,  1]], dtype=int)
-    actual = transmat_primitive2standard("A")
-
-    assert (actual == expected).all()
-
-    expected = np.array([[ 1, -1,  0],
-                         [ 1,  1,  0],
-                         [ 0,  0,  1]], dtype=int)
-    actual = transmat_primitive2standard("C")
-    assert (actual == expected).all()
-
-    expected = np.array([[ 1, -1,  0],
-                         [ 0,  1, -1],
-                         [ 1,  1,  1]], dtype=int)
-    actual = transmat_primitive2standard("R")
-    assert (actual == expected).all()
-
-    expected = np.array([[ 0,  1,  1],
-                         [ 1,  0,  1],
-                         [ 1,  1,  0]], dtype=int)
-    actual = transmat_primitive2standard("I")
-    assert (actual == expected).all()
-
-    expected = np.array([[-1,  1,  1],
-                         [ 1, -1,  1],
-                         [ 1,  1, -1]], dtype=int)
-    actual = transmat_primitive2standard("F")
-    assert (actual == expected).all()
 
 
 """
