@@ -157,6 +157,34 @@ def test_species_order():
     expected = [Element.H] * 4 + [Element.He] * 4
     assert actual == expected
 
+
+def test_spglib_cyclic_behavior():
+    input_structure = Structure.from_str("""Ca4 Sc2 Sb2 O12
+1.0
+5.469740 0.000000 0.000000
+0.000000 5.632621 0.000000
+-5.467914 0.000000 7.830251
+O
+12
+direct
+0.344251 0.197893 0.550856 O
+0.344251 0.302107 0.050856 O
+0.655749 0.802107 0.449144 O
+0.655749 0.697893 0.949144 O
+0.752694 0.208674 0.946720 O
+0.752694 0.291326 0.446720 O
+0.247306 0.791326 0.053280 O
+0.247306 0.708674 0.553280 O
+0.144882 0.034671 0.743977 O
+0.144882 0.465329 0.243977 O
+0.855118 0.965329 0.256023 O
+0.855118 0.534671 0.756023 O
+""", fmt="POSCAR")
+
+    ss = StructureSymmetrizer(input_structure)
+    assert ss.primitive == input_structure
+
+
 """
 TODO: 
 - Add grouped_atom_indices to structure symmetrizer.

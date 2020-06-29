@@ -106,8 +106,12 @@ class StructureSymmetrizer:
                     "Spglib couldn't find the primitive cell. "
                     "Change the symprec and/or angle_tolerance.")
             else:
+                # To manage spglib cyclic behavior, we need to run this again.
+                second_primitive = spglib.find_primitive(
+                    primitive, symprec=self.symprec,
+                    angle_tolerance=self.angle_tolerance)
                 self._primitive = \
-                    cell_to_structure(primitive).get_sorted_structure()
+                    cell_to_structure(second_primitive).get_sorted_structure()
         return self._primitive
 
     def find_seekpath_data(self) -> None:
