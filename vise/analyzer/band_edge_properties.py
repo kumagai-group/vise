@@ -96,7 +96,7 @@ class BandEdgeProperties:
                     eigenvalues, lu_band_index, lu_eigenvalue, spin)
 
     def band_edge(self, eigenvalues, band_index, eigenvalue, spin):
-        k_index = np.where(eigenvalues[:, band_index] == eigenvalue)[0][0]
+        k_index = int(np.where(eigenvalues[:, band_index] == eigenvalue)[0][0])
         return BandEdge(eigenvalue, spin, band_index, k_index,
                         self._kpoints[k_index])
 
