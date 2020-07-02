@@ -5,7 +5,6 @@ from collections import defaultdict
 
 import numpy
 from pymatgen.io.vasp import Vasprun, Outcar, Procar
-
 from vise.analyzer.band_edge_properties import BandEdgeProperties
 
 
@@ -51,8 +50,6 @@ def edge_orbital_contributions(procar: Procar, structure, vbm_info, cbm_info):
         raise ValueError("")
 
     vbm_comp, cbm_comp = defaultdict(dict), defaultdict(dict)
-
-    print(vbm)
 
     for e, e_idxs in zip(elements, ele_indices):
         for o, o_idxs in zip(["s", "p", "d", "f"], orb_indices):
