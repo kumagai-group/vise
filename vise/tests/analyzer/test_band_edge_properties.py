@@ -135,6 +135,10 @@ def test_magnetic_insulator(band_edge):
     assert band_edge.cbm_info.kpoint_coords == [10.1, 10.2, 10.3]
 
 
+def test_is_metal(band_edge):
+    assert band_edge.is_direct is False
+
+
 def test_repr(band_edge):
     expected = """Band gap 0.300 eV
 VBM energy position: 1.1, spin:   up, band index 1, k-point index 1, k-point coords 10.400 10.500 10.600

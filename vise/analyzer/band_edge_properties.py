@@ -120,6 +120,10 @@ class BandEdgeProperties:
         return is_nelect_frac or is_mag_frac or is_vbm_higher_than_cbm
 
     @property
+    def is_metal(self):
+        return self.vbm_info is not None
+
+    @property
     def is_direct(self):
         return self.vbm_info.is_direct(self.cbm_info) if self.vbm_info else None
 
