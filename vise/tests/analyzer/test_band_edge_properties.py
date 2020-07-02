@@ -16,11 +16,13 @@ parent_dir = Path(__file__).parent
 
 
 actual_kpt = [[10.1, 10.2, 10.3], [10.4, 10.5, 10.6]]
-expected_metal = {'energies': 0.0, 'direct': None, 'transition': None}, None, None
+expected_metal = \
+    {'energies': 0.0, 'direct': None, 'transition': None}, None, None
 
 
 def test_band_edge_msonable():
-    assert_msonable(BandEdge(0.0, Spin.up, band_index=0, kpoint_coords=[0.0, 0.0, 0.0]))
+    assert_msonable(BandEdge(energy=0.0, spin=Spin.up, band_index=0,
+                             kpoint_index=1, kpoint_coords=[0.0, 0.0, 0.0]))
 
 
 def test_band_edge_equal():
@@ -135,8 +137,8 @@ def test_magnetic_insulator(band_edge):
 
 def test_repr(band_edge):
     expected = """Band gap 0.300 eV
-VBM energy position: 1.1, spin:   up, band index 1, k-point coords 10.400 10.500 10.600
-CBM energy position: 1.4, spin: down, band index 1, k-point coords 10.100 10.200 10.300"""
+VBM energy position: 1.1, spin:   up, band index 1, k-point index 1, k-point coords 10.400 10.500 10.600
+CBM energy position: 1.4, spin: down, band index 1, k-point index 0, k-point coords 10.100 10.200 10.300"""
     assert repr(band_edge) == expected
 
 

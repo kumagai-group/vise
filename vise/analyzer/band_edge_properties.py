@@ -19,6 +19,7 @@ class BandEdge(MSONable):
     energy: float
     spin: Spin = None
     band_index: int = None
+    kpoint_index: int = None
     kpoint_coords: List[float] = None
 
     def is_direct(self, other: "BandEdge"):
@@ -30,7 +31,8 @@ class BandEdge(MSONable):
                      f"{self.kpoint_coords[1]:5.3f} " \
                      f"{self.kpoint_coords[2]:5.3f}"
         return f"energy position: {self.energy}, spin: {self.spin.name:>4}, " \
-               f"band index {self.band_index}, k-point coords {kpt_coords}"
+               f"band index {self.band_index}, " \
+               f"k-point index {self.kpoint_index}, k-point coords {kpt_coords}"
 
     def as_dict(self):
         d = {"@module":       self.__class__.__module__,
@@ -38,6 +40,7 @@ class BandEdge(MSONable):
              "energy":        self.energy,
              "spin":          int(self.spin),
              "band_index":    self.band_index,
+             "kpoint_index":  self.kpoint_index,
              "kpoint_coords": self.kpoint_coords}
 
         return d
@@ -94,7 +97,8 @@ class BandEdgeProperties:
 
     def band_edge(self, eigenvalues, band_index, eigenvalue, spin):
         k_index = np.where(eigenvalues[:, band_index] == eigenvalue)[0][0]
-        return BandEdge(eigenvalue, spin, band_index, self._kpoints[k_index])
+        return BandEdge(eigenvalue, spin, band_index, k_index,
+                        self._kpoints[k_index])
 
     def _ho_band_index(self, spin):
         if spin == Spin.up:
