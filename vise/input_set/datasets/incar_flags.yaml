@@ -74,6 +74,7 @@ IO control:
   - INIWAV
   - NWRITE
   - LAECHG
+  - LELF
 
 analyzer:
   - NBANDS
