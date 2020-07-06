@@ -18,8 +18,9 @@ from vise.input_set.xc import Xc
 
 
 def test_get_poscar_from_mp(tmpdir):
-    args = Namespace(mpid="mp-110", poscar="POSCAR")
-
+    args = Namespace(mpid="mp-110",
+                     poscar="POSCAR",
+                     prior_info=Path("prior_info.yaml"))
     tmpdir.chdir()
     get_poscar_from_mp(args)
     expected = """Mg1
@@ -32,6 +33,10 @@ direct
 0.000000 0.000000 0.000000 Mg
 """
     assert Structure.from_file("POSCAR") == Structure.from_str(expected, fmt="POSCAR")
+    assert Path("prior_info.yaml").read_text() == """band_gap: 0.0
+data_source: mp-110
+total_magnetization: 0.0001585
+"""
 
 
 default_option_args = {"poscar": "POSCAR",

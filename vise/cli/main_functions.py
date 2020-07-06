@@ -5,6 +5,7 @@ from argparse import Namespace
 from copy import deepcopy
 from pathlib import Path
 
+import yaml
 from pymatgen import Structure
 from pymatgen.ext.matproj import MPRester
 from pymatgen.io.vasp import Vasprun, Outcar
@@ -29,6 +30,11 @@ from vise.input_set.task import Task
 def get_poscar_from_mp(args: Namespace) -> None:
     s = MPRester().get_structure_by_material_id(args.mpid)
     s.to(fmt="poscar", filename=args.poscar)
+    data = MPRester().get_data(args.mpid)[0]
+    d = {"total_magnetization": data["total_magnetization"],
+         "band_gap": data["band_gap"],
+         "data_source": args.mpid}
+    args.prior_info.write_text(yaml.dump(d), None)
 
 
 class VaspSet:
