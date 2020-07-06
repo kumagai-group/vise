@@ -18,6 +18,7 @@ def test_get_poscars_wo_options():
     # func is a pointer so need to point the same address.
     expected = Namespace(
         poscar="POSCAR",
+        prior_info=Path("prior_info.yaml"),
         mpid="mp-1234",
         func=parsed_args.func)
     assert parsed_args == expected
@@ -26,10 +27,12 @@ def test_get_poscars_wo_options():
 def test_get_poscars_w_options():
     parsed_args = parse_args(["gp",
                               "-p", "a",
-                              "-m", "123"])
+                              "-m", "123",
+                              "-pi", "b.yaml"])
 
     expected = Namespace(
         poscar="a",
+        prior_info=Path("b.yaml"),
         mpid="123",
         func=parsed_args.func)
     assert parsed_args == expected

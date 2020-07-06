@@ -62,6 +62,9 @@ Version: {__version__}
         "-p", "--poscar", type=str, default="POSCAR",
         help="POSCAR-type file name.", metavar="FILE")
     parser_get_poscar.add_argument(
+        "-pi", "--prior_info", type=Path, default=Path("prior_info.yaml"),
+        help="prior_info.yaml file name.", metavar="FILE")
+    parser_get_poscar.add_argument(
         "-m", "--mpid", type=str, required=True,
         help="MP entry id without prefix, e.g., mp-1234.")
 
