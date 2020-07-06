@@ -213,9 +213,15 @@ class IncarSettingsGenerator:
 
     def _set_npar_kpar(self) -> None:
         kpar, npar = npar_kpar(self._num_kpts, self._num_nodes_for_kpar)
+        if self._kpar_incompatible():
+            return
         self._incar_settings["KPAR"] = kpar
         # now switch off NPAR
         # self._settings["NPAR"] = npar
+
+    def _kpar_incompatible(self):
+        if self._incar_settings.get("LELF", False):
+            return True
 
     def _remove_incar_settings_with_none_values(self) -> None:
         for tag_name, value in self._incar_settings.copy().items():
