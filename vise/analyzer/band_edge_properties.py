@@ -121,7 +121,7 @@ class BandEdgeProperties:
 
     @property
     def is_metal(self):
-        return self.vbm_info is not None
+        return self.vbm_info is None
 
     @property
     def is_direct(self):
@@ -136,6 +136,9 @@ class BandEdgeProperties:
         return [self.vbm_info.energy, self.cbm_info.energy] if self.vbm_info else None
 
     def __repr__(self):
+        if self.vbm_info is None:
+            return "Metal"
+
         lines = [f"Band gap {self.band_gap:5.3f} eV",
                  f"VBM {self.vbm_info}",
                  f"CBM {self.cbm_info}"]

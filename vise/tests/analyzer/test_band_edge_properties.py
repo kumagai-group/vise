@@ -135,8 +135,18 @@ def test_magnetic_insulator(band_edge):
     assert band_edge.cbm_info.kpoint_coords == [10.1, 10.2, 10.3]
 
 
-def test_is_metal(band_edge):
-    assert band_edge.is_direct is False
+def test_is_metal():
+    band_edge_metal = BandEdgeProperties(
+        eigenvalues={Spin.up: np.array([[0, 1, 2], [0, 3, 4]])},
+        nelect=4.0,
+        magnetization=0.0,
+        kpoints=actual_kpt)
+    assert band_edge_metal.is_metal is True
+    assert band_edge_metal.vbm_info is None
+    assert band_edge_metal.cbm_info is None
+    assert band_edge_metal.vbm_cbm is None
+    assert band_edge_metal.band_gap is None
+    assert repr(band_edge_metal) == "Metal"
 
 
 def test_repr(band_edge):
