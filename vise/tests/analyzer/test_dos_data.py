@@ -8,6 +8,7 @@ from numpy.testing import assert_array_equal
 
 from vise.analyzer.dos_data import PDos, DosData, DosBySpinEnergy
 from vise.analyzer.plot_dos import DosPlotter
+from vise.tests.conftest import assert_msonable
 
 energies = [-9, 0, 9]
 total = np.array([[0, 5, 0], [0, 5, 0]])
@@ -68,6 +69,16 @@ def dos_data_list(pdos_list):
         vertical_lines=[0.0, 1.0])
 
     return dos_data, dos_plot_data_w_lims, dos_plot_data_wo_lims
+
+
+def test_pdos_msonable(orbitals):
+    pdos = PDos(**orbitals)
+    assert_msonable(pdos)
+
+
+def test_dos_data_msonable(dos_data_list):
+    dos_data, _, _ = dos_data_list
+    assert_msonable(dos_data)
 
 
 def test_pdos_s_p_d(orbitals):

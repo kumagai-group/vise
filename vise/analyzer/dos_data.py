@@ -6,43 +6,27 @@ from functools import reduce
 from typing import Dict, Optional, List
 
 import numpy as np
+from monty.json import MSONable
 
 
-class PDos:
-    def __init__(self,
-                 s:   np.ndarray,  # [by spin][by energy]
-                 px:  np.ndarray,
-                 py:  np.ndarray,
-                 pz:  np.ndarray,
-                 dxy: np.ndarray,
-                 dyz: np.ndarray,
-                 dxz: np.ndarray,
-                 dx2: np.ndarray,
-                 dz2: np.ndarray,
-                 f_3: Optional[np.ndarray] = None,
-                 f_2: Optional[np.ndarray] = None,
-                 f_1: Optional[np.ndarray] = None,
-                 f0:  Optional[np.ndarray] = None,
-                 f1:  Optional[np.ndarray] = None,
-                 f2:  Optional[np.ndarray] = None,
-                 f3:  Optional[np.ndarray] = None,
-                 ):
-        self.s = s
-        self.px = px
-        self.py = py
-        self.pz = pz
-        self.dxy = dxy
-        self.dyz = dyz
-        self.dxz = dxz
-        self.dx2 = dx2
-        self.dz2 = dz2
-        self.f_3 = f_3
-        self.f_2 = f_2
-        self.f_1 = f_1
-        self.f0 = f0
-        self.f1 = f1
-        self.f2 = f2
-        self.f3 = f3
+@dataclass
+class PDos(MSONable):
+    s:   np.ndarray  # [by spin][by energy]
+    px:  np.ndarray
+    py:  np.ndarray
+    pz:  np.ndarray
+    dxy: np.ndarray
+    dyz: np.ndarray
+    dxz: np.ndarray
+    dx2: np.ndarray
+    dz2: np.ndarray
+    f_3: Optional[np.ndarray] = None
+    f_2: Optional[np.ndarray] = None
+    f_1: Optional[np.ndarray] = None
+    f0:  Optional[np.ndarray] = None
+    f1:  Optional[np.ndarray] = None
+    f2:  Optional[np.ndarray] = None
+    f3:  Optional[np.ndarray] = None
 
     @property
     def p(self):
@@ -70,16 +54,15 @@ class PDos:
         return PDos(**args)
 
 
-class DosData:
-    def __init__(self,
-                 energies: List[float],
-                 total: np.ndarray,
-                 pdos: List[PDos]):
+@dataclass
+class DosData(MSONable):
+    energies: List[float]
+    total: np.ndarray
+    pdos: List[PDos]
 
-        self.energies = energies
-        self.total = total
-        self.spin = False if len(self.total) == 1 else True
-        self.pdos = pdos
+    @property
+    def spin(self):
+        return False if len(self.total) == 1 else True
 
     def dos_plot_data(self,
                       grouped_atom_indices: Dict[str, List[int]],
