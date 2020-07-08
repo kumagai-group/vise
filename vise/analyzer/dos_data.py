@@ -59,6 +59,8 @@ class DosData(MSONable):
     energies: List[float]
     total: np.ndarray
     pdos: List[PDos]
+    vertical_lines: List[float]
+    base_energy: Optional[float] = 0.0
 
     @property
     def spin(self):
@@ -66,8 +68,6 @@ class DosData(MSONable):
 
     def dos_plot_data(self,
                       grouped_atom_indices: Dict[str, List[int]],
-                      vertical_lines: List[float],
-                      base_energy: Optional[float] = 0.0,
                       xlim: Optional[List[float]] = None,
                       ylim_set: Optional[List[List[float]]] = None,
                       ) -> "DosPlotData":
@@ -95,8 +95,9 @@ class DosData(MSONable):
             else:
                 ylim_set = [[0, y] for y in self.max_y_ranges(doses, xlim)]
 
-        energies = [e - base_energy for e in self.energies]
-        shifted_vertical_lines = [e - base_energy for e in vertical_lines]
+        energies = [e - self.base_energy for e in self.energies]
+        shifted_vertical_lines = [e - self.base_energy
+                                  for e in self.vertical_lines]
 
         return DosPlotData(energies, doses, xlim, ylim_set,
                            shifted_vertical_lines)

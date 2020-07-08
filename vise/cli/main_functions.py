@@ -136,7 +136,10 @@ def plot_dos(args: Namespace):
     else:
         base = args.base_energy
 
-    dos_data = DosDataFromVasp(vasprun, args.crop_first_value).make_dos_data()
+    dos_data = DosDataFromVasp(vasprun,
+                               vertical_lines,
+                               base,
+                               args.crop_first_value).make_dos_data()
 
     ylim_set = None
     if args.y_max_ranges:
@@ -148,8 +151,6 @@ def plot_dos(args: Namespace):
     structure = vasprun.final_structure
     grouped_atom_indices = args.type.grouped_atom_indices(structure, args.target)
     plot_data = dos_data.dos_plot_data(grouped_atom_indices,
-                                       vertical_lines=vertical_lines,
-                                       base_energy=base,
                                        xlim=args.x_range,
                                        ylim_set=ylim_set)
     plotter = DosPlotter(plot_data, args.legend)

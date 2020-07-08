@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
+from typing import List, Optional
 
 import numpy as np
 from pymatgen import Spin
@@ -13,8 +14,13 @@ logger = get_logger(__name__)
 
 class DosDataFromVasp:
 
-    def __init__(self, vasprun: Vasprun, crop_first_value=False):
+    def __init__(self, vasprun: Vasprun,
+                 vertical_lines: Optional[List[float]] = None,
+                 base_energy: float = 0.0,
+                 crop_first_value=False, ):
         self.complete_dos = vasprun.complete_dos
+        self.vertical_lines = vertical_lines or []
+        self.base_energy = base_energy
         self.crop_first_value = crop_first_value
 
     def make_dos_data(self):
@@ -22,7 +28,10 @@ class DosDataFromVasp:
         if self.crop_first_value:
             energies = energies[1:]
         return DosData(energies=energies,
-                       total=np.array(self._total), pdos=self._pdos)
+                       total=np.array(self._total),
+                       pdos=self._pdos,
+                       vertical_lines=self.vertical_lines,
+                       base_energy=self.base_energy)
 
     @property
     def _pdos(self):

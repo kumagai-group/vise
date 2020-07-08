@@ -70,9 +70,10 @@ def test_dos_for_crop_first_value(vasp_dos_data_crop_first_value):
 def test_actual_vasp_files(test_data_files: Path):
     vasprun_file = str(test_data_files / "MgO_dos_vasprun.xml")
     vasprun = Vasprun(vasprun_file)
-    dos_data = DosDataFromVasp(vasprun).make_dos_data()
-    plot_data = dos_data.dos_plot_data({"Mg": [0], "O": [1]},
-                                       base_energy=1, vertical_lines=[0.0])
+    dos_data = DosDataFromVasp(vasprun,
+                               base_energy=1,
+                               vertical_lines=[0.0]).make_dos_data()
+    plot_data = dos_data.dos_plot_data({"Mg": [0], "O": [1]})
     plotter = DosPlotter(plot_data)
     plotter.construct_plot()
     plotter.plt.show()

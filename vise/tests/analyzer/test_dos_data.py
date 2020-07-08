@@ -57,16 +57,16 @@ def dos_data_list(pdos_list):
     dos_data_base_args = {"energies": energies,
                           "total": total,
                           "pdos": pdos_list}
-    dos_data = DosData(**dos_data_base_args)
+    dos_data = DosData(energies=energies, total=total, pdos=pdos_list,
+                       base_energy=reference_energy,
+                       vertical_lines=[0.0, 1.0])
+
     dos_plot_data_w_lims = dos_data.dos_plot_data(
         grouped_atom_indices={"H": [0], "He": [1, 2]},
         xlim=[-100, 100],
-        ylim_set=[[-20, 20], [-30, 30], [-40, 40]],
-        base_energy=reference_energy,
-        vertical_lines=[0.0, 1.0])
+        ylim_set=[[-20, 20], [-30, 30], [-40, 40]])
     dos_plot_data_wo_lims = dos_data.dos_plot_data(
-        grouped_atom_indices={"H": [0], "He": [1, 2]},
-        vertical_lines=[0.0, 1.0])
+        grouped_atom_indices={"H": [0], "He": [1, 2]})
 
     return dos_data, dos_plot_data_w_lims, dos_plot_data_wo_lims
 
@@ -170,14 +170,13 @@ def test_max_y_range():
                  dx2=np.array([[0, 10, 20, 30, 40]], dtype=float),
                  dz2=np.array([[0, 10, 20, 30, 40]], dtype=float))]
 
-    dos_data_base_args = {"energies": list(range(-2, 3)),
-                          "total": np.array([[0, 1, 2, 3, 4]]),
-                          "pdos": pdos}
-    dos_data = DosData(**dos_data_base_args)
+    dos_data = DosData(energies=list(range(-2, 3)),
+                       total=np.array([[0, 1, 2, 3, 4]]),
+                       pdos=pdos,
+                       vertical_lines=[0.0])
 
     dos_plot_data = dos_data.dos_plot_data(
         grouped_atom_indices={"H": [0]},
-        vertical_lines=[0.0],
         xlim=[-1.1, 1.1])
 
     assert dos_plot_data.ylim_set == [[0, 3.3], [0, 165.0]]
