@@ -13,7 +13,7 @@ from pymatgen.io.vasp import Vasprun, Outcar
 from vise.analyzer.plot_band import BandPlotter
 from vise.analyzer.plot_dos import DosPlotter
 from vise.analyzer.vasp.band_edge_properties import VaspBandEdgeProperties
-from vise.analyzer.vasp.dos_data import VaspDosData
+from vise.analyzer.vasp.dos_data import DosDataFromVasp
 from vise.analyzer.vasp.plot_band import VaspBandPlotInfo
 from vise.cli.main_tools import potcar_str2dict, list2dict
 from vise.defaults import defaults
@@ -136,7 +136,7 @@ def plot_dos(args: Namespace):
     else:
         base = args.base_energy
 
-    dos_data = VaspDosData(vasprun, crop_first_value=args.crop_first_value)
+    dos_data = DosDataFromVasp(vasprun, args.crop_first_value).make_dos_data()
 
     ylim_set = None
     if args.y_max_ranges:

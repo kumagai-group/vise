@@ -11,7 +11,7 @@ from pymatgen.electronic_structure.dos import CompleteDos, Dos
 from pymatgen import Spin, Site, Orbital
 from pymatgen.io.vasp import Vasprun
 
-from vise.analyzer.vasp.dos_data import VaspDosData
+from vise.analyzer.vasp.dos_data import DosDataFromVasp
 from vise.analyzer.plot_dos import DosPlotter
 
 
@@ -34,29 +34,29 @@ pdoses = {Site("H", [0, 0, 0]): {Orbital.s: {Spin.up: pdos},
 
 
 @pytest.fixture
-def vasp_dos_data(mocker):
+def dos_data_from_vasp(mocker):
     stub_vasprun = mocker.Mock(spec=Vasprun)
     stub_vasprun.complete_dos = CompleteDos(None, total_dos, pdoses)
-    return VaspDosData(stub_vasprun)
+    return DosDataFromVasp(stub_vasprun).make_dos_data()
 
 
 @pytest.fixture
 def vasp_dos_data_crop_first_value(mocker):
     stub_vasprun = mocker.Mock(spec=Vasprun)
     stub_vasprun.complete_dos = CompleteDos(None, total_dos, pdoses)
-    return VaspDosData(stub_vasprun, crop_first_value=True)
+    return DosDataFromVasp(stub_vasprun, crop_first_value=True).make_dos_data()
 
 
-def test_energies(vasp_dos_data):
-    assert vasp_dos_data.energies == energies
+def test_energies(dos_data_from_vasp):
+    assert dos_data_from_vasp.energies == energies
 
 
-def test_total_dos(vasp_dos_data):
-    assert_array_equal(vasp_dos_data.total, np.array([tdos]))
+def test_total_dos(dos_data_from_vasp):
+    assert_array_equal(dos_data_from_vasp.total, np.array([tdos]))
 
 
-def test_pdos(vasp_dos_data):
-    assert_array_equal(vasp_dos_data.pdos[0].s, np.array([pdos]))
+def test_pdos(dos_data_from_vasp):
+    assert_array_equal(dos_data_from_vasp.pdos[0].s, np.array([pdos]))
 
 
 def test_dos_for_crop_first_value(vasp_dos_data_crop_first_value):
@@ -70,10 +70,9 @@ def test_dos_for_crop_first_value(vasp_dos_data_crop_first_value):
 def test_actual_vasp_files(test_data_files: Path):
     vasprun_file = str(test_data_files / "MgO_dos_vasprun.xml")
     vasprun = Vasprun(vasprun_file)
-    vasp_dos_data = VaspDosData(vasprun)
-    plot_data = vasp_dos_data.dos_plot_data({"Mg": [0], "O": [1]},
-                                            base_energy=1,
-                                            vertical_lines=[0.0])
+    dos_data = DosDataFromVasp(vasprun).make_dos_data()
+    plot_data = dos_data.dos_plot_data({"Mg": [0], "O": [1]},
+                                       base_energy=1, vertical_lines=[0.0])
     plotter = DosPlotter(plot_data)
     plotter.construct_plot()
     plotter.plt.show()

@@ -11,17 +11,18 @@ from vise.util.logger import get_logger
 logger = get_logger(__name__)
 
 
-class VaspDosData(DosData):
+class DosDataFromVasp:
 
     def __init__(self, vasprun: Vasprun, crop_first_value=False):
         self.complete_dos = vasprun.complete_dos
         self.crop_first_value = crop_first_value
+
+    def make_dos_data(self):
         energies = self.complete_dos.energies.tolist()
         if self.crop_first_value:
             energies = energies[1:]
-        super().__init__(energies=energies,
-                         total=np.array(self._total),
-                         pdos=self._pdos)
+        return DosData(energies=energies,
+                       total=np.array(self._total), pdos=self._pdos)
 
     @property
     def _pdos(self):
