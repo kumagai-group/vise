@@ -40,7 +40,7 @@ class VaspDosData(DosData):
             try:
                 result.append(PDos(**pdos_kwargs))
             except TypeError:
-                logger.warning("Orbital doses are required. SET ISMEAR = 11.")
+                logger.warning("Orbital DOSes are required. SET LORBIT = 11.")
                 raise
 
         return result
