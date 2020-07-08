@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
-
+import os
 from argparse import Namespace
 from copy import deepcopy
 from pathlib import Path
@@ -37,7 +37,8 @@ direct
 data_source: mp-110
 total_magnetization: 0.0001585
 """
-
+    # Need to remove file to avoid the side effect for other unittests.
+    os.remove("prior_info.yaml")
 
 default_option_args = {"poscar": "POSCAR",
                        "task": Task.structure_opt,
