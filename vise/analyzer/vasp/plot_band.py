@@ -3,6 +3,8 @@
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
 import re
+from typing import Tuple, List
+import numpy as np
 
 from pymatgen.electronic_structure.plotter import BSPlotter
 from pymatgen.io.vasp import Vasprun
@@ -25,7 +27,10 @@ class VaspBandPlotInfo(BandPlotInfo):
     def __init__(self,
                  vasprun: Vasprun,
                  kpoints_filename: str,
-                 vasprun2: Vasprun = None):
+                 vasprun2: Vasprun = None,
+                 energy_window: List[float] = None):
+
+        self.energy_window = energy_window
 
         bs = vasprun.get_band_structure(kpoints_filename, line_mode=True)
         plot_data = BSPlotter(bs).bs_plot_data(zero_to_efermi=False)
@@ -48,14 +53,27 @@ class VaspBandPlotInfo(BandPlotInfo):
                          x_ticks=self._x_ticks(plot_data),
                          title=self._title)
 
-    @staticmethod
-    def _remove_spin_key(plot_data):
+    def _remove_spin_key(self, plot_data):
         result = []
-        for _, branch_energies in enumerate(plot_data["energy"]):
-            result.append([energy_by_spin for energy_by_spin
-                           in branch_energies.values()])
+        for branch_energies in plot_data["energy"]:
+            energies_by_spin = [v for _, v in sorted(branch_energies.items(),
+                                                     key=lambda item: item[0],
+                                                     reverse=True)]
+            if self.energy_window:
+                a = np.array(energies_by_spin)
+                removed_idxs = []
+                for i in range(len(energies_by_spin[0][0])):
+                    _max, _min = np.max(a[:, :, i]), np.min(a[:, :, i])
+                    if not self.in_energy(_max, _min):
+                        removed_idxs.append(i)
+                result.append((np.delete(a, removed_idxs, axis=2)).tolist())
+            else:
+                result.append(energies_by_spin)
 
         return result
+
+    def in_energy(self, _max, _min):
+        return _max >= self.energy_window[0] and _min <= self.energy_window[1]
 
     def _x_ticks(self, plot_data):
         labels = self._sanitize_labels(plot_data["ticks"]["label"])

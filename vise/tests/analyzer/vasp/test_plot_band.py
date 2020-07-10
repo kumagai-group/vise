@@ -4,7 +4,7 @@
 from pathlib import Path
 
 import pytest
-from pymatgen import Composition
+from pymatgen import Composition, Spin
 from pymatgen.io.vasp import Vasprun
 
 from vise.analyzer.plot_band import BandEdge, XTicks, BandMplSettings
@@ -38,7 +38,7 @@ def test_vasp_band_plotter(is_metal, expected_band_edge, mocker):
     stub_vasprun.final_structure.composition = Composition("MgO2")
     stub_vasprun.get_band_structure.return_value = mock_bs
 
-    energy = [{"1": [[0.1]]}]
+    energy = [{"1": [[0.1], [0.2], [0.3]]}]
     distances = [[0.0, 0.1, 0.2]]
     labels = ["A", "$A_0$", "GAMMA"]
     label_distances = [0.0, 0.1, 0.2]
@@ -56,7 +56,8 @@ def test_vasp_band_plotter(is_metal, expected_band_edge, mocker):
     expected_x_ticks = XTicks(labels=["A", "${\\rm A}_0$", "Γ"],
                               distances=label_distances)
 
-    assert plot_info.band_info_set[0].band_energies == [[[[0.1]]]]
+    assert plot_info.band_info_set[0].band_energies == [[[[0.1], [0.2], [0.3]]]]
+    assert plot_info.band_info_set[0].band_edge == expected_band_edge
     assert plot_info.distances_by_branch == distances
     assert plot_info.x_ticks == expected_x_ticks
     assert plot_info.title == "MgO$_{2}$"
@@ -82,7 +83,38 @@ def test_draw_two_bands(test_data_files: Path):
     kpoints_file = str(test_data_files / "CdAs2O6-KPOINTS")
     vasprun = Vasprun(vasprun_file)
     vasprun2 = Vasprun(vasprun2_file)
-    plot_info = VaspBandPlotInfo(vasprun, kpoints_file, vasprun2)
+    plot_info = VaspBandPlotInfo(vasprun, kpoints_file, vasprun2, energy_window=[-5.0, 5.0])
     plotter = BandPlotter(plot_info, [-10, 10], mpl_defaults=mpl_settings)
     plotter.construct_plot()
     plotter.plt.show()
+
+
+def test_energy_window(mocker):
+    mock_bs = mocker.MagicMock()
+    mock_bs.efermi = 0
+    mock_bs.is_metal.return_value = True
+
+    stub_vasprun = mocker.MagicMock()
+    stub_vasprun.final_structure.composition = Composition("MgO2")
+    stub_vasprun.get_band_structure.return_value = mock_bs
+
+    energy = [{Spin.up: [[-0.2, -0.1, 0.9, 1.1], [-0.1, 0.1, 1.1, 1.2]]}]
+    distances = [[0.0, 1.0]]
+    labels = ["A", "GAMMA"]
+    label_distances = [0.0, 1.0]
+    plot_data = {"ticks": {"label": labels, "distance": label_distances},
+                 "energy": energy,
+                 "distances": distances,
+                 "vbm": None,
+                 "cbm": None}
+
+    mock_bsp = mocker.patch("vise.analyzer.vasp.plot_band.BSPlotter", auto_spec=True)
+    mock_bsp().bs_plot_data.return_value = plot_data
+
+    plot_info = VaspBandPlotInfo(stub_vasprun, "KPOINTS",
+                                 energy_window=[0.0, 1.0])
+
+    assert (plot_info.band_info_set[0].band_energies
+            == [[[[-0.1, 0.9], [0.1, 1.1]]]])
+
+
