@@ -125,6 +125,12 @@ class BandPlotInfo:
         assert self.distances_by_branch[0][0] == self.x_ticks.distances[0]
         assert self.distances_by_branch[-1][-1] == self.x_ticks.distances[-1]
 
+    def __add__(self, other: "BandPlotInfo"):
+        assert self.distances_by_branch == other.distances_by_branch
+        new_band_info_set = self.band_info_set + other.band_info_set
+        return BandPlotInfo(new_band_info_set, self.distances_by_branch,
+                            self.x_ticks, self.title)
+
 
 class BandPlotter:
 

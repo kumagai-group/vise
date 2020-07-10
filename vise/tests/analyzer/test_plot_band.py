@@ -295,3 +295,16 @@ def test_draw_two_bands(two_band_set):
     band_plotter.construct_plot()
     band_plotter.plt.show()
 
+
+def test_band_plot_info_add(band_plot_info, band_info_set):
+    band_plot_info_2 = BandPlotInfo(band_info_set,
+                                    distances,
+                                    x_ticks,
+                                    "a")
+    added = band_plot_info + band_plot_info_2
+    assert added.band_info_set[0] == band_info_set[0]
+    assert added.band_info_set[1] == band_info_set[0]
+    assert added.distances_by_branch == distances
+    assert added.x_ticks == x_ticks
+    assert added.title == title  # title is set to the original one.
+
