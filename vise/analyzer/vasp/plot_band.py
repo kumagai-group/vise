@@ -31,29 +31,29 @@ class VaspBandPlotInfo(BandPlotInfo):
         plot_data = BSPlotter(bs).bs_plot_data(zero_to_efermi=False)
         self._composition = vasprun.final_structure.composition
 
-        band_info = [BandInfo(band_energies=self._order_changed_energies(plot_data),
-                             band_edge=self._band_edge(bs, plot_data),
-                             fermi_level=bs.efermi)]
+        band_info = [BandInfo(band_energies=self._remove_spin_key(plot_data),
+                              band_edge=self._band_edge(bs, plot_data),
+                              fermi_level=bs.efermi)]
 
         if vasprun2:
             bs2 = vasprun2.get_band_structure(kpoints_filename, line_mode=True)
             plot_data2 = BSPlotter(bs2).bs_plot_data(zero_to_efermi=False)
-            band_info.append(BandInfo(band_energies=self._order_changed_energies(plot_data2),
-                                      band_edge=self._band_edge(bs2, plot_data2),
-                                      fermi_level=bs.efermi))
+            band_info.append(
+                BandInfo(band_energies=self._remove_spin_key(plot_data2),
+                         band_edge=self._band_edge(bs2, plot_data2),
+                         fermi_level=bs.efermi))
 
         super().__init__(band_info_set=band_info,
                          distances_by_branch=plot_data["distances"],
                          x_ticks=self._x_ticks(plot_data),
                          title=self._title)
 
-    def _order_changed_energies(self, plot_data):
+    @staticmethod
+    def _remove_spin_key(plot_data):
         result = []
-        for idx, branch_energies in enumerate(plot_data["energy"]):
-            a = []
-            for energy_of_a_spin in branch_energies.values():
-                a.append(energy_of_a_spin)
-            result.append(a)
+        for _, branch_energies in enumerate(plot_data["energy"]):
+            result.append([energy_by_spin for energy_by_spin
+                           in branch_energies.values()])
 
         return result
 
