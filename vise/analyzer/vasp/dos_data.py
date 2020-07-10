@@ -17,16 +17,31 @@ class DosDataFromVasp:
     def __init__(self, vasprun: Vasprun,
                  vertical_lines: Optional[List[float]] = None,
                  base_energy: float = 0.0,
-                 crop_first_value=False):
+                 crop_first_value=False,
+                 energy_window: List[float] = None):
         self.complete_dos = vasprun.complete_dos
         self.vertical_lines = vertical_lines or []
         self.base_energy = base_energy
-        self.crop_first_value = crop_first_value
+#        self.crop_first_value = crop_first_value
+        self.energy_window = energy_window
+        self.min_energy_idx = 1 if crop_first_value else 0
+        self.max_energy_idx = len(self.complete_dos.energies)
 
     def make_dos_data(self):
         energies = self.complete_dos.energies.tolist()
-        if self.crop_first_value:
-            energies = energies[1:]
+        if self.energy_window:
+            for i, e in enumerate(energies):
+                if e >= self.energy_window[0]:
+                    self.min_energy_idx = i
+                    break
+
+            for i, e in enumerate(energies):
+                if e > self.energy_window[1]:
+                    self.max_energy_idx = i - 1
+                    break
+
+        energies = energies[self.min_energy_idx: self.max_energy_idx + 1]
+
         return DosData(energies=energies,
                        total=np.array(self._total),
                        pdos=self._pdos,
@@ -39,14 +54,11 @@ class DosDataFromVasp:
         for dos_by_site in self.complete_dos.pdos.values():
             pdos_kwargs = {}
             for orbital, dos_by_orbital in dos_by_site.items():
-                if self.crop_first_value:
-                    pdos = [dos_by_orbital[s][1:] for s in [Spin.up, Spin.down]
-                            if s in dos_by_orbital]
-                else:
-                    pdos = [dos_by_orbital[s] for s in [Spin.up, Spin.down]
-                            if s in dos_by_orbital]
+                pdos = np.array(
+                    [dos_by_orbital[s] for s in [Spin.up, Spin.down]
+                     if s in dos_by_orbital])
 
-                pdos_kwargs[str(orbital)] = np.array(pdos)
+                pdos_kwargs[str(orbital)] = pdos[:, self.min_energy_idx:self.max_energy_idx + 1]
             try:
                 result.append(PDos(**pdos_kwargs))
             except TypeError:
@@ -60,8 +72,6 @@ class DosDataFromVasp:
         result = []
         for s in [Spin.up, Spin.down]:
             if s in self.complete_dos.densities:
-                dos = np.copy(self.complete_dos.densities[s])
-                if self.crop_first_value:
-                    dos = dos[1:]
-                result.append(dos)
+                dos = self.complete_dos.densities[s]
+                result.append(dos[self.min_energy_idx:self.max_energy_idx + 1])
         return result

@@ -47,6 +47,15 @@ def vasp_dos_data_crop_first_value(mocker):
     return DosDataFromVasp(stub_vasprun, crop_first_value=True).make_dos_data()
 
 
+@pytest.fixture
+def vasp_dos_data_energy_window(mocker):
+    stub_vasprun = mocker.Mock(spec=Vasprun)
+    stub_vasprun.complete_dos = CompleteDos(None, total_dos, pdoses)
+    return DosDataFromVasp(stub_vasprun,
+                           crop_first_value=True,
+                           energy_window=[0.1, 1.1]).make_dos_data()
+
+
 def test_energies(dos_data_from_vasp):
     assert dos_data_from_vasp.energies == energies
 
@@ -65,6 +74,14 @@ def test_dos_for_crop_first_value(vasp_dos_data_crop_first_value):
                        np.array([tdos[1:]]))
     assert_array_equal(vasp_dos_data_crop_first_value.pdos[0].s,
                        np.array([pdos[1:]]))
+
+
+def test_energy_window(vasp_dos_data_energy_window):
+    assert_array_equal(vasp_dos_data_energy_window.energies, energies[2])
+    assert_array_equal(vasp_dos_data_energy_window.total,
+                       np.array([tdos[2:]]))
+    assert_array_equal(vasp_dos_data_energy_window.pdos[0].s,
+                       np.array([pdos[2:]]))
 
 
 def test_actual_vasp_files(test_data_files: Path):
