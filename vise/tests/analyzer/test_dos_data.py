@@ -190,6 +190,9 @@ def test_dos_by_spin_energy():
     assert dos.max_dos(mask) == 3.0
 
 
+# test of MSONable exists in test_plot_dos.py.
+
+
 """
 TODO:
 + Allow to set vbm, cbm, efermi

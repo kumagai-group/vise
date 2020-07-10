@@ -17,7 +17,7 @@ class DosDataFromVasp:
     def __init__(self, vasprun: Vasprun,
                  vertical_lines: Optional[List[float]] = None,
                  base_energy: float = 0.0,
-                 crop_first_value=False, ):
+                 crop_first_value=False):
         self.complete_dos = vasprun.complete_dos
         self.vertical_lines = vertical_lines or []
         self.base_energy = base_energy

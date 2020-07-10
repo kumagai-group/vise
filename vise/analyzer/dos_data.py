@@ -117,7 +117,7 @@ class DosData(MSONable):
 
 
 @dataclass
-class DosBySpinEnergy:
+class DosBySpinEnergy(MSONable):
     name: str
     dos: np.array  # [by spin][by energy]
 
@@ -126,8 +126,8 @@ class DosBySpinEnergy:
                     for d in self.dos])
 
 
-@dataclass()
-class DosPlotData:
+@dataclass
+class DosPlotData(MSONable):
     relative_energies: List[float]
     doses: List[List[DosBySpinEnergy]]  # [by ax][by orbital]
     xlim: List[float]

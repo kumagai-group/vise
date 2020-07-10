@@ -4,8 +4,9 @@ import numpy as np
 import pytest
 
 from vise.analyzer.dos_data import DosBySpinEnergy, DosPlotData
-from vise.analyzer.plot_dos import DosPlotter, DosMplSettings
+from vise.analyzer.plot_dos import DosPlotter, DosMplSettings, PlotlyDosPlotter
 from vise.util.matplotlib import float_to_int_formatter
+from vise.tests.conftest import assert_msonable
 
 """
 TODO:
@@ -43,6 +44,10 @@ dos_plot_data = DosPlotData(relative_energies=relative_energies,
                             ylim_set=ylim_set,
                             vertical_lines=[0.0, 1.0])
 dos_data_len = len(dos_plot_data.doses)
+
+
+def test_dos_plot_data_msonable():
+    assert_msonable(dos_plot_data)
 
 
 @pytest.fixture
@@ -174,3 +179,40 @@ def test_actual_plot():
     plotter = DosPlotter(dos_plot_data)
     plotter.construct_plot()
     plotter.plt.show()
+
+
+# def test_plotly_actual_plot():
+#     pploter = PlotlyDosPlotter(dos_plot_data)
+#     pploter.show()
+
+
+# # 1. imports of your dash app
+# import dash
+# import dash_html_components as html
+
+
+# # 2. give each testcase a tcid, and pass the fixture
+# # as a function argument, less boilerplate
+# def test_bsly001_falsy_child(dash_duo):
+
+    # # 3. define your app inside the test function
+    # app = dash.Dash(__name__)
+    # app.layout = html.Div(id="nully-wrapper", children=0)
+
+    # # 4. host the app locally in a thread, all dash server configs could be
+    # # passed after the first app argument
+    # dash_duo.start_server(app)
+
+    # # 5. use wait_for_* if your target element is the result of a callback,
+    # # keep in mind even the initial rendering can trigger callbacks
+    # dash_duo.wait_for_text_to_equal("#nully-wrapper", "0", timeout=4)
+
+    # # 6. use this form if its present is expected at the action point
+    # assert dash_duo.find_element("#nully-wrapper").text == "0"
+
+    # # 7. to make the checkpoint more readable, you can describe the
+    # # acceptance criterion as an assert message after the comma.
+    # assert dash_duo.get_logs() == [], "browser console should contain no error"
+
+    # # 8. visual testing with percy snapshot
+    # dash_duo.percy_snapshot("bsly001-layout")
