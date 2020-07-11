@@ -75,17 +75,19 @@ class DosData(MSONable):
         if ylim_set is not None:
             assert len(grouped_atom_indices) + 1 == len(ylim_set)  # total+pdos
 
-        doses = [[DosBySpinEnergy("total", self.total)]]
+        doses = [[DosBySpinEnergy("", self.total)]]
+        names = ["total"]
         for name, atom_indices_by_group in grouped_atom_indices.items():
             pdos_list = [self.pdos[idx] for idx in atom_indices_by_group]
             pdos = reduce(lambda x, y: x + y, pdos_list)
-            pdos_by_ax = [DosBySpinEnergy(f"{name}-s", pdos.s),
-                          DosBySpinEnergy(f"{name}-p", pdos.p),
-                          DosBySpinEnergy(f"{name}-d", pdos.d)]
+            pdos_by_ax = [DosBySpinEnergy("s", pdos.s),
+                          DosBySpinEnergy("p", pdos.p),
+                          DosBySpinEnergy("d", pdos.d)]
             if pdos.f is not None:
-                pdos_by_ax.append(DosBySpinEnergy(f"{name}-f", pdos.f))
+                pdos_by_ax.append(DosBySpinEnergy("f", pdos.f))
 
             doses.append(pdos_by_ax)
+            names.append(name)
 
         xlim = xlim or [-10, 10]
 
@@ -99,7 +101,7 @@ class DosData(MSONable):
         shifted_vertical_lines = [e - self.base_energy
                                   for e in self.vertical_lines]
 
-        return DosPlotData(energies, doses, xlim, ylim_set,
+        return DosPlotData(energies, doses, names, xlim, ylim_set,
                            shifted_vertical_lines)
 
     def max_y_ranges(self, doses, xlim, multi=1.1, round_digit=2):
@@ -130,6 +132,7 @@ class DosBySpinEnergy(MSONable):
 class DosPlotData(MSONable):
     relative_energies: List[float]
     doses: List[List[DosBySpinEnergy]]  # [by ax][by orbital]
+    names: List[str]
     xlim: List[float]
     ylim_set: List[List[float]]
     vertical_lines: List[float]

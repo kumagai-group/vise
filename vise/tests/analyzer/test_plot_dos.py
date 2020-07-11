@@ -34,12 +34,13 @@ ylim_set = [[-10, 10], [-5, 5]]
 colors = DosMplSettings().colors
 
 
-doses = [[DosBySpinEnergy("total", [total_up, total_down])],
-         [DosBySpinEnergy("H-s", np.array([h_s_up, h_s_down])),
-          DosBySpinEnergy("H-p", np.array([h_p_up, h_p_down]))]]
+doses = [[DosBySpinEnergy("", [total_up, total_down])],
+         [DosBySpinEnergy("s", np.array([h_s_up, h_s_down])),
+          DosBySpinEnergy("p", np.array([h_p_up, h_p_down]))]]
 
 dos_plot_data = DosPlotData(relative_energies=relative_energies,
                             doses=doses,
+                            names=["total", "H"],
                             xlim=xlim,
                             ylim_set=ylim_set,
                             vertical_lines=[0.0, 1.0])
@@ -121,9 +122,9 @@ def test_plot_dos(mock_plt_list):
 
 
 def test_axs_is_list_when_single_dos_passed():
-    single_dos = [[DosBySpinEnergy("total", [total_up, total_down])]]
+    single_dos = [[DosBySpinEnergy("", [total_up, total_down])]]
     dos_info = DosPlotData(relative_energies=relative_energies,
-                           doses=single_dos, xlim=xlim,
+                           doses=single_dos, names=["total"], xlim=xlim,
                            ylim_set=ylim_set, vertical_lines=[0.0, 1.0])
     plotter = DosPlotter(dos_plot_data=dos_info)
     assert isinstance(plotter._axs, list)

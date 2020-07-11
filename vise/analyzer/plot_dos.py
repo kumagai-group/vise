@@ -73,7 +73,12 @@ class DosPlotter:
                 dos_for_plot = [d * sign for d in by_spin_dos]
                 args = self.mpl_defaults.dos_line(j)
                 if k == 0 and self._show_legend:
-                    args["label"] = self._dos_plot_data.doses[i][j].name
+                    if self._dos_plot_data.doses[i][j].name:
+                        args["label"] = "-".join(
+                            [self._dos_plot_data.names[i],
+                             self._dos_plot_data.doses[i][j].name])
+                    else:
+                        args["label"] = self._dos_plot_data.names[i]
                 self._axs[i].plot(self._dos_plot_data.relative_energies,
                                   dos_for_plot, **args)
 

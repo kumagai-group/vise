@@ -125,7 +125,7 @@ def test_dos_data_manual_lim(dos_data_list):
 
 def test_dos_data_total_dos(dos_data_list):
     _, dos_plot_data_w_lim, _ = dos_data_list
-    assert dos_plot_data_w_lim.doses[0][0].name == "total"
+    assert dos_plot_data_w_lim.doses[0][0].name == ""
     assert_array_equal(dos_plot_data_w_lim.doses[0][0].dos, total)
 
 
@@ -138,12 +138,15 @@ def test_dos_data_pdos_single(pdos_list, dos_data_list):
     _, dos_plot_data_w_lim, _ = dos_data_list
     pdos_sum = pdos_list[1] + pdos_list[2]
 
-    assert_array_equal(dos_plot_data_w_lim.doses[1][0].name, "H-s")
+    assert dos_plot_data_w_lim.names == ["total", "H", "He"]
+
+    assert dos_plot_data_w_lim.doses[1][0].name == "s"
+    assert dos_plot_data_w_lim.doses[1][1].name == "p"
+    assert dos_plot_data_w_lim.doses[2][0].name == "s"
+
     assert_array_equal(dos_plot_data_w_lim.doses[1][0].dos, pdos_list[0].s)
-    assert_array_equal(dos_plot_data_w_lim.doses[1][1].name, "H-p")
     assert_array_equal(dos_plot_data_w_lim.doses[1][1].dos, pdos_list[0].p)
 
-    assert_array_equal(dos_plot_data_w_lim.doses[2][0].name, "He-s")
     assert_array_equal(dos_plot_data_w_lim.doses[2][0].dos, pdos_sum.s)
 
     plotter = DosPlotter(dos_plot_data_w_lim)
