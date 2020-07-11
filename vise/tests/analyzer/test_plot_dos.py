@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 
 from vise.analyzer.dos_data import DosBySpinEnergy, DosPlotData
-from vise.analyzer.plot_dos import DosPlotter, DosMplSettings, PlotlyDosPlotter
+from vise.analyzer.plot_dos import DosPlotter, DosMplSettings
 from vise.util.matplotlib import float_to_int_formatter
 from vise.tests.conftest import assert_msonable
 
@@ -60,7 +60,7 @@ def mock_plt_list(mocker):
     mock_axs = [mock_1st_ax, mock_2nd_ax] + [mocker.MagicMock()] * other_axs_len
 
     mock_plt.subplots.return_value = (None, mock_axs)
-    plotter = DosPlotter(dos_data=dos_plot_data)
+    plotter = DosPlotter(dos_plot_data=dos_plot_data)
     plotter.construct_plot()
 
     return mock_plt, mock_1st_ax, mock_2nd_ax
@@ -125,7 +125,7 @@ def test_axs_is_list_when_single_dos_passed():
     dos_info = DosPlotData(relative_energies=relative_energies,
                            doses=single_dos, xlim=xlim,
                            ylim_set=ylim_set, vertical_lines=[0.0, 1.0])
-    plotter = DosPlotter(dos_data=dos_info)
+    plotter = DosPlotter(dos_plot_data=dos_info)
     assert isinstance(plotter._axs, list)
     assert len(plotter._axs) == 1
 
