@@ -23,35 +23,40 @@ def italic_to_roman(label: str) -> str:
     return re.sub(r"([A-Z])_([0-9])", r"{\\rm \1}_\2", label)
 
 
-class VaspBandPlotInfo(BandPlotInfo):
+class BandPlotInfoFromVasp:
     def __init__(self,
                  vasprun: Vasprun,
                  kpoints_filename: str,
                  vasprun2: Vasprun = None,
                  energy_window: List[float] = None):
-
+        self.vasprun = vasprun
+        self.kpoints_filename = kpoints_filename
+        self.vasprun2 = vasprun2
         self.energy_window = energy_window
 
-        bs = vasprun.get_band_structure(kpoints_filename, line_mode=True)
+    def make_band_plot_info(self):
+        bs = self.vasprun.get_band_structure(self.kpoints_filename,
+                                             line_mode=True)
         plot_data = BSPlotter(bs).bs_plot_data(zero_to_efermi=False)
-        self._composition = vasprun.final_structure.composition
+        self._composition = self.vasprun.final_structure.composition
 
         band_info = [BandInfo(band_energies=self._remove_spin_key(plot_data),
                               band_edge=self._band_edge(bs, plot_data),
                               fermi_level=bs.efermi)]
 
-        if vasprun2:
-            bs2 = vasprun2.get_band_structure(kpoints_filename, line_mode=True)
+        if self.vasprun2:
+            bs2 = self.vasprun2.get_band_structure(self.kpoints_filename,
+                                                   line_mode=True)
             plot_data2 = BSPlotter(bs2).bs_plot_data(zero_to_efermi=False)
             band_info.append(
                 BandInfo(band_energies=self._remove_spin_key(plot_data2),
                          band_edge=self._band_edge(bs2, plot_data2),
                          fermi_level=bs.efermi))
 
-        super().__init__(band_info_set=band_info,
-                         distances_by_branch=plot_data["distances"],
-                         x_ticks=self._x_ticks(plot_data),
-                         title=self._title)
+        return BandPlotInfo(band_info_set=band_info,
+                            distances_by_branch=plot_data["distances"],
+                            x_ticks=self._x_ticks(plot_data),
+                            title=self._title)
 
     def _remove_spin_key(self, plot_data):
         result = []

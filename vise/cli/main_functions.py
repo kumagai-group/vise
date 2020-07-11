@@ -14,7 +14,7 @@ from vise.analyzer.plot_band import BandPlotter
 from vise.analyzer.plot_dos import DosPlotter
 from vise.analyzer.vasp.band_edge_properties import VaspBandEdgeProperties
 from vise.analyzer.vasp.dos_data import DosDataFromVasp
-from vise.analyzer.vasp.plot_band import VaspBandPlotInfo
+from vise.analyzer.vasp.plot_band import BandPlotInfoFromVasp
 from vise.cli.main_tools import potcar_str2dict, list2dict
 from vise.defaults import defaults
 from vise.input_set.input_options import CategorizedInputOptions, \
@@ -114,8 +114,8 @@ class VaspSet:
 
 
 def plot_band(args: Namespace):
-    plot_info = VaspBandPlotInfo(vasprun=Vasprun(args.vasprun),
-                                 kpoints_filename=args.kpoints_filename)
+    plot_info = BandPlotInfoFromVasp(vasprun=Vasprun(args.vasprun),
+                                     kpoints_filename=args.kpoints_filename).make_band_plot_info()
     plotter = BandPlotter(plot_info, y_range=args.y_range)
     plotter.construct_plot()
     plotter.plt.savefig(args.filename, format="pdf")
