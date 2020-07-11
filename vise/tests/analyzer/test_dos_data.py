@@ -157,7 +157,7 @@ def test_dos_data_pdos_single(pdos_list, dos_data_list):
 def test_orbital_dos():
     total_up = [0, 1]
     total_down = [2, 3]
-    total_array = np.array([total_up, total_down])
+    total_array = [total_up, total_down]
     orbital_dos = DosBySpinEnergy("total", total_array)
     assert orbital_dos.max_dos() == max([max(total_up), max(total_down)])
 
@@ -187,8 +187,7 @@ def test_max_y_range():
 
 def test_dos_by_spin_energy():
     dos = DosBySpinEnergy(name="test",
-                          dos=np.array([[-3, -2, -1, 0],
-                                        [ 1,  2,  3, 4]], dtype=float))
+                          dos=[[-3, -2, -1, 0], [ 1,  2,  3, 4]])
     mask = [True, False, False, True]
     assert dos.max_dos(mask) == 3.0
 

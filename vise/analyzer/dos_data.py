@@ -75,14 +75,14 @@ class DosData(MSONable):
         if ylim_set is not None:
             assert len(grouped_atom_indices) + 1 == len(ylim_set)  # total+pdos
 
-        doses = [[DosBySpinEnergy("", self.total)]]
+        doses = [[DosBySpinEnergy("", self.total.tolist())]]
         names = ["total"]
         for name, atom_indices_by_group in grouped_atom_indices.items():
             pdos_list = [self.pdos[idx] for idx in atom_indices_by_group]
             pdos = reduce(lambda x, y: x + y, pdos_list)
-            pdos_by_ax = [DosBySpinEnergy("s", pdos.s),
-                          DosBySpinEnergy("p", pdos.p),
-                          DosBySpinEnergy("d", pdos.d)]
+            pdos_by_ax = [DosBySpinEnergy("s", pdos.s.tolist()),
+                          DosBySpinEnergy("p", pdos.p.tolist()),
+                          DosBySpinEnergy("d", pdos.d.tolist())]
             if pdos.f is not None:
                 pdos_by_ax.append(DosBySpinEnergy("f", pdos.f))
 
@@ -121,7 +121,7 @@ class DosData(MSONable):
 @dataclass
 class DosBySpinEnergy(MSONable):
     name: str
-    dos: np.array  # [by spin][by energy]
+    dos: List[List[float]]  # [by spin][by energy]
 
     def max_dos(self, mask: List[bool] = None):
         return max([np.max(np.ma.masked_array(d, mask).compressed())
@@ -136,3 +136,6 @@ class DosPlotData(MSONable):
     xlim: List[float]
     ylim_set: List[List[float]]
     vertical_lines: List[float]
+
+
+
