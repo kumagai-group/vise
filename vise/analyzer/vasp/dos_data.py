@@ -30,15 +30,10 @@ class DosDataFromVasp:
     def make_dos_data(self):
         energies = self.complete_dos.energies.tolist()
         if self.energy_window:
-            for i, e in enumerate(energies):
-                if e >= self.energy_window[0]:
-                    self.min_energy_idx = i
-                    break
-
-            for i, e in enumerate(energies):
-                if e > self.energy_window[1]:
-                    self.max_energy_idx = i - 1
-                    break
+            _min = self.get_min_energy_idx(energies)
+            _max = self.get_max_energy_idx(energies)
+            self.min_energy_idx = _min if _min else self.min_energy_idx
+            self.max_energy_idx = _max if _max else self.max_energy_idx
 
         energies = energies[self.min_energy_idx: self.max_energy_idx + 1]
 
@@ -47,6 +42,16 @@ class DosDataFromVasp:
                        pdos=self._pdos,
                        vertical_lines=self.vertical_lines,
                        base_energy=self.base_energy)
+
+    def get_max_energy_idx(self, energies):
+        for i, e in enumerate(energies):
+            if e > self.energy_window[1]:
+                return i - 1
+
+    def get_min_energy_idx(self, energies):
+        for i, e in enumerate(energies):
+            if e >= self.energy_window[0]:
+                return i
 
     @property
     def _pdos(self):
