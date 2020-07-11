@@ -8,6 +8,7 @@ from typing import List, Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
+from monty.json import MSONable
 from num2words import num2words
 
 from vise.error import ViseError
@@ -15,20 +16,20 @@ from vise.util.matplotlib import float_to_int_formatter
 
 
 @dataclass(frozen=True)
-class XTicks:
+class XTicks(MSONable):
     labels: List[str]
     distances: List[float]
 
 
 @dataclass
-class BandEdge:
+class BandEdge(MSONable):
     vbm: float
     cbm: float
     vbm_distances: List[float]
     cbm_distances: List[float]
 
 
-class BandInfo:
+class BandInfo(MSONable):
     def __init__(self,
                  band_energies: List[List[List[List[float]]]],
                  band_edge: Optional[BandEdge] = None,
@@ -115,7 +116,7 @@ class BandMplSettings:
 
 
 @dataclass
-class BandPlotInfo:
+class BandPlotInfo(MSONable):
     band_info_set: List[BandInfo]
     distances_by_branch: List[List[float]]
     x_ticks: XTicks
