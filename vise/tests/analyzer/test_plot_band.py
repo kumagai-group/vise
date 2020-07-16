@@ -149,6 +149,20 @@ def test_add_band_structures(mock_plt_list):
     mock_plt.plot.assert_any_call(distances[1], shifted_band_energies[1][0][1], **args)
 
 
+def test_band_plot_info_add(band_plot_info, band_info_set):
+    band_plot_info_2 = BandPlotInfo(band_info_set,
+                                    distances,
+                                    x_ticks,
+                                    "a")
+    added = band_plot_info + band_plot_info_2
+    assert added.band_info_set[0] == band_info_set[0]
+    assert added.band_info_set[1] == band_info_set[0]
+    assert added.distances_by_branch == distances
+    assert added.x_ticks == x_ticks
+    assert added.title == title  # title is set to the original one.
+
+
+
 def test_add_band_edge_circles(mock_plt_list, band_info_set):
     mock_plt, _ = mock_plt_list
     edge = band_info_set[0].band_edge
@@ -302,16 +316,4 @@ def test_draw_two_bands(two_band_set):
     band_plotter.construct_plot()
     band_plotter.plt.show()
 
-
-def test_band_plot_info_add(band_plot_info, band_info_set):
-    band_plot_info_2 = BandPlotInfo(band_info_set,
-                                    distances,
-                                    x_ticks,
-                                    "a")
-    added = band_plot_info + band_plot_info_2
-    assert added.band_info_set[0] == band_info_set[0]
-    assert added.band_info_set[1] == band_info_set[0]
-    assert added.distances_by_branch == distances
-    assert added.x_ticks == x_ticks
-    assert added.title == title  # title is set to the original one.
 

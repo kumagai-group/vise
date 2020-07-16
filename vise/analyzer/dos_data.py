@@ -84,7 +84,7 @@ class DosData(MSONable):
                           DosBySpinEnergy("p", pdos.p.tolist()),
                           DosBySpinEnergy("d", pdos.d.tolist())]
             if pdos.f is not None:
-                pdos_by_ax.append(DosBySpinEnergy("f", pdos.f))
+                pdos_by_ax.append(DosBySpinEnergy("f", pdos.f.tolist()))
 
             doses.append(pdos_by_ax)
             names.append(name)

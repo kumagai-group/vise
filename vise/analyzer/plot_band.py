@@ -31,6 +31,7 @@ class BandEdge(MSONable):
 
 class BandInfo(MSONable):
     def __init__(self,
+                 # [branch][spin][band][k-point]
                  band_energies: List[List[List[List[float]]]],
                  band_edge: Optional[BandEdge] = None,
                  fermi_level: Optional[float] = None):

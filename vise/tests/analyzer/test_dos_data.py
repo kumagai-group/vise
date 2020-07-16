@@ -171,7 +171,15 @@ def test_max_y_range():
                  dyz=np.array([[0, 10, 20, 30, 40]], dtype=float),
                  dxz=np.array([[0, 10, 20, 30, 40]], dtype=float),
                  dx2=np.array([[0, 10, 20, 30, 40]], dtype=float),
-                 dz2=np.array([[0, 10, 20, 30, 40]], dtype=float))]
+                 dz2=np.array([[0, 10, 20, 30, 40]], dtype=float),
+                 f_3=np.array([[0, 10, 20, 30, 40]], dtype=float),
+                 f_2=np.array([[0, 10, 20, 30, 40]], dtype=float),
+                 f_1=np.array([[0, 10, 20, 30, 40]], dtype=float),
+                 f0=np.array([[0, 10, 20, 30, 40]], dtype=float),
+                 f1=np.array([[0, 10, 20, 30, 40]], dtype=float),
+                 f2=np.array([[0, 10, 20, 30, 40]], dtype=float),
+                 f3=np.array([[0, 10, 20, 30, 40]], dtype=float),
+                 )]
 
     dos_data = DosData(energies=list(range(-2, 3)),
                        total=np.array([[0, 1, 2, 3, 4]]),
@@ -182,15 +190,18 @@ def test_max_y_range():
         grouped_atom_indices={"H": [0]},
         xlim=[-1.1, 1.1])
 
-    assert dos_plot_data.ylim_set == [[0, 3.3], [0, 165.0]]
+    assert dos_plot_data.ylim_set == [[0, 3.3], [0, 231.0]]
 
 
 def test_dos_by_spin_energy():
     dos = DosBySpinEnergy(name="test",
-                          dos=[[-3, -2, -1, 0], [ 1,  2,  3, 4]])
+                          dos=[[-3, -2, -1, 0], [1,  2,  3, 4]])
     mask = [True, False, False, True]
     assert dos.max_dos(mask) == 3.0
 
+
+def test_dos_plot_data_max_doses():
+    pass
 
 # test of MSONable exists in test_plot_dos.py.
 
