@@ -44,7 +44,8 @@ def test_constructor_kpt_shift_dos(sc_structure):
 
 
 def test_constructor_symmetrizer(sc_structure, mocker):
-    mock = mocker.patch("vise.input_set.structure_kpoints_generator.StructureSymmetrizer")
+    mock = mocker.patch(
+        "vise.input_set.structure_kpoints_generator.StructureSymmetrizer")
     StructureKpointsGenerator(sc_structure,
                               task=Task.dos,
                               symprec=10.0,
@@ -59,8 +60,7 @@ def test_constructor_symmetrizer(sc_structure, mocker):
 
 
 def test_mc_structure_primitive(mc_structure):
-    generator = StructureKpointsGenerator(mc_structure,
-                                          task=Task.structure_opt)
+    generator = StructureKpointsGenerator(mc_structure, task=Task.structure_opt)
     generator.generate_input()
     actual = generator.structure.lattice.matrix
     expected = [[ 6.,-3., 0.],
@@ -166,7 +166,9 @@ def test_band_path(sc_structure):
 
 
 def test_oi_ti_bravais():
-    structure = Structure(Lattice.orthorhombic(20, 8, 6), species=["H"]*2, coords=[[0.0]*3, [0.5]*3])
+    structure = Structure(Lattice.orthorhombic(20, 8, 6),
+                          species=["H"]*2,
+                          coords=[[0.0]*3, [0.5]*3])
     generator = StructureKpointsGenerator(structure,
                                           task=Task.structure_opt,
                                           kpt_density=5)
@@ -199,10 +201,17 @@ def test_hexagonal():
 
 
 def test_conventional_input(tmpdir):
-    structure = Structure(Lattice.cubic(3.183372), species=["H"] * 2, coords=[[0] * 3, [0.5] * 3])
+    structure = Structure(Lattice.cubic(3.183372), species=["H"] * 2,
+                          coords=[[0] * 3, [0.5] * 3])
     generator = StructureKpointsGenerator(initial_structure=structure,
                                           task=Task.structure_opt,
                                           kpt_density=2.5,
                                           num_kpt_factor=2)
     generator.generate_input()
+
+    expected = Structure([[-1.591686, 1.591686, 1.591686],
+                          [1.591686, -1.591686, 1.591686],
+                          [1.591686, 1.591686, -1.591686]],
+                         species=["H"], coords=[[0]*3])
+    assert generator.structure == expected
     assert generator.num_kpts == 104

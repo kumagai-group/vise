@@ -7,7 +7,6 @@ from typing import Optional, List
 import numpy as np
 from pymatgen import Structure
 from pymatgen.io.vasp.sets import Kpoints
-
 from vise.defaults import defaults
 from vise.input_set.kpoints_mode import KpointsMode
 from vise.input_set.task import Task
@@ -27,7 +26,7 @@ class StructureKpointsGenerator:
             kpt_density: Optional[float] = None,  # in Å
             gamma_centered: Optional[bool] = None,  # Vasp definition
             only_even_num_kpts: bool = False,  # If ceil kpt numbers to be even.
-            num_kpt_factor: Optional[int] = None,  # NKRED, too
+            num_kpt_factor: Optional[int] = None,  # Set NKRED to this as well.
             band_ref_dist: float = defaults.band_mesh_distance,
             symprec: float = defaults.symmetry_length_tolerance,
             angle_tolerance: float = defaults.symmetry_angle_tolerance,
@@ -51,7 +50,7 @@ class StructureKpointsGenerator:
 
     def _adjust_only_even_num_kpts(self, option):
         task_requisite = self._task.requisite_only_even_num_kpts
-        if task_requisite in (True, False):
+        if isinstance(task_requisite, bool):
             result = task_requisite
         else:
             result = option
@@ -89,11 +88,11 @@ class StructureKpointsGenerator:
             a_kpt_num = self._kpt_density * reciprocal_lattice_length
 
             if self._only_even_num_kpts:
-                rounded_up = ceil(a_kpt_num / 2) * 2
+                rounded_up_kpt_num = ceil(a_kpt_num / 2) * 2
             else:
-                rounded_up = ceil(a_kpt_num)
+                rounded_up_kpt_num = ceil(a_kpt_num)
 
-            kpt_list.append(rounded_up * self._num_kpt_factor)
+            kpt_list.append(rounded_up_kpt_num * self._num_kpt_factor)
         self._num_kpt_list = kpt_list
 
     @property
@@ -132,6 +131,7 @@ class StructureKpointsGenerator:
     def _set_kpoints(self):
         # symmetrizer must be recreated since the fractional coordinates are
         # different in different lattices.
+        # Symmetrized structure doesn't need the symprec and angle_tolerance
         symmetrizer = StructureSymmetrizer(self._structure)
         irreducible_kpoints = symmetrizer.irreducible_kpoints(
             self._num_kpt_list, self._kpt_shift)
