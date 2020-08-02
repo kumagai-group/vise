@@ -112,24 +112,3 @@ def list2dict(flattened_list: Optional[list], key_candidates: Iterable) -> dict:
             insert()
 
     return d
-
-
-# def get_default_args(function: Callable) -> dict:
-#     """Get the default values of the arguments in the method/function.
-
-    # inspect._empty means no default.
-
-    # Args:
-    #     function (Callable):
-    #         Method or function. when class is inserted, cls.__init__ is called.
-
-    # Returns:
-    #     Dict of default values.
-    # """
-    # defaults = {}
-    # signature_obj = signature(function)
-    # for name, param in signature_obj.parameters.items():
-    #     if param.default != _empty:
-    #         defaults[name] = param.default
-
-    # return defaults
