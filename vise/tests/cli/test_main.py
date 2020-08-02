@@ -25,7 +25,7 @@ def test_get_poscars_wo_options():
 
 
 def test_get_poscars_w_options():
-    parsed_args = parse_args(["gp",
+    parsed_args = parse_args(["get_poscar",
                               "-p", "a",
                               "-m", "123",
                               "-pi", "b.yaml"])
