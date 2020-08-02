@@ -12,7 +12,7 @@ def get_logger(name: str,
                log_format: str =
                "%(asctime)18s %(levelname)7s %(name)25s\n --> %(message)s",
                log_filename: str = None,
-               file_handler_level: logging.Handler = logging.WARNING):
+               file_handler_level: str = "WARNING"):
 
     logger = logging.getLogger(name)
     logger.setLevel(level)

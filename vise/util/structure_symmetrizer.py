@@ -193,7 +193,6 @@ class StructureSymmetrizer:
     def grouped_atom_indices(self):
         result = {}
         wyckoffs = self.spglib_sym_data["wyckoffs"]
-        site_symmetries = self.spglib_sym_data["site_symmetry_symbols"]
         equivalent_atom_set = \
             enumerate(self.spglib_sym_data["equivalent_atoms"].tolist())
         elem_wyckoff_idx = defaultdict(int)
