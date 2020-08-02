@@ -10,12 +10,11 @@ from monty.json import MSONable
 from monty.serialization import loadfn
 from pymatgen import Structure
 from pymatgen.io.vasp import Vasprun, Outcar, Potcar
-
 from vise.analyzer.vasp.band_edge_properties import VaspBandEdgeProperties
 from vise.defaults import defaults
 
 
-@dataclass()
+@dataclass
 class PriorInfo(MSONable):
     structure: Structure = None
     energy_per_atom: float = None
@@ -86,9 +85,9 @@ def prior_info_from_calc_dir(prev_dir_path: Path,
     outcar = Outcar(str(prev_dir_path / outcar))
     potcar = Potcar.from_file(str(prev_dir_path / potcar))
 
-    charge = get_defect_charge_from_vasp(vasprun.final_structure,
-                                         vasprun.parameters["NELECT"],
-                                         potcar)
+    charge = get_net_charge_from_vasp(vasprun.final_structure,
+                                      vasprun.parameters["NELECT"],
+                                      potcar)
     structure = vasprun.final_structure.copy()
     energy_per_atom = vasprun.final_energy / len(structure)
     band_edge_property = VaspBandEdgeProperties(vasprun, outcar)
@@ -102,7 +101,9 @@ def prior_info_from_calc_dir(prev_dir_path: Path,
                      total_magnetization=total_magnetization)
 
 
-def get_defect_charge_from_vasp(structure: Structure, nelect: int, potcar: Potcar):
+def get_net_charge_from_vasp(structure: Structure,
+                             nelect: int,
+                             potcar: Potcar):
     """
     Returns the defect charge by comparing nion, number of electrons in POTCAR,
     and NELECT in INCAR.

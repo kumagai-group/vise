@@ -4,8 +4,8 @@
 import tempfile
 
 import pytest
-
 from vise.input_set.prior_info import PriorInfo, prior_info_from_calc_dir
+from vise.tests.conftest import assert_msonable
 
 
 @pytest.fixture
@@ -23,9 +23,7 @@ def nonmagnetic_insulator():
 
 
 def test_round_trip_dict(nonmagnetic_insulator):
-    d = nonmagnetic_insulator.as_dict()
-    prior_info_from_dict = PriorInfo.from_dict(d)
-    assert prior_info_from_dict.as_dict() == d
+    assert_msonable(nonmagnetic_insulator)
 
 
 def test_round_trip_yaml(nonmagnetic_insulator):
@@ -69,7 +67,5 @@ def test_get_structure_from_prev_dir_actual_files(test_data_files):
     assert prior_info.vbm_cbm == [4.6666, 5.1368]
     assert prior_info.total_magnetization == 5.0000019
     assert prior_info.charge == 1
-
-
 
 
