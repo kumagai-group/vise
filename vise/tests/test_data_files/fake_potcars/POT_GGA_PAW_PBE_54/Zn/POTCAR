@@ -1,0 +1,11 @@
+  PAW_PBE Zn 06Sep2000                   
+   12.0000000000000     
+ parameters from PSCTR are:
+   VRHFIN =Zn: d10 p2
+   LEXCH  = PE
+   TITEL  = PAW_PBE Zn 06Sep2000
+   POMASS =   65.390; ZVAL   =   12.000    mass and valenz
+   ENMAX  =  276.723; ENMIN  =  207.542 eV
+
+   END of PSCTR-controll parameters
+ End of Dataset
