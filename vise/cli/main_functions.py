@@ -9,7 +9,6 @@ import yaml
 from pymatgen import Structure
 from pymatgen.ext.matproj import MPRester
 from pymatgen.io.vasp import Vasprun, Outcar
-
 from vise.analyzer.plot_band import BandPlotter
 from vise.analyzer.plot_dos import DosPlotter
 from vise.analyzer.vasp.band_edge_properties import VaspBandEdgeProperties
@@ -17,14 +16,14 @@ from vise.analyzer.vasp.dos_data import DosDataFromVasp
 from vise.analyzer.vasp.plot_band import BandPlotInfoFromVasp
 from vise.cli.main_tools import potcar_str2dict, list2dict
 from vise.defaults import defaults
+from vise.input_set.datasets.dataset_util import all_incar_flags
 from vise.input_set.input_options import CategorizedInputOptions, \
     assignable_option_set
 from vise.input_set.kpoints_mode import KpointsMode
 from vise.input_set.prior_info import prior_info_from_calc_dir, PriorInfo
+from vise.input_set.task import Task
 from vise.input_set.vasp_input_files import VaspInputFiles
 from vise.util.file_transfer import FileTransfers
-from vise.input_set.datasets.dataset_util import all_incar_flags
-from vise.input_set.task import Task
 
 
 def get_poscar_from_mp(args: Namespace) -> None:
@@ -114,8 +113,9 @@ class VaspSet:
 
 
 def plot_band(args: Namespace):
-    plot_info = BandPlotInfoFromVasp(vasprun=Vasprun(args.vasprun),
-                                     kpoints_filename=args.kpoints_filename).make_band_plot_info()
+    band_plot_info_from_vasp = BandPlotInfoFromVasp(
+        vasprun=Vasprun(args.vasprun), kpoints_filename=args.kpoints_filename)
+    plot_info = band_plot_info_from_vasp.make_band_plot_info()
     plotter = BandPlotter(plot_info, y_range=args.y_range)
     plotter.construct_plot()
     plotter.plt.savefig(args.filename, format="pdf")
@@ -136,10 +136,9 @@ def plot_dos(args: Namespace):
     else:
         base = args.base_energy
 
-    dos_data = DosDataFromVasp(vasprun,
-                               vertical_lines,
-                               base,
-                               args.crop_first_value).make_dos_data()
+    dos_data_from_vasp = DosDataFromVasp(vasprun, vertical_lines, base,
+                                         args.crop_first_value)
+    dos_data = dos_data_from_vasp.make_dos_data()
 
     ylim_set = None
     if args.y_max_ranges:
@@ -161,5 +160,4 @@ def plot_dos(args: Namespace):
 def band_edge_properties(args: Namespace):
     vasprun = Vasprun(args.vasprun)
     outcar = Outcar(args.outcar)
-    band_edge = VaspBandEdgeProperties(vasprun, outcar)
-    print(band_edge)
+    print(VaspBandEdgeProperties(vasprun, outcar))

@@ -7,7 +7,6 @@ from pathlib import Path
 
 import pytest
 from pymatgen import Structure
-
 from vise.analyzer.atom_grouping_type import AtomGroupingType
 from vise.cli.main_functions import get_poscar_from_mp, VaspSet, plot_band, \
     plot_dos, band_edge_properties
@@ -32,13 +31,15 @@ def test_get_poscar_from_mp(tmpdir):
 direct
 0.000000 0.000000 0.000000 Mg
 """
-    assert Structure.from_file("POSCAR") == Structure.from_str(expected, fmt="POSCAR")
+    assert Structure.from_file("POSCAR") == Structure.from_str(expected,
+                                                               fmt="POSCAR")
     assert Path("prior_info.yaml").read_text() == """band_gap: 0.0
 data_source: mp-110
 total_magnetization: 0.0001585
 """
     # Need to remove file to avoid the side effect for other unittests.
     os.remove("prior_info.yaml")
+
 
 default_option_args = {"poscar": "POSCAR",
                        "task": Task.structure_opt,
@@ -95,7 +96,8 @@ def test_user_incar_settings(mocker,
     args.update(modified_settings)
 
     structure = mocker.patch("vise.cli.main_functions.Structure")
-    prior_info_mock = mocker.patch("vise.cli.main_functions.prior_info_from_calc_dir")
+    prior_info_mock = mocker.patch(
+        "vise.cli.main_functions.prior_info_from_calc_dir")
     options = mocker.patch("vise.cli.main_functions.CategorizedInputOptions")
     vif = mocker.patch("vise.cli.main_functions.VaspInputFiles")
 
@@ -120,7 +122,7 @@ def test_user_incar_settings(mocker,
 
 
 def test_plot_band(tmpdir, test_data_files):
-    tmpdir.chdir()  # comment out when one wants to see the figure
+    tmpdir.chdir()
     args = Namespace(vasprun=test_data_files / "KO2_band_vasprun.xml",
                      kpoints_filename=str(test_data_files / "KO2_band_KPOINTS"),
                      y_range=[-10, 10],
@@ -148,9 +150,3 @@ def test_band_edge_info(test_data_files):
     args = Namespace(vasprun=test_data_files / "MnO_uniform_vasprun.xml",
                      outcar=test_data_files / "MnO_uniform_OUTCAR")
     band_edge_properties(args)
-
-
-"""
-TODO:
-- Orbital decomposed dos
-"""
