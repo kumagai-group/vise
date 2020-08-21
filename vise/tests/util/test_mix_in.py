@@ -4,8 +4,7 @@ from dataclasses import dataclass
 
 from monty.json import MSONable
 from monty.serialization import loadfn
-
-from pydefect.util.mix_in import ToJsonFileMixIn
+from vise.util.mix_in import ToJsonFileMixIn
 
 
 @dataclass
@@ -20,9 +19,3 @@ def test_to_json_file_mix_in(tmpdir):
     actual = loadfn("test_test.json")
     assert actual == TestTest()
 
-"""
-TODO
--
-
-DONE
-"""
