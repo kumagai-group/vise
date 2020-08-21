@@ -138,7 +138,7 @@ class BandPlotter:
 
     def __init__(self,
                  band_plot_info: BandPlotInfo,
-                 y_range: List[float],
+                 energy_range: List[float],
                  base_energy: float = None,
                  mpl_defaults: Optional[BandMplSettings] = BandMplSettings()
                  ):
@@ -147,7 +147,7 @@ class BandPlotter:
         self.distances_by_branch = band_plot_info.distances_by_branch
         self.x_ticks = band_plot_info.x_ticks
 
-        self.y_range = y_range
+        self.energy_range = energy_range
         self.title = band_plot_info.title
         self.mpl_defaults = mpl_defaults
         self.plt = plt
@@ -221,7 +221,7 @@ class BandPlotter:
         self.plt.xlim(self.x_ticks.distances[0], self.x_ticks.distances[-1])
 
     def _set_y_range(self):
-        self.plt.ylim(self.y_range[0], self.y_range[1])
+        self.plt.ylim(self.energy_range[0], self.energy_range[1])
 
     def _set_labels(self):
         self.plt.xlabel("Wave vector", size=self.mpl_defaults.label_font_size)

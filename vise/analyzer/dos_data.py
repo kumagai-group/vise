@@ -133,9 +133,8 @@ class DosPlotData(MSONable):
     relative_energies: List[float]
     doses: List[List[DosBySpinEnergy]]  # [by ax][by orbital]
     names: List[str]
-    xlim: List[float]
-    ylim_set: List[List[float]]
-    vertical_lines: List[float]
-
+    energy_range: List[float]
+    dos_ranges: List[List[float]]
+    energy_lines: List[float]
 
 

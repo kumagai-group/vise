@@ -116,7 +116,7 @@ def plot_band(args: Namespace):
     band_plot_info_from_vasp = BandPlotInfoFromVasp(
         vasprun=Vasprun(args.vasprun), kpoints_filename=args.kpoints_filename)
     plot_info = band_plot_info_from_vasp.make_band_plot_info()
-    plotter = BandPlotter(plot_info, y_range=args.y_range)
+    plotter = BandPlotter(plot_info, energy_range=args.y_range)
     plotter.construct_plot()
     plotter.plt.savefig(args.filename, format="pdf")
 

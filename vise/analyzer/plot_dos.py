@@ -53,7 +53,7 @@ class DosPlotter:
             self._axs = [self._axs]
 
     def construct_plot(self):
-        self._axs[0].set_xlim(self._dos_plot_data.xlim)
+        self._axs[0].set_xlim(self._dos_plot_data.energy_range)
         self._axs[0].xaxis.set_major_formatter(float_to_int_formatter)
         for i in range(len(self._dos_plot_data.doses)):
             self._add_ax(i)
@@ -91,10 +91,10 @@ class DosPlotter:
         self._axs[i].axhline(0, linestyle=":", color="black")
 
     def _set_y_range(self, i):
-        self._axs[i].set_ylim(self._dos_plot_data.ylim_set[i])
+        self._axs[i].set_ylim(self._dos_plot_data.dos_ranges[i])
 
     def _set_vline(self, i):
-        for line_energy in self._dos_plot_data.vertical_lines:
+        for line_energy in self._dos_plot_data.energy_lines:
             self._axs[i].axvline(x=line_energy, **self.mpl_defaults.vline)
 
     def _set_formatter(self, i):

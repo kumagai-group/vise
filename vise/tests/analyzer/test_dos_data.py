@@ -113,14 +113,14 @@ def test_dos_data_energies(dos_data_list):
 
 def test_dos_data_lim(dos_data_list):
     _, _, dos_plot_data_wo_lim = dos_data_list
-    assert dos_plot_data_wo_lim.xlim == [-10, 10]
-    assert dos_plot_data_wo_lim.ylim_set == [[-5.5, 5.5], [-154.0, 154.0], [-154.0, 154.0]]
+    assert dos_plot_data_wo_lim.energy_range == [-10, 10]
+    assert dos_plot_data_wo_lim.dos_ranges == [[-5.5, 5.5], [-154.0, 154.0], [-154.0, 154.0]]
 
 
 def test_dos_data_manual_lim(dos_data_list):
     _, dos_plot_data_w_lim, _ = dos_data_list
-    assert dos_plot_data_w_lim.xlim == [-100, 100]
-    assert dos_plot_data_w_lim.ylim_set == [[-20, 20], [-30, 30], [-40, 40]]
+    assert dos_plot_data_w_lim.energy_range == [-100, 100]
+    assert dos_plot_data_w_lim.dos_ranges == [[-20, 20], [-30, 30], [-40, 40]]
 
 
 def test_dos_data_total_dos(dos_data_list):
@@ -131,7 +131,7 @@ def test_dos_data_total_dos(dos_data_list):
 
 def test_dos_data_vertical_lines(dos_data_list):
     _, dos_plot_data_w_lim, _ = dos_data_list
-    assert dos_plot_data_w_lim.vertical_lines == [-0.5, 0.5]
+    assert dos_plot_data_w_lim.energy_lines == [-0.5, 0.5]
 
 
 def test_dos_data_pdos_single(pdos_list, dos_data_list):
@@ -190,7 +190,7 @@ def test_max_y_range():
         grouped_atom_indices={"H": [0]},
         xlim=[-1.1, 1.1])
 
-    assert dos_plot_data.ylim_set == [[0, 3.3], [0, 231.0]]
+    assert dos_plot_data.dos_ranges == [[0, 3.3], [0, 231.0]]
 
 
 def test_dos_by_spin_energy():
