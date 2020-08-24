@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
-from typing import List, Tuple
+from dataclasses import dataclass
+from typing import List, Tuple, Dict
 
 import numpy as np
 import seekpath
 import spglib
+from monty.json import MSONable
+from more_itertools import consecutive_groups
 from numpy.linalg import inv
 from pymatgen import Structure, Element
 from collections import defaultdict
@@ -215,6 +218,46 @@ class StructureSymmetrizer:
     @property
     def centering(self):
         return self.spglib_sym_data["international"][0]
+
+
+@dataclass(frozen=True)
+class Site(MSONable):
+    element: str
+    wyckoff_letter: str
+    site_symmetry: str
+    equivalent_atoms: List[int]
+
+    @property
+    def pprint_equiv_atoms(self):
+        str_list = []
+        for consecutive_ints in consecutive_groups(self.equivalent_atoms):
+            ints = list(consecutive_ints)
+            if len(ints) >= 3:
+                str_list.append("..".join([str(ints[0]), str(ints[-1])]))
+            else:
+                str_list.append(" ".join([str(j) for j in ints]))
+        return " ".join(str_list)
+
+
+def create_sites(symmetrizer: StructureSymmetrizer) -> Dict[str, Site]:
+    wyckoffs = symmetrizer.spglib_sym_data["wyckoffs"]
+    equivalent_atoms = symmetrizer.spglib_sym_data["equivalent_atoms"]
+    site_symmetries = symmetrizer.spglib_sym_data["site_symmetry_symbols"]
+    equiv_indices = sorted(enumerate(equivalent_atoms), key=lambda x: x[1])
+    sites = {}
+    element_idx_dict = defaultdict(int)
+    for _, equiv_sites in groupby(equiv_indices, lambda x: x[1]):
+        equiv_site_list = list(equiv_sites)
+        repr_idx = equiv_site_list[0][0]
+        element = symmetrizer.structure[repr_idx].specie.name
+        element_idx_dict[element] += 1
+        index = str(element_idx_dict[str(element)])
+        name = element + index
+        sites[name] = Site(element=element,
+                           wyckoff_letter=wyckoffs[repr_idx],
+                           site_symmetry=site_symmetries[repr_idx],
+                           equivalent_atoms=[s[0] for s in equiv_site_list])
+    return sites
 
 
 class ViseSymmetryError(ViseError):

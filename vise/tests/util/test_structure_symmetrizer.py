@@ -6,9 +6,10 @@ import pytest
 from pymatgen import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen import Element
+from vise.tests.conftest import assert_msonable
 
 from vise.util.structure_symmetrizer import (
-    cell_to_structure, StructureSymmetrizer)
+    cell_to_structure, StructureSymmetrizer, Site)
 from vise.util.bravais_lattice import BravaisLattice
 
 
@@ -184,6 +185,25 @@ direct
 
     ss = StructureSymmetrizer(input_structure)
     assert ss.primitive == input_structure
+
+
+@pytest.fixture
+def site():
+    return Site(element="H",
+                wyckoff_letter="a",
+                site_symmetry="m3m",
+                equivalent_atoms=[0, 1, 2, 3, 5, 6])
+
+
+def test_site_msonable(site):
+    assert_msonable(site)
+
+
+def test_site_pprint_equiv_atoms(site):
+    assert site.pprint_equiv_atoms == "0..3 5 6"
+
+
+
 
 
 """
