@@ -116,6 +116,7 @@ def plot_band(args: Namespace):
     band_plot_info_from_vasp = BandPlotInfoFromVasp(
         vasprun=Vasprun(args.vasprun), kpoints_filename=args.kpoints_filename)
     plot_info = band_plot_info_from_vasp.make_band_plot_info()
+    plot_info.to_json_file()
     plotter = BandPlotter(plot_info, energy_range=args.y_range)
     plotter.construct_plot()
     plotter.plt.savefig(args.filename, format="pdf")
@@ -152,6 +153,7 @@ def plot_dos(args: Namespace):
     plot_data = dos_data.dos_plot_data(grouped_atom_indices,
                                        xlim=args.x_range,
                                        ylim_set=ylim_set)
+    plot_data.to_json_file()
     plotter = DosPlotter(plot_data, args.legend)
     plotter.construct_plot()
     plotter.plt.savefig(args.filename, format="pdf")
