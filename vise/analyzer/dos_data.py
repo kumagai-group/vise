@@ -7,6 +7,7 @@ from typing import Dict, Optional, List
 
 import numpy as np
 from monty.json import MSONable
+from vise.util.mix_in import ToJsonFileMixIn
 
 
 @dataclass
@@ -129,7 +130,7 @@ class DosBySpinEnergy(MSONable):
 
 
 @dataclass
-class DosPlotData(MSONable):
+class DosPlotData(MSONable, ToJsonFileMixIn):
     relative_energies: List[float]
     doses: List[List[DosBySpinEnergy]]  # [by ax][by orbital]
     names: List[str]
@@ -137,4 +138,16 @@ class DosPlotData(MSONable):
     dos_ranges: List[List[float]]
     energy_lines: List[float]
 
+    @classmethod
+    def from_dict(cls, d):
+        if "xlim" in d:
+            d["energy_range"] = d.pop("xlim")
+        if "ylim_set" in d:
+            d["dos_ranges"] = d.pop("ylim_set")
+        if "vertical_lines" in d:
+            d["energy_lines"] = d.pop("vertical_lines")
+        for i, x in enumerate(d["doses"]):
+            for j, y in enumerate(x):
+                d["doses"][i][j] = DosBySpinEnergy.from_dict(y)
 
+        return cls(**d)

@@ -13,6 +13,7 @@ from num2words import num2words
 
 from vise.error import ViseError
 from vise.util.matplotlib import float_to_int_formatter
+from vise.util.mix_in import ToJsonFileMixIn
 
 
 @dataclass(frozen=True)
@@ -117,7 +118,7 @@ class BandMplSettings:
 
 
 @dataclass
-class BandPlotInfo(MSONable):
+class BandPlotInfo(MSONable, ToJsonFileMixIn):
     band_info_set: List[BandInfo]
     distances_by_branch: List[List[float]]
     x_ticks: XTicks
