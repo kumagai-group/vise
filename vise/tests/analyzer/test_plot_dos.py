@@ -43,7 +43,7 @@ dos_plot_data = DosPlotData(relative_energies=relative_energies,
                             names=["total", "H"],
                             energy_range=xlim,
                             dos_ranges=ylim_set,
-                            vertical_lines=[0.0, 1.0])
+                            energy_lines=[0.0, 1.0])
 dos_data_len = len(dos_plot_data.doses)
 
 
@@ -125,7 +125,7 @@ def test_axs_is_list_when_single_dos_passed():
     single_dos = [[DosBySpinEnergy("", [total_up, total_down])]]
     dos_info = DosPlotData(relative_energies=relative_energies,
                            doses=single_dos, names=["total"], energy_range=xlim,
-                           dos_ranges=ylim_set, vertical_lines=[0.0, 1.0])
+                           dos_ranges=ylim_set, energy_lines=[0.0, 1.0])
     plotter = DosPlotter(dos_plot_data=dos_info)
     assert isinstance(plotter._axs, list)
     assert len(plotter._axs) == 1
