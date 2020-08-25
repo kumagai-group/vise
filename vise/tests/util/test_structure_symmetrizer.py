@@ -124,7 +124,16 @@ def test_structure_symmetrizer_sc_irreducible_kpoints():
 def test_grouped_atom_indices(complex_monoclinic_structure):
     symmetrizer = StructureSymmetrizer(complex_monoclinic_structure)
     actual = symmetrizer.grouped_atom_indices()
-    assert actual == {'H_a1': [0], 'He_m1': [1, 2], 'He_m2': [3, 4]}
+    assert actual == {'H1_a': [0], 'He1_m': [1, 2], 'He2_m': [3, 4]}
+
+
+def test_sites(complex_monoclinic_structure):
+    symmetrizer = StructureSymmetrizer(complex_monoclinic_structure)
+    actual = symmetrizer.sites
+    expected = {"H1": Site("H", "a", "2/m", [0]),
+                "He1": Site("He", "m", "m", [1, 2]),
+                "He2": Site("He", "m", "m", [3, 4])}
+    assert actual == expected
 
 
 def test_bravais_lattice():
