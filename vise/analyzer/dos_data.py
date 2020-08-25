@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
-
+from copy import copy
 from dataclasses import dataclass
 from functools import reduce
 from typing import Dict, Optional, List
@@ -140,6 +140,10 @@ class DosPlotData(MSONable, ToJsonFileMixIn):
 
     @classmethod
     def from_dict(cls, d):
+        for k in copy(d):
+            if k[0] == "@":
+                d.pop(k)
+
         if "xlim" in d:
             d["energy_range"] = d.pop("xlim")
         if "ylim_set" in d:
