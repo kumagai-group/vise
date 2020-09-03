@@ -9,7 +9,7 @@ from pymatgen import Element
 from vise.tests.conftest import assert_msonable
 
 from vise.util.structure_symmetrizer import (
-    cell_to_structure, StructureSymmetrizer, Site)
+    cell_to_structure, StructureSymmetrizer, Site, num_symmetry_operation)
 from vise.util.bravais_lattice import BravaisLattice
 
 
@@ -212,6 +212,9 @@ def test_site_pprint_equiv_atoms(site):
     assert site.pprint_equiv_atoms == "0..3 5 6"
 
 
+def test_num_symmetry_operation():
+    assert num_symmetry_operation("m-3m") == 48
+    assert num_symmetry_operation(".m.") == 2
 
 
 
