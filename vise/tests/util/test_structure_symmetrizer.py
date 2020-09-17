@@ -136,6 +136,37 @@ def test_sites(complex_monoclinic_structure):
     assert actual == expected
 
 
+def test_sites_for_bio2(complex_monoclinic_structure):
+    bio2_structure = Structure.from_str("""Bi4 O8
+    1.0
+    4.880207 0.000000 -2.019673
+             -0.667412 5.402283 -1.612690
+                       -0.040184 -0.016599 6.808846
+    Bi O
+    4 8
+    direct
+    0.729106 0.250000 1.000000 Bi
+    0.270894 0.750000 0.000000 Bi
+    0.000000 0.000000 0.500000 Bi
+    0.500000 0.500000 0.500000 Bi
+    0.321325 0.021684 0.814642 O
+    0.114894 0.650123 0.351314 O
+    0.885106 0.349877 0.648686 O
+    0.763580 0.849877 0.648686 O
+    0.236420 0.150123 0.351314 O
+    0.493318 0.521684 0.814642 O
+    0.506682 0.478316 0.185358 O
+    0.678675 0.978316 0.185358 O""", fmt="POSCAR")
+    symmetrizer = StructureSymmetrizer(bio2_structure)
+    actual = symmetrizer.sites
+    expected = \
+        {'Bi1': Site(element='Bi', wyckoff_letter='e', site_symmetry='2', equivalent_atoms=[0, 1]),
+         'Bi2': Site(element='Bi', wyckoff_letter='c', site_symmetry='-1', equivalent_atoms=[2, 3]),
+         'O1': Site(element='O', wyckoff_letter='f', site_symmetry='1', equivalent_atoms=[4, 9, 10, 11]),
+         'O2': Site(element='O', wyckoff_letter='f', site_symmetry='1', equivalent_atoms=[5, 6, 7, 8])}
+    assert actual == expected
+
+
 def test_bravais_lattice():
     lattice =[[10.0,  0.0,  0.0],
               [ 0.0, 10.0,  0.0],
