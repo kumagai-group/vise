@@ -72,6 +72,7 @@ class StructureSymmetrizer:
         self._spglib_sym_data = None
         self._conventional = None
         self._primitive = None
+        self._second_primitive = None
         self._seekpath_data = None
         self._band_primitive = None
         self._irreducible_kpoints = None
@@ -116,12 +117,27 @@ class StructureSymmetrizer:
                     "Change the symprec and/or angle_tolerance.")
             else:
                 # To manage spglib cyclic behavior, we need to run this again.
-                second_primitive = spglib.find_primitive(
+                second_primitive = cell_to_structure(spglib.find_primitive(
                     primitive, symprec=self.symprec,
-                    angle_tolerance=self.angle_tolerance)
-                self._primitive = \
-                    cell_to_structure(second_primitive).get_sorted_structure()
+                    angle_tolerance=self.angle_tolerance)).get_sorted_structure()
+                primitive = cell_to_structure(primitive)
+
+                if primitive != second_primitive:
+                    if sum_frac_coords(primitive) < sum_frac_coords(second_primitive):
+                        self._primitive = primitive
+                        self._second_primitive = second_primitive
+
+                    else:
+                        self._primitive = second_primitive
+                        self._second_primitive = primitive
+                else:
+                    self._primitive = primitive
+
         return self._primitive
+
+    @property
+    def second_primitive(self) -> Structure:
+        return self._second_primitive
 
     def find_seekpath_data(self) -> None:
         """Get full information of seekpath band path. """
@@ -229,6 +245,13 @@ class StructureSymmetrizer:
     @property
     def centering(self):
         return self.spglib_sym_data["international"][0]
+
+
+def sum_frac_coords(structure: Structure):
+    each_sum = []
+    for site in structure:
+        each_sum.append(sum(site.coords))
+    return sum(each_sum)
 
 
 @dataclass(frozen=True)
