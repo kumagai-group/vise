@@ -26,12 +26,3 @@ def test_group_by_non_equiv_sites(complex_monoclinic_structure):
     group = class_type.grouped_atom_indices(structure=complex_monoclinic_structure,
                                             target=target)
     assert group == {"H1_a": [0], "He1_m": [1, 2], "He2_m": [3, 4]}
-
-
-"""
-TODO
-- Return grouped atom indices from ["1,2,3", "4,5,6"] to {"1,2,3": [1,2,3}, "4,5,6": [4, 5, 6]}
-
-
-
-"""
