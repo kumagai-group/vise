@@ -14,7 +14,7 @@ from vise.defaults import defaults
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc
 from vise.util.logger import get_logger
-from vise.util.tools import str2bool
+from vise.util.str_related_tools import str2bool
 
 logger = get_logger(__name__)
 
