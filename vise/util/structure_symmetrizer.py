@@ -25,10 +25,12 @@ logger = get_logger(__name__)
 def cell_to_structure(
         cell: Tuple[List[List[float]], List[List[float]], List[int]]
 ) -> Structure:
-    # cell: (Lattice parameters
-    #        [[a_x, a_y, a_z], [b_x, b_y, b_z], [c_x, c_y, c_z]],
-    #       Fractional atomic coordinates in an Nx3 array,
-    #       Z numbers of species in a length N array)
+    """
+    cell: (Lattice parameters
+           [[a_x, a_y, a_z], [b_x, b_y, b_z], [c_x, c_y, c_z]],
+          Fractional atomic coordinates in an Nx3 array,
+          Z numbers of species in a length N array)
+    """
     species = [Element.from_Z(i) for i in cell[2]]
     return Structure(lattice=cell[0], coords=cell[1], species=species)
 
@@ -237,7 +239,6 @@ class StructureSymmetrizer:
                                 equivalent_atoms=[s[0] for s in equiv_site_list])
         return result
 
-
     @property
     def bravais(self):
         return BravaisLattice.from_sg_num(self.spglib_sym_data["number"])
@@ -272,26 +273,6 @@ class Site(MSONable):
                 str_list.append(" ".join([str(j) for j in ints]))
         return " ".join(str_list)
 
-
-def create_sites(symmetrizer: StructureSymmetrizer) -> Dict[str, Site]:
-    wyckoffs = symmetrizer.spglib_sym_data["wyckoffs"]
-    equivalent_atoms = symmetrizer.spglib_sym_data["equivalent_atoms"]
-    site_symmetries = symmetrizer.spglib_sym_data["site_symmetry_symbols"]
-    equiv_indices = sorted(enumerate(equivalent_atoms), key=lambda x: x[1])
-    sites = {}
-    element_idx_dict = defaultdict(int)
-    for _, equiv_sites in groupby(equiv_indices, lambda x: x[1]):
-        equiv_site_list = list(equiv_sites)
-        repr_idx = equiv_site_list[0][0]
-        element = symmetrizer.structure[repr_idx].specie.name
-        element_idx_dict[element] += 1
-        index = str(element_idx_dict[str(element)])
-        name = element + index
-        sites[name] = Site(element=element,
-                           wyckoff_letter=wyckoffs[repr_idx],
-                           site_symmetry=site_symmetries[repr_idx],
-                           equivalent_atoms=[s[0] for s in equiv_site_list])
-    return sites
 
 
 def num_symmetry_operation(point_group: str) -> int:
