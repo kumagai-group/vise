@@ -10,7 +10,8 @@ logger = get_logger(__name__)
 parent_dir = Path(__file__).parent
 
 
-band_gap = {"GaAs": 1.41}
+band_gap = {"GaAs": 1.41,
+            "Si": 1.17}
 
 
 class ExpDieleFunc:

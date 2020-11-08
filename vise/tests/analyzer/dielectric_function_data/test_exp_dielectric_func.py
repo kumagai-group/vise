@@ -16,6 +16,11 @@ def test_gaas():
     np.testing.assert_almost_equal(diele_gaas.absorption_coeff[10], 2.58e+02)
 
 
+def test_others():
+    assert ExpDieleFunc("Si").band_gap == 1.17
+    assert ExpDieleFunc("Si").energies[21] == 0.85
+
+
 def test_file_not_found_error():
     with pytest.raises(FileNotFoundError):
         ExpDieleFunc("Au")
