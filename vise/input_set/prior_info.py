@@ -16,6 +16,7 @@ from vise.defaults import defaults
 
 @dataclass
 class PriorInfo(MSONable):
+    """Used to control the input parameters"""
     structure: Structure = None
     energy_per_atom: float = None
     band_gap: float = None

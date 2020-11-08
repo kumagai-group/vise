@@ -98,7 +98,7 @@ Version: {__version__}
         help="Additional User specifying POTCAR set. E.g., Mg_pv O_h")
     parser_vasp_set.add_argument(
         "-uis", "--user_incar_settings", type=str, nargs="+",
-        help="Addtional user_incar_settings in make_input classmethod of "
+        help="Additional user_incar_settings in make_input classmethod of "
              "ViseInputSet in vise. The default of this flag is set by the "
              "vise.yaml, so if one does not want to override the default, use "
              "additional_user_incar_setting instead. See also document in "
