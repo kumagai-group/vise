@@ -12,9 +12,8 @@ from vise.analyzer.effective_mass import EffectiveMass, eigvals_and_vecs, \
 @pytest.fixture
 def em():
     return \
-        EffectiveMass(p=np.array([[[[1.0, 0, 0], [0, 1.0, 0], [0, 0, 1.0]]]]),
-                      n=np.array([[[[2.0, 0, 0], [0, 2.0, 0], [0, 0, 2.0]]]]),
-                      temps=[300],
+        EffectiveMass(p=[[[1.0, 0, 0], [0, 1.0, 0], [0, 0, 1.0]]],
+                      n=[[[2.0, 0, 0], [0, 2.0, 0], [0, 0, 2.0]]],
                       concentrations=[10**18])
 
 
@@ -22,12 +21,12 @@ def test_effective_mass_json_file_mixin(em, tmpdir):
     tmpdir.chdir()
     em.to_json_file()
     actual = loadfn("effective_mass.json")
-    assert (actual.p[0, 0] == em.p[0, 0]).all()
+    assert actual.p == em.p
 
 
 def test_effective_mass(em):
     actual = em.effective_mass("p", 300, 10**18)
-    assert (actual == em.p[0 ,0]).all()
+    assert actual == em.p[0]
 
 
 def test_lowest_eigval_and_vec(em):

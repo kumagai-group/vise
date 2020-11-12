@@ -26,8 +26,8 @@ def coeff(freq, real, imag):
 @dataclass
 class DieleFuncData(MSONable, ToJsonFileMixIn):
     energies: List[float]  # in eV
-    diele_func_real: np.ndarray  # [xx, yy, zz, xy, yz, xz]
-    diele_func_imag: np.ndarray
+    diele_func_real: List[List[float]]  # [xx, yy, zz, xy, yz, xz]
+    diele_func_imag: List[List[float]]
     band_gap: float  # in eV
 
     def absorption_coeff(self, direction: str = None):

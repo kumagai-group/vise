@@ -11,15 +11,13 @@ from vise.util.mix_in import ToJsonFileMixIn
 
 @dataclass
 class EffectiveMass(MSONable, ToJsonFileMixIn):
-    p: np.ndarray  # [temperature][carrier concentration]
-    n: np.ndarray
-    temps: List[float]
+    p: List[List[List]]  # [temperature][carrier concentration]
+    n: List[List[List]]
     concentrations: List[float]
 
     def effective_mass(self, carrier_type, temp, concentration):
-        i_t = self.temps.index(temp)
         i_c = self.concentrations.index(concentration)
-        return self.__getattribute__(carrier_type)[i_t][i_c]
+        return self.__getattribute__(carrier_type)[i_c]
 
 
 def eigvals_and_vecs(matrix: np.ndarray):

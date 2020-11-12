@@ -25,7 +25,7 @@ def make_diele_func(vasprun: Vasprun,
         imag = imag_shift(imag, energies, band_gap, shift)
         real = kramers_kronig_trans(imag, energies)
 
-    return DieleFuncData(energies, real, imag, band_gap)
+    return DieleFuncData(energies, real.tolist(), imag.tolist(), band_gap)
 
 
 def imag_shift(diele_func_imag: np.ndarray,
