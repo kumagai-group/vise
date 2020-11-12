@@ -5,20 +5,18 @@ from math import sqrt, pi, log10
 from typing import List
 
 from monty.json import MSONable
-from plotly.subplots import make_subplots
 from vise.analyzer.dielectric_function_data.exp_dielectric_func import \
     ExpDieleFunc
 from vise.util.matplotlib import float_to_int_formatter
 from vise.util.mix_in import ToJsonFileMixIn
-import numpy as np
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
-
-
-eV_to_inv_cm = 8065.73
+from scipy.constants import physical_constants
 
 
 def coeff(freq, real, imag):
+    eV_to_inv_cm = \
+        physical_constants["electron volt-inverse meter relationship"][0] / 100
     return (2 * sqrt(2) * pi * sqrt(sqrt(real ** 2 + imag ** 2) - real)
             * freq * eV_to_inv_cm)
 
