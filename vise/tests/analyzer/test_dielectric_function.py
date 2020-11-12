@@ -4,13 +4,14 @@ import pytest
 from monty.serialization import loadfn
 from pymatgen.io.vasp import Vasprun, Outcar
 from vise.analyzer.dielectric_function import DieleFuncData, \
-    AbsorptionCoeffMplPlotter, AbsorptionCoeffPlotlyPlotter
+    AbsorptionCoeffMplPlotter, AbsorptionCoeffPlotlyPlotter, eV_to_inv_cm
 
 import numpy as np
 from math import pi, sqrt
 
 from vise.analyzer.vasp.make_diele_func import make_diele_func
 from vise.tests.conftest import test_data_files, assert_msonable
+from vise.util.dash_helper import show_png
 
 
 @pytest.fixture
@@ -35,9 +36,10 @@ def test_json_file_mixin(diele_func_data, tmpdir):
 
 
 def test_absorption_coeff(diele_func_data):
-    actual = diele_func_data.absorption_coeff()
-    expected = 2 * sqrt(2) * pi * sqrt(sqrt(2 ** 2 + 5 ** 2) - 2) * np.linspace(0.0, 10.0, num=11) * 8065.73
-    assert (actual == expected).all()
+    actual = diele_func_data.absorption_coeff(direction="y")
+    expected = [2 * sqrt(2) * pi * sqrt(sqrt(2 ** 2 + 5 ** 2) - 2)
+                * i * eV_to_inv_cm for i in range(0, 11)]
+    assert actual == expected
 
 
 @pytest.fixture
@@ -52,18 +54,26 @@ def test_target_coeff_e_from_band_gap(actual_diele_func_data):
     np.testing.assert_almost_equal(actual, 0.4014000000000002)
 
 
-def test_absorption_coeff_mpl_plotter(actual_diele_func_data):
-    plotter = AbsorptionCoeffMplPlotter(actual_diele_func_data,
-                                        materials=["GaAs"])
-#                                        align_gap=False)
-    plotter.construct_plot()
-    plotter.plt.show()
-
-
 def test_absorption_coeff_plotly_plotter(actual_diele_func_data):
     plotter = AbsorptionCoeffPlotlyPlotter(actual_diele_func_data,
                                            materials=["GaAs"])
     #                                        align_gap=False)
     fig = plotter.create_figure()
-    fig.show()
+    show_png(fig)
 
+
+def test_absorption_coeff_plotly_plotter_wo_alignment(actual_diele_func_data):
+    plotter = AbsorptionCoeffPlotlyPlotter(actual_diele_func_data,
+                                           materials=["GaAs"],
+                                           align_gap=False)
+    fig = plotter.create_figure()
+    fig.show()
+#    show_png(fig)
+
+
+def test_absorption_coeff_mpl_plotter(actual_diele_func_data):
+    plotter = AbsorptionCoeffMplPlotter(actual_diele_func_data,
+                                        materials=["GaAs", "Si"])
+#                                        align_gap=False)
+    plotter.construct_plot()
+    plotter.plt.show()

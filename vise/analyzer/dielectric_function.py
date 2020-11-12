@@ -11,12 +11,12 @@ from vise.util.matplotlib import float_to_int_formatter
 from vise.util.mix_in import ToJsonFileMixIn
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
-from scipy.constants import physical_constants
+from scipy.constants import physical_constants as pc
+
+eV_to_inv_cm = pc["electron volt-inverse meter relationship"][0] / 100
 
 
-def coeff(freq, real, imag):
-    eV_to_inv_cm = \
-        physical_constants["electron volt-inverse meter relationship"][0] / 100
+def diele_func_to_coeff(freq, real, imag):
     return (2 * sqrt(2) * pi * sqrt(sqrt(real ** 2 + imag ** 2) - real)
             * freq * eV_to_inv_cm)
 
@@ -25,7 +25,7 @@ def coeff(freq, real, imag):
 class DieleFuncData(MSONable, ToJsonFileMixIn):
     energies: List[float]  # in eV
     diele_func_real: List[List[float]]  # [xx, yy, zz, xy, yz, xz]
-    diele_func_imag: List[List[float]]
+    diele_func_imag: List[List[float]]  # [xx, yy, zz, xy, yz, xz]
     band_gap: float  # in eV
 
     def absorption_coeff(self, direction: str = None):
@@ -45,7 +45,7 @@ class DieleFuncData(MSONable, ToJsonFileMixIn):
                      for i in range(len(self.energies))]
             imags = [sum(self.diele_func_imag[i][0:3]) / 3
                      for i in range(len(self.energies))]
-        return [coeff(freq, real, imag)
+        return [diele_func_to_coeff(freq, real, imag)
                 for freq, real, imag in zip(self.energies, reals, imags)]
 
     @property
@@ -77,7 +77,7 @@ class AbsorptionCoeffPlotter:
         self.align_gap = align_gap
 
         self.xaxis_title = "Energy (eV)"
-        self.yaxis_title = "Absorption coeff. (cm-1)"
+        self.yaxis_title = "Absorption coefficient. (cm-1)"
         self.ymin = 10**3
         self.ymax = 10**7
 
@@ -91,14 +91,35 @@ class AbsorptionCoeffPlotlyPlotter(AbsorptionCoeffPlotter):
             xaxis_title=self.xaxis_title,
             yaxis_title=self.yaxis_title,
             font_size=15,
-            width=700, height=700)
+            width=800, height=700)
 
-        fig.add_trace(go.Scatter(x=self.energies, y=self.absorption_coeff_ave))
+        fig.add_trace(go.Scatter(x=self.energies,
+                                 y=self.absorption_coeff_ave,
+                                 name="calc"))
         fig.add_trace(go.Scatter(x=[self.band_gap, self.band_gap],
                                  y=[self.ymin, self.ymax],
                                  line=dict(width=1, dash="dash"),
                                  showlegend=False,
-                                 line_color="black"))
+                                 line_color="black",
+                                 name="calculated band gap"))
+
+        for material in self.materials:
+            exp = ExpDieleFunc(material)
+            if self.align_gap:
+                energies = [e + self.band_gap - exp.band_gap
+                            for e in exp.energies]
+            else:
+                energies = exp.energies
+                fig.add_trace(go.Scatter(x=[exp.band_gap, exp.band_gap],
+                                         y=[self.ymin, self.ymax],
+                                         line=dict(width=1, dash="dash"),
+                                         showlegend=False,
+                                         line_color="black",
+                                         name=f"{material} band gap"))
+
+            fig.add_trace(go.Scatter(x=energies, y=exp.absorption_coeff,
+                                     line=dict(width=1, dash="dashdot"),
+                                     name=material))
 
         fig["layout"]["xaxis"]["range"] = [0, 10]
         fig["layout"]["yaxis"]["range"] = [log10(self.ymin), log10(self.ymax)]
@@ -146,7 +167,9 @@ class AbsorptionCoeffMplPlotter(AbsorptionCoeffPlotter):
 
             self.plt.semilogy(energies,
                               list(exp.absorption_coeff),
-                              label=material)
+                              label=material,
+                              linestyle="dashdot",
+                              )
 
     def _set_figure_legend(self):
         self.plt.legend(loc="lower right")
