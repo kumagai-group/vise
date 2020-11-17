@@ -8,9 +8,10 @@ from pymatgen.electronic_structure.boltztrap2 import VasprunBSLoader, \
 from vise.analyzer.effective_mass import EffectiveMass
 
 
-def make_effective_mass(vasprun, temp, concentrations):
+def make_effective_mass(vasprun, temp, concentrations, band_gap):
     vl = VasprunBSLoader(vasprun)
-    bi = BztInterpolator(vl)
+    energy_range = band_gap / 2 + 2.0
+    bi = BztInterpolator(vl, energy_range=energy_range)
     btp = BztTransportProperties(bi, temp_r=np.array([temp]))
     btp.compute_properties_doping(concentrations)
 
