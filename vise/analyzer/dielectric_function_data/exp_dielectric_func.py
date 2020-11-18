@@ -47,4 +47,8 @@ class ExpDieleFunc:
 
     @property
     def reference(self):
-        return "THE HANDBOOK ON OPTICAL CONSTANTS OF SEMICONDUCTORS"
+        return {"title": "THE HANDBOOK ON OPTICAL CONSTANTS OF SEMICONDUCTORS",
+                "author": "Sadao Adachi",
+                "publisher": "World Scientific",
+                "doi": "doi.org/10.1142/8480",
+                "year": 2012}

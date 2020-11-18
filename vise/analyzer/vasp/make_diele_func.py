@@ -12,27 +12,31 @@ import multiprocessing as multi
 import numpy as np
 
 
-def make_diele_func(vasprun: Vasprun,
-                    outcar: Outcar,
-                    corrected_band_gap: float = None):
+def make_diele_func(vasprun: Vasprun, outcar: Outcar):
     energies, real, imag = vasprun.dielectric_data["density"]
     real, imag = np.array(real), np.array(imag)
     band_gap = VaspBandEdgeProperties(vasprun, outcar).band_gap
-
-    if corrected_band_gap is not None:
-        shift = corrected_band_gap - band_gap
-        band_gap = corrected_band_gap
-        imag = imag_shift(imag, energies, band_gap, shift)
-        real = kramers_kronig_trans(imag, energies)
-
     return DieleFuncData(energies, real.tolist(), imag.tolist(), band_gap)
 
 
-def imag_shift(diele_func_imag: np.ndarray,
+def make_shifted_diele_func(diele_func_data: DieleFuncData,
+                            original_band_gap: float,
+                            shift: float):
+    imag = imag_shift(diele_func_data.diele_func_imag,
+                      diele_func_data.energies,
+                      original_band_gap + shift, shift)
+    real = kramers_kronig_trans(imag, diele_func_data.energies)
+    return DieleFuncData(diele_func_data.energies,
+                         real.tolist(),
+                         list(imag),
+                         original_band_gap + shift)
+
+
+def imag_shift(diele_func_imag: List[List[float]],
                energies: List[float],
                band_gap: float,
                shift: float):
-
+    energies = np.array(energies)
     assert shift > 0
     result = []
     for energy_grid in energies:
@@ -47,16 +51,18 @@ def imag_shift(diele_func_imag: np.ndarray,
             if energy_grid < band_gap:
                 inner_result.append(0.0)
             else:
-                old_diele = (diele_func_imag[right_idx - 1][imag_idx] * left_ratio +
-                             diele_func_imag[right_idx][imag_idx] * (1 - left_ratio))
-                inner_result.append(old_diele * (energy_grid - shift) / energy_grid)
+                old_diele = \
+                    diele_func_imag[right_idx - 1][imag_idx] * left_ratio + \
+                    diele_func_imag[right_idx][imag_idx] * (1 - left_ratio)
+                inner_result.append(
+                    old_diele * (energy_grid - shift) / energy_grid)
 
         result.append(inner_result)
 
     return np.array(result)
 
 
-def kramers_kronig_trans(diele_func_imag: np.ndarray,
+def kramers_kronig_trans(diele_func_imag: np.array,
                          energies: List[float],
                          ita=0.1):
     mesh = energies[1] - energies[0]
