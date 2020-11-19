@@ -28,7 +28,7 @@ def make_shifted_diele_func(diele_func_data: DieleFuncData,
     real = kramers_kronig_trans(imag, diele_func_data.energies)
     return DieleFuncData(diele_func_data.energies,
                          real.tolist(),
-                         list(imag),
+                         imag.tolist(),
                          original_band_gap + shift)
 
 
