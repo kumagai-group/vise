@@ -35,8 +35,8 @@ def test_json_file_mixin(diele_func_data, tmpdir):
     assert actual.diele_func_real == diele_func_data.diele_func_real
 
 
-def test_absorption_coeff(diele_func_data):
-    actual = diele_func_data.absorption_coeff(direction="y")
+def test_ave_absorption_coeff(diele_func_data):
+    actual = diele_func_data.ave_absorption_coeff
     expected = [2 * sqrt(2) * pi * sqrt(sqrt(2 ** 2 + 5 ** 2) - 2)
                 * i * eV_to_inv_cm for i in range(0, 11)]
     assert actual == expected
@@ -64,8 +64,7 @@ def test_absorption_coeff_plotly_plotter(actual_diele_func_data):
 
 def test_absorption_coeff_plotly_plotter_wo_alignment(actual_diele_func_data):
     plotter = AbsorptionCoeffPlotlyPlotter(actual_diele_func_data,
-                                           materials=["GaAs"],
-                                           align_gap=False)
+                                           materials=["GaAs"])
     fig = plotter.create_figure()
     fig.show()
 #    show_png(fig)

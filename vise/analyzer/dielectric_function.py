@@ -28,32 +28,25 @@ class DieleFuncData(MSONable, ToJsonFileMixIn):
     diele_func_imag: List[List[float]]  # [xx, yy, zz, xy, yz, xz]
     band_gap: float  # in eV
 
-    def absorption_coeff(self, direction: str = None):
-        if direction:
-            if direction == "x":
-                j = 0
-            elif direction == "y":
-                j = 1
-            elif direction == "z":
-                j = 2
-            else:
-                raise ValueError
-            reals = [self.diele_func_real[i][j] for i in range(len(self.energies))]
-            imags = [self.diele_func_imag[i][j] for i in range(len(self.energies))]
-        else:
-            reals = [sum(self.diele_func_real[i][0:3]) / 3
-                     for i in range(len(self.energies))]
-            imags = [sum(self.diele_func_imag[i][0:3]) / 3
-                     for i in range(len(self.energies))]
+    @property
+    def ave_absorption_coeff(self):
+        reals = [sum(self.diele_func_real[i][:3]) / 3
+                 for i in range(len(self.energies))]
+        imags = [sum(self.diele_func_imag[i][:3]) / 3
+                 for i in range(len(self.energies))]
         return [diele_func_to_coeff(freq, real, imag)
                 for freq, real, imag in zip(self.energies, reals, imags)]
 
     @property
     def target_coeff_e_from_band_gap(self, target_coeff=10**4):
-        onset = min([e for e, coeff
-                     in zip(self.energies, self.absorption_coeff())
-                     if coeff > target_coeff])
-        return onset - self.band_gap
+        energies = []
+        for e, coeff in zip(self.energies, self.ave_absorption_coeff):
+            if coeff > target_coeff:
+                energies.append(e)
+
+        print(self.band_gap)
+        print(energies)
+        return min(energies) - self.band_gap
 
 
 class AbsorptionCoeffPlotter:
@@ -62,19 +55,14 @@ class AbsorptionCoeffPlotter:
                  diele_func_data: DieleFuncData,
                  energy_range: List[float] = None,
                  coeff_power_range: List[float] = None,
-                 materials: List[str] = None,
-                 align_gap: bool = True):
+                 materials: List[str] = None):
 
         self.energies = diele_func_data.energies
-        self.absorption_coeff_ave = diele_func_data.absorption_coeff()
-        self.absorption_coeff_x = diele_func_data.absorption_coeff("x")
-        self.absorption_coeff_y = diele_func_data.absorption_coeff("y")
-        self.absorption_coeff_z = diele_func_data.absorption_coeff("z")
+        self.absorption_coeff = diele_func_data.ave_absorption_coeff
         self.band_gap = diele_func_data.band_gap
-        self.energy_range = energy_range
+        self.energy_range = energy_range or [0, 10]
         self.coeff_power_range = coeff_power_range
         self.materials = materials
-        self.align_gap = align_gap
 
         self.xaxis_title = "Energy (eV)"
         self.yaxis_title = "Absorption coefficient. (cm-1)"
@@ -94,7 +82,7 @@ class AbsorptionCoeffPlotlyPlotter(AbsorptionCoeffPlotter):
             width=800, height=700)
 
         fig.add_trace(go.Scatter(x=self.energies,
-                                 y=self.absorption_coeff_ave,
+                                 y=self.absorption_coeff,
                                  name="calc"))
         fig.add_trace(go.Scatter(x=[self.band_gap, self.band_gap],
                                  y=[self.ymin, self.ymax],
@@ -103,12 +91,9 @@ class AbsorptionCoeffPlotlyPlotter(AbsorptionCoeffPlotter):
                                  line_color="black",
                                  name="calculated band gap"))
 
-        for material in self.materials:
-            exp = ExpDieleFunc(material)
-            if self.align_gap:
-                energies = [e + self.band_gap - exp.band_gap
-                            for e in exp.energies]
-            else:
+        if self.materials:
+            for material in self.materials:
+                exp = ExpDieleFunc(material)
                 energies = exp.energies
                 fig.add_trace(go.Scatter(x=[exp.band_gap, exp.band_gap],
                                          y=[self.ymin, self.ymax],
@@ -117,11 +102,11 @@ class AbsorptionCoeffPlotlyPlotter(AbsorptionCoeffPlotter):
                                          line_color="black",
                                          name=f"{material} band gap"))
 
-            fig.add_trace(go.Scatter(x=energies, y=exp.absorption_coeff,
-                                     line=dict(width=1, dash="dashdot"),
-                                     name=material))
+                fig.add_trace(go.Scatter(x=energies, y=exp.absorption_coeff,
+                                         line=dict(width=1, dash="dashdot"),
+                                         name=material))
 
-        fig["layout"]["xaxis"]["range"] = [0, 10]
+        fig["layout"]["xaxis"]["range"] = self.energy_range
         fig["layout"]["yaxis"]["range"] = [log10(self.ymin), log10(self.ymax)]
         fig.update_yaxes(type="log")
         return fig
@@ -130,7 +115,7 @@ class AbsorptionCoeffPlotlyPlotter(AbsorptionCoeffPlotter):
 class AbsorptionCoeffMplPlotter(AbsorptionCoeffPlotter):
 
     def construct_plot(self, add_directions: bool = True):
-        self._add_coeffs(add_directions)
+        self._add_coeffs()
         self._add_band_gap()
         if self.materials:
             self._add_materials()
@@ -141,12 +126,8 @@ class AbsorptionCoeffMplPlotter(AbsorptionCoeffPlotter):
         self._set_formatter()
         self.plt.tight_layout()
 
-    def _add_coeffs(self, add_directions):
-        self.plt.semilogy(self.energies, self.absorption_coeff_ave)
-        if add_directions:
-            self.plt.semilogy(self.energies, self.absorption_coeff_x)
-            self.plt.semilogy(self.energies, self.absorption_coeff_y)
-            self.plt.semilogy(self.energies, self.absorption_coeff_z)
+    def _add_coeffs(self):
+        self.plt.semilogy(self.energies, self.absorption_coeff)
 
     def _add_band_gap(self):
         self.plt.axvline(x=self.band_gap, linestyle="dashed", color="black",
@@ -155,15 +136,11 @@ class AbsorptionCoeffMplPlotter(AbsorptionCoeffPlotter):
     def _add_materials(self):
         for material in self.materials:
             exp = ExpDieleFunc(material)
-            if self.align_gap:
-                energies = [e + self.band_gap - exp.band_gap
-                            for e in exp.energies]
-            else:
-                energies = exp.energies
-                self.plt.axvline(x=exp.band_gap,
-                                 linestyle="dashed",
-                                 color="black",
-                                 linewidth=1)
+            energies = exp.energies
+            self.plt.axvline(x=exp.band_gap,
+                             linestyle="dashed",
+                             color="black",
+                             linewidth=1)
 
             self.plt.semilogy(energies,
                               list(exp.absorption_coeff),
@@ -178,7 +155,7 @@ class AbsorptionCoeffMplPlotter(AbsorptionCoeffPlotter):
         self.plt.xlim(0, 10)
 
     def _set_y_range(self):
-        self.plt.gca().set_ylim(ymin=10**3)
+        self.plt.gca().set_ylim(ymin=self.ymin, ymax=self.ymax)
 
     def _set_labels(self):
         self.plt.xlabel(self.xaxis_title)
