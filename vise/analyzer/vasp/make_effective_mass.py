@@ -14,7 +14,6 @@ def make_effective_mass(vasprun, temp, concentrations, band_gap):
     bi = BztInterpolator(vl, energy_range=energy_range)
     btp = BztTransportProperties(bi, temp_r=np.array([temp]))
     btp.compute_properties_doping(concentrations)
-
     return EffectiveMass(p=btp.Effective_mass_doping["p"].tolist()[0],
                          n=btp.Effective_mass_doping["n"].tolist()[0],
                          concentrations=concentrations)

@@ -10,8 +10,8 @@ import numpy as np
 
 
 def test_make_diele_func(test_data_files):
-    v = Vasprun(test_data_files / "MgSe_absorption_vasprun.xml")
-    o = Outcar(test_data_files / "MgSe_absorption_OUTCAR")
+    v = Vasprun(test_data_files / "MgSe_absorption_vasprun_gamma.xml")
+    o = Outcar(test_data_files / "MgSe_absorption_OUTCAR_gamma")
     actual = make_diele_func(v, o)
 
 
@@ -23,8 +23,8 @@ def test_make_diele_func(test_data_files):
 
 
 def test_make_diele_func_2(test_data_files):
-    v = Vasprun(test_data_files / "MgSe_absorption_vasprun.xml")
-    o = Outcar(test_data_files / "MgSe_absorption_OUTCAR")
+    v = Vasprun(test_data_files / "MgSe_absorption_vasprun_gamma.xml")
+    o = Outcar(test_data_files / "MgSe_absorption_OUTCAR_gamma")
     actual = make_shifted_diele_func(make_diele_func(v, o),
                                      original_band_gap=1.997,
                                      shift=1.0)

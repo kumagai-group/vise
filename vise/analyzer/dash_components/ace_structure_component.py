@@ -34,7 +34,7 @@ DEFAULTS = {
 }
 
 
-class AceStructureMoleculeComponent(MPComponent):
+class StructureMoleculeComponent(MPComponent):
     """
     A component to display pymatgen Structure, Molecule, StructureGraph
     and MoleculeGraph objects.
@@ -464,7 +464,7 @@ class AceStructureMoleculeComponent(MPComponent):
     def _make_bonding_algorithm_custom_cuffoff_data(graph):
         if not graph:
             return [{"A": None, "B": None, "A—B": None}]
-        struct_or_mol = AceStructureMoleculeComponent._get_struct_or_mol(graph)
+        struct_or_mol = StructureMoleculeComponent._get_struct_or_mol(graph)
         # can't use type_of_specie because it doesn't work with disordered structures
         species = set(
             map(
@@ -735,13 +735,13 @@ class AceStructureMoleculeComponent(MPComponent):
         else:
             if (
                     bonding_strategy
-                    not in AceStructureMoleculeComponent.available_bonding_strategies.keys()
+                    not in StructureMoleculeComponent.available_bonding_strategies.keys()
             ):
                 raise ValueError(
                     "Bonding strategy not supported. Please supply a name "
                     "of a NearNeighbor subclass, choose from: {}".format(
                         ", ".join(
-                            AceStructureMoleculeComponent.available_bonding_strategies.keys()
+                            StructureMoleculeComponent.available_bonding_strategies.keys()
                         )
                     )
                 )
@@ -755,7 +755,7 @@ class AceStructureMoleculeComponent(MPComponent):
                             for x in bonding_strategy_kwargs["cut_off_dict"]
                         }
                 bonding_strategy = \
-                AceStructureMoleculeComponent.available_bonding_strategies[
+                StructureMoleculeComponent.available_bonding_strategies[
                     bonding_strategy
                 ](
                     **bonding_strategy_kwargs
@@ -813,7 +813,7 @@ class AceStructureMoleculeComponent(MPComponent):
         if graph is None:
             return scene, {}
 
-        struct_or_mol = AceStructureMoleculeComponent._get_struct_or_mol(graph)
+        struct_or_mol = StructureMoleculeComponent._get_struct_or_mol(graph)
 
         # TODO: add radius_scale
         legend = Legend(

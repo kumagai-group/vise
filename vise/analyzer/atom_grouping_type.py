@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
+from typing import Dict, List
+
+from pymatgen import Site
 from pymatgen.core.structure import Structure
 
 from vise.util.enum import ExtendedEnum
@@ -22,7 +25,7 @@ class AtomGroupingType(ExtendedEnum):
         return grouped_indices
 
 
-def group_by_atoms(structure, target):
+def group_by_atoms(structure: Structure, target):
     result = {}
     for num_str in target:
         num_list = [int(x) for x in num_str.split(",")]
@@ -33,7 +36,8 @@ def group_by_atoms(structure, target):
     return result
 
 
-def group_by_elements(structure, target):
+def group_by_elements(structure: Structure,
+                      target: List[str]) -> Dict[str, List[int]]:
     result = {}
     for elem in target:
         result[elem] = \
