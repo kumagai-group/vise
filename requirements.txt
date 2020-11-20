@@ -1,3 +1,4 @@
+numpy
 spglib
 matplotlib
 scipy
@@ -13,3 +14,6 @@ num2words
 pytest
 fire
 setuptools
+more_itertools
+tqdm
+psutil
