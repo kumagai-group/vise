@@ -11,12 +11,12 @@ from vise.analyzer.effective_mass import EffectiveMass
 try:
     from vise.analyzer.vasp.make_effective_mass import make_effective_mass
     from pymatgen.electronic_structure.boltztrap2 import VasprunBSLoader
-    BOLTZTRAP2_PRESENT = True
+    BOLTZTRAP2_NOT_PRESENT = False
 except Exception:
-    BOLTZTRAP2_PRESENT = False
+    BOLTZTRAP2_NOT_PRESENT = True
 
 
-@pytest.mark.skipif(BOLTZTRAP2_PRESENT)
+@pytest.mark.skipif(BOLTZTRAP2_NOT_PRESENT, reason="boltztrap2 is not installed.")
 def test_make_effective_mass(test_data_files):
 #def test_make_effective_mass(mocker, test_data_files):
     v = Vasprun(test_data_files / "MgSe_absorption_vasprun.xml")

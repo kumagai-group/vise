@@ -14,6 +14,13 @@ from vise.tests.conftest import test_data_files, assert_msonable
 from vise.util.dash_helper import show_png
 
 
+try:
+    import psutil
+    PSUTIL_NOT_PRESENT = False
+except ModuleNotFoundError:
+    PSUTIL_NOT_PRESENT = True
+
+
 @pytest.fixture
 def diele_func_data():
     array_real = [1, 2, 3, 0, 0, 0]
@@ -54,6 +61,7 @@ def test_target_coeff_e_from_band_gap(actual_diele_func_data):
     np.testing.assert_almost_equal(actual, 0.4014000000000002)
 
 
+@pytest.mark.skipif(PSUTIL_NOT_PRESENT, reason="psutil does not exist")
 def test_absorption_coeff_plotly_plotter(actual_diele_func_data):
     plotter = AbsorptionCoeffPlotlyPlotter(actual_diele_func_data,
                                            materials=["GaAs"])
