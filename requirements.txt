@@ -16,4 +16,3 @@ fire
 setuptools
 more_itertools
 tqdm
-psutil
