@@ -11,7 +11,7 @@ from vise.analyzer.plot_band import BandEdge, XTicks, BandMplSettings
 from vise.analyzer.vasp.plot_band import greek_to_unicode, italic_to_roman, \
     BandPlotInfoFromVasp
 from vise.analyzer.plot_band import BandPlotter
-
+import numpy as np
 
 def test_greek_to_unicode():
     assert greek_to_unicode("GAMMA") == "Γ"
@@ -38,7 +38,7 @@ def test_vasp_band_plotter(is_metal, expected_band_edge, mocker):
     stub_vasprun.final_structure.composition = Composition("MgO2")
     stub_vasprun.get_band_structure.return_value = mock_bs
 
-    energy = [{"1": [[0.1], [0.2], [0.3]]}]
+    energy = {"1": [np.array([[0.1], [0.2], [0.3]])]}
     distances = [[0.0, 0.1, 0.2]]
     labels = ["A", "$A_0$", "GAMMA"]
     label_distances = [0.0, 0.1, 0.2]
@@ -83,7 +83,9 @@ def test_draw_two_bands(test_data_files: Path):
     kpoints_file = str(test_data_files / "CdAs2O6-KPOINTS")
     vasprun = Vasprun(vasprun_file)
     vasprun2 = Vasprun(vasprun2_file)
-    plot_info = BandPlotInfoFromVasp(vasprun, kpoints_file, vasprun2, energy_window=[-5.0, 5.0]).make_band_plot_info()
+    plot_info = BandPlotInfoFromVasp(
+        vasprun, kpoints_file, vasprun2,
+        energy_window=[-20.0, 20.0]).make_band_plot_info()
     plotter = BandPlotter(plot_info, [-10, 10], mpl_defaults=mpl_settings)
     plotter.construct_plot()
     plotter.plt.show()
@@ -98,7 +100,9 @@ def test_energy_window(mocker):
     stub_vasprun.final_structure.composition = Composition("MgO2")
     stub_vasprun.get_band_structure.return_value = mock_bs
 
-    energy = [{Spin.up: [[-0.2, -0.1, 0.9, 1.1], [-0.1, 0.1, 1.1, 1.2]]}]
+    energy = {"1": [np.array([[-0.2, -0.1, -0.3, -0.1],
+                              [-0.2, -0.1, -0.3, 0.1],
+                              [1.2, 1.3, 1.1, 1.2]])]}
     distances = [[0.0, 1.0]]
     labels = ["A", "GAMMA"]
     label_distances = [0.0, 1.0]
@@ -115,6 +119,6 @@ def test_energy_window(mocker):
                                      energy_window=[0.0, 1.0]).make_band_plot_info()
 
     assert (plot_info.band_info_set[0].band_energies
-            == [[[[-0.1, 0.9], [0.1, 1.1]]]])
+            == [[[[-0.2, -0.1, -0.3, 0.1]]]])
 
 

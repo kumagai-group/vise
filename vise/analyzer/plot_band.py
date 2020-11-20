@@ -51,8 +51,11 @@ class BandInfo(MSONable):
     def _slide_band_energies(self, base_energy):
         new_array = []
         for band_energies_each_branch in self.band_energies:
-            a = np.array(band_energies_each_branch)
-            new_array.append((a - base_energy).tolist())
+            inner_array = []
+            for band_energies_each_band in band_energies_each_branch:
+                a = np.array(band_energies_each_band)
+                inner_array.append((a - base_energy).tolist())
+            new_array.append(inner_array)
         self.band_energies = new_array
 
     def _slide_fermi_level(self, base_energy):
