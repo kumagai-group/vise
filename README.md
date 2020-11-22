@@ -17,6 +17,8 @@ Installation instructions
 ---------------------------------------------------------
 1. Requirements
   - Python 3.7 or higher
+
+Vise depends largely on the following packages, which should be acknowledged sincerely,
   - pymatgen
   - spglib
   - seekpath

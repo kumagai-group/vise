@@ -19,7 +19,7 @@ For example, we can get the crystal structure of ScN. by typing as follows,
 
 ::
 
-    vise gp -n 2857
+    vise gp -m mp-2857
 
 ===================================
 Input files for the cell relaxation
@@ -27,27 +27,27 @@ Input files for the cell relaxation
 Let's begin with the relaxation of the unit cell using VASP.
 For this purpose, we need to prepare INCAR, POTCAR, and KPOINTS files.
 In vise, :code:`vs` (= :code:`vasp_set`) sub-option automatically generates these files.
-:code:`vs` includes various arguments, and the most important ones are :code:`--task` and :code:`--xc`,
+:code:`vs` includes various arguments, and the most important ones are
+:code:`--task` (or :code:`-t`) and :code:`--xc` (or :code:`-x`),
 determining the task and exchange-correlation (XC) functional.
-The defaults are structure optimization (structure_opt) for task and PBEsol functional (pbesol) for XC functional.
+The defaults are structure optimization (structure_opt) for task and PBE functional (pbe) for XC functional.
 So we can generate INCAR, POTCAR, and KPOINTS files, by typing as follows at the directory where POSCAR exists,
 
 ::
 
     vise vs
 
-The :code:`vs` sub-option has a lot of arguments, such as :code:`--potcar` and :code:`--kpt_density`.
+The :code:`vs` sub-option has a lot of arguments, such as :code:`--potcar` and :code:`--kpt_density` (or :code:`-k`).
 Some users may want to use their favorite potcar set rather than the vise defaults set.
 In this case, it is cumbersome to add :code:`--potcar` argument all the time.
-To avoid such circumstance, user can use the :code:`vise.yaml` file.
+To avoid such circumstance, users can use the :code:`vise.yaml` file.
 See vise.yaml section for details.
 
 
 Note that the structure optimization must be generally iterated with 1.3 times larger cutoff energy
 until the forces and stresses converge at the first ionic step so as to reduce the errors caused by the Pulay Stress to an acceptable accuracy.
 See [vasp manual](https://cms.mpi.univie.ac.at/vasp/vasp/Volume_vs_energy_volume_relaxations_Pulay_Stress.html) or [wikipedia](https://cms.mpi.univie.ac.at/vasp/vasp/Volume_vs_energy_volume_relaxations_Pulay_Stress.html) for details.
-Such iteration of the vasp calculations is performed using the custodian wrapper in :code:`vise`.
-See :doc:`tutorial_custodian_extension` for more details.
+Such increase of the cutoff energy is done by :code:`vise`.
 
 ==============================
 Advanced usage of the vasp_set

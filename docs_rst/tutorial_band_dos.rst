@@ -1,9 +1,9 @@
-Tutorial -- band figure and density of states
+Tutorial -- Analyzing calculation results
 ---------------------------------------------
 
-===========================================================
-Calculation of the band structure and the density of states
-===========================================================
+=====================================================
+Calculations of band structure and density of states
+=====================================================
 We can create the input files for the calculations of the band structure and the density of states by typing
 
 ::
