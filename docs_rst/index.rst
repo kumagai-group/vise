@@ -13,8 +13,7 @@ Welcome to vise's documentation!
    tutorial_input_set
    tutorial_band_dos
    tutorial_vise_yaml
-
-..   change_log
+   change_log
 
 Indices and tables
 ==================

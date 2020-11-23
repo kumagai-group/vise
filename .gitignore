@@ -72,7 +72,6 @@ instance/
 .scrapy
 
 # Sphinx documentation
-docs/
 docs_rst/_build/
 docs_rst/_static/
 docs_rst/_templates/
