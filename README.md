@@ -42,18 +42,16 @@ More information in the online manual at: https://kumagai-group.github.io/vise/
 Files and directories included in vise distribution
 --------------------------------------------------------
 ~~~
-  README                    : introduction
-  LICENSE                   : the MIT license 
-  setup.py                  : installation script
-  requirements.txt          : list of required packages
+  README            : introduction
+  LICENSE           : the MIT license 
+  setup.py          : installation script
+  requirements.txt  : list of required packages
 
-  /vise/analyzer            : tools for VASP analysis especially for band figure and density of states
-  /vise/chempotdiag         : tools for drawing the chemical potential diagram
-  /vise/cli                 : command line interfaces
-  /vise/custodian_extension : original custodian exention
-  /vise/input_set           : tools for generating VASP input files
-  /vise/test_files          : test files used mainly for unitests
-  /vise/util                : useful tools 
+  /vise/analyzer    : tools for VASP analysis especially for band figure and density of states
+  /vise/cli         : command line interfaces
+  /vise/input_set   : tools for generating VASP input files
+  /vise/tests       : test files used mainly for unitests
+  /vise/util        : useful tools 
 ~~~~
 
 License
