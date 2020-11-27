@@ -40,6 +40,7 @@ class BandPlotInfoFromVasp:
         bs = self.vasprun.get_band_structure(self.kpoints_filename,
                                              line_mode=True)
         plot_data = BSPlotter(bs).bs_plot_data(zero_to_efermi=False)
+        distances = [d.tolist() for d in plot_data["distances"]]
         self._composition = self.vasprun.final_structure.composition
 
         band_info = [BandInfo(band_energies=self._remove_spin_key(plot_data),
@@ -56,7 +57,7 @@ class BandPlotInfoFromVasp:
                          fermi_level=bs.efermi))
 
         return BandPlotInfo(band_info_set=band_info,
-                            distances_by_branch=plot_data["distances"],
+                            distances_by_branch=distances,
                             x_ticks=self._x_ticks(plot_data),
                             title=self._title)
 

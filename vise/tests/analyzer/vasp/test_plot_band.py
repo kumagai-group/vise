@@ -39,7 +39,7 @@ def test_vasp_band_plotter(is_metal, expected_band_edge, mocker):
     stub_vasprun.get_band_structure.return_value = mock_bs
 
     energy = {"1": [np.array([[0.1], [0.2], [0.3]])]}
-    distances = [[0.0, 0.1, 0.2]]
+    distances = [np.array([0.0, 0.1, 0.2])]
     labels = ["A", "$A_0$", "GAMMA"]
     label_distances = [0.0, 0.1, 0.2]
     plot_data = {"ticks": {"label": labels, "distance": label_distances},
@@ -58,7 +58,7 @@ def test_vasp_band_plotter(is_metal, expected_band_edge, mocker):
 
     assert plot_info.band_info_set[0].band_energies == [[[[0.1], [0.2], [0.3]]]]
     assert plot_info.band_info_set[0].band_edge == expected_band_edge
-    assert plot_info.distances_by_branch == distances
+    assert plot_info.distances_by_branch == [[0.0, 0.1, 0.2]]
     assert plot_info.x_ticks == expected_x_ticks
     assert plot_info.title == "MgO$_{2}$"
 
