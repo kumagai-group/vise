@@ -61,6 +61,8 @@ class VaspSet:
             self._file_transfers.transfer()
 
     def _structure(self):
+        if self.args.prev_dir:
+            return Structure.from_file(self.args.prev_dir / defaults.contcar)
         return Structure.from_file(self.args.poscar)
 
     def _overridden_incar_settings(self):
