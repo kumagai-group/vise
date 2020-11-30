@@ -37,7 +37,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Tutorial – Analyzing calculation results" href="tutorial_band_dos.html" />
-    <link rel="prev" title="Introduction of VISE." href="introduction.html" /> 
+    <link rel="prev" title="Introduction of vise." href="introduction.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -83,11 +83,10 @@
             
             
               <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction of VISE.</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction of vise.</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorial – input set</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#preparation-of-the-unit-cell">Preparation of the unit cell</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#input-files-for-the-cell-relaxation">Input files for the cell relaxation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#advanced-usage-of-the-vasp-set">Advanced usage of the vasp_set</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial_band_dos.html">Tutorial – Analyzing calculation results</a></li>
@@ -160,51 +159,49 @@
             
   <div class="section" id="tutorial-input-set">
 <h1>Tutorial – input set<a class="headerlink" href="#tutorial-input-set" title="Permalink to this headline">¶</a></h1>
-<p>In this tutorial, the subparsers of <code class="code docutils literal notranslate"><span class="pre">get_poscars=(gp)</span></code> and <code class="code docutils literal notranslate"><span class="pre">vasp_set=(vs)</span></code> are introduced.</p>
+<p>In this tutorial, we show how to use <code class="code docutils literal notranslate"><span class="pre">vise</span></code> to generate the <code class="code docutils literal notranslate"><span class="pre">VASP</span></code> input files
+using an example of ScN.</p>
 <div class="section" id="preparation-of-the-unit-cell">
 <h2>Preparation of the unit cell<a class="headerlink" href="#preparation-of-the-unit-cell" title="Permalink to this headline">¶</a></h2>
-<p>Here, we show how to use vise using an example of ScN.
-Firstly, we obtain the POSCAR file via Materials Project REST API.
-(Of course, it’s also fine to prepare POSCAR by another way by yourself instead.)
+<p>Firstly, we obtain the POSCAR file via Materials Project REST API.
+(Of course, it’s also fine to prepare POSCAR by another way instead.)
 When we use the Materials Project REST API,
 we need to set the PMG_MAPI_KEY in the .pmgrc.yaml file at the home directory, e.g.,
 See <a class="reference external" href="https://pymatgen.org/usage.html">pymatgen web page 1</a>, for more details.</p>
-<p>When we check the Materials Project web page, we know the id for ScN is mp-2857.
-vise automatically retrieve the POSCAR files using the <code class="code docutils literal notranslate"><span class="pre">gp</span></code> (= <code class="code docutils literal notranslate"><span class="pre">get_poscar</span></code>) sub-command.
-For example, we can get the crystal structure of ScN. by typing as follows,</p>
+<p>By checking the Materials Project web page, we know the id for ScN is mp-2857.
+<code class="code docutils literal notranslate"><span class="pre">Vise</span></code> automatically retrieve the POSCAR files
+using the <code class="code docutils literal notranslate"><span class="pre">get_poscar</span></code> (= <code class="code docutils literal notranslate"><span class="pre">gp</span></code>) sub-command.
+For example, we can get the crystal structure of ScN. by typing as follows:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">vise</span> <span class="n">gp</span> <span class="o">-</span><span class="n">m</span> <span class="n">mp</span><span class="o">-</span><span class="mi">2857</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="input-files-for-the-cell-relaxation">
 <h2>Input files for the cell relaxation<a class="headerlink" href="#input-files-for-the-cell-relaxation" title="Permalink to this headline">¶</a></h2>
-<p>Let’s begin with the relaxation of the unit cell using VASP.
-For this purpose, we need to prepare INCAR, POTCAR, and KPOINTS files.
-In vise, <code class="code docutils literal notranslate"><span class="pre">vs</span></code> (= <code class="code docutils literal notranslate"><span class="pre">vasp_set</span></code>) sub-option automatically generates these files.
-<code class="code docutils literal notranslate"><span class="pre">vs</span></code> includes various arguments, and the most important ones are
+<p>Secondly, we prepare INCAR, POTCAR, and KPOINTS files.
+In <code class="code docutils literal notranslate"><span class="pre">vise</span></code>, <code class="code docutils literal notranslate"><span class="pre">vasp_set</span></code> (= <code class="code docutils literal notranslate"><span class="pre">vs</span></code>) sub-command generates these files.
+It includes various arguments, in which important ones are
 <code class="code docutils literal notranslate"><span class="pre">--task</span></code> (or <code class="code docutils literal notranslate"><span class="pre">-t</span></code>) and <code class="code docutils literal notranslate"><span class="pre">--xc</span></code> (or <code class="code docutils literal notranslate"><span class="pre">-x</span></code>),
-determining the task and exchange-correlation (XC) functional.
-The defaults are structure optimization (structure_opt) for task and PBE functional (pbe) for XC functional.
-So we can generate INCAR, POTCAR, and KPOINTS files, by typing as follows at the directory where POSCAR exists,</p>
+which determine the task and exchange-correlation (XC) functional.
+The defaults are structure optimization (structure_opt) with the PBE functional (pbe).
+So we can generate INCAR, POTCAR, and KPOINTS files,
+by typing as follows at the directory where POSCAR exists,</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">vise</span> <span class="n">vs</span>
 </pre></div>
 </div>
-<p>The <code class="code docutils literal notranslate"><span class="pre">vs</span></code> sub-option has a lot of arguments, such as <code class="code docutils literal notranslate"><span class="pre">--potcar</span></code> and <code class="code docutils literal notranslate"><span class="pre">--kpt_density</span></code> (or <code class="code docutils literal notranslate"><span class="pre">-k</span></code>).
-Some users may want to use their favorite potcar set rather than the vise defaults set.
-In this case, it is cumbersome to add <code class="code docutils literal notranslate"><span class="pre">--potcar</span></code> argument all the time.
-To avoid such circumstance, users can use the <code class="code docutils literal notranslate"><span class="pre">vise.yaml</span></code> file.
-See vise.yaml section for details.</p>
 <p>Note that the structure optimization must be generally iterated with 1.3 times larger cutoff energy
-until the forces and stresses converge at the first ionic step so as to reduce the errors caused by the Pulay Stress to an acceptable accuracy.
-See [vasp manual](<a class="reference external" href="https://cms.mpi.univie.ac.at/vasp/vasp/Volume_vs_energy_volume_relaxations_Pulay_Stress.html">https://cms.mpi.univie.ac.at/vasp/vasp/Volume_vs_energy_volume_relaxations_Pulay_Stress.html</a>) or [wikipedia](<a class="reference external" href="https://cms.mpi.univie.ac.at/vasp/vasp/Volume_vs_energy_volume_relaxations_Pulay_Stress.html">https://cms.mpi.univie.ac.at/vasp/vasp/Volume_vs_energy_volume_relaxations_Pulay_Stress.html</a>) for details.
-Such increase of the cutoff energy is done by <code class="code docutils literal notranslate"><span class="pre">vise</span></code>.</p>
-</div>
-<div class="section" id="advanced-usage-of-the-vasp-set">
-<h2>Advanced usage of the vasp_set<a class="headerlink" href="#advanced-usage-of-the-vasp-set" title="Permalink to this headline">¶</a></h2>
-<p>In the arguments of <code class="code docutils literal notranslate"><span class="pre">vs</span></code>, there are -uis(=user_incar_setting) and -auis(=additional_user_incar_setting) arguments.
-The former INCAR setting is set by vise.yaml by default, and if one uses this option, the vise.yaml default setting is overwritten.
-Conversely, the latter is set only via this option and it does not overwrite user_incar_setting written in vise.yaml
-Please use both the options as the situation demands.</p>
+until the forces and stresses converge at the first ionic step so as to reduce the errors caused
+by the Pulay Stress to an acceptable accuracy.
+See <a class="reference external" href="https://cms.mpi.univie.ac.at/vasp/vasp/Volume_vs_energy_volume_relaxations_Pulay_Stress.html">vasp manual</a>
+or <a class="reference external" href="https://en.wikipedia.org/wiki/Pulay_stress">wikipedia</a> for details.
+Such increase of the cutoff energy is also done by <code class="code docutils literal notranslate"><span class="pre">vise</span></code>.</p>
+<p>The <code class="code docutils literal notranslate"><span class="pre">vs</span></code> sub-command allows the <code class="code docutils literal notranslate"><span class="pre">POTCAR</span></code> file to be modified
+from the default set via <code class="code docutils literal notranslate"><span class="pre">--potcar</span></code>.
+The <code class="code docutils literal notranslate"><span class="pre">INCAR</span></code> setting is also controlled via <code class="code docutils literal notranslate"><span class="pre">--user_incar_setting</span></code> (= <code class="code docutils literal notranslate"><span class="pre">-uis</span></code>) argument.</p>
+<p>It is also possible to control the <code class="code docutils literal notranslate"><span class="pre">POTCAR</span></code> and <code class="code docutils literal notranslate"><span class="pre">INCAR</span></code> setting
+via <code class="code docutils literal notranslate"><span class="pre">vise.yaml</span></code> file, but the command line arguments are prioritized.
+See <a class="reference internal" href="tutorial_vise_yaml.html"><span class="doc">Tutorial – vise.yaml</span></a> for details.</p>
+<p>Next, let’s move to <a class="reference internal" href="tutorial_band_dos.html"><span class="doc">Tutorial – Analyzing calculation results</span></a>.</p>
 </div>
 </div>
 
@@ -219,7 +216,7 @@ Please use both the options as the situation demands.</p>
         <a href="tutorial_band_dos.html" class="btn btn-neutral float-right" title="Tutorial – Analyzing calculation results" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="introduction.html" class="btn btn-neutral float-left" title="Introduction of VISE." accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="introduction.html" class="btn btn-neutral float-left" title="Introduction of vise." accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

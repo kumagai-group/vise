@@ -83,7 +83,7 @@
             
             
               <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction of VISE.</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction of vise.</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial_input_set.html">Tutorial – input set</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial_band_dos.html">Tutorial – Analyzing calculation results</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorial – vise.yaml</a><ul>
@@ -161,22 +161,28 @@
 <div class="section" id="setting-for-the-vise-yaml">
 <h2>Setting for the vise.yaml<a class="headerlink" href="#setting-for-the-vise-yaml" title="Permalink to this headline">¶</a></h2>
 <p>In <code class="code docutils literal notranslate"><span class="pre">vise</span></code>, users can control various types of parameters using <code class="code docutils literal notranslate"><span class="pre">vise.yaml</span></code> file.
-For example, we provide the default <code class="code docutils literal notranslate"><span class="pre">POTCAR</span></code> set regularly we use, but users can adopt their favorite <code class="code docutils literal notranslate"><span class="pre">POTCAR</span></code> set,
-by setting <code class="code docutils literal notranslate"><span class="pre">potcar_set</span></code> key as follows</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">overridden_potcar</span><span class="p">:</span>
-    <span class="n">Mg_pv</span> <span class="n">O_h</span>
+For example, we provide the default <code class="code docutils literal notranslate"><span class="pre">POTCAR</span></code> set regularly we use,
+but of course, users can adopt their favorite <code class="code docutils literal notranslate"><span class="pre">POTCAR</span></code> set by setting <code class="code docutils literal notranslate"><span class="pre">potcar_set</span></code> key as follows</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">overridden_potcar</span><span class="p">:</span> <span class="n">Mg_pv</span> <span class="n">O_h</span>
 </pre></div>
 </div>
-<p>Then, the Mg_pv and O_h <code class="code docutils literal notranslate"><span class="pre">POTCAR</span></code> files are used instead of the normal Mg and O <code class="code docutils literal notranslate"><span class="pre">POTCAR</span></code> files in vise.</p>
-<p>Note that vise try to find the <code class="code docutils literal notranslate"><span class="pre">vise.yaml</span></code> file from the current working directory to the parent directly up to the home or root directory.
-And, multiple files are read with the priority.</p>
-<p>The keys for <code class="code docutils literal notranslate"><span class="pre">vise.yaml</span></code> are shown in defaults.py</p>
-<p>For example, one can write in <code class="code docutils literal notranslate"><span class="pre">vise.yaml</span></code> as</p>
+<p>The Mg_pv and O_h <code class="code docutils literal notranslate"><span class="pre">POTCAR</span></code> files are then used instead of the default normal Mg and O <code class="code docutils literal notranslate"><span class="pre">POTCAR</span></code> files.
+(The default <code class="code docutils literal notranslate"><span class="pre">POTCAR</span></code> is described in <code class="code docutils literal notranslate"><span class="pre">potcar_set.yaml</span></code> file.
+Note that <code class="code docutils literal notranslate"><span class="pre">vise</span></code> tries to find the <code class="code docutils literal notranslate"><span class="pre">vise.yaml</span></code> files
+from the current working directory to the parent directly up to the home or root directory.
+If the same options exist in multiple <cite>vise.yaml</cite> files,
+the value written in the yaml file at deeper directory is prioritized.
+Therefore, when two different <code class="code docutils literal notranslate"><span class="pre">vise.yaml</span></code> are located
+at the home directory of the project and <code class="code docutils literal notranslate"><span class="pre">$home/something/</span></code> directory,
+the parameters written in <code class="code docutils literal notranslate"><span class="pre">$home/something/vise.yaml</span></code> are prioritized.</p>
+<p>The properties of Defaults class in <code class="code docutils literal notranslate"><span class="pre">defaults.py</span></code> can be set as the keys
+of <code class="code docutils literal notranslate"><span class="pre">vise.yaml</span></code>.
+For example, one can write in <code class="code docutils literal notranslate"><span class="pre">vise.yaml</span></code> as</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">xc</span><span class="p">:</span> <span class="n">hse</span>
-<span class="n">user_incar_settings</span><span class="p">:</span>
-    <span class="n">ENCUT</span><span class="p">:</span> <span class="mi">550</span>
+<span class="n">potcar_set</span><span class="p">:</span> <span class="n">gw</span>
 </pre></div>
 </div>
+<p>for the XC functional and <code class="code docutils literal notranslate"><span class="pre">POTCAR</span></code> default set.</p>
 </div>
 </div>
 
