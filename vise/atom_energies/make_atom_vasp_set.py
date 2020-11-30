@@ -22,7 +22,8 @@ mags = loadfn(Path(__file__).parent / "mp_atom_mag.yaml")
 warnings.simplefilter('ignore', BadInputSetWarning)
 
 
-def is_target_element(elem: Element):
+def is_target_element(elem: Union[Element, str]):
+    elem = Element(elem) if type(elem) is str else elem
     return elem.Z <= 58 or 71 <= elem.Z <= 83
 
 
