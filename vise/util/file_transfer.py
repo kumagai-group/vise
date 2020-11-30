@@ -58,7 +58,9 @@ def transfer_instance(transfer_type: str, filename: Path):
     elif initial == "l":
         result = FileLink
     else:
-        raise ViseFileTransferError
+        raise ViseFileTransferError(
+            f"Transfer type with an initial of {initial} is not supported."
+            f"Choose from m (move), c (copy) or l (link).")
     return result(filename)
 
 

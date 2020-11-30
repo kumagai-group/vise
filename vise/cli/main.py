@@ -135,8 +135,9 @@ Version: {__version__}
         supercells. """)
     parser_vasp_set.add_argument(
         "--file_transfer_type", type=str, nargs="+",
-        help="File transfer which can is written with pairs of file names and "
-             "transfer types of m (move), c (copy) or l (link). An example is: "
+        help="File transfer which is used with the prev_dir argument and can "
+             "be written with pairs of file names and transfer types of "
+             "m (move), c (copy) or l (link). An example is: "
              "--file_transfer_type ../POSCAR c ../WAVECAR l ")
 
     parser_vasp_set.set_defaults(func=VaspSet)
