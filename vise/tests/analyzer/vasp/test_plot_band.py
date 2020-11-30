@@ -13,6 +13,7 @@ from vise.analyzer.vasp.plot_band import greek_to_unicode, italic_to_roman, \
 from vise.analyzer.plot_band import BandPlotter
 import numpy as np
 
+
 def test_greek_to_unicode():
     assert greek_to_unicode("GAMMA") == "Γ"
     assert greek_to_unicode("SIGMA") == "Σ"
@@ -58,7 +59,8 @@ def test_vasp_band_plotter(is_metal, expected_band_edge, mocker):
 
     assert plot_info.band_info_set[0].band_energies == [[[[0.1], [0.2], [0.3]]]]
     assert plot_info.band_info_set[0].band_edge == expected_band_edge
-    assert plot_info.distances_by_branch == [[0.0, 0.1, 0.2]]
+    np.testing.assert_array_almost_equal(plot_info.distances_by_branch,
+                                         [np.array([0.0, 0.1, 0.2])])
     assert plot_info.x_ticks == expected_x_ticks
     assert plot_info.title == "MgO$_{2}$"
 
