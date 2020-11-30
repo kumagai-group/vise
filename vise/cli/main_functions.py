@@ -25,6 +25,9 @@ from vise.input_set.prior_info import prior_info_from_calc_dir, PriorInfo
 from vise.input_set.task import Task
 from vise.input_set.vasp_input_files import VaspInputFiles
 from vise.util.file_transfer import FileTransfers
+from vise.util.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 def get_poscar_from_mp(args: Namespace) -> None:
@@ -157,6 +160,7 @@ def plot_dos(args: Namespace):
 
     structure = vasprun.final_structure
     grouped_atom_indices = args.type.grouped_atom_indices(structure, args.target)
+    logger.info(f"Grouped atom indices: {grouped_atom_indices}")
     plot_data = dos_data.dos_plot_data(grouped_atom_indices,
                                        xlim=args.x_range,
                                        ylim_set=ylim_set)
