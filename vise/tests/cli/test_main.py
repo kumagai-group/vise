@@ -4,6 +4,7 @@
 from argparse import Namespace
 from pathlib import Path
 
+from pymatgen import Element
 from vise.analyzer.atom_grouping_type import AtomGroupingType
 from vise.cli.main import parse_args
 from vise.defaults import defaults
@@ -34,6 +35,24 @@ def test_get_poscars_w_options():
         poscar="a",
         prior_info=Path("b.yaml"),
         mpid="123",
+        func=parsed_args.func)
+    assert parsed_args == expected
+
+
+def test_make_atom_poscars_wo_options():
+    parsed_args = parse_args(["map"])
+    expected = Namespace(
+        dirname=Path.cwd(),
+        elements=None,
+        func=parsed_args.func)
+    assert parsed_args == expected
+
+
+def test_make_atom_poscars_w_options():
+    parsed_args = parse_args(["map", "-d", "a", "-e", "H"])
+    expected = Namespace(
+        dirname=Path("a"),
+        elements=Element.H,
         func=parsed_args.func)
     assert parsed_args == expected
 

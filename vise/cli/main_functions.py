@@ -14,6 +14,7 @@ from vise.analyzer.plot_dos import DosPlotter
 from vise.analyzer.vasp.band_edge_properties import VaspBandEdgeProperties
 from vise.analyzer.vasp.dos_data import DosDataFromVasp
 from vise.analyzer.vasp.plot_band import BandPlotInfoFromVasp
+from vise.atom_energies.make_atom_vasp_set import make_atom_poscar_dirs
 from vise.cli.main_tools import potcar_str2dict, list2dict
 from vise.defaults import defaults
 from vise.input_set.datasets.dataset_util import all_incar_flags
@@ -34,6 +35,10 @@ def get_poscar_from_mp(args: Namespace) -> None:
          "band_gap": data["band_gap"],
          "data_source": args.mpid}
     args.prior_info.write_text(yaml.dump(d), None)
+
+
+def make_atom_poscars(args: Namespace) -> None:
+    make_atom_poscar_dirs(args.dirname, args.elements)
 
 
 class VaspSet:

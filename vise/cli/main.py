@@ -6,10 +6,11 @@ import argparse
 import sys
 from pathlib import Path
 
+from pymatgen import Element
 from vise import __version__
 from vise.analyzer.atom_grouping_type import AtomGroupingType
 from vise.cli.main_functions import get_poscar_from_mp, VaspSet, plot_band, \
-    plot_dos, band_edge_properties
+    plot_dos, band_edge_properties, make_atom_poscars
 from vise.defaults import defaults
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc
@@ -63,6 +64,22 @@ Version: {__version__}
         help="MP entry id with prefix, e.g., mp-1234.")
 
     parser_get_poscar.set_defaults(func=get_poscar_from_mp)
+
+    # -- make_atom_poscars -----------------------------------------------------
+    parser_make_atom_poscars = subparsers.add_parser(
+        name="make_atom_poscars",
+        description="Tools for generating POSCAR files for atom calculations.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        aliases=['map'])
+
+    parser_make_atom_poscars.add_argument(
+        "-d", "--dirname", type=Path, default=Path.cwd(),
+        help="Directory name where atom calculation directories are created.")
+    parser_make_atom_poscars.add_argument(
+        "-e", "--elements", type=Element, default=None,
+        help="Element names. When not set, all atom directories are created")
+
+    parser_make_atom_poscars.set_defaults(func=make_atom_poscars)
 
     # -- vasp_set ---------------------------------------------------------
     parser_vasp_set = subparsers.add_parser(
