@@ -14,7 +14,7 @@ class AtomGroupingType(ExtendedEnum):
     elements = "elements"
     atoms = "atoms"
 
-    def grouped_atom_indices(self, structure, target):
+    def grouped_atom_indices(self, structure, target=None):
         if self is self.atoms:
             grouped_indices = group_by_atoms(structure, target)
         elif self is self.elements:
@@ -37,8 +37,9 @@ def group_by_atoms(structure: Structure, target):
 
 
 def group_by_elements(structure: Structure,
-                      target: List[str]) -> Dict[str, List[int]]:
+                      target: List[str] = None) -> Dict[str, List[int]]:
     result = {}
+    target = target or [str(e) for e in structure.composition.elements]
     for elem in target:
         result[elem] = \
             [i for i, site in enumerate(structure) if elem in site]

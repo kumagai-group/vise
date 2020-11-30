@@ -4,9 +4,11 @@
 
 import argparse
 import sys
+import warnings
 from pathlib import Path
 
 from pymatgen import Element
+from pymatgen.io.vasp.inputs import UnknownPotcarWarning
 from vise import __version__
 from vise.analyzer.atom_grouping_type import AtomGroupingType
 from vise.cli.main_functions import get_poscar_from_mp, VaspSet, plot_band, \
@@ -18,6 +20,9 @@ from vise.util.logger import get_logger
 from vise.util.str_related_tools import str2bool
 
 logger = get_logger(__name__)
+
+
+warnings.simplefilter('ignore', UnknownPotcarWarning)
 
 
 def parse_args(args):

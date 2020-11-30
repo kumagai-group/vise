@@ -11,10 +11,6 @@ from pymatgen import Structure, Lattice, Element
 from pymatgen.io.vasp import Kpoints
 from pymatgen.io.vasp.sets import MPRelaxSet, BadInputSetWarning
 from vise.input_set.datasets.potcar_set import PotcarSet
-from vise.input_set.input_options import CategorizedInputOptions
-from vise.input_set.task import Task
-from vise.input_set.vasp_input_files import VaspInputFiles
-from vise.input_set.xc import Xc
 
 mags = loadfn(Path(__file__).parent / "mp_atom_mag.yaml")
 
