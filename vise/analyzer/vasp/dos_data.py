@@ -22,7 +22,6 @@ class DosDataFromVasp:
         self.complete_dos = vasprun.complete_dos
         self.vertical_lines = vertical_lines or []
         self.base_energy = base_energy
-#        self.crop_first_value = crop_first_value
         self.energy_window = energy_window
         self.min_energy_idx = 1 if crop_first_value else 0
         self.max_energy_idx = len(self.complete_dos.energies)

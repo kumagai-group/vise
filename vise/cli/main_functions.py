@@ -147,8 +147,8 @@ def plot_dos(args: Namespace):
     else:
         base = args.base_energy
 
-    dos_data_from_vasp = DosDataFromVasp(vasprun, vertical_lines, base,
-                                         args.crop_first_value)
+    dos_data_from_vasp = \
+        DosDataFromVasp(vasprun, vertical_lines, base, args.crop_first_value)
     dos_data = dos_data_from_vasp.make_dos_data()
 
     ylim_set = None

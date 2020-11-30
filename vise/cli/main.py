@@ -98,48 +98,46 @@ Version: {__version__}
         "-p", "--poscar", default="POSCAR", type=Path,
         help="POSCAR-type input structure file name.")
     parser_vasp_set.add_argument(
-        "-t", "--task", default=defaults.task, type=Task,
+        "-t", dest="task", default=defaults.task, type=Task,
         choices=Task.name_list(),
-        help=f"Task name from {Task.names_string()}.")
+        help=f"Task name.")
     parser_vasp_set.add_argument(
-        "-x", "--xc", default=defaults.xc, type=Xc,
-        choices=Xc.name_list(),
-        help=f"Exchange-correlation (XC) interaction from {Xc.names_string()}.")
+        "-x", dest="xc", default=defaults.xc, type=Xc, choices=Xc.name_list(),
+        help=f"Exchange-correlation (XC) interaction.")
     parser_vasp_set.add_argument(
         # Default must be None to use the insulator_kpoint_density.
         # defaults.kpoints_density is used at structure_kpoints_generator.py
-        "-k", "--kpt_density",
-        type=float,
+        "-k", "--kpt_density", type=float,
         help="K-point density in Angstrom along each direction. "
              f"Defaults of metal and insulators are {defaults.kpoint_density}, "
              f"and {defaults.insulator_kpoint_density}.")
     parser_vasp_set.add_argument(
-        "--potcar",
-        dest="overridden_potcar", default=defaults.overridden_potcar,
-        type=str, nargs="+",
-        help="Additional User specifying POTCAR set. E.g., Mg_pv O_h")
+        "--potcar", dest="overridden_potcar",
+        default=defaults.overridden_potcar, type=str, nargs="+",
+        help="User specifying POTCAR set. E.g., Mg_pv O_h")
     parser_vasp_set.add_argument(
         "-uis", "--user_incar_settings", type=str, nargs="+",
-        help="Additional user_incar_settings in make_input classmethod of "
-             "ViseInputSet in vise. The default of this flag is set by the "
-             "vise.yaml, so if one does not want to override the default, use "
-             "additional_user_incar_setting instead. See also document in "
-             "vise input_set for details.")
+        help="""Overwritten incar settings described with pairs of INCAR tag 
+        names and values. These can also be set by vise.yaml, but they are 
+        overwritten by this command line options.""")
     parser_vasp_set.add_argument(
         "-d", "--prev_dir", type=Path,
         help="Parse the previous calculations for better input settings.")
     parser_vasp_set.add_argument(
         "--options", type=str, nargs="+",
-        help="Additional Keyword args for options in make_input classmethod of "
-             "ViseInputSet in vise. See document in vise for details.")
+        help="Manual options used at CategorizedInputOptions class.")
     parser_vasp_set.add_argument(
         "--uniform_kpt_mode", action="store_true",
-        help="Store if one doesn't want the cell to be transformed to a "
-             "primitive cell.")
+        help="""Kpoints with uniform k-point sampling. The k-point sampling mesh 
+        and centering are determined based on the given lattice. Note that only 
+        when the angles are 90 degrees, the centering is shifted along the 
+        perpendicular direction. This mode is useful when calculating the 
+        supercells. """)
     parser_vasp_set.add_argument(
         "--file_transfer_type", type=str, nargs="+",
-        help="Store if one doesn't want the cell to be transformed to a "
-             "primitive cell.")
+        help="File transfer which can is written with pairs of file names and "
+             "transfer types of m (move), c (copy) or l (link). An example is: "
+             "--file_transfer_type ../POSCAR c ../WAVECAR l ")
 
     parser_vasp_set.set_defaults(func=VaspSet)
 
@@ -153,12 +151,12 @@ Version: {__version__}
 
     parser_plot_band.add_argument(
         "-k", "--kpoints", dest="kpoints_filename", default="KPOINTS", type=str,
-        help="Kpoints file name.")
+        help="KPOINTS file name.")
     parser_plot_band.add_argument(
         "-y", "--y_range", nargs="+", default=[-10, 10], type=float,
         help="Energy range, requiring two values.")
     parser_plot_band.add_argument(
-        "-f", "--filename", type=str, default="band.pdf", help="pdf file name.")
+        "-f", "--filename", type=str, default="band.pdf", help="Pdf file name.")
 
     parser_plot_band.set_defaults(func=plot_band)
 
@@ -187,14 +185,13 @@ Version: {__version__}
         help="Set minimum and maximum energies.")
     parser_plot_dos.add_argument(
         "-y", "--y_max_ranges", nargs="+", type=float,
-        help="Set max energies for each plot. Assertion error is raised when"
+        help="Set max energies for each plot. AssertionError is raised when"
              "the number of ranges does not fit to the number of figures.")
     parser_plot_dos.add_argument(
-        "--target", type=str, nargs="+", help="""
-        Show specific PDOS. The input depends on AtomGroupingType.\n
-        AtomGroupingType.atoms: ["1", "2"] \n
-        AtomGroupingType.elements: ["Mg", "O"] 
-        """)
+        "--target", type=str, nargs="+",
+        help="""Show specific PDOS. The input depends on AtomGroupingType.\n 
+        AtomGroupingType.atoms:   1,2 3 \n
+        AtomGroupingType.elements: Mg O""")
     parser_plot_dos.add_argument(
         "-f", "--filename", type=str, default="dos.pdf", help="Pdf file name.")
     parser_plot_dos.add_argument(
@@ -205,7 +202,7 @@ Version: {__version__}
     # -- band_edge -------------------------------------------------------------
     parser_band_edge = subparsers.add_parser(
         name="band_edge",
-        description="Calculate the band edge properties",
+        description="Calculate the band edge positions",
         parents=[vasprun_parser, outcar_parser],
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         aliases=['be'])
