@@ -18,8 +18,7 @@ warnings.simplefilter('ignore', UnknownPotcarWarning)
 
 
 def make_energy_yaml():
-    dirs = [name for name in os.listdir(".")
-            if os.path.isdir(os.path.join(".", name))]
+    dirs = [f.name for f in os.scandir(".") if f.is_dir()]
 
     for e in list(Element):
         e = str(e)

@@ -65,17 +65,8 @@ def test_target_coeff_e_from_band_gap(actual_diele_func_data):
 def test_absorption_coeff_plotly_plotter(actual_diele_func_data):
     plotter = AbsorptionCoeffPlotlyPlotter(actual_diele_func_data,
                                            materials=["GaAs"])
-    #                                        align_gap=False)
     fig = plotter.create_figure()
     show_png(fig)
-
-
-def test_absorption_coeff_plotly_plotter_wo_alignment(actual_diele_func_data):
-    plotter = AbsorptionCoeffPlotlyPlotter(actual_diele_func_data,
-                                           materials=["GaAs"])
-    fig = plotter.create_figure()
-    fig.show()
-#    show_png(fig)
 
 
 def test_absorption_coeff_mpl_plotter(actual_diele_func_data):
