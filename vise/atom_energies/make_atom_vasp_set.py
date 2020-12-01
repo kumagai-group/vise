@@ -24,7 +24,7 @@ def is_target_element(elem: Union[Element, str]):
 
 
 def make_atom_poscar_dirs(path: Path, elems: List[Element] = None):
-    elems = elems or mags.keys()
+    elems = [str(e) for e in elems] if elems else mags.keys()
 
     for element in elems:
         d = path / element
