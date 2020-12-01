@@ -162,8 +162,6 @@ def test_set_labels(mock_plt_list):
                                        size=defaults.label_font_size)
     mock_1st_ax.set_ylabel.assert_called_with("Dos (1/eV)",
                                               size=defaults.label_font_size)
-    mock_2nd_ax.set_ylabel.assert_called_with("Dos (1/eV)",
-                                              size=defaults.label_font_size)
 
 
 def test_set_float_to_int_formatter(mock_plt_list):

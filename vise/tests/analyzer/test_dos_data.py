@@ -53,14 +53,14 @@ reference_energy = 0.5
 
 
 @pytest.fixture
-def dos_data_list(pdos_list):
-    dos_data_base_args = {"energies": energies,
-                          "total": total,
-                          "pdos": pdos_list}
-    dos_data = DosData(energies=energies, total=total, pdos=pdos_list,
-                       base_energy=reference_energy,
-                       vertical_lines=[0.0, 1.0])
+def dos_data(pdos_list):
+    return DosData(energies=energies, total=total, pdos=pdos_list,
+                   base_energy=reference_energy,
+                   vertical_lines=[0.0, 1.0])
 
+
+@pytest.fixture
+def dos_data_list(dos_data):
     dos_plot_data_w_lims = dos_data.dos_plot_data(
         grouped_atom_indices={"H": [0], "He": [1, 2]},
         xlim=[-100, 100],
@@ -114,7 +114,17 @@ def test_dos_data_energies(dos_data_list):
 def test_dos_data_lim(dos_data_list):
     _, _, dos_plot_data_wo_lim = dos_data_list
     assert dos_plot_data_wo_lim.energy_range == [-10, 10]
-    assert dos_plot_data_wo_lim.dos_ranges == [[-5.5, 5.5], [-154.0, 154.0], [-154.0, 154.0]]
+    # (1+..+7)*(2+3)*1.1
+    assert dos_plot_data_wo_lim.dos_ranges == \
+           [[-5.5, 5.5], [-154.0, 154.0], [-154.0, 154.0]]
+
+
+def test_dos_data_lim_2(dos_data):
+    dos_plot_data_w_x_lim = dos_data.dos_plot_data(
+        xlim=[-0.9, -0.1], grouped_atom_indices={"H": [0], "He": [1, 2]})
+    # (1+2+3+4+5) * (2 + 3)* 1.1 = 82.5
+    assert dos_plot_data_w_x_lim.dos_ranges == \
+           [[-5.5, 5.5], [-82.5, 82.5], [-82.5, 82.5]]
 
 
 def test_dos_data_manual_lim(dos_data_list):

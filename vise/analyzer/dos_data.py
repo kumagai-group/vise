@@ -76,8 +76,10 @@ class DosData(MSONable):
         if ylim_set is not None:
             assert len(grouped_atom_indices) + 1 == len(ylim_set)  # total+pdos
 
+        # Total dos does not have spin decomposition.
         doses = [[DosBySpinEnergy("", self.total.tolist())]]
         names = ["total"]
+
         for name, atom_indices_by_group in grouped_atom_indices.items():
             pdos_list = [self.pdos[idx] for idx in atom_indices_by_group]
             pdos = reduce(lambda x, y: x + y, pdos_list)
@@ -91,12 +93,13 @@ class DosData(MSONable):
             names.append(name)
 
         xlim = xlim or [-10, 10]
+        abs_xlim = [x + self.base_energy for x in xlim]
 
         if ylim_set is None:
             if self.spin:
-                ylim_set = [[-y, y] for y in self.max_y_ranges(doses, xlim)]
+                ylim_set = [[-y, y] for y in self.max_y_ranges(doses, abs_xlim)]
             else:
-                ylim_set = [[0, y] for y in self.max_y_ranges(doses, xlim)]
+                ylim_set = [[0, y] for y in self.max_y_ranges(doses, abs_xlim)]
 
         energies = [e - self.base_energy for e in self.energies]
         shifted_vertical_lines = [e - self.base_energy

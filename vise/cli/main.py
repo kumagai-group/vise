@@ -138,7 +138,7 @@ Version: {__version__}
         help="File transfer which is used with the prev_dir argument and can "
              "be written with pairs of file names and transfer types of "
              "m (move), c (copy) or l (link). An example is: "
-             "--file_transfer_type ../POSCAR c ../WAVECAR l ")
+             "--file_transfer_type POSCAR c WAVECAR l ")
 
     parser_vasp_set.set_defaults(func=VaspSet)
 

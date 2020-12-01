@@ -39,7 +39,8 @@ class BandPlotInfoFromVasp:
     def make_band_plot_info(self):
         bs = self.vasprun.get_band_structure(self.kpoints_filename,
                                              line_mode=True)
-        plot_data = BSPlotter(bs).bs_plot_data(zero_to_efermi=False)
+        bs_plotter = BSPlotter(bs)
+        plot_data = bs_plotter.bs_plot_data(zero_to_efermi=False)
         distances = [d for d in plot_data["distances"]]
         self._composition = self.vasprun.final_structure.composition
 
@@ -56,9 +57,12 @@ class BandPlotInfoFromVasp:
                          band_edge=self._band_edge(bs2, plot_data2),
                          fermi_level=bs.efermi))
 
+        x = bs_plotter.get_ticks_old()
+        x_ticks = XTicks(self._sanitize_labels(x["label"]), x["distance"])
+
         return BandPlotInfo(band_info_set=band_info,
                             distances_by_branch=distances,
-                            x_ticks=self._x_ticks(plot_data),
+                            x_ticks=x_ticks,
                             title=self._title)
 
     def _remove_spin_key(self, plot_data):
@@ -97,10 +101,7 @@ class BandPlotInfoFromVasp:
     def in_energy(self, _max, _min):
         return _max >= self.energy_window[0] and _min <= self.energy_window[1]
 
-    def _x_ticks(self, plot_data):
-        labels = self._sanitize_labels(plot_data["ticks"]["label"])
-        distances = plot_data["ticks"]["distance"]
-        return XTicks(labels=labels, distances=distances)
+
 
     def _band_edge(self, bs, plot_data):
         if bs.is_metal():
