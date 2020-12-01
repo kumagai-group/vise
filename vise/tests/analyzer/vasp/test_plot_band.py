@@ -43,14 +43,14 @@ def test_vasp_band_plotter(is_metal, expected_band_edge, mocker):
     distances = [np.array([0.0, 0.1, 0.2])]
     labels = ["A", "$A_0$", "GAMMA"]
     label_distances = [0.0, 0.1, 0.2]
-    plot_data = {"ticks": {"label": labels, "distance": label_distances},
-                 "energy": energy,
+    plot_data = {"energy": energy,
                  "distances": distances,
                  "vbm": [[0, -100]],
                  "cbm": [[1, 100], [2, 100]]}
 
     mock_bsp = mocker.patch("vise.analyzer.vasp.plot_band.BSPlotter", auto_spec=True)
-    mock_bsp().bs_plot_data.return_value = plot_data
+    mock_bsp.return_value.bs_plot_data.return_value = plot_data
+    mock_bsp.return_value.get_ticks_old.return_value = {"label": labels, "distance": [0.0, 0.1, 0.2]}
 
     plot_info = BandPlotInfoFromVasp(stub_vasprun, "KPOINTS").make_band_plot_info()
 
@@ -88,6 +88,7 @@ def test_draw_two_bands(test_data_files: Path):
     plot_info = BandPlotInfoFromVasp(
         vasprun, kpoints_file, vasprun2,
         energy_window=[-20.0, 20.0]).make_band_plot_info()
+
     plotter = BandPlotter(plot_info, [-10, 10], mpl_defaults=mpl_settings)
     plotter.construct_plot()
     plotter.plt.show()
@@ -108,14 +109,14 @@ def test_energy_window(mocker):
     distances = [[0.0, 1.0]]
     labels = ["A", "GAMMA"]
     label_distances = [0.0, 1.0]
-    plot_data = {"ticks": {"label": labels, "distance": label_distances},
-                 "energy": energy,
+    plot_data = {"energy": energy,
                  "distances": distances,
                  "vbm": None,
                  "cbm": None}
 
     mock_bsp = mocker.patch("vise.analyzer.vasp.plot_band.BSPlotter", auto_spec=True)
-    mock_bsp().bs_plot_data.return_value = plot_data
+    mock_bsp.return_value.bs_plot_data.return_value = plot_data
+    mock_bsp.return_value.get_ticks_old.return_value = {"label": labels, "distance": distances[0]}
 
     plot_info = BandPlotInfoFromVasp(stub_vasprun, "KPOINTS",
                                      energy_window=[0.0, 1.0]).make_band_plot_info()
