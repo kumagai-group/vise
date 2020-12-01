@@ -81,7 +81,7 @@ Version: {__version__}
         "-d", "--dirname", type=Path, default=Path.cwd(),
         help="Directory name where atom calculation directories are created.")
     parser_make_atom_poscars.add_argument(
-        "-e", "--elements", type=Element, default=None,
+        "-e", "--elements", type=Element, default=None, nargs="+",
         help="Element names. When not set, all atom directories are created")
 
     parser_make_atom_poscars.set_defaults(func=make_atom_poscars)

@@ -49,10 +49,10 @@ def test_make_atom_poscars_wo_options():
 
 
 def test_make_atom_poscars_w_options():
-    parsed_args = parse_args(["map", "-d", "a", "-e", "H"])
+    parsed_args = parse_args(["map", "-d", "a", "-e", "H", "He"])
     expected = Namespace(
         dirname=Path("a"),
-        elements=Element.H,
+        elements=[Element.H, Element.He],
         func=parsed_args.func)
     assert parsed_args == expected
 
