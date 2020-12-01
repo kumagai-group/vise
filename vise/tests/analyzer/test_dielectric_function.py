@@ -1,18 +1,15 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
+from math import pi, sqrt
+
+import numpy as np
 import pytest
 from monty.serialization import loadfn
 from pymatgen.io.vasp import Vasprun, Outcar
 from vise.analyzer.dielectric_function import DieleFuncData, \
-    AbsorptionCoeffMplPlotter, AbsorptionCoeffPlotlyPlotter, eV_to_inv_cm
-
-import numpy as np
-from math import pi, sqrt
-
+    eV_to_inv_cm
 from vise.analyzer.vasp.make_diele_func import make_diele_func
-from vise.tests.conftest import test_data_files, assert_msonable
-from vise.util.dash_helper import show_png
-
+from vise.tests.conftest import assert_msonable
 
 try:
     import psutil
@@ -61,17 +58,3 @@ def test_target_coeff_e_from_band_gap(actual_diele_func_data):
     np.testing.assert_almost_equal(actual, 0.4014000000000002)
 
 
-@pytest.mark.skipif(PSUTIL_NOT_PRESENT, reason="psutil does not exist")
-def test_absorption_coeff_plotly_plotter(actual_diele_func_data):
-    plotter = AbsorptionCoeffPlotlyPlotter(actual_diele_func_data,
-                                           materials=["GaAs"])
-    fig = plotter.create_figure()
-    show_png(fig)
-
-
-def test_absorption_coeff_mpl_plotter(actual_diele_func_data):
-    plotter = AbsorptionCoeffMplPlotter(actual_diele_func_data,
-                                        materials=["GaAs", "Si"])
-#                                        align_gap=False)
-    plotter.construct_plot()
-    plotter.plt.show()
