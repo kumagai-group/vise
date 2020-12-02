@@ -14,7 +14,27 @@ def em():
     return \
         EffectiveMass(p=[[[1.0, 0, 0], [0, 1.0, 0], [0, 0, 1.0]]],
                       n=[[[2.0, 0, 0], [0, 2.0, 0], [0, 0, 2.0]]],
+                      temperature=300,
                       concentrations=[10**18])
+
+
+def test_str(em):
+    expected = """temperature: 300
+------------------------------
+concentration: 1e+18
+p:
+-  -  -
+1  0  0
+0  1  0
+0  0  1
+-  -  -
+n:
+-  -  -
+2  0  0
+0  2  0
+0  0  2
+-  -  -"""
+    assert str(em) == expected
 
 
 def test_effective_mass_json_file_mixin(em, tmpdir):
@@ -25,7 +45,7 @@ def test_effective_mass_json_file_mixin(em, tmpdir):
 
 
 def test_effective_mass(em):
-    actual = em.effective_mass("p", 300, 10**18)
+    actual = em.effective_mass("p", 10**18)
     assert actual == em.p[0]
 
 
@@ -46,11 +66,3 @@ def test_lowest_eigval_and_vec(em):
     np.testing.assert_array_almost_equal(actual_eigvecs, expected_eigvecs)
 
 
-"""
-TODO
--
-1.0  0.2  0.1
-0.2  2.0  0.3
-0.1  0.3  3.0
-DONE
-"""

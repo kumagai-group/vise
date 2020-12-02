@@ -76,7 +76,7 @@ class AbsorptionCoeffPlotlyPlotter(AbsorptionCoeffPlotter):
 
 class AbsorptionCoeffMplPlotter(AbsorptionCoeffPlotter):
 
-    def construct_plot(self, add_directions: bool = True):
+    def construct_plot(self):
         self._add_coeffs()
         self._add_band_gap()
         if self.materials:

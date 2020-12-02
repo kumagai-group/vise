@@ -12,7 +12,7 @@ try:
     from vise.analyzer.vasp.make_effective_mass import make_effective_mass
     from pymatgen.electronic_structure.boltztrap2 import VasprunBSLoader
     BOLTZTRAP2_NOT_PRESENT = False
-except Exception:
+except ImportError:
     BOLTZTRAP2_NOT_PRESENT = True
 
 
@@ -39,7 +39,7 @@ def test_make_effective_mass(test_data_files):
     # mock_btp.assert_called_with(mock_bi.return_value, temp_r=np.array([300]))
     # mock_btp.return_value.compute_properties_doping.assert_called_with([1e18])
 
-    expected = EffectiveMass(p=p, n=n, concentrations=[1e+18])
+    expected = EffectiveMass(p=p, n=n, temperature=300, concentrations=[1e+18])
     np.testing.assert_array_almost_equal(actual.p, expected.p)
     np.testing.assert_array_almost_equal(actual.n, expected.n)
     np.testing.assert_array_almost_equal(actual.concentrations,

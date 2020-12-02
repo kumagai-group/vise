@@ -9,10 +9,13 @@ import yaml
 from pymatgen import Structure
 from pymatgen.ext.matproj import MPRester
 from pymatgen.io.vasp import Vasprun, Outcar
+from vise.analyzer.plot_absorption_coeff import AbsorptionCoeffMplPlotter
 from vise.analyzer.plot_band import BandPlotter
 from vise.analyzer.plot_dos import DosPlotter
 from vise.analyzer.vasp.band_edge_properties import VaspBandEdgeProperties
 from vise.analyzer.vasp.dos_data import DosDataFromVasp
+from vise.analyzer.vasp.make_diele_func import make_diele_func
+from vise.analyzer.vasp.make_effective_mass import make_effective_mass
 from vise.analyzer.vasp.plot_band import BandPlotInfoFromVasp
 from vise.atom_energies.make_atom_vasp_set import make_atom_poscar_dirs
 from vise.cli.main_tools import potcar_str2dict, list2dict
@@ -168,6 +171,24 @@ def plot_dos(args: Namespace):
     plotter = DosPlotter(plot_data, args.legend)
     plotter.construct_plot()
     plotter.plt.savefig(args.filename, format="pdf")
+
+
+def plot_absorption(args: Namespace):
+    diele_func_data = make_diele_func(Vasprun(args.vasprun),
+                                      Outcar(args.outcar))
+    plotter = AbsorptionCoeffMplPlotter(diele_func_data)
+    plotter.construct_plot()
+    plotter.plt.savefig(args.filename, format="pdf")
+
+
+def calc_effective_mass(args: Namespace):
+    vasprun, outcar = Vasprun(args.vasprun), Outcar(args.outcar)
+    band_edge_prop = VaspBandEdgeProperties(vasprun, outcar)
+    effective_mass = make_effective_mass(vasprun,
+                                         args.temperature,
+                                         args.concentrations,
+                                         band_edge_prop.band_gap)
+    print(effective_mass)
 
 
 def band_edge_properties(args: Namespace):

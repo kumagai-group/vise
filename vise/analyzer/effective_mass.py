@@ -6,18 +6,31 @@ import numpy as np
 
 from monty.json import MSONable
 from numpy import linalg
+from tabulate import tabulate
 from vise.util.mix_in import ToJsonFileMixIn
 
 
 @dataclass
 class EffectiveMass(MSONable, ToJsonFileMixIn):
-    p: List[List[List]]  # [temperature][carrier concentration]
+    p: List[List[List]]
     n: List[List[List]]
+    temperature: float
     concentrations: List[float]
 
-    def effective_mass(self, carrier_type, temp, concentration):
+    def effective_mass(self, carrier_type, concentration):
         i_c = self.concentrations.index(concentration)
         return self.__getattribute__(carrier_type)[i_c]
+
+    def __str__(self):
+        lines = [f"temperature: {self.temperature}"]
+        for c, pp, nn in zip(self.concentrations, self.p, self.n):
+            lines.append("-"*30)
+            lines.append(f"concentration: {c:g}")
+            lines.append(f"p:")
+            lines.append(tabulate(pp))
+            lines.append(f"n:")
+            lines.append(tabulate(nn))
+        return "\n".join(lines)
 
 
 def eigvals_and_vecs(matrix: np.ndarray):

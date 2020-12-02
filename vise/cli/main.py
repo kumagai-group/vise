@@ -12,7 +12,8 @@ from pymatgen.io.vasp.inputs import UnknownPotcarWarning
 from vise import __version__
 from vise.analyzer.atom_grouping_type import AtomGroupingType
 from vise.cli.main_functions import get_poscar_from_mp, VaspSet, plot_band, \
-    plot_dos, band_edge_properties, make_atom_poscars
+    plot_dos, band_edge_properties, make_atom_poscars, plot_absorption, \
+    calc_effective_mass
 from vise.defaults import defaults
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc
@@ -199,6 +200,35 @@ Version: {__version__}
         "-b", "--base_energy", type=float,
         help="Set when showing the figure in the absolute energies scale.")
     parser_plot_dos.set_defaults(func=plot_dos)
+
+    # -- plot_absorption -------------------------------------------------------
+    parser_plot_absorption = subparsers.add_parser(
+        name="plot_absorption",
+        description="Tools for plotting absorption coefficient",
+        parents=[vasprun_parser, outcar_parser],
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        aliases=['pa'])
+
+    parser_plot_absorption.add_argument(
+        "-f", "--filename", type=str, default="absorption.pdf",
+        help="Pdf file name.")
+    parser_plot_absorption.set_defaults(func=plot_absorption)
+
+    # -- effective_mass -------------------------------------------------------
+    parser_effective_mass = subparsers.add_parser(
+        name="effective_mass",
+        description="Tools for calculating effective masses",
+        parents=[vasprun_parser, outcar_parser],
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        aliases=['em'])
+
+    parser_effective_mass.add_argument(
+        "-t", "--temperature", type=float, default=300, help="Temperature.")
+    parser_effective_mass.add_argument(
+        "-c", "--concentrations", type=lambda x: 10 ** float(x), nargs="+",
+        help="Exponential parts of base-10 for concentrations.")
+
+    parser_effective_mass.set_defaults(func=calc_effective_mass)
 
     # -- band_edge -------------------------------------------------------------
     parser_band_edge = subparsers.add_parser(
