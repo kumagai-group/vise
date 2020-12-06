@@ -138,6 +138,7 @@ class BandDosPlotlyPlotter:
 
         # Add x labels
         str_replace = {"$\mid$": "|",
+                       "_0": "<sub>0</sub>",
                        "_1": "<sub>1</sub>",
                        "_2": "<sub>2</sub>",
                        "_3": "<sub>3</sub>",

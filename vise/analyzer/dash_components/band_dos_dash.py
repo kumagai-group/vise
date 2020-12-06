@@ -50,6 +50,7 @@ class BandDosComponent(MPComponent):
                             shared_yaxes=True,
                             horizontal_spacing=0.01,
                             subplot_titles=names,
+                            font_size=25,
                             x_title="DOS (1/eV/unit cell)",
                             y_title="Energy (eV)")
 

@@ -26,8 +26,7 @@ class AbsorptionCoeffPlotter:
         self.coeff_power_range = coeff_power_range
         self.materials = materials
 
-        self.xaxis_title = "Energy (eV)"
-        self.yaxis_title = "Absorption coefficient. (cm-1)"
+        self._xaxis_title = "Energy (eV)"
         self.ymin = 10**3
         self.ymax = 10**7
 
@@ -35,12 +34,15 @@ class AbsorptionCoeffPlotter:
 
 
 class AbsorptionCoeffPlotlyPlotter(AbsorptionCoeffPlotter):
+
+    _yaxis_title = "Absorption coefficient. (cm <sup>-1</sup>)"
+
     def create_figure(self):
         fig = go.Figure()
         fig.update_layout(
-            xaxis_title=self.xaxis_title,
-            yaxis_title=self.yaxis_title,
-            font_size=15,
+            xaxis_title=self._xaxis_title,
+            yaxis_title=self._yaxis_title,
+            font_size=25,
             width=800, height=700)
 
         fig.add_trace(go.Scatter(x=self.energies,
@@ -75,6 +77,7 @@ class AbsorptionCoeffPlotlyPlotter(AbsorptionCoeffPlotter):
 
 
 class AbsorptionCoeffMplPlotter(AbsorptionCoeffPlotter):
+    _yaxis_title = "Absorption coefficient. (cm-1)"
 
     def construct_plot(self):
         self._add_coeffs()
@@ -120,8 +123,8 @@ class AbsorptionCoeffMplPlotter(AbsorptionCoeffPlotter):
         self.plt.gca().set_ylim(ymin=self.ymin, ymax=self.ymax)
 
     def _set_labels(self):
-        self.plt.xlabel(self.xaxis_title)
-        self.plt.ylabel(self.yaxis_title)
+        self.plt.xlabel(self._xaxis_title)
+        self.plt.ylabel(self._yaxis_title)
 
     def _set_formatter(self):
         axis = self.plt.gca()
