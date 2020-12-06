@@ -41,7 +41,7 @@ class BandPlotInfoFromVasp:
                                              line_mode=True)
         bs_plotter = BSPlotter(bs)
         plot_data = bs_plotter.bs_plot_data(zero_to_efermi=False)
-        distances = [d for d in plot_data["distances"]]
+        distances = [list(d) for d in plot_data["distances"]]
         self._composition = self.vasprun.final_structure.composition
 
         band_info = [BandInfo(band_energies=self._remove_spin_key(plot_data),
@@ -65,7 +65,7 @@ class BandPlotInfoFromVasp:
                             x_ticks=x_ticks,
                             title=self._title)
 
-    def _remove_spin_key(self, plot_data):
+    def _remove_spin_key(self, plot_data) -> List[List[List[List[float]]]]:
         """
         Pymatgen at 2020.11.11
          energy: A dict storing bands for spin up and spin down data
@@ -100,8 +100,6 @@ class BandPlotInfoFromVasp:
 
     def in_energy(self, _max, _min):
         return _max >= self.energy_window[0] and _min <= self.energy_window[1]
-
-
 
     def _band_edge(self, bs, plot_data):
         if bs.is_metal():
