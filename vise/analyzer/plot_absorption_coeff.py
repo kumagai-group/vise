@@ -47,13 +47,13 @@ class AbsorptionCoeffPlotlyPlotter(AbsorptionCoeffPlotter):
 
         fig.add_trace(go.Scatter(x=self.energies,
                                  y=self.absorption_coeff,
-                                 name="calc"))
+                                 line=dict(width=2.5),
+                                 name="Average"))
         fig.add_trace(go.Scatter(x=[self.band_gap, self.band_gap],
                                  y=[self.ymin, self.ymax],
-                                 line=dict(width=1, dash="dash"),
-                                 showlegend=False,
+                                 line=dict(width=2, dash="dash"),
                                  line_color="black",
-                                 name="calculated band gap"))
+                                 name="Band gap"))
 
         if self.materials:
             for material in self.materials:
@@ -70,9 +70,8 @@ class AbsorptionCoeffPlotlyPlotter(AbsorptionCoeffPlotter):
                                          line=dict(width=1, dash="dashdot"),
                                          name=material))
 
-        fig["layout"]["xaxis"]["range"] = self.energy_range
-        fig["layout"]["yaxis"]["range"] = [log10(self.ymin), log10(self.ymax)]
-        fig.update_yaxes(type="log")
+        fig.update_xaxes(range=self.energy_range, tickfont_size=20)
+        fig.update_yaxes(type="log", range=[log10(self.ymin), log10(self.ymax)], tickfont_size=20)
         return fig
 
 
