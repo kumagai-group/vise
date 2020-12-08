@@ -6,12 +6,13 @@ import re
 from copy import deepcopy
 from typing import Tuple, List
 import numpy as np
-from pymatgen import Spin
+from pymatgen import Spin, Lattice
 
 from pymatgen.electronic_structure.plotter import BSPlotter
-from pymatgen.io.vasp import Vasprun
+from pymatgen.io.vasp import Vasprun, Kpoints
 from pymatgen.util.string import latexify
 from vise.analyzer.plot_band import BandPlotInfo, BandInfo, XTicks, BandEdge
+from vise.analyzer.plot_brillouin_zone import BZPlotInfo
 
 
 def greek_to_unicode(label: str) -> str:
@@ -35,18 +36,18 @@ class BandPlotInfoFromVasp:
         self.kpoints_filename = kpoints_filename
         self.vasprun2 = vasprun2
         self.energy_window = energy_window
+        self.bs = self.vasprun.get_band_structure(self.kpoints_filename,
+                                                  line_mode=True)
 
     def make_band_plot_info(self):
-        bs = self.vasprun.get_band_structure(self.kpoints_filename,
-                                             line_mode=True)
-        bs_plotter = BSPlotter(bs)
+        bs_plotter = BSPlotter(self.bs)
         plot_data = bs_plotter.bs_plot_data(zero_to_efermi=False)
         distances = [list(d) for d in plot_data["distances"]]
         self._composition = self.vasprun.final_structure.composition
 
         band_info = [BandInfo(band_energies=self._remove_spin_key(plot_data),
-                              band_edge=self._band_edge(bs, plot_data),
-                              fermi_level=bs.efermi)]
+                              band_edge=self._band_edge(self.bs, plot_data),
+                              fermi_level=self.bs.efermi)]
 
         if self.vasprun2:
             bs2 = self.vasprun2.get_band_structure(self.kpoints_filename,
@@ -55,15 +56,25 @@ class BandPlotInfoFromVasp:
             band_info.append(
                 BandInfo(band_energies=self._remove_spin_key(plot_data2),
                          band_edge=self._band_edge(bs2, plot_data2),
-                         fermi_level=bs.efermi))
+                         fermi_level=self.bs.efermi))
 
         x = bs_plotter.get_ticks_old()
-        x_ticks = XTicks(self._sanitize_labels(x["label"]), x["distance"])
+        x_ticks = XTicks(_sanitize_labels(x["label"]), x["distance"])
 
         return BandPlotInfo(band_info_set=band_info,
                             distances_by_branch=distances,
                             x_ticks=x_ticks,
                             title=self._title)
+
+    def make_bz_plot_info(self):
+        rec_lat = self.vasprun.final_structure.lattice.reciprocal_lattice
+        faces = [[list(j) for j in i] for i in rec_lat.get_wigner_seitz_cell()]
+        labels = {}
+        for kpoint in self.bs.kpoints:
+            if kpoint.label:
+                labels[greek_to_unicode(kpoint.label)] = list(kpoint.cart_coords)
+
+        return BZPlotInfo(faces, labels)
 
     def _remove_spin_key(self, plot_data) -> List[List[List[List[float]]]]:
         """
@@ -115,6 +126,10 @@ class BandPlotInfoFromVasp:
     def _title(self):
         return latexify(self._composition.reduced_formula)
 
-    @staticmethod
-    def _sanitize_labels(labels):
-        return [italic_to_roman(greek_to_unicode(label)) for label in labels]
+
+def _sanitize_label(label):
+    return italic_to_roman(greek_to_unicode(label))
+
+
+def _sanitize_labels(labels):
+    return [_sanitize_label(label) for label in labels]

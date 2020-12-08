@@ -4,14 +4,17 @@
 from pathlib import Path
 
 import pytest
-from pymatgen import Composition, Spin
+from pymatgen import Composition, Spin, Lattice
+from pymatgen.electronic_structure.plotter import plot_brillouin_zone
 from pymatgen.io.vasp import Vasprun
 
 from vise.analyzer.plot_band import BandEdge, XTicks, BandMplSettings
+from vise.analyzer.plot_brillouin_zone import BZPlotlyPlotter
 from vise.analyzer.vasp.plot_band import greek_to_unicode, italic_to_roman, \
     BandPlotInfoFromVasp
 from vise.analyzer.plot_band import BandPlotter
 import numpy as np
+from vise.util.dash_helper import show_png
 
 
 def test_greek_to_unicode():
@@ -74,6 +77,17 @@ def test_draw_band_plotter_with_actual_vasp_files(test_data_files: Path):
     plotter.plt.show()
 
 
+def test_bz_plotter_with_actual_vasp_files(test_data_files: Path):
+    vasprun_file = str(test_data_files / "KO2_band_vasprun.xml")
+    kpoints_file = str(test_data_files / "KO2_band_KPOINTS")
+    vasprun = Vasprun(vasprun_file)
+    bz_plot_info = BandPlotInfoFromVasp(vasprun, kpoints_file).make_bz_plot_info()
+    print(bz_plot_info)
+    fig = BZPlotlyPlotter(bz_plot_info).create_figure()
+    fig.show()
+    # show_png(fig)
+
+
 def test_draw_two_bands(test_data_files: Path):
     mpl_settings = BandMplSettings(linewidth=[0.3, 1.0],
                                    circle_size=50,
@@ -122,5 +136,4 @@ def test_energy_window(mocker):
 
     assert (plot_info.band_info_set[0].band_energies
             == [[[[-0.2, -0.1, -0.3, 0.1]]]])
-
 

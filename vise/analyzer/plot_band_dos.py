@@ -10,6 +10,22 @@ subplot_font_size = 24
 tickfont_size = 20
 
 
+def plotly_sanitize_label(label: str):
+    str_replace = {"$\mid$": "|",
+                   "_0": "<sub>0</sub>",
+                   "_1": "<sub>1</sub>",
+                   "_2": "<sub>2</sub>",
+                   "_3": "<sub>3</sub>",
+                   "_4": "<sub>4</sub>",
+                   r"${\rm ": "",
+                   "}": "",
+                   "$": ""}
+    for key in str_replace.keys():
+        if key in label:
+            label = label.replace(key, str_replace[key])
+    return label
+
+
 class BandDosPlotlyPlotter:
 
     def __init__(self,
@@ -53,7 +69,7 @@ class BandDosPlotlyPlotter:
             # add empty trace when band_plot_info is None.
             self.fig.add_trace(go.Scatter(x=[], y=[], name="band"), row=1, col=1)
 
-        self.fig.update_layout(width=2000, height=700)
+        self.fig.update_layout(width=1800, height=700)
 
         if dos_plot_data:
             self.add_dos()
@@ -130,31 +146,15 @@ class BandDosPlotlyPlotter:
                                row=1, col=1)
 
         if h_lines_2:
-            for energy in h_lines:
+            for energy in h_lines_2:
                 self.fig.add_shape(dict(type="line",
                                    x0=0, x1=last_path, y0=energy, y1=energy,
-                                   line=dict(color="royalblue", width=3, dash="dot")),
+                                   line=dict(color="green", width=3, dash="dot")),
                                    row=1, col=1)
 
-        # Add x labels
-        str_replace = {"$\mid$": "|",
-                       "_0": "<sub>0</sub>",
-                       "_1": "<sub>1</sub>",
-                       "_2": "<sub>2</sub>",
-                       "_3": "<sub>3</sub>",
-                       "_4": "<sub>4</sub>",
-                       r"${\rm ": "",
-                       "}": "",
-                       "$": ""}
-
-        labels = self.band_plot_info.x_ticks.labels
+        new_labels = [plotly_sanitize_label(label)
+                      for label in self.band_plot_info.x_ticks.labels]
         distances = self.band_plot_info.x_ticks.distances
-        new_labels = []
-        for label in labels:
-            for key in str_replace.keys():
-                if key in label:
-                    label = label.replace(key, str_replace[key])
-            new_labels.append(label)
 
         self.fig.update_xaxes(tickvals=self.band_plot_info.x_ticks.distances,
                               ticktext=new_labels,
@@ -194,7 +194,7 @@ class BandDosPlotlyPlotter:
                                    showlegend=False,
                                    name="band",
                                    mode="lines",
-                                   opacity=0.5,
+                                   opacity=0.7,
                                    line={"width": 3.0}), row=1, col=1),
 
     def add_dos(self):
@@ -214,11 +214,12 @@ class BandDosPlotlyPlotter:
                 self.fig.add_trace(
                     go.Scatter(y=self.dos_plot_data.relative_energies,
                                x=dos.dos[0],
-                               name=dos.name,
+                               name=f"<i>{dos.name}</i>",
                                line_color=color,
                                line={"width": 3},
                                legendgroup="total" if i == 2 else "pdos",
-                               showlegend=True if i == 3 else False),
+                               showlegend=True if i == 3 else False,
+                               ),
                     row=1, col=i
                 )
             for energy in [0.0, cbm]:
@@ -231,4 +232,5 @@ class BandDosPlotlyPlotter:
             self.fig.update_xaxes(range=y_lim, row=1, col=i,
                                   tickfont_size=tickfont_size)
         self.fig.update_layout(legend=dict(yanchor="top", y=0.99,
-                                           xanchor="right", x=0.99))
+                                           xanchor="right", x=0.99,
+                                           font_size=20))
