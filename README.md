@@ -4,7 +4,7 @@
 
 vise
 =========
-Vasp Integrated Simulation Environment (vise) is a collection of tools that 
+VASP Integrated Supporting Environment (vise) is a collection of tools that 
 supports VASP users to prepare input files for the VASP calculations, handle its calculation errors, and analyze its results.
 
 **Note1: Only ensure VASP ver5.4.4 so far.**
