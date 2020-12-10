@@ -58,8 +58,8 @@ class BandDosPlotlyPlotter:
         for i in self.fig['layout']['annotations']:
             i['font'] = dict(size=subplot_font_size)
 
-        self.fig["layout"]["yaxis"]["range"] = \
-            [-5, dos_plot_data.energy_range[1]]
+        self.fig["layout"]["yaxis"]["range"] = [-5, 10]
+#            [-5, dos_plot_data.energy_range[1]]
 
         self.fig.update_yaxes(tickfont_size=tickfont_size)
 
@@ -69,7 +69,7 @@ class BandDosPlotlyPlotter:
             # add empty trace when band_plot_info is None.
             self.fig.add_trace(go.Scatter(x=[], y=[], name="band"), row=1, col=1)
 
-        self.fig.update_layout(width=1800, height=700)
+        self.fig.update_layout(width=1600, height=700)
 
         if dos_plot_data:
             self.add_dos()

@@ -68,13 +68,26 @@ class BandPlotInfoFromVasp:
 
     def make_bz_plot_info(self):
         rec_lat = self.vasprun.final_structure.lattice.reciprocal_lattice
-        faces = [[list(j) for j in i] for i in rec_lat.get_wigner_seitz_cell()]
+        faces = [[[float(k) for k in j] for j in i] for i in rec_lat.get_wigner_seitz_cell()]
         labels = {}
+
+        concat = False
+        band_paths = []
+        init_point = None
         for kpoint in self.bs.kpoints:
             if kpoint.label:
-                labels[greek_to_unicode(kpoint.label)] = list(kpoint.cart_coords)
+                c_coords = list(kpoint.cart_coords)
+                f_coords = list(kpoint.frac_coords)
+                label = greek_to_unicode(kpoint.label)
+                labels[label] = {"cart": c_coords, "frac": f_coords}
+                if concat is False and init_point:
+                    band_paths.append([init_point, c_coords])
+                init_point = c_coords
+                concat = True
+            else:
+                concat = False
 
-        return BZPlotInfo(faces, labels)
+        return BZPlotInfo(faces, labels, band_paths, rec_lat.matrix.tolist())
 
     def _remove_spin_key(self, plot_data) -> List[List[List[List[float]]]]:
         """
