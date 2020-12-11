@@ -82,7 +82,7 @@ def test_bz_plotter_with_actual_vasp_files(test_data_files: Path):
     kpoints_file = str(test_data_files / "KO2_band_KPOINTS")
     vasprun = Vasprun(vasprun_file)
     bz_plot_info = BandPlotInfoFromVasp(vasprun, kpoints_file).make_bz_plot_info()
-    print(bz_plot_info)
+    print(bz_plot_info.band_paths)
     fig = BZPlotlyPlotter(bz_plot_info).create_figure()
     fig.show()
     # show_png(fig)

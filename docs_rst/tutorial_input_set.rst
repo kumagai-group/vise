@@ -1,8 +1,7 @@
 Tutorial -- input set
 ---------------------
 
-In this tutorial, we show how to use :code:`vise` to generate the :code:`VASP` input files
-using an example of ScN.
+In this tutorial, we show how to use :code:`vise` to generate the :code:`VASP` input files.
 
 ============================
 Preparation of the unit cell
@@ -30,8 +29,8 @@ In :code:`vise`, :code:`vasp_set` (= :code:`vs`) sub-command generates these fil
 It includes various arguments, in which important ones are
 :code:`--task` (or :code:`-t`) and :code:`--xc` (or :code:`-x`),
 which determine the task and exchange-correlation (XC) functional.
-The defaults are structure optimization (structure_opt) with the PBE functional (pbe).
-So we can generate INCAR, POTCAR, and KPOINTS files,
+The defaults are structure optimization with the PBE functional.
+So, we can generate INCAR, POTCAR, and KPOINTS files,
 by typing as follows at the directory where POSCAR exists,
 
 ::

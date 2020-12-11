@@ -52,11 +52,11 @@ class BZPlotlyPlotter:
             data.append(go.Scatter3d(x=[c_coords[0]], y=[c_coords[1]], z=[c_coords[2]],
                                      text=[plotly_sanitize_label(label)],
                                      mode="markers+text",
-                                     marker=dict(color="orange", size=5),
+                                     marker=dict(color="orange", size=6),
                                      meta=f_coords,
                                      hovertemplate="(%{meta[0]:.2f} %{meta[1]:.2f} %{meta[2]:.2f})",
                                      textposition="middle center",
-                                     textfont=dict(size=24)))
+                                     textfont=dict(size=32)))
 
         for i, l in self._bz_plot_info.band_paths:
             data.append(go.Scatter3d(x=[i[0], l[0]],
@@ -69,7 +69,7 @@ class BZPlotlyPlotter:
 
         _max = np.amax(np.array(sum(self._bz_plot_info.faces, [])))
         c_max = _max * 1.3
-        c_cone = _max * 0.5
+        c_cone = _max * 0.3
 
         data.append(go.Cone(x=[c_max], y=[0], z=[0], u=[c_cone], v=[0], w=[0],
                             colorscale=[[0, 'rgb(200,200,200)'],
@@ -91,9 +91,9 @@ class BZPlotlyPlotter:
                                  marker_color="black"))
 
         for i, direct in zip(self._bz_plot_info.rec_lat_vec, ["kx", "ky", "kz"]):
-            kx, ky, kz = i
-            norm = c_cone / sqrt(i[0] ** 2 + i[1] ** 2 + i[2] ** 2)
-            norm_kx, norm_ky, norm_kz = np.array(i) * norm
+            nn = sqrt(i[0] ** 2 + i[1] ** 2 + i[2] ** 2)
+            kx, ky, kz = np.array(i) * c_max / nn * 1.15
+            norm_kx, norm_ky, norm_kz = np.array(i) * c_cone / nn
             data.append(go.Cone(x=[kx], y=[ky], z=[kz],
                                 u=[norm_kx], v=[norm_ky], w=[norm_kz],
                                 colorscale=[[0, 'rgb(100,100,100)'],
