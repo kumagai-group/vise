@@ -71,7 +71,11 @@ class AbsorptionCoeffPlotlyPlotter(AbsorptionCoeffPlotter):
                                          name=material))
 
         fig.update_xaxes(range=self.energy_range, tickfont_size=20)
-        fig.update_yaxes(type="log", range=[log10(self.ymin), log10(self.ymax)], tickfont_size=20)
+        fig.update_yaxes(type="log",
+                         range=[log10(self.ymin), log10(self.ymax)],
+                         tickfont_size=20,
+                         showexponent="all", exponentformat='power'
+                         )
         return fig
 
 
