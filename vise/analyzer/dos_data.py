@@ -92,7 +92,7 @@ class DosData(MSONable):
             doses.append(pdos_by_ax)
             names.append(name)
 
-        xlim = xlim or [-10, 10]
+        xlim = xlim or [-5, 10]
         abs_xlim = [x + self.base_energy for x in xlim]
 
         if ylim_set is None:
