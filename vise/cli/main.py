@@ -225,7 +225,8 @@ Version: {__version__}
     parser_effective_mass.add_argument(
         "-t", "--temperature", type=float, default=300, help="Temperature.")
     parser_effective_mass.add_argument(
-        "-c", "--concentrations", type=lambda x: 10 ** float(x), nargs="+",
+        "-c", "--concentrations", type=lambda x: 10 ** float(x),
+        nargs="+", default=18,
         help="Exponential parts of base-10 for concentrations.")
 
     parser_effective_mass.set_defaults(func=calc_effective_mass)
