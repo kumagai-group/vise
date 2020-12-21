@@ -84,8 +84,9 @@ class DosPlotter:
                 self._axs[i].plot(self._dos_plot_data.relative_energies,
                                   dos_for_plot, **args)
 
-        self._axs[i].legend(bbox_to_anchor=(0.9, 1), loc='upper left',
-                            borderaxespad=0, markerscale=0.1)
+        if self._show_legend:
+            self._axs[i].legend(bbox_to_anchor=(0.9, 1), loc='upper left',
+                                borderaxespad=0, markerscale=0.1)
 
     def _set_ylabel(self, i):
         self._axs[i].set_ylabel("Dos (1/eV)",
