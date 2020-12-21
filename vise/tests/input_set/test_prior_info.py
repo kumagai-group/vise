@@ -19,7 +19,8 @@ def nonmagnetic_insulator():
                      charge=2,
                      magnetization_criterion=0.001,
                      band_gap_criterion=0.1,
-                     incar={"NUPDOWN": 2})
+                     incar={"NUPDOWN": 2},
+                     icsd_ids=[12, 13])
 
 
 def test_round_trip_dict(nonmagnetic_insulator):

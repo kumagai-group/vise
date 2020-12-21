@@ -3,7 +3,7 @@
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List
 
 import yaml
 from monty.json import MSONable
@@ -25,6 +25,7 @@ class PriorInfo(MSONable):
     data_source: str = None
     is_cluster: bool = None
     charge: int = None
+    icsd_ids: List[int] = None
     magnetization_criterion: float = defaults.integer_criterion
     band_gap_criterion: float = defaults.band_gap_criterion
     incar: dict = field(default_factory=dict)
