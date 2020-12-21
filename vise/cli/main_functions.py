@@ -39,7 +39,8 @@ def get_poscar_from_mp(args: Namespace) -> None:
     data = MPRester().get_data(args.mpid)[0]
     d = {"total_magnetization": data["total_magnetization"],
          "band_gap": data["band_gap"],
-         "data_source": args.mpid}
+         "data_source": args.mpid,
+         "icsd_ids": data["icsd_ids"]}
     args.prior_info.write_text(yaml.dump(d), None)
 
 

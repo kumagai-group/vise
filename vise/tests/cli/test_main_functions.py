@@ -35,6 +35,9 @@ direct
                                                                fmt="POSCAR")
     assert Path("prior_info.yaml").read_text() == """band_gap: 0.0
 data_source: mp-110
+icsd_ids:
+- 180455
+- 642652
 total_magnetization: 0.0001585
 """
     # Need to remove file to avoid the side effect for other unittests.
