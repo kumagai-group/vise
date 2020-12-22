@@ -87,6 +87,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorial – input set</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#preparation-of-the-unit-cell">Preparation of the unit cell</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#input-files-for-the-cell-relaxation">Input files for the cell relaxation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#kpoints-files">KPOINTS files</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial_band_dos.html">Tutorial – Analyzing calculation results</a></li>
@@ -159,8 +160,7 @@
             
   <div class="section" id="tutorial-input-set">
 <h1>Tutorial – input set<a class="headerlink" href="#tutorial-input-set" title="Permalink to this headline">¶</a></h1>
-<p>In this tutorial, we show how to use <code class="code docutils literal notranslate"><span class="pre">vise</span></code> to generate the <code class="code docutils literal notranslate"><span class="pre">VASP</span></code> input files
-using an example of ScN.</p>
+<p>In this tutorial, we show how to use <code class="code docutils literal notranslate"><span class="pre">vise</span></code> to generate the <code class="code docutils literal notranslate"><span class="pre">VASP</span></code> input files.</p>
 <div class="section" id="preparation-of-the-unit-cell">
 <h2>Preparation of the unit cell<a class="headerlink" href="#preparation-of-the-unit-cell" title="Permalink to this headline">¶</a></h2>
 <p>Firstly, we obtain the POSCAR file via Materials Project REST API.
@@ -183,8 +183,8 @@ In <code class="code docutils literal notranslate"><span class="pre">vise</span>
 It includes various arguments, in which important ones are
 <code class="code docutils literal notranslate"><span class="pre">--task</span></code> (or <code class="code docutils literal notranslate"><span class="pre">-t</span></code>) and <code class="code docutils literal notranslate"><span class="pre">--xc</span></code> (or <code class="code docutils literal notranslate"><span class="pre">-x</span></code>),
 which determine the task and exchange-correlation (XC) functional.
-The defaults are structure optimization (structure_opt) with the PBE functional (pbe).
-So we can generate INCAR, POTCAR, and KPOINTS files,
+The defaults are structure optimization with the PBE functional.
+So, we can generate INCAR, POTCAR, and KPOINTS files,
 by typing as follows at the directory where POSCAR exists,</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">vise</span> <span class="n">vs</span>
 </pre></div>
@@ -202,6 +202,17 @@ The <code class="code docutils literal notranslate"><span class="pre">INCAR</spa
 via <code class="code docutils literal notranslate"><span class="pre">vise.yaml</span></code> file, but the command line arguments are prioritized.
 See <a class="reference internal" href="tutorial_vise_yaml.html"><span class="doc">Tutorial – vise.yaml</span></a> for details.</p>
 <p>Next, let’s move to <a class="reference internal" href="tutorial_band_dos.html"><span class="doc">Tutorial – Analyzing calculation results</span></a>.</p>
+</div>
+<div class="section" id="kpoints-files">
+<h2>KPOINTS files<a class="headerlink" href="#kpoints-files" title="Permalink to this headline">¶</a></h2>
+<p>The kpoint mesh is determined to be proportional to the reciprocal lattice constants.
+Let’s consider the cubic lattice with a=10A, where the reciprocal lattice length in the “physics” definition is 2*pi/10.
+When the density of the k-point mesh is set to 2.5 A,
+the number of k points along this direction is ceil(2*pi/10*2.5) = ceil(pi/2) = 2.
+Users can also control this density via <cite>vise.yaml</cite>.</p>
+<p>There is an exception for body centered orthorhombic and tetragonal systems.
+In these, although distances of reciprocal lattice constants are not the same,
+but the number of k-points needs to be the same to keep the lattice symmetry.</p>
 </div>
 </div>
 

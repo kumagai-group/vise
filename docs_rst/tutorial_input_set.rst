@@ -53,3 +53,17 @@ via :code:`vise.yaml` file, but the command line arguments are prioritized.
 See :doc:`tutorial_vise_yaml` for details.
 
 Next, let's move to :doc:`tutorial_band_dos`.
+
+=============
+KPOINTS files
+=============
+The kpoint mesh is determined to be proportional to the reciprocal lattice constants.
+Let's consider the cubic lattice with a=10A, where the reciprocal lattice length in the "physics" definition is 2*pi/10.
+When the density of the k-point mesh is set to 2.5 A,
+the number of k points along this direction is ceil(2*pi/10*2.5) = ceil(pi/2) = 2.
+Users can also control this density via `vise.yaml`.
+
+There is an exception for body centered orthorhombic and tetragonal systems.
+In these, although distances of reciprocal lattice constants are not the same,
+but the number of k-points needs to be the same to keep the lattice symmetry.
+
