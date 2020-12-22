@@ -84,10 +84,13 @@ class BZPlotlyPlotter:
                                         [1, 'rgb(200,200,200)']],
                             showscale=False, hovertemplate="<b>z</b>"))
         data.append(go.Scatter3d(x=[0, c_max], y=[0, 0], z=[0, 0], mode="lines",
+                                 hoverinfo="none",
                                  marker_color="black"))
         data.append(go.Scatter3d(x=[0, 0], y=[0, c_max], z=[0, 0], mode="lines",
+                                 hoverinfo="none",
                                  marker_color="black"))
         data.append(go.Scatter3d(x=[0, 0], y=[0, 0], z=[0, c_max], mode="lines",
+                                 hoverinfo="none",
                                  marker_color="black"))
 
         for i, direct in zip(self._bz_plot_info.rec_lat_vec, ["kx", "ky", "kz"]):
@@ -101,6 +104,7 @@ class BZPlotlyPlotter:
                                 showscale=False, hovertemplate=f"<b>{direct}</b>"))
             data.append(go.Scatter3d(x=[0, kx], y=[0, ky], z=[0, kz],
                                      mode="lines",
+                                     hoverinfo="none",
                                      marker_color="black"))
 
         range_max = c_max * 1.4
