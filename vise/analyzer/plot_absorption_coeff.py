@@ -87,7 +87,7 @@ class AbsorptionCoeffMplPlotter(AbsorptionCoeffPlotter):
         self._add_band_gap()
         if self.materials:
             self._add_materials()
-        self._set_figure_legend()
+        # self._set_figure_legend()
         self._set_x_range()
         self._set_y_range()
         self._set_labels()
