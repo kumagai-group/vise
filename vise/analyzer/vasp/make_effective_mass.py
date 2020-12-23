@@ -3,12 +3,17 @@
 
 import numpy as np
 
-from pymatgen.electronic_structure.boltztrap2 import VasprunBSLoader, \
-    BztInterpolator, BztTransportProperties
 from vise.analyzer.effective_mass import EffectiveMass
+from pymatgen.electronic_structure.boltztrap import BoltztrapError
 
 
 def make_effective_mass(vasprun, temp, concentrations, band_gap):
+    try:
+        from pymatgen.electronic_structure.boltztrap2 import VasprunBSLoader, \
+            BztInterpolator, BztTransportProperties
+    except BoltztrapError:
+        raise ImportError('Calculating effective mass requires BoltzTrap2')
+
     vl = VasprunBSLoader(vasprun)
     energy_range = band_gap / 2 + 2.0
     bi = BztInterpolator(vl, energy_range=energy_range)
