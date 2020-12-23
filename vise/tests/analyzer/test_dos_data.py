@@ -113,7 +113,7 @@ def test_dos_data_energies(dos_data_list):
 
 def test_dos_data_lim(dos_data_list):
     _, _, dos_plot_data_wo_lim = dos_data_list
-    assert dos_plot_data_wo_lim.energy_range == [-10, 10]
+    assert dos_plot_data_wo_lim.energy_range == [-5, 10]
     # (1+..+7)*(2+3)*1.1
     assert dos_plot_data_wo_lim.dos_ranges == \
            [[-5.5, 5.5], [-154.0, 154.0], [-154.0, 154.0]]
