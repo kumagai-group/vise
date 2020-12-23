@@ -1,4 +1,5 @@
 include vise/input_set/datasets/*
 include vise/util/*
 include vise/atom_energies/*
+include vise/analyzer/dielectric_function_data/*
 recursive-include vise/chempotdiag/molecules *
