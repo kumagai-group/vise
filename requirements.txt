@@ -1,5 +1,5 @@
-numpy
 spglib
+numpy
 matplotlib
 scipy
 tabulate
@@ -16,4 +16,3 @@ fire
 setuptools
 more_itertools
 tqdm
-BoltzTraP2
