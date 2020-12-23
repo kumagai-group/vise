@@ -4,6 +4,13 @@ import pytest
 from vise.analyzer.plot_brillouin_zone import BZPlotInfo, BZPlotlyPlotter, \
     pairwise
 from vise.tests.conftest import assert_msonable
+from vise.util.dash_helper import show_png
+
+try:
+    import psutil
+    PSUTIL_NOT_PRESENT = False
+except ModuleNotFoundError:
+    PSUTIL_NOT_PRESENT = True
 
 
 @pytest.fixture
@@ -44,6 +51,7 @@ def test_bz_plot_info(bz_plot_info):
     assert_msonable(bz_plot_info)
 
 
+@pytest.mark.skipif(PSUTIL_NOT_PRESENT, reason="psutil does not exist")
 def test_bz_plot_plotly(bz_plot_info):
     fig = BZPlotlyPlotter(bz_plot_info).create_figure()
-    fig.show()
+    show_png(fig)

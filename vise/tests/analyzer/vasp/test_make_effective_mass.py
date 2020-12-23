@@ -3,22 +3,23 @@
 
 import numpy as np
 import pytest
+from pymatgen.electronic_structure.boltztrap import BoltztrapError
 
 from pymatgen.io.vasp import Vasprun
-from vise.analyzer.effective_mass import EffectiveMass
-
 
 try:
-    from vise.analyzer.vasp.make_effective_mass import make_effective_mass
-    from pymatgen.electronic_structure.boltztrap2 import VasprunBSLoader
+    from pymatgen.electronic_structure.boltztrap2 import VasprunBSLoader, \
+        BztInterpolator, BztTransportProperties
     BOLTZTRAP2_NOT_PRESENT = False
-except ImportError:
+except BoltztrapError:
     BOLTZTRAP2_NOT_PRESENT = True
 
 
 @pytest.mark.skipif(BOLTZTRAP2_NOT_PRESENT, reason="boltztrap2 is not installed.")
 def test_make_effective_mass(test_data_files):
 #def test_make_effective_mass(mocker, test_data_files):
+    from vise.analyzer.effective_mass import EffectiveMass
+    from vise.analyzer.vasp.make_effective_mass import make_effective_mass
     v = Vasprun(test_data_files / "MgSe_absorption_vasprun.xml")
     # mock_vl = mocker.patch("vise.analyzer.vasp.make_effective_mass.VasprunBSLoader")
     # mock_bi = mocker.patch("vise.analyzer.vasp.make_effective_mass.BztInterpolator")
