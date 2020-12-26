@@ -9,7 +9,7 @@ import pytest
 from pymatgen import Structure, Element
 from vise.analyzer.atom_grouping_type import AtomGroupingType
 from vise.cli.main_functions import get_poscar_from_mp, VaspSet, plot_band, \
-    plot_dos, band_edge_properties, make_atom_poscars
+    plot_dos, band_edge_properties, make_atom_poscars, plot_absorption
 from vise.defaults import defaults
 from vise.input_set.kpoints_mode import KpointsMode
 from vise.input_set.task import Task
@@ -160,3 +160,14 @@ def test_band_edge_info(test_data_files):
     args = Namespace(vasprun=test_data_files / "MnO_uniform_vasprun.xml",
                      outcar=test_data_files / "MnO_uniform_OUTCAR")
     band_edge_properties(args)
+
+
+def test_absorption_coeff(tmpdir, test_data_files):
+    tmpdir.chdir()
+    args = Namespace(vasprun=test_data_files / "MgSe_absorption_vasprun.xml",
+                     outcar=test_data_files / "MgSe_absorption_OUTCAR",
+                     y_ranges=[10**2, 10**8],
+                     calc_kk=False,
+                     ita=0.1,
+                     filename="test.pdf")
+    plot_absorption(args)

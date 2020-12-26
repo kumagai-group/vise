@@ -10,12 +10,16 @@ def test_make_diele_func(test_data_files):
     v = Vasprun(test_data_files / "MgSe_absorption_vasprun_gamma.xml")
     o = Outcar(test_data_files / "MgSe_absorption_OUTCAR_gamma")
     actual = make_diele_func(v, o)
+#    print(VaspBandEdgeProperties(v, o))
+    print(actual.diele_func_real)
+    assert actual.energies[1] == 0.0407
 
 
-#    print(actual.diele_func_imag)
-#    print(actual.band_gap)
-
-    print(VaspBandEdgeProperties(v, o))
+def test_make_diele_func_calc_real(test_data_files):
+    v = Vasprun(test_data_files / "MgSe_absorption_vasprun_gamma.xml")
+    o = Outcar(test_data_files / "MgSe_absorption_OUTCAR_gamma")
+    actual = make_diele_func(v, o, use_vasp_real=False)
+    print(actual.diele_func_real)
     assert actual.energies[1] == 0.0407
 
 

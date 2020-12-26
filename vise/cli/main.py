@@ -212,6 +212,19 @@ Version: {__version__}
     parser_plot_absorption.add_argument(
         "-f", "--filename", type=str, default="absorption.pdf",
         help="Pdf file name.")
+    parser_plot_absorption.add_argument(
+        "-y", "--y_ranges", nargs="+", default=[10**3, 10**8],
+        type=lambda x: 10 ** float(x),
+        help="Exponential parts of base-10 for energy range in cm-1, "
+             "requiring two values.")
+    parser_plot_absorption.add_argument(
+        "-ckk", "--calc_kk", action="store_true",
+        help="Set when real part of dielectric function is explicitly "
+             "calculated using the Kramers-Kronig transformation.")
+    parser_plot_absorption.add_argument(
+        "-i", "--ita", type=float, default=0.01,
+        help="Complex shift η in the Kramers-Kronig transformation.")
+
     parser_plot_absorption.set_defaults(func=plot_absorption)
 
     # -- effective_mass -------------------------------------------------------
@@ -223,11 +236,11 @@ Version: {__version__}
         aliases=['em'])
 
     parser_effective_mass.add_argument(
-        "-t", "--temperature", type=float, default=300, help="Temperature.")
+        "-t", "--temperature", type=float, default=300,
+        help="Temperature in K.")
     parser_effective_mass.add_argument(
-        "-c", "--concentrations", type=lambda x: 10 ** float(x),
-        nargs="+", default=18,
-        help="Exponential parts of base-10 for concentrations.")
+        "-c", "--concentrations", type=lambda x: 10 ** float(x), nargs="+",
+        help="Exponential parts of base-10 for concentrations in cm-3")
 
     parser_effective_mass.set_defaults(func=calc_effective_mass)
 

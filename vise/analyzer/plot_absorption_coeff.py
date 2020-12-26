@@ -17,7 +17,8 @@ class AbsorptionCoeffPlotter:
                  diele_func_data: DieleFuncData,
                  energy_range: List[float] = None,
                  coeff_power_range: List[float] = None,
-                 materials: List[str] = None):
+                 materials: List[str] = None,
+                 yranges: List[float] = None):
 
         self.energies = diele_func_data.energies
         self.absorption_coeff = diele_func_data.ave_absorption_coeff
@@ -27,8 +28,11 @@ class AbsorptionCoeffPlotter:
         self.materials = materials
 
         self._xaxis_title = "Energy (eV)"
-        self.ymin = 10**3
-        self.ymax = 10**7
+
+        if yranges:
+            self.ymin, self.ymax = yranges
+        else:
+            self.ymin, self.ymax = 10**3, 10**7
 
         self.plt = plt
 

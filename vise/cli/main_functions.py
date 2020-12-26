@@ -176,8 +176,10 @@ def plot_dos(args: Namespace):
 
 def plot_absorption(args: Namespace):
     diele_func_data = make_diele_func(Vasprun(args.vasprun),
-                                      Outcar(args.outcar))
-    plotter = AbsorptionCoeffMplPlotter(diele_func_data)
+                                      Outcar(args.outcar),
+                                      use_vasp_real=not args.calc_kk,
+                                      ita=args.ita)
+    plotter = AbsorptionCoeffMplPlotter(diele_func_data, yranges=args.y_ranges)
     plotter.construct_plot()
     plotter.plt.savefig(args.filename, format="pdf")
 

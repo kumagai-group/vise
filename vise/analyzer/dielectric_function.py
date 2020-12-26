@@ -90,7 +90,7 @@ def imag_shift(diele_func_imag: List[List[float]],
 
 def kramers_kronig_trans(diele_func_imag: np.array,
                          energies: List[float],
-                         ita=0.1):
+                         ita=0.01):
     mesh = energies[1] - energies[0]
     result = []
     ee2ss = [[e ** 2 - energy_grid ** 2 for e in energies] for energy_grid in energies]

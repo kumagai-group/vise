@@ -195,6 +195,38 @@ def test_plot_dos_w_options():
     assert parsed_args == expected
 
 
+def test_plot_absorption_wo_options():
+    parsed_args = parse_args(["pa"])
+    expected = Namespace(
+        vasprun=defaults.vasprun,
+        outcar=defaults.outcar,
+        filename="absorption.pdf",
+        y_ranges=[10**3, 10**8],
+        calc_kk=False,
+        ita=0.01,
+        func=parsed_args.func)
+    assert parsed_args == expected
+
+
+def test_plot_absorption_w_options():
+    parsed_args = parse_args(["pa",
+                              "--vasprun", "vasprun_1",
+                              "--outcar", "OUTCAR_1",
+                              "-f", "a",
+                              "-y", "-5.0", "5.0",
+                              "-ckk",
+                              "-i", "0.1"])
+    expected = Namespace(
+        vasprun=Path("vasprun_1"),
+        outcar=Path("OUTCAR_1"),
+        filename="a",
+        y_ranges=[10**-5.0, 10**5.0],
+        calc_kk=True,
+        ita=0.1,
+        func=parsed_args.func)
+    assert parsed_args == expected
+
+
 def test_band_edge_wo_options():
     parsed_args = parse_args(["be"])
     # func is a pointer so need to point the same address.
