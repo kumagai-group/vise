@@ -54,7 +54,7 @@ def actual_diele_func_data(test_data_files):
 
 
 def test_target_coeff_e_from_band_gap(actual_diele_func_data):
-    actual = actual_diele_func_data.target_coeff_e_from_band_gap
-    np.testing.assert_almost_equal(actual, 0.4014000000000002)
+    actual = actual_diele_func_data.target_coeff_min_e()
+    np.testing.assert_almost_equal(actual, 2.9304)
 
 

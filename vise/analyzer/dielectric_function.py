@@ -33,16 +33,11 @@ class DieleFuncData(MSONable, ToJsonFileMixIn):
         return [diele_func_to_coeff(freq, real, imag)
                 for freq, real, imag in zip(self.energies, reals, imags)]
 
-    @property
-    def target_coeff_e_from_band_gap(self, target_coeff=10**4):
-        energies = []
+    def target_coeff_min_e(self, target_coeff: float = 10**4):
         for e, coeff in zip(self.energies, self.ave_absorption_coeff):
             if coeff > target_coeff:
-                energies.append(e)
-
-        print(self.band_gap)
-        print(energies)
-        return min(energies) - self.band_gap
+                return e
+        return None
 
 
 def make_shifted_diele_func(diele_func_data: DieleFuncData,
