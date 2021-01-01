@@ -47,7 +47,7 @@ class DieleFuncData(MSONable, ToJsonFileMixIn):
 
 def make_shifted_diele_func(diele_func_data: DieleFuncData,
                             original_band_gap: float,
-                            shift: float):
+                            shift: float) -> DieleFuncData:
     imag = imag_shift(diele_func_data.diele_func_imag,
                       diele_func_data.energies,
                       original_band_gap + shift, shift)
@@ -61,7 +61,7 @@ def make_shifted_diele_func(diele_func_data: DieleFuncData,
 def imag_shift(diele_func_imag: List[List[float]],
                energies: List[float],
                band_gap: float,
-               shift: float):
+               shift: float) -> np.ndarray:
     energies = np.array(energies)
     assert shift > 0
     result = []
@@ -90,7 +90,7 @@ def imag_shift(diele_func_imag: List[List[float]],
 
 def kramers_kronig_trans(diele_func_imag: np.array,
                          energies: List[float],
-                         ita=0.01):
+                         ita: float = 0.01) -> np.ndarray:
     mesh = energies[1] - energies[0]
     result = []
     ee2ss = [[e ** 2 - energy_grid ** 2 for e in energies] for energy_grid in energies]

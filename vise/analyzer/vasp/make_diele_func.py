@@ -9,7 +9,10 @@ from vise.analyzer.vasp.band_edge_properties import VaspBandEdgeProperties
 import numpy as np
 
 
-def make_diele_func(vasprun: Vasprun, outcar: Outcar, use_vasp_real=True, ita=0.01):
+def make_diele_func(vasprun: Vasprun,
+                    outcar: Outcar,
+                    use_vasp_real: bool = True,
+                    ita: float = 0.01) -> DieleFuncData:
 
     energies, real, imag = vasprun.dielectric_data["density"]
     imag = np.array(imag)
