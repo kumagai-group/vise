@@ -47,6 +47,8 @@ def test_effective_mass_json_file_mixin(em, tmpdir):
 def test_effective_mass(em):
     actual = em.effective_mass("p", 10**18)
     assert actual == em.p[0]
+    actual = em.ave_min_eff_mass("p", 10**18)
+    assert actual == (1.0, 1.0)
 
 
 def test_lowest_eigval_and_vec(em):

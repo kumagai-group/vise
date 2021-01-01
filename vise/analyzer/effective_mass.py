@@ -17,6 +17,12 @@ class EffectiveMass(MSONable, ToJsonFileMixIn):
     temperature: float
     concentrations: List[float]
 
+    def ave_min_eff_mass(self, carrier_type, concentration):
+        em = self.effective_mass(carrier_type, concentration)
+        ave = sum(em[i][i] for i in range(3)) / 3
+        _min = lowest_eigval_and_vecs(np.array(em))[0]
+        return ave, _min
+
     def effective_mass(self, carrier_type, concentration):
         i_c = self.concentrations.index(concentration)
         return self.__getattribute__(carrier_type)[i_c]
