@@ -21,6 +21,12 @@ class EffectiveMass(MSONable, ToJsonFileMixIn):
         em = self.effective_mass(carrier_type, concentration)
         ave = sum(em[i][i] for i in range(3)) / 3
         _min = lowest_eigval_and_vecs(np.array(em))[0]
+        if isinstance(_min, complex):
+            if abs(_min.imag) < 1e-3:
+                _min = _min.real
+            else:
+                raise ValueError("The minimum effective mass shows complex "
+                                 f"value of f{_min}.")
         return ave, _min
 
     def effective_mass(self, carrier_type, concentration):
