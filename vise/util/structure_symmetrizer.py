@@ -79,6 +79,20 @@ class StructureSymmetrizer:
         self._band_primitive = None
         self._irreducible_kpoints = None
 
+    def __repr__(self):
+        sym_data = self.spglib_sym_data
+        lines = [f"Symprec: {self.symprec}",
+                 f"Angle tolerance: {self.angle_tolerance}",
+                 f"Space group: {sym_data['international']}"]
+        lines.append("Site info")
+        lines.append("     : wyckoff |site_sym |equiv_sites")
+        for name, site in self.sites.items():
+            lines.append(f"{name:>5}: {site.wyckoff_letter:>7} |"
+                         f"{site.site_symmetry:>8} |"
+                         f"{site.pprint_equiv_atoms}")
+
+        return "\n".join(lines)
+
     @property
     def spglib_sym_data(self) -> dict:
         if not self._spglib_sym_data:
@@ -272,7 +286,6 @@ class Site(MSONable):
             else:
                 str_list.append(" ".join([str(j) for j in ints]))
         return " ".join(str_list)
-
 
 
 def num_symmetry_operation(point_group: str) -> int:

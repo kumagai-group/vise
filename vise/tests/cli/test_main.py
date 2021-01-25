@@ -14,6 +14,32 @@ from vise.input_set.xc import Xc
 parent_dir = Path(__file__).parent
 
 
+def test_structure_info_wo_options():
+    parsed_args = parse_args(["si"])
+    expected = Namespace(
+        poscar="POSCAR",
+        symprec=defaults.symmetry_length_tolerance,
+        angle_tolerance=defaults.symmetry_angle_tolerance,
+        show_conventional=False,
+        func=parsed_args.func)
+    assert parsed_args == expected
+
+
+def test_structure_info_w_options():
+    parsed_args = parse_args(["si",
+                              "-p", "a",
+                              "-s", "1",
+                              "-a", "2",
+                              "-c"])
+    expected = Namespace(
+        poscar="a",
+        symprec=1.0,
+        angle_tolerance=2.0,
+        show_conventional=True,
+        func=parsed_args.func)
+    assert parsed_args == expected
+
+
 def test_get_poscars_wo_options():
     parsed_args = parse_args(["gp", "-m", "mp-1234"])
     # func is a pointer so need to point the same address.

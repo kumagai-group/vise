@@ -13,7 +13,7 @@ from vise import __version__
 from vise.analyzer.atom_grouping_type import AtomGroupingType
 from vise.cli.main_functions import get_poscar_from_mp, VaspSet, plot_band, \
     plot_dos, band_edge_properties, make_atom_poscars, plot_absorption, \
-    calc_effective_mass
+    calc_effective_mass, structure_info
 from vise.defaults import defaults
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc
@@ -51,6 +51,30 @@ Version: {__version__}
     outcar_parser.add_argument(
         "-o", "--outcar", type=Path, default=defaults.outcar,
         help="OUTCAR file name.")
+
+    # -- structure_info ---------------------------------------------------
+    parser_structure_info = subparsers.add_parser(
+        name="structure_info",
+        description="Tools showing structure info or conventional cell.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        aliases=['si'])
+
+    parser_structure_info.add_argument(
+        "-p", "--poscar", type=str, default="POSCAR",
+        help="POSCAR-type file name to be read.", metavar="FILE")
+    parser_structure_info.add_argument(
+        "-s", "--symprec", type=float,
+        default=defaults.symmetry_length_tolerance,
+        help="Length tolerance for symmetry analysis.")
+    parser_structure_info.add_argument(
+        "-a", "--angle_tolerance", type=float,
+        default=defaults.symmetry_angle_tolerance,
+        help="Angle tolerance in degree for symmetry analysis.")
+    parser_structure_info.add_argument(
+        "-c", "--show_conventional", action="store_true",
+        help="Set when showing the conventional cell.")
+
+    parser_structure_info.set_defaults(func=structure_info)
 
     # -- get_poscar -----------------------------------------------------------
     parser_get_poscar = subparsers.add_parser(

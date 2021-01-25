@@ -9,11 +9,28 @@ import pytest
 from pymatgen import Structure, Element
 from vise.analyzer.atom_grouping_type import AtomGroupingType
 from vise.cli.main_functions import get_poscar_from_mp, VaspSet, plot_band, \
-    plot_dos, band_edge_properties, make_atom_poscars, plot_absorption
+    plot_dos, band_edge_properties, make_atom_poscars, plot_absorption, \
+    structure_info
 from vise.defaults import defaults
 from vise.input_set.kpoints_mode import KpointsMode
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc
+
+
+def test_structure_info(mocker):
+    args = Namespace(poscar="POSCAR", symprec=0.1, angle_tolerance=5,
+                     show_conventional=False)
+
+    lattice = [[10.0,  0.0,  0.0], [ 0.0, 10.0,  0.0], [-2.0,  0.0, 10.0]]
+    coords = [[0.0, 0.0, 0.0], [0.5, 0.5, 0.0]]
+    s = Structure(lattice=lattice, species=["H"] * 2, coords=coords)
+
+    mock = mocker.patch("vise.cli.main_functions.Structure")
+    mock.from_file.return_value = s
+    structure_info(args)
+    args = Namespace(poscar="POSCAR", symprec=0.1, angle_tolerance=5,
+                     show_conventional=True)
+    structure_info(args)
 
 
 def test_get_poscar_from_mp(tmpdir):

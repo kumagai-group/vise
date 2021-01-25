@@ -34,6 +34,16 @@ def symmetrizer_mc():
     return symmetrizer
 
 
+def test_repr(symmetrizer_mc):
+    expected = """Symprec: 0.01
+Angle tolerance: 5.0
+Space group: C2/m
+Site info
+     : wyckoff |site_sym |equiv_sites
+   H1:       a |     2/m |0 1"""
+    assert symmetrizer_mc.__repr__() == expected
+
+
 def test_structure_symmetrizer_mc_primitive(symmetrizer_mc):
     matrix = symmetrizer_mc.primitive.lattice.matrix
     expected = np.array([[5., -5., 0.],
@@ -296,7 +306,6 @@ direct
     print(symmetrizer.primitive)
 
 
-
 def test_bravais_lattice():
     lattice =[[10.0,  0.0,  0.0],
               [ 0.0, 10.0,  0.0],
@@ -390,14 +399,5 @@ def test_site_pprint_equiv_atoms(site):
 def test_num_symmetry_operation():
     assert num_symmetry_operation("m-3m") == 48
     assert num_symmetry_operation(".m.") == 2
-
-
-
-"""
-TODO: 
-- Add grouped_atom_indices to structure symmetrizer.
-
-"""
-
 
 

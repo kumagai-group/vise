@@ -29,8 +29,20 @@ from vise.input_set.task import Task
 from vise.input_set.vasp_input_files import VaspInputFiles
 from vise.util.file_transfer import FileTransfers
 from vise.util.logger import get_logger
+from vise.util.structure_symmetrizer import StructureSymmetrizer
 
 logger = get_logger(__name__)
+
+
+def structure_info(args: Namespace) -> None:
+    s = Structure.from_file(args.poscar)
+    symmetrizer = StructureSymmetrizer(s,
+                                       symprec=args.symprec,
+                                       angle_tolerance=args.angle_tolerance)
+    if args.show_conventional:
+        print(symmetrizer.conventional.to(fmt="poscar"))
+    else:
+        print(symmetrizer)
 
 
 def get_poscar_from_mp(args: Namespace) -> None:
