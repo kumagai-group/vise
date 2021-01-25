@@ -81,15 +81,22 @@ class StructureSymmetrizer:
 
     def __repr__(self):
         sym_data = self.spglib_sym_data
+        is_primitive = self.structure == self.primitive
         lines = [f"Symprec: {self.symprec}",
                  f"Angle tolerance: {self.angle_tolerance}",
-                 f"Space group: {sym_data['international']}"]
-        lines.append("Site info")
-        lines.append("     : wyckoff |site_sym |equiv_sites")
+                 f"Space group: {sym_data['international']}",
+                 f"Is primitive: {is_primitive}",
+                 "Site info",
+                 "     : wyckoff |site_sym |equiv_sites"]
+
         for name, site in self.sites.items():
             lines.append(f"{name:>5}: {site.wyckoff_letter:>7} |"
                          f"{site.site_symmetry:>8} |"
                          f"{site.pprint_equiv_atoms}")
+
+        if is_primitive is False:
+            lines.append("-"*20)
+            lines.append(self.primitive.to("poscar"))
 
         return "\n".join(lines)
 

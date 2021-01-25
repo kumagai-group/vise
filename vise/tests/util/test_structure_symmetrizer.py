@@ -38,9 +38,21 @@ def test_repr(symmetrizer_mc):
     expected = """Symprec: 0.01
 Angle tolerance: 5.0
 Space group: C2/m
+Is primitive: False
 Site info
      : wyckoff |site_sym |equiv_sites
-   H1:       a |     2/m |0 1"""
+   H1:       a |     2/m |0 1
+--------------------
+H1
+1.0
+5.000000 -5.000000 0.000000
+5.000000 5.000000 0.000000
+-2.000000 0.000000 10.000000
+H
+1
+direct
+0.000000 0.000000 0.000000 H
+"""
     assert symmetrizer_mc.__repr__() == expected
 
 
