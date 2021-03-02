@@ -5,7 +5,7 @@ import pytest
 
 from vise.input_set.kpoints_mode import KpointsMode
 from vise.input_set.task import Task
-from vise.tests.conftest import assert_msonable
+from vise.tests.helpers.assertion import assert_msonable
 
 
 def test_task_str():

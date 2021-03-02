@@ -3,7 +3,7 @@
 import pytest
 from vise.analyzer.plot_brillouin_zone import BZPlotInfo, BZPlotlyPlotter, \
     pairwise
-from vise.tests.conftest import assert_msonable
+from vise.tests.helpers.assertion import assert_msonable
 from vise.util.dash_helper import show_png
 
 try:

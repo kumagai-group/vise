@@ -8,7 +8,7 @@ from numpy.testing import assert_array_equal
 
 from vise.analyzer.dos_data import PDos, DosData, DosBySpinEnergy
 from vise.analyzer.plot_dos import DosPlotter
-from vise.tests.conftest import assert_msonable
+from vise.tests.helpers.assertion import assert_msonable
 
 energies = [-9, 0, 9]
 total = np.array([[0, 5, 0], [0, 5, 0]])

@@ -6,7 +6,7 @@ import pytest
 from pymatgen import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen import Element
-from vise.tests.conftest import assert_msonable
+from vise.tests.helpers.assertion import assert_msonable
 
 from vise.util.structure_symmetrizer import (
     cell_to_structure, StructureSymmetrizer, Site, num_symmetry_operation,

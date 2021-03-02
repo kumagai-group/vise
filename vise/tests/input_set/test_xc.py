@@ -4,7 +4,7 @@
 import pytest
 
 from vise.input_set.xc import Xc
-from vise.tests.conftest import assert_msonable
+from vise.tests.helpers.assertion import assert_msonable
 
 
 def test_xc_str():

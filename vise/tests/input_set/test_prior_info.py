@@ -5,7 +5,7 @@ import tempfile
 
 import pytest
 from vise.input_set.prior_info import PriorInfo, prior_info_from_calc_dir
-from vise.tests.conftest import assert_msonable
+from vise.tests.helpers.assertion import assert_msonable
 
 
 @pytest.fixture

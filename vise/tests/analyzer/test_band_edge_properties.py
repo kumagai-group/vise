@@ -10,7 +10,7 @@ from pymatgen.electronic_structure.core import Spin
 from vise.analyzer.band_edge_properties import (
     BandEdge, BandEdgeProperties, is_band_gap)
 from vise.defaults import defaults
-from vise.tests.conftest import assert_msonable
+from vise.tests.helpers.assertion import assert_msonable
 
 parent_dir = Path(__file__).parent
 

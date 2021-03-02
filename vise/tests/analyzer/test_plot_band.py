@@ -10,7 +10,7 @@ import pytest
 from vise.analyzer.plot_band import (
     BandPlotter, BandInfo, BandEdge, XTicks, BandMplSettings,
     BandPlotInfo, ViseBandInfoError)
-from vise.tests.conftest import assert_msonable
+from vise.tests.helpers.assertion import assert_msonable
 from vise.util.matplotlib import float_to_int_formatter
 
 """

@@ -5,8 +5,8 @@ import pytest
 
 from vise.analyzer.dos_data import DosBySpinEnergy, DosPlotData
 from vise.analyzer.plot_dos import DosPlotter, DosMplSettings
+from vise.tests.helpers.assertion import assert_msonable
 from vise.util.matplotlib import float_to_int_formatter
-from vise.tests.conftest import assert_msonable
 
 """
 TODO:

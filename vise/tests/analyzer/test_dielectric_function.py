@@ -9,7 +9,7 @@ from pymatgen.io.vasp import Vasprun, Outcar
 from vise.analyzer.dielectric_function import DieleFuncData, \
     eV_to_inv_cm
 from vise.analyzer.vasp.make_diele_func import make_diele_func
-from vise.tests.conftest import assert_msonable
+from vise.tests.helpers.assertion import assert_msonable
 
 try:
     import psutil

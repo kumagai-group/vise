@@ -42,7 +42,3 @@ def complex_monoclinic_structure():
                      coords=coords)
 
 
-def assert_msonable(obj):
-    assert isinstance(obj, MSONable)
-    assert obj.as_dict() == obj.__class__.from_dict(obj.as_dict()).as_dict()
-    assert json.loads(obj.to_json(), cls=MontyDecoder)
