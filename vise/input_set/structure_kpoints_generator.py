@@ -5,7 +5,7 @@ from math import ceil
 from typing import Optional, List
 
 import numpy as np
-from pymatgen import Structure
+from pymatgen.core import Structure
 from pymatgen.io.vasp.sets import Kpoints
 from vise.defaults import defaults
 from vise.input_set.kpoints_mode import KpointsMode

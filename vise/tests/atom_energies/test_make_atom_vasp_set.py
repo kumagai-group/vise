@@ -2,7 +2,7 @@
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 from pathlib import Path
 
-from pymatgen import Element
+from pymatgen.core import Element
 from vise.atom_energies.make_atom_vasp_set import is_target_element, \
     make_atom_poscar_dirs
 

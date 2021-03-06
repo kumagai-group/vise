@@ -2,7 +2,7 @@
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
 import numpy as np
-from pymatgen import Lattice
+from pymatgen.core import Lattice
 from pymatgen.core.structure import Structure
 
 from vise.input_set.kpoints_mode import KpointsMode

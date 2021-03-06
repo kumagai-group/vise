@@ -3,9 +3,9 @@
 
 import numpy as np
 import pytest
-from pymatgen import Lattice
+from pymatgen.core import Lattice
 from pymatgen.core.structure import Structure
-from pymatgen import Element
+from pymatgen.core import Element
 from vise.tests.helpers.assertion import assert_msonable
 
 from vise.util.structure_symmetrizer import (

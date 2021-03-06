@@ -6,7 +6,7 @@ from copy import deepcopy
 from pathlib import Path
 
 import yaml
-from pymatgen import Structure
+from pymatgen.core import Structure
 from pymatgen.ext.matproj import MPRester
 from pymatgen.io.vasp import Vasprun, Outcar
 from vise.analyzer.plot_absorption_coeff import AbsorptionCoeffMplPlotter

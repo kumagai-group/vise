@@ -4,7 +4,7 @@
 from pathlib import Path
 
 import pytest
-from pymatgen import Composition
+from pymatgen.core import Composition
 from pymatgen.io.vasp import Vasprun
 
 from vise.analyzer.plot_band import BandEdge, XTicks, BandMplSettings

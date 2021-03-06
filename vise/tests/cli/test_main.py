@@ -4,7 +4,7 @@
 from argparse import Namespace
 from pathlib import Path
 
-from pymatgen import Element
+from pymatgen.core import Element
 from vise.analyzer.atom_grouping_type import AtomGroupingType
 from vise.cli.main import parse_args
 from vise.defaults import defaults

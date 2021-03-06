@@ -4,8 +4,8 @@ import os
 import warnings
 from pathlib import Path
 
-from pymatgen import Element
-from pymatgen.io.vasp import Vasprun, Oszicar
+from pymatgen.core import Element
+from pymatgen.io.vasp import Oszicar
 
 warnings.simplefilter('ignore')
 

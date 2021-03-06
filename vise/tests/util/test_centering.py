@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 import pytest
-from pymatgen import Lattice, IStructure
+from pymatgen.core import Lattice, IStructure
 from vise.util.centering import Centering
 from vise.util.structure_symmetrizer import StructureSymmetrizer
 

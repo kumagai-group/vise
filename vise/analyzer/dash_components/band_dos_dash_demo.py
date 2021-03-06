@@ -6,7 +6,7 @@ import pytest
 import dash
 from crystal_toolkit.settings import SETTINGS
 from dash import Dash
-from pymatgen import loadfn
+from monty.serialization import loadfn
 from vise.analyzer.dash_components.band_dos_dash import BandDosComponent
 from vise.analyzer.dos_data import DosData
 import dash_html_components as html

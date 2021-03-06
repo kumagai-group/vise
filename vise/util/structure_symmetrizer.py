@@ -8,8 +8,7 @@ import seekpath
 import spglib
 from monty.json import MSONable
 from more_itertools import consecutive_groups
-from numpy.linalg import inv
-from pymatgen import Structure, Element
+from pymatgen.core import Structure, Element
 from collections import defaultdict
 from itertools import groupby
 

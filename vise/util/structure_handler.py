@@ -3,7 +3,7 @@
 from itertools import groupby
 import operator
 
-from pymatgen import Structure
+from pymatgen.core import Structure
 
 from vise.util.logger import get_logger
 

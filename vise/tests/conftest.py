@@ -3,8 +3,7 @@ import json
 from pathlib import Path
 
 import pytest
-from monty.json import MSONable, MontyDecoder
-from pymatgen import Lattice
+from pymatgen.core import Lattice
 from pymatgen.core.structure import Structure
 
 

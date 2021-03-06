@@ -3,7 +3,7 @@
 
 from math import ceil
 
-from pymatgen import Composition
+from pymatgen.core import Composition
 from pymatgen.io.vasp import Potcar
 
 from vise.input_set.datasets.dataset_util import (

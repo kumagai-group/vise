@@ -7,7 +7,7 @@ from typing import Union, List
 import fire
 import yaml
 from monty.serialization import loadfn
-from pymatgen import Structure, Lattice, Element
+from pymatgen.core import Structure, Lattice, Element
 from pymatgen.io.vasp import Kpoints
 from pymatgen.io.vasp.sets import MPRelaxSet, BadInputSetWarning
 from vise.input_set.datasets.potcar_set import PotcarSet

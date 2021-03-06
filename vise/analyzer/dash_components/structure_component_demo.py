@@ -1,20 +1,9 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
-import pytest
 import dash
-from pydefect.analyzer.band_edge_states import BandEdgeEigenvalues
-from pydefect.analyzer.defect_energy import DefectEnergy
-from pydefect.analyzer.defect_energy_plotter import DefectEnergyPlotlyPlotter
-from pydefect.analyzer.eigenvalue_plotter import EigenvaluePlotlyPlotter
-from pydefect.corrections.efnv_correction.efnv_correction import PotentialSite, \
-    ExtendedFnvCorrection
-from pydefect.corrections.efnv_correction.site_potential_plotter import \
-    SitePotentialPlotlyPlotter
-from pymatgen import loadfn, Structure, Lattice
-from pymatgen.util.string import latexify
+from pymatgen.core import Structure, Lattice
 from vise.analyzer.dash_components.structure_component import StructureComponent
-from vise.analyzer.dos_data import DosData
 import dash_html_components as html
 
 import crystal_toolkit.components as ctc

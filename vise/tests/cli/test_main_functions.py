@@ -6,7 +6,7 @@ from copy import deepcopy
 from pathlib import Path
 
 import pytest
-from pymatgen import Structure, Element
+from pymatgen.core import Structure, Element
 from vise.analyzer.atom_grouping_type import AtomGroupingType
 from vise.cli.main_functions import get_poscar_from_mp, VaspSet, plot_band, \
     plot_dos, band_edge_properties, make_atom_poscars, plot_absorption, \

@@ -8,7 +8,7 @@ from typing import Optional, List
 import yaml
 from monty.json import MSONable
 from monty.serialization import loadfn
-from pymatgen import Structure
+from pymatgen.core import Structure
 from pymatgen.io.vasp import Vasprun, Outcar, Potcar
 from vise.analyzer.vasp.band_edge_properties import VaspBandEdgeProperties
 from vise.defaults import defaults

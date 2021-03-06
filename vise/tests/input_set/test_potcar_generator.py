@@ -2,7 +2,7 @@
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
 import pytest
-from pymatgen import Element
+from pymatgen.core import Element
 
 from vise.input_set.datasets.potcar_set import PotcarSet
 from vise.input_set.potcar_generator import generate_potcar, ViseNoPotcarError

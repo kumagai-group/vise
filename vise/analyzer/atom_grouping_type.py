@@ -2,7 +2,6 @@
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 from typing import Dict, List
 
-from pymatgen import Site
 from pymatgen.core.structure import Structure
 
 from vise.util.enum import ExtendedEnum

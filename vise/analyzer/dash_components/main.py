@@ -10,7 +10,9 @@ import numpy as np
 from crystal_toolkit.components import StructureMoleculeComponent
 from crystal_toolkit.helpers.layouts import *
 from dash import Dash
-from pymatgen import Structure, Lattice, MPRester, Molecule
+from pymatgen.core import Structure, Lattice, Molecule
+from pymatgen.ext.matproj import MPRester
+
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import \
     SimplestChemenvStrategy
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import \

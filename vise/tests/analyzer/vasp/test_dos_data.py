@@ -8,7 +8,8 @@ from numpy.testing import assert_array_equal
 import pytest
 
 from pymatgen.electronic_structure.dos import CompleteDos, Dos
-from pymatgen import Spin, Site, Orbital
+from pymatgen.core import Site
+from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.io.vasp import Vasprun
 
 from vise.analyzer.vasp.dos_data import DosDataFromVasp

@@ -3,7 +3,7 @@
 from typing import List, Optional
 
 import numpy as np
-from pymatgen import Spin
+from pymatgen.electronic_structure.core import Spin
 from pymatgen.io.vasp import Vasprun
 
 from vise.analyzer.dos_data import DosData

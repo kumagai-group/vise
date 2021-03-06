@@ -4,12 +4,11 @@
 
 import re
 from copy import deepcopy
-from typing import Tuple, List
+from typing import List
 import numpy as np
-from pymatgen import Spin, Lattice
 
 from pymatgen.electronic_structure.plotter import BSPlotter
-from pymatgen.io.vasp import Vasprun, Kpoints
+from pymatgen.io.vasp import Vasprun
 from pymatgen.util.string import latexify
 from vise.analyzer.plot_band import BandPlotInfo, BandInfo, XTicks, BandEdge
 from vise.analyzer.plot_brillouin_zone import BZPlotInfo

@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Tuple, List, Dict, Any
 
 from monty.serialization import loadfn
-from pymatgen import Composition, Element
+from pymatgen.core import Composition, Element
 from pymatgen.io.vasp import Potcar
 from vise.defaults import defaults
 

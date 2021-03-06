@@ -7,7 +7,7 @@ import sys
 import warnings
 from pathlib import Path
 
-from pymatgen import Element
+from pymatgen.core import Element
 from pymatgen.io.vasp.inputs import UnknownPotcarWarning
 from vise import __version__
 from vise.analyzer.atom_grouping_type import AtomGroupingType

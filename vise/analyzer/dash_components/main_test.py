@@ -2,7 +2,7 @@
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
 import pytest
-from pymatgen import Structure
+from pymatgen.core import Structure
 from vise.analyzer.dash_components.main import mpid_and_link
 from vise.util.structure_symmetrizer import StructureSymmetrizer
 

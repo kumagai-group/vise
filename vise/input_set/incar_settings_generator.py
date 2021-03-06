@@ -4,7 +4,7 @@
 from math import ceil
 from typing import Optional, Union, List, Dict
 
-from pymatgen import Composition
+from pymatgen.core import Composition
 from pymatgen.io.vasp.sets import Potcar
 
 from vise.analyzer.band_edge_properties import is_band_gap

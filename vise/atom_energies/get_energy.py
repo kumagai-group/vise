@@ -5,7 +5,7 @@ import warnings
 from pathlib import Path
 from xml.etree.ElementTree import ParseError
 
-from pymatgen import Element
+from pymatgen.core import Element
 from pymatgen.io.vasp import Vasprun
 from pymatgen.io.vasp.inputs import UnknownPotcarWarning
 from vise.atom_energies.make_atom_vasp_set import is_target_element

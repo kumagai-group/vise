@@ -2,7 +2,7 @@
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
 import pytest
-from pymatgen import Composition
+from pymatgen.core import Composition
 from pymatgen.io.vasp import Potcar
 
 from vise.input_set.incar_settings_generator import (
