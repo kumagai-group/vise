@@ -3,7 +3,7 @@ numpy
 matplotlib
 scipy
 tabulate
-pymatgen
+pymatgen == 2021.3.5
 monty
 palettable
 seekpath
