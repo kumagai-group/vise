@@ -3,24 +3,20 @@
 import re
 from collections import OrderedDict
 from itertools import combinations_with_replacement, chain
-from typing import Optional, Tuple
+from typing import Tuple
 
-import dash_table as dt
 import numpy as np
 from crystal_toolkit.core.legend import Legend
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.core.scene import Scene
 from crystal_toolkit.helpers.layouts import *
 from crystal_toolkit.settings import SETTINGS
-from dash.dependencies import Input, Output, State
-from dash.exceptions import PreventUpdate
-from dash_mp_components import Simple3DScene
+from dash_mp_components import CrystalToolkitScene
 from pymatgen.analysis.graphs import StructureGraph, MoleculeGraph
 from pymatgen.analysis.local_env import NearNeighbors
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import DummySpecie
 from pymatgen.core.structure import Structure, Molecule
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 DEFAULTS = {
     "bonding_strategy": "CrystalNN",
@@ -257,7 +253,7 @@ class StructureComponent(MPComponent):
     def _sub_layouts(self):
 
         struct_layout = html.Div(
-            Simple3DScene(
+            CrystalToolkitScene(
                 id=self.id("scene"),
                 data=self.initial_data["scene"],
                 settings=self.initial_scene_settings,
