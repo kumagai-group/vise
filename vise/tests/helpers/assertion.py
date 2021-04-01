@@ -5,7 +5,7 @@ import json
 
 from monty.json import MSONable, MontyDecoder
 from monty.serialization import loadfn
-from collections.abc import Iterable
+import numpy as np
 
 
 def assert_msonable(obj):
@@ -51,7 +51,10 @@ def assert_attribute_almost_same(v1, v2, digit):
         assert_dataclass_almost_equal(v1, v2, digit)
     else:
         try:
-            assert v1 == v2
+            if isinstance(v1, np.ndarray):
+                np.testing.assert_array_almost_equal(v1, v2)
+            else:
+                assert v1 == v2
         except AssertionError:
             print(v1, v2)
             raise
