@@ -95,6 +95,7 @@ dielectric:
   - OMEGAMAX
   - LNABLA
   - LPEAD
+  - EFIELD_PEAD
 
 dft parameter:
   - GGA
