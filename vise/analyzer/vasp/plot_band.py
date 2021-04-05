@@ -9,9 +9,9 @@ import numpy as np
 
 from pymatgen.electronic_structure.plotter import BSPlotter
 from pymatgen.io.vasp import Vasprun
-from pymatgen.util.string import latexify
 from vise.analyzer.plot_band import BandPlotInfo, BandInfo, XTicks, BandEdge
 from vise.analyzer.plot_brillouin_zone import BZPlotInfo
+from vise.util.string import latexify
 
 
 def greek_to_unicode(label: str) -> str:
