@@ -2,7 +2,7 @@
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
 from math import ceil
-from typing import Optional, List
+from typing import Optional, List, Union
 
 import numpy as np
 from pymatgen.core import Structure
@@ -22,7 +22,7 @@ class StructureKpointsGenerator:
             self,
             initial_structure: Structure,
             task: Task,
-            kpt_mode: Optional[KpointsMode] = None,  # None for default setting
+            kpt_mode: Union[KpointsMode, str, None] = None,  # None for default
             kpt_density: Optional[float] = None,  # in Å
             gamma_centered: Optional[bool] = None,  # Vasp definition
             only_even_num_kpts: bool = False,  # If ceil kpt numbers to be even.
@@ -31,6 +31,8 @@ class StructureKpointsGenerator:
             symprec: float = defaults.symmetry_length_tolerance,
             angle_tolerance: float = defaults.symmetry_angle_tolerance,
             is_magnetization: bool = False):  # Whether the system is magnetic.
+
+        kpt_mode = KpointsMode.from_string(str(kpt_mode))
 
         self._initial_structure = initial_structure.copy()
         self._task = task
