@@ -32,7 +32,8 @@ class StructureKpointsGenerator:
             angle_tolerance: float = defaults.symmetry_angle_tolerance,
             is_magnetization: bool = False):  # Whether the system is magnetic.
 
-        kpt_mode = KpointsMode.from_string(str(kpt_mode))
+        if kpt_mode:
+            kpt_mode = KpointsMode.from_string(str(kpt_mode))
 
         self._initial_structure = initial_structure.copy()
         self._task = task
