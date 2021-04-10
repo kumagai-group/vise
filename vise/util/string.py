@@ -5,6 +5,8 @@ import re
 
 def latexify(formula):
     """
+    Copied from pymatgen.2021.3.9 as it will be removed from 2022.
+
     Generates a LaTeX formatted formula. E.g., Fe2O3 is transformed to
     Fe$_{2}$O$_{3}$.
 
