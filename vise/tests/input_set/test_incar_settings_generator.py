@@ -184,7 +184,7 @@ def test_dielectric_function(default_dict):
         "EMAX": 20,
         "NEDOS": 4002,
         "LOPTICS": True,
-        "CSHIFT": 0.01,
+        "CSHIFT": 0.0,
         "KPAR": 1,
     }
     assert generator.incar_settings == expected

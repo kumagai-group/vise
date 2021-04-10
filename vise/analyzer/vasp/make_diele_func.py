@@ -20,6 +20,7 @@ def make_diele_func(vasprun: Vasprun,
         real = np.array(real)
     else:
         # When CSHIFT = 0.0, the first component becomes 99999.0
+        # the following lines are copied from the vasprun.xml
         # <dielectricfunction>
         # <imag>
         # <array>

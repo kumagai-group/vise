@@ -189,7 +189,10 @@ class IncarSettingsGenerator:
             self._incar_settings["POTIM"] = 0.015
         elif self._task == Task.dielectric_function:
             self._incar_settings["LOPTICS"] = True
-            self._incar_settings["CSHIFT"] = 0.01
+            # Since the real part of dielectric function depends on the vasp
+            # version, we here adapt CSHIFT=0.0 and apply KK transformation
+            # using vise.
+            self._incar_settings["CSHIFT"] = 0.0
 
     def _set_hybrid_func_related_settings(self) -> None:
         self._incar_settings["LHFCALC"] = True
