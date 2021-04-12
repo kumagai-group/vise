@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
+from abc import ABC
 
 from monty.design_patterns import singleton
 from pathlib import Path
@@ -7,10 +8,26 @@ from vise.input_set.datasets.potcar_set import PotcarSet
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc
 from vise.user_settings import UserSettings
+from vise.util.logger import get_logger
+
+logger = get_logger(__name__)
+
+
+class DefaultsBase(ABC):
+    def set_user_settings(self, yaml_filename):
+        user_settings = UserSettings(yaml_filename=yaml_filename)
+        self.yaml_files = user_settings.yaml_files_from_root_dir
+        self.user_settings = user_settings.user_settings
+
+        for k, v in self.user_settings.items():
+            if hasattr(self, k):
+                self.__setattr__("_" + k, v)
+            else:
+                logger.warning(f"{k} key in {yaml_filename} is not valid.")
 
 
 @singleton
-class Defaults:
+class Defaults(DefaultsBase):
     def __init__(self):
         self._symmetry_length_tolerance = 0.01
         self._symmetry_angle_tolerance = 5.0
@@ -36,13 +53,7 @@ class Defaults:
         self._overridden_potcar = []
         self._potcar_set = str(PotcarSet.normal)
 
-        user_settings = UserSettings(yaml_filename="vise.yaml")
-        self.yaml_files = user_settings.yaml_files_from_root_dir
-        self.user_settings = user_settings.user_settings
-
-        for k, v in self.user_settings.items():
-            if hasattr(self, k):
-                self.__setattr__("_" + k, v)
+        self.set_user_settings(yaml_filename="vise.yaml")
 
     @property
     def symmetry_length_tolerance(self):
