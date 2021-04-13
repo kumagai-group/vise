@@ -2,10 +2,13 @@
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 import dataclasses
 import json
+from pathlib import Path
+from typing import Any
 
 from monty.json import MSONable, MontyDecoder
 from monty.serialization import loadfn
 import numpy as np
+from py._path.local import LocalPath
 
 
 def assert_msonable(obj):
@@ -26,6 +29,17 @@ def assert_json_roundtrip(obj, tmpdir):
             print(k)
             print(v)
             print(expected[k])
+
+
+def assert_yaml_roundtrip(obj: Any, tmpdir: LocalPath, expected_text: str):
+    tmpdir.chdir()
+    obj.to_yaml("a.yaml")
+    assert Path("a.yaml").read_text() == expected_text
+    actual = obj.from_yaml("a.yaml").as_dict()
+    expected = obj.as_dict()
+    assert len(actual) == len(expected)
+    for k, v in actual.items():
+        assert v == expected[k]
 
 
 def assert_dataclass_almost_equal(actual, expected, digit=8):
