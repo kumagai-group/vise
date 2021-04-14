@@ -2,6 +2,8 @@
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 import dataclasses
 import json
+import sys
+from difflib import Differ
 from pathlib import Path
 from typing import Any
 
@@ -34,7 +36,15 @@ def assert_json_roundtrip(obj, tmpdir):
 def assert_yaml_roundtrip(obj: Any, tmpdir: LocalPath, expected_text: str):
     tmpdir.chdir()
     obj.to_yaml("a.yaml")
-    assert Path("a.yaml").read_text() == expected_text
+    actual_text = Path("a.yaml").read_text()
+    try:
+        assert actual_text == expected_text
+    except AssertionError:
+        a = actual_text.split("\n")
+        b = expected_text.split("\n")
+        sys.stdout.writelines(list(Differ().compare(a, b)))
+        raise
+
     actual = obj.from_yaml("a.yaml").as_dict()
     expected = obj.as_dict()
     assert len(actual) == len(expected)
