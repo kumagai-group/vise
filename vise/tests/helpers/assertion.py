@@ -11,6 +11,7 @@ from monty.json import MSONable, MontyDecoder
 from monty.serialization import loadfn
 import numpy as np
 from py._path.local import LocalPath
+from vise.util.mix_in import ToYamlFileMixIn
 
 
 def assert_msonable(obj):
@@ -33,9 +34,11 @@ def assert_json_roundtrip(obj, tmpdir):
             print(expected[k])
 
 
-def assert_yaml_roundtrip(obj: Any, tmpdir: LocalPath, expected_text: str):
+def assert_yaml_roundtrip(obj: ToYamlFileMixIn,
+                          tmpdir: LocalPath,
+                          expected_text: str):
     tmpdir.chdir()
-    obj.to_yaml("a.yaml")
+    obj.to_yaml_file("a.yaml")
     actual_text = Path("a.yaml").read_text()
     try:
         assert actual_text == expected_text
