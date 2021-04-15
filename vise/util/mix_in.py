@@ -8,7 +8,7 @@ from typing import Optional
 
 class ToJsonFileMixIn(ABC):
     def to_json_file(self, filename: Optional[str] = None) -> None:
-        filename = filename or self._filename
+        filename = filename or self._json_filename
         Path(filename).write_text(self.to_json())
 
     @abstractmethod
@@ -16,9 +16,34 @@ class ToJsonFileMixIn(ABC):
         pass
 
     @property
-    def _filename(self):
+    def _json_filename(self):
         """ ClassForThis -> class_for_this.json
         https://stackoverflow.com/questions/7322028/how-to-replace-uppercase-with-underscore
         """
         class_name = self.__class__.__name__
         return re.sub("(?<!^)(?=[A-Z])", "_", class_name).lower() + ".json"
+
+
+class ToYamlFileMixIn(ABC):
+    def to_yaml_file(self, filename: Optional[str] = None) -> None:
+        filename = filename or self._yaml_filename
+        Path(filename).write_text(self.to_yaml())
+
+    @abstractmethod
+    def to_yaml(self):
+        pass
+
+    @classmethod
+    @abstractmethod
+    def from_yaml(cls, filename: str):
+        pass
+
+    @property
+    def _yaml_filename(self):
+        """ ClassForThis -> class_for_this.json
+        https://stackoverflow.com/questions/7322028/how-to-replace-uppercase-with-underscore
+        """
+        class_name = self.__class__.__name__
+        return re.sub("(?<!^)(?=[A-Z])", "_", class_name).lower() + ".yaml"
+
+
