@@ -158,6 +158,32 @@ def test_defect(default_dict):
     assert generator.incar_settings == expected
 
 
+def test_phonon_force(default_dict):
+    default_dict.update({"task": Task.phonon_force})
+    generator = IncarSettingsGenerator(**default_dict)
+    # for k, v in generator.incar_settings.items():
+    #     print(f'\"{k}\": {v}, ')
+    expected = {
+        "ADDGRID": True,
+        "ALGO": "Normal",
+        "PREC": "Accurate",
+        "LREAL": False,
+        "EDIFF": 1e-08,
+        "ENCUT": 400.0,
+        "LASPH": True,
+        "NELM": 100,
+        "ISIF": 0,
+        "IBRION": 2,
+        "NSW": 1,
+        "ISMEAR": 0,
+        "SIGMA": 0.1,
+        "LWAVE": False,
+        "LCHARG": False,
+        "KPAR": 1,
+    }
+    assert generator.incar_settings == expected
+
+
 def test_dielectric_function(default_dict):
     default_dict.update({"task": Task.dielectric_function})
     generator = IncarSettingsGenerator(**default_dict)

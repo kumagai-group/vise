@@ -246,7 +246,7 @@ class TaskIncarSettings:
             return 3
         elif self._task.is_atom_relaxed_lattice_fixed:
             return 2
-        elif self._task in (Task.band, Task.dos) \
+        elif self._task in (Task.band, Task.dos, Task.phonon_force) \
                 or self._task.is_dielectric:
             return 0
         else:
@@ -293,6 +293,8 @@ class TaskIncarSettings:
 
     @property
     def lorbit(self):
+        if self._task is Task.phonon_force:
+            return None
         return 10 if self._task is not Task.dos else 11
 
     @property
@@ -316,7 +318,7 @@ class TaskIncarSettings:
     @property
     def addgrid_optional(self):
         if self._task.is_tight_calc:
-            return 0.1
+            return True
         return
 
 
