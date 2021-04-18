@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2021. Distributed under the terms of the MIT License.
 import re
+from copy import copy
 
 
 def latexify(formula):
@@ -17,3 +18,10 @@ def latexify(formula):
         Formula suitable for display as in LaTeX with proper subscripts.
     """
     return re.sub(r"([A-Za-z\(\)])([\d\.]+)", r"\1$_{\2}$", formula)
+
+
+def numbers_to_lowercases(string: str):
+    result = copy(string)
+    for i, j in zip(range(10), ["₀", "₁", "₂", "₃", "₄", "₅", "₆", "₇", "₈", "₉"]):
+        result = result.replace(str(i), j)
+    return result
