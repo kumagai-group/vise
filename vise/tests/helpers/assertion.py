@@ -5,7 +5,6 @@ import json
 import sys
 from difflib import Differ
 from pathlib import Path
-from typing import Any
 
 from monty.json import MSONable, MontyDecoder
 from monty.serialization import loadfn
@@ -36,23 +35,46 @@ def assert_json_roundtrip(obj, tmpdir):
 
 def assert_yaml_roundtrip(obj: ToYamlFileMixIn,
                           tmpdir: LocalPath,
-                          expected_text: str):
+                          expected_text: str,
+                          compare_dict: bool = True,
+                          compare_items: bool = True):
     tmpdir.chdir()
     obj.to_yaml_file("a.yaml")
     actual_text = Path("a.yaml").read_text()
     try:
         assert actual_text == expected_text
     except AssertionError:
+        print(tmpdir)
         a = actual_text.split("\n")
         b = expected_text.split("\n")
         sys.stdout.writelines(list(Differ().compare(a, b)))
         raise
 
-    actual = obj.from_yaml("a.yaml").as_dict()
-    expected = obj.as_dict()
-    assert len(actual) == len(expected)
-    for k, v in actual.items():
-        assert v == expected[k]
+    if compare_dict:
+        try:
+            actual = obj.from_yaml("a.yaml").as_dict()
+            expected = obj.as_dict()
+        except AttributeError:
+            from dataclasses import asdict
+            actual = asdict(obj.from_yaml("a.yaml"))
+            expected = asdict(obj)
+        try:
+            assert len(actual) == len(expected)
+        except AssertionError:
+            print(tmpdir)
+            raise
+    else:
+        actual = obj.from_yaml("a.yaml")
+        print("actual", actual)
+
+    if compare_items is True:
+        for k, v in actual.items():
+            try:
+                assert v == expected[k]
+            except AssertionError:
+                print(tmpdir)
+                print(f"key: {k}, actual: {v}, expected: {expected[k]}")
+                raise
 
 
 def assert_dataclass_almost_equal(actual, expected, digit=8):
