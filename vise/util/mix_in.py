@@ -5,6 +5,8 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Optional
 
+from monty.serialization import loadfn
+
 
 class ToJsonFileMixIn(ABC):
     def to_json_file(self, filename: Optional[str] = None) -> None:
@@ -25,8 +27,9 @@ class ToJsonFileMixIn(ABC):
 
 
 class ToYamlFileMixIn(ABC):
+
     def to_yaml_file(self, filename: Optional[str] = None) -> None:
-        filename = filename or self._yaml_filename
+        filename = filename or self._yaml_filename()
         Path(filename).write_text(self.to_yaml())
 
     @abstractmethod
@@ -34,16 +37,16 @@ class ToYamlFileMixIn(ABC):
         pass
 
     @classmethod
-    @abstractmethod
-    def from_yaml(cls, filename: str):
-        pass
+    def from_yaml(cls, filename: str = None):
+        d = loadfn(filename or cls._yaml_filename())
+        return cls(**d)
 
-    @property
-    def _yaml_filename(self):
+    @classmethod
+    def _yaml_filename(cls):
         """ ClassForThis -> class_for_this.json
         https://stackoverflow.com/questions/7322028/how-to-replace-uppercase-with-underscore
         """
-        class_name = self.__class__.__name__
+        class_name = cls.__name__
         return re.sub("(?<!^)(?=[A-Z])", "_", class_name).lower() + ".yaml"
 
 
