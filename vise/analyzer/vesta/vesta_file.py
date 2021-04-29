@@ -332,10 +332,16 @@ class Style:
         return "\n".join([self.header, vct, sects, sectp, ucol, atoms, bondp])
 
 
-def add_density(vesta_file: Path, to_vesta_file: Path, isurfs: List[float],
+def add_density(original_vesta_text: str,
+                to_vesta_file: Path, isurfs: List[float],
                 volumetric_file: str):
-    lines = vesta_file.read_text().split("\n")
+    """
+    Note that when "CHG" is included in the volumetric file name, VESTA
+    automatically divide the quantity by volume in cubic of atomic unit.
+    """
+    lines = original_vesta_text.split("\n")
     title_idx = lines.index("TITLE")
+    # insertion timing must be here.
     lines.insert(title_idx + 3, ImportDensity(volumetric_file).__repr__() + "\n")
 
     lines.append("\nISURF")

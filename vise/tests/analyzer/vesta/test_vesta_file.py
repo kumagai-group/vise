@@ -151,7 +151,7 @@ BONDP
 
 def test_add_density(tmpdir):
     tmpdir.chdir()
-    Path("test.vesta").write_text("""#VESTA_FORMAT_VERSION 3.5.0
+    vesta_text = """#VESTA_FORMAT_VERSION 3.5.0
 TITLE
 X1 Ba1
 
@@ -163,9 +163,9 @@ STRUC
 0.0 0.0 0.0
 2 XX XX2 1.0 0.000000 0.000000 0.000000
 0.0 0.0 0.0
-0 0 0 0 0""")
+0 0 0 0 0"""
 
-    add_density(vesta_file=Path("test.vesta"), to_vesta_file=Path("to.vesta"),
+    add_density(original_vesta_text=vesta_text, to_vesta_file=Path("to.vesta"),
                 isurfs=[0.1, 0.2], volumetric_file="PARCHG")
 
     actual = Path("to.vesta").read_text()
