@@ -20,12 +20,6 @@ class TestData:
     d: Data = None
 
 
-def test_():
-    x = TestData(1.0)
-    print(x.__dict__)
-    print(x.__getattribute__("a"))
-
-
 def test_assert_dataclass_almost_equal_float():
     with pytest.raises(AssertionError):
         assert_dataclass_almost_equal(TestData(1.0), 1.0)

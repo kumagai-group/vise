@@ -7,12 +7,11 @@ import sys
 import warnings
 from pathlib import Path
 
-from pymatgen.core import Element
 from pymatgen.io.vasp.inputs import UnknownPotcarWarning
 from vise import __version__
 from vise.analyzer.atom_grouping_type import AtomGroupingType
 from vise.cli.main_functions import get_poscar_from_mp, VaspSet, plot_band, \
-    plot_dos, band_edge_properties, make_atom_poscars, plot_absorption, \
+    plot_dos, band_edge_properties, plot_absorption, \
     calc_effective_mass, structure_info
 from vise.defaults import defaults
 from vise.input_set.task import Task
@@ -26,17 +25,15 @@ logger = get_logger(__name__)
 warnings.simplefilter('ignore', UnknownPotcarWarning)
 
 
-def parse_args(args):
-    vise_yaml_files = '\n'.join(["* " + str(f) for f in defaults.yaml_files])
-    parser = argparse.ArgumentParser(
-        description=f"""
-Vise is a package that helps researchers to do first-principles calculations
-with the VASP code.
+description = """pydefect is a package that helps researchers to 
+do first-principles point defect calculations with the VASP code."""
 
-Author: Yu Kumagai
-Version: {__version__}
-    """,
-        epilog=f"The parsed vise.yaml files are:\n{vise_yaml_files}",
+epilog = f"Author: Yu Kumagai Version: {__version__}"
+
+
+def parse_args(args):
+    parser = argparse.ArgumentParser(
+        description=description, epilog=epilog,
         formatter_class=argparse.RawTextHelpFormatter)
 
     subparsers = parser.add_subparsers()
@@ -94,22 +91,6 @@ Version: {__version__}
         help="MP entry id with prefix, e.g., mp-1234.")
 
     parser_get_poscar.set_defaults(func=get_poscar_from_mp)
-
-    # -- make_atom_poscars -----------------------------------------------------
-    parser_make_atom_poscars = subparsers.add_parser(
-        name="make_atom_poscars",
-        description="Tools for generating POSCAR files for atom calculations.",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-        aliases=['map'])
-
-    parser_make_atom_poscars.add_argument(
-        "-d", "--dirname", type=Path, default=Path.cwd(),
-        help="Directory name where atom calculation directories are created.")
-    parser_make_atom_poscars.add_argument(
-        "-e", "--elements", type=Element, default=None, nargs="+",
-        help="Element names. When not set, all atom directories are created")
-
-    parser_make_atom_poscars.set_defaults(func=make_atom_poscars)
 
     # -- vasp_set ---------------------------------------------------------
     parser_vasp_set = subparsers.add_parser(

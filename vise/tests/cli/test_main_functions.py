@@ -9,13 +9,28 @@ import pytest
 from pymatgen.core import Structure, Element
 from vise.analyzer.atom_grouping_type import AtomGroupingType
 from vise.cli.main_functions import get_poscar_from_mp, VaspSet, plot_band, \
-    plot_dos, band_edge_properties, make_atom_poscars, plot_absorption, \
+    plot_dos, band_edge_properties, plot_absorption, \
     structure_info
 from vise.defaults import defaults
 from vise.input_set.kpoints_mode import KpointsMode
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc
 
+default_option_args = {"poscar": "POSCAR",
+                       "task": Task.structure_opt,
+                       "xc": Xc.pbe,
+                       "kpt_density": 1.0,
+                       "overridden_potcar": ["Mn_pv"]}
+
+default_args = deepcopy(default_option_args)
+default_args.update({"user_incar_settings": None,
+                     "prev_dir": None,
+                     "options": None,
+                     "file_transfer_type": None,
+                     "uniform_kpt_mode": False,
+                     "vasprun": Path("vasprun.xml"),
+                     "outcar": Path("outcar.xml"),
+                     })
 
 def test_structure_info(mocker):
     args = Namespace(poscar="POSCAR", symprec=0.1, angle_tolerance=5,
@@ -59,30 +74,6 @@ total_magnetization: 0.0001585
 """
     # Need to remove file to avoid the side effect for other unittests.
     os.remove("prior_info.yaml")
-
-
-def test_make_atom_poscars(mocker):
-    args = Namespace(dirname=Path("a"), elements=[Element.H, Element.He])
-    mock = mocker.patch("vise.cli.main_functions.make_atom_poscar_dirs")
-    make_atom_poscars(args)
-    mock.assert_called_once_with(Path("a"), [Element.H, Element.He])
-
-
-default_option_args = {"poscar": "POSCAR",
-                       "task": Task.structure_opt,
-                       "xc": Xc.pbe,
-                       "kpt_density": 1.0,
-                       "overridden_potcar": ["Mn_pv"]}
-
-default_args = deepcopy(default_option_args)
-default_args.update({"user_incar_settings": None,
-                     "prev_dir": None,
-                     "options": None,
-                     "file_transfer_type": None,
-                     "uniform_kpt_mode": False,
-                     "vasprun": Path("vasprun.xml"),
-                     "outcar": Path("outcar.xml"),
-                     })
 
 
 test_data = [

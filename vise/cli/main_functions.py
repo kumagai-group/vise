@@ -56,10 +56,6 @@ def get_poscar_from_mp(args: Namespace) -> None:
     args.prior_info.write_text(yaml.dump(d), None)
 
 
-def make_atom_poscars(args: Namespace) -> None:
-    make_atom_poscar_dirs(args.dirname, args.elements)
-
-
 class VaspSet:
     def __init__(self, args: Namespace):
         self.args = args
