@@ -14,16 +14,14 @@ from vise.util.logger import get_logger
 
 logger = get_logger(__name__)
 
-
-
 _minor = 1e-3
 default_border_fracs = [0.1, 0.5, 0.8]
 atomic_unit_to_angstrom = pc["atomic unit of length"][0] * 10 ** 10
 
 
-def write_little_weight_vol_data(volumetric_data: VolumetricData,
-                                 filename: Path,
-                                 border_fracs: List[float] = None):
+def write_light_weight_vol_data(volumetric_data: VolumetricData,
+                                filename: Path,
+                                border_fracs: List[float] = None):
     data = np.zeros(prod(volumetric_data.dim), dtype=int)
     normalized_values = (volumetric_data.data["total"]
                          / np.max(volumetric_data.data["total"])) + _minor
