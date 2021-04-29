@@ -71,12 +71,10 @@ class StructureSymmetrizer:
         self.cell = (lattice_matrix, positions, atomic_numbers)
         # evaluated lazily
         self._spglib_sym_data = None
-        self._conventional = None
         self._primitive = None
         self._second_primitive = None
         self._seekpath_data = None
         self._band_primitive = None
-        self._irreducible_kpoints = None
 
     def __repr__(self):
         sym_data = self.spglib_sym_data

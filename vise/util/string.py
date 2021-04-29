@@ -22,6 +22,7 @@ def latexify(formula):
 
 def numbers_to_lowercases(string: str):
     result = copy(string)
-    for i, j in zip(range(10), ["₀", "₁", "₂", "₃", "₄", "₅", "₆", "₇", "₈", "₉"]):
+    for i, j in zip(range(10),
+                    ["₀", "₁", "₂", "₃", "₄", "₅", "₆", "₇", "₈", "₉"]):
         result = result.replace(str(i), j)
     return result
