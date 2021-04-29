@@ -15,35 +15,38 @@ from vise.util.logger import get_logger
 logger = get_logger(__name__)
 
 _minor = 1e-3
-default_border_fracs = [0.1, 0.5, 0.8]
-atomic_unit_to_angstrom = pc["atomic unit of length"][0] * 10 ** 10
+default_border_fractions = [0.1, 0.5, 0.8]
+au_to_angstrom = pc["atomic unit of length"][0] * 10 ** 10  # = 0.529177210903
 
 
 def write_light_weight_vol_data(volumetric_data: VolumetricData,
                                 filename: Path,
-                                border_fracs: List[float] = None):
+                                border_fractions: List[float] = None):
     data = np.zeros(prod(volumetric_data.dim), dtype=int)
     normalized_values = (volumetric_data.data["total"]
                          / np.max(volumetric_data.data["total"])) + _minor
 
-    border_fracs = border_fracs or default_border_fracs
-    for border in border_fracs:
+    border_fractions = border_fractions or default_border_fractions
+    for border in border_fractions:
         # transpose needed as vasp is based on column measure (Fortran)
         data += (normalized_values > border).T.flatten()
 
-    lines = [Poscar(volumetric_data.structure).get_string()]
-    lines.append(" ".join([str(d) for d in volumetric_data.dim]))
-    lines.append(" ".join(data.astype(str)))
+    lines = [Poscar(volumetric_data.structure).get_string(),
+             " ".join([str(d) for d in volumetric_data.dim]),
+             " ".join(data.astype(str))]
     filename.write_text("\n".join(lines))
 
 
-def calc_isurfs(volume, border_fracs):
-    isurfs = np.array(border_fracs) / volume * len(border_fracs)
+def calc_isurfs(border_fractions: List[float], is_chg: bool, volume: float
+                ) -> List[float]:
+    """Calc ISURFS values used in the VESTA files
+
+    This is valid only for light-weighted volumetric data.
+    """
+    # Since max value is set to len(border_fracs), isurfs is multiplied by it.
+    isurfs = np.array(border_fractions) * len(border_fractions)
+    if is_chg:
+        # VESTA uses atomic unit in length.
+        isurfs /= (volume / (au_to_angstrom ** 3))
     return np.round(isurfs, 5).tolist()
 
-
-def add_little_weight_vol_to_vesta(volumetric_file: str,
-                                   vesta_file: Path = None,
-                                   to_vesta_file: Path = None,
-                                   isurfs: List[float] = None):
-    add_density(vesta_file, to_vesta_file, isurfs, volumetric_file)
