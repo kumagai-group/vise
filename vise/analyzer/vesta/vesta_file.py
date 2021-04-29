@@ -333,10 +333,10 @@ class Style:
 
 
 def add_density(vesta_file: Path, to_vesta_file: Path, isurfs: List[float],
-                volmetric_file: Path):
+                volumetric_file: str):
     lines = vesta_file.read_text().split("\n")
     title_idx = lines.index("TITLE")
-    lines.insert(title_idx + 3, ImportDensity(str(volmetric_file)).__repr__() + "\n")
+    lines.insert(title_idx + 3, ImportDensity(volumetric_file).__repr__() + "\n")
 
     lines.append("\nISURF")
     for isurf in isurfs:

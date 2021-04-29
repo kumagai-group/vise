@@ -166,7 +166,7 @@ STRUC
 0 0 0 0 0""")
 
     add_density(vesta_file=Path("test.vesta"), to_vesta_file=Path("to.vesta"),
-                isurfs=[0.1, 0.2], volmetric_file=Path("PARCHG"))
+                isurfs=[0.1, 0.2], volumetric_file="PARCHG")
 
     actual = Path("to.vesta").read_text()
     expected = """#VESTA_FORMAT_VERSION 3.5.0
