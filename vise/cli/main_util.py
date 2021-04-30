@@ -9,8 +9,10 @@ from pathlib import Path
 
 from pymatgen.core import Element
 from pymatgen.io.vasp.inputs import UnknownPotcarWarning
+from vise.analyzer.vasp.handle_volumetric_data import default_border_fractions
 from vise.cli.main import description, epilog
-from vise.cli.main_util_functions import make_atom_poscars
+from vise.cli.main_util_functions import make_atom_poscars, \
+    make_spin_decomposed_volumetric_files, make_light_weight_vol_data
 from vise.util.logger import get_logger
 
 logger = get_logger(__name__)
@@ -41,6 +43,48 @@ def parse_args(args):
         help="Element names. When not set, all atom directories are created")
 
     parser_make_atom_poscars.set_defaults(func=make_atom_poscars)
+
+    # -- make_spin_decomposed_volumetric_files ---------------------------------
+    parser_spin_decomposed_volumetric_files = subparsers.add_parser(
+        name="spin_decomposed_volumetric_files",
+        description="Tools for making spin decomposed volumetric files.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        aliases=['sdvf'])
+
+    parser_spin_decomposed_volumetric_files.add_argument(
+        "-c", "--chgcar", type=str, required=True,
+        help="CHGCAR-type file name with data for spin-down channel.")
+    parser_spin_decomposed_volumetric_files.set_defaults(
+        func=make_spin_decomposed_volumetric_files)
+
+    # -- make_light_weight_vol_data --------------------------------------------
+    parser_light_weight_vol_data = subparsers.add_parser(
+        name="light_weight_vol_data",
+        description="Tools for making light-weigh volumetric data file.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        aliases=['lwvd'])
+
+    parser_light_weight_vol_data.add_argument(
+        "-v", "--volumetric_file", type=str, required=True,
+        help="CHGCAR-type volumetric file name.")
+    parser_light_weight_vol_data.add_argument(
+        "-o", "--output_lw_volumetric_filename", type=Path,
+        help="Created file name.")
+    parser_light_weight_vol_data.add_argument(
+        "-b", "--border_fractions", type=float, nargs="*",
+        default=default_border_fractions,
+        help="Fractions that are used for depicting isosurfaces.")
+    parser_light_weight_vol_data.add_argument(
+        "-out_vesta", "--output_vesta_filename", type=Path,
+        help="Output VESTA file name including volumetric file name and "
+             "ISURFS.")
+    parser_light_weight_vol_data.add_argument(
+        "-orig_vesta", "--original_vesta_file", type=Path,
+        help="Original VESTA file name to which volumetric file name and "
+             "ISURFS are inserted.")
+
+    parser_light_weight_vol_data.set_defaults(
+        func=make_light_weight_vol_data)
 
     return parser.parse_args(args)
 
