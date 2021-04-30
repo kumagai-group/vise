@@ -14,9 +14,8 @@ _minor = 1e-3
 default_border_fractions = [0.1, 0.5, 0.8]
 
 
-def write_light_weight_vol_data(volumetric_data: VolumetricData,
-                                filename: Path,
-                                border_fractions: List[float] = None):
+def light_weight_vol_text(volumetric_data: VolumetricData,
+                          border_fractions: List[float] = None):
     data = np.zeros(prod(volumetric_data.dim), dtype=int)
     normalized_values = (volumetric_data.data["total"]
                          / np.max(volumetric_data.data["total"])) + _minor
@@ -29,6 +28,7 @@ def write_light_weight_vol_data(volumetric_data: VolumetricData,
     lines = [Poscar(volumetric_data.structure).get_string(),
              " ".join([str(d) for d in volumetric_data.dim]),
              " ".join(data.astype(str))]
-    filename.write_text("\n".join(lines))
+    return "\n".join(lines)
+    # filename.write_text("\n".join(lines))
 
 
