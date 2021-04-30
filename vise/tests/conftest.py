@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 from pymatgen.core import Lattice
-from pymatgen.core.structure import Structure
+from pymatgen.core.structure import Structure, IStructure
 
 
 @pytest.fixture(scope="session")
@@ -41,3 +41,8 @@ def complex_monoclinic_structure():
                      coords=coords)
 
 
+@pytest.fixture(scope="session")
+def simple_cubic():
+    lattice = Lattice.cubic(1.0)
+    coords = [[0.0, 0.0, 0.0]]
+    return IStructure(lattice=lattice, species=["H"], coords=coords)

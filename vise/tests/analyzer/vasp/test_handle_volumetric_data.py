@@ -3,10 +3,24 @@
 from pathlib import Path
 
 from vise.analyzer.vasp.handle_volumetric_data import \
-    light_weight_vol_text
+    light_weight_vol_text, make_spin_charges
 from pymatgen import Structure, Lattice
 from pymatgen.io.vasp import Chgcar
 import numpy as np
+from numpy.testing import assert_almost_equal
+
+
+def test_make_spin_charges(simple_cubic):
+    structure = Structure.from_dict(simple_cubic.as_dict())
+
+    chgcar = Chgcar(structure, data={"total": np.array([[[2.0]]])})
+    actual = make_spin_charges(chgcar)
+    assert_almost_equal(actual[0].data["total"], np.array([[[1.0]]]))
+
+    chgcar = Chgcar(structure, data={"total": np.array([[[2.0]]]),
+                                     "diff": np.array([[2.0]])})
+    actual = make_spin_charges(chgcar)
+    assert_almost_equal(actual[1].data["total"], np.array([[[0.0]]]))
 
 
 def test_light_weight_vol_text(tmpdir):

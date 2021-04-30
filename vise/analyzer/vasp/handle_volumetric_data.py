@@ -5,13 +5,22 @@ from pathlib import Path
 from typing import List
 
 import numpy as np
-from pymatgen.io.vasp import Poscar, VolumetricData
+from pymatgen import Spin
+from pymatgen.io.vasp import Poscar, VolumetricData, Chgcar
 from vise.util.logger import get_logger
 
 logger = get_logger(__name__)
 
 _minor = 1e-3
 default_border_fractions = [0.1, 0.5, 0.8]
+
+
+def make_spin_charges(chgcar: Chgcar) -> List[Chgcar]:
+    result = [Chgcar(chgcar.structure, {"total": chgcar.spin_data[Spin.up]})]
+    if "diff" in chgcar.data:
+        result.append(
+            Chgcar(chgcar.structure, {"total": chgcar.spin_data[Spin.down]}))
+    return result
 
 
 def light_weight_vol_text(volumetric_data: VolumetricData,
