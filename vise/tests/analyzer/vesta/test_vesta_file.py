@@ -9,7 +9,7 @@ from pymatgen.core import Lattice, DummySpecies
 from pymatgen.core.structure import Structure
 
 from vise.analyzer.vesta.vesta_file import VestaFile, Title, Cellp, \
-    Struc, Bound, SBond, Vect, Style, ImportDensity, add_density
+    Struc, Bound, SBond, Vect, Style, ImportDensity, add_density, calc_isurfs
 
 parent_dir = Path(__file__).parent
 
@@ -165,10 +165,9 @@ STRUC
 0.0 0.0 0.0
 0 0 0 0 0"""
 
-    add_density(original_vesta_text=vesta_text, to_vesta_file=Path("to.vesta"),
-                isurfs=[0.1, 0.2], volumetric_file="PARCHG")
+    actual = add_density(original_vesta_text=vesta_text,
+                         isurfs=[0.1, 0.2], volumetric_filename="PARCHG")
 
-    actual = Path("to.vesta").read_text()
     expected = """#VESTA_FORMAT_VERSION 3.5.0
 TITLE
 X1 Ba1
@@ -190,4 +189,15 @@ ISURF
   1   1  0.1  0  0  255  50  50
   1   1  0.2  0  0  255  50  50
   0   0   0   0"""
+    assert actual == expected
+
+
+def test_calc_isurfs():
+    au_volume_in_ang = 0.529177210903**3
+    actual = calc_isurfs([1 / au_volume_in_ang], is_chg=True, volume=10.0)
+    expected = [0.1]
+    assert actual == expected
+
+    actual = calc_isurfs([0.1], is_chg=False, volume=10.0)
+    expected = [0.1]
     assert actual == expected
