@@ -6,6 +6,9 @@ import itertools
 from pathlib import Path
 from typing import Union, Optional, Dict, Iterable, List, Tuple
 
+import numpy as np
+from scipy.constants import physical_constants as pc
+
 from vise.analyzer.vesta.element_colors import atom_color
 from pymatgen.core import DummySpecies
 from pymatgen.core.structure import Structure
@@ -333,8 +336,8 @@ class Style:
 
 
 def add_density(original_vesta_text: str,
-                to_vesta_file: Path, isurfs: List[float],
-                volumetric_file: str):
+                isurfs: List[float],
+                volumetric_filename: str) -> str:
     """
     Note that when "CHG" is included in the volumetric file name, VESTA
     automatically divide the quantity by volume in cubic of atomic unit.
@@ -342,11 +345,26 @@ def add_density(original_vesta_text: str,
     lines = original_vesta_text.split("\n")
     title_idx = lines.index("TITLE")
     # insertion timing must be here.
-    lines.insert(title_idx + 3, ImportDensity(volumetric_file).__repr__() + "\n")
+    import_density_line = ImportDensity(volumetric_filename).__repr__()
+    lines.insert(title_idx + 3, import_density_line + "\n")
 
     lines.append("\nISURF")
     for isurf in isurfs:
         lines.append(f"  1   1  {isurf}  0  0  255  50  50")
     lines.append("  0   0   0   0""")
-    to_vesta_file.write_text("\n".join(lines))
+    return "\n".join(lines)
 
+
+def calc_isurfs(border_fractions: List[float], is_chg: bool, volume: float
+                ) -> List[float]:
+    """Calc ISURFS values used in the VESTA files
+
+    This is valid only for light-weighted volumetric data.
+    """
+    au_to_angstrom = pc["atomic unit of length"][0] * 10 ** 10  # = 0.5291772109
+    # Since max value is set to len(border_fracs), isurfs is multiplied by it.
+    isurfs = np.array(border_fractions) * len(border_fractions)
+    if is_chg:
+        # VESTA uses atomic unit in length.
+        isurfs /= (volume / (au_to_angstrom ** 3))
+    return np.round(isurfs, 5).tolist()
