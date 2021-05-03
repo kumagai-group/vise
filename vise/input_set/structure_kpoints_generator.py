@@ -38,6 +38,7 @@ class StructureKpointsGenerator:
         self._initial_structure = initial_structure.copy()
         self._task = task
         self._kpt_density = kpt_density or defaults.kpoint_density
+        logger.info(f"kpoint density is set to {self._kpt_density}")
         self._is_magnetization = is_magnetization
         self._num_kpt_factor = num_kpt_factor or self._task.default_kpt_factor
         self._symmetrizer = \
