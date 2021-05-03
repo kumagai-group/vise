@@ -9,15 +9,22 @@ def get_logger(name: str,
                level=logging.DEBUG,
                stream=sys.stdout,
                datetime: str = '%Y/%m/%d %H:%M:%S',
-               log_format: str =
-               "%(asctime)18s %(levelname)7s %(name)25s\n --> %(message)s",
+               logger_type: str = "simple",
                log_filename: str = None,
                file_handler_level: str = "WARNING"):
 
+    if logger_type == "simple":
+        log_format = "%(levelname)7s: %(message)s"
+        formatter = logging.Formatter(log_format, datefmt=datetime)
+    elif logger_type == "abundant":
+        log_format = \
+            "%(asctime)18s %(levelname)7s %(name)25s\n --> %(message)s"
+        formatter = logging.Formatter(log_format, datefmt=datetime)
+    else:
+        raise ValueError
+
     logger = logging.getLogger(name)
     logger.setLevel(level)
-
-    formatter = logging.Formatter(log_format, datefmt=datetime)
 
     if log_filename:
         file_handler = logging.FileHandler(log_filename)
