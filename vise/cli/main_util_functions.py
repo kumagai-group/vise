@@ -4,10 +4,9 @@
 from argparse import Namespace
 from pathlib import Path
 
-from pydefect.cli.vasp.make_defect_charge_info import make_spin_charges
 from pymatgen.io.vasp import Chgcar
 from vise.analyzer.vasp.handle_volumetric_data import \
-    light_weight_vol_text
+    light_weight_vol_text, make_spin_charges
 from vise.analyzer.vesta.vesta_file import add_density, VestaFile, calc_isurfs
 from vise.atom_energies.make_atom_vasp_set import make_atom_poscar_dirs
 from vise.util.logger import get_logger
