@@ -33,7 +33,8 @@ class VestaFile:
                  vectors: Dict[int, Iterable] = None,
                  vector_colors: List[Tuple[int, int, int]] = None,
                  bond_radius: float = 0.12,
-                 boundary: Optional[Iterable] = None):
+                 boundary: Optional[Iterable] = None,
+                 show_label: bool = True):
         """
         If name is set to the Site in structure, they are used for labels.
 
@@ -50,7 +51,7 @@ class VestaFile:
                        Struc(structure),
                        Bound(boundary),
                        SBond(structure, bond_radius=bond_radius),
-                       SiteT(structure),
+                       SiteT(structure, show_label=show_label),
 #                       DummyAtomt(structure),
                        Vect(vectors, size=0.2, colors=vector_colors),
                        Style(bond_radius=bond_radius)]
@@ -61,7 +62,8 @@ class VestaFile:
             outs.append(repr(block))
         return "\n\n".join(outs)
 
-    def write_file(self, filename: str):
+    def write_file(self, filename: Union[Path, str]):
+        filename = str(filename)
         filename = filename if ".vesta" in filename else f"{filename}.vesta"
         with open(filename, 'w') as poscar_vesta:
             poscar_vesta.write(repr(self))
@@ -208,7 +210,7 @@ class SiteT:
     header = "SITET"
     separator = " 0 0 0 0 "
 
-    def __init__(self, structure: Structure):
+    def __init__(self, structure: Structure, show_label: bool = True):
         self.sites = []
         for i, site in enumerate(structure, 1):
             name = site.properties.get("name", None) or f'{site.species_string}{i}'
@@ -217,7 +219,10 @@ class SiteT:
             else:
                 rgb = atom_color(site.species_string)
             radius = 0.3 if name == "center" else 0.5
-            label = 0 if name == "center" else 1
+            if show_label:
+                label = 0 if name == "center" else 1
+            else:
+                label = 0
             self.sites.append(f" {i}  {name}  {radius} {rgb} {rgb} 204 {label}")
 
     def __repr__(self):
