@@ -172,7 +172,7 @@ def test_phonon_force(default_dict):
         "ENCUT": 400.0,
         "LASPH": True,
         "NELM": 100,
-        "ISIF": 0,
+        "ISIF": 2,
         "IBRION": 2,
         "NSW": 1,
         "ISMEAR": 0,

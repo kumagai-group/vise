@@ -244,10 +244,10 @@ class TaskIncarSettings:
     def isif(self):
         if self._task.is_lattice_relaxed:
             return 3
-        elif self._task.is_atom_relaxed_lattice_fixed:
+        elif (self._task.is_atom_relaxed_lattice_fixed
+              or self._task is Task.phonon_force):
             return 2
-        elif self._task in (Task.band, Task.dos, Task.phonon_force) \
-                or self._task.is_dielectric:
+        elif self._task in (Task.band, Task.dos) or self._task.is_dielectric:
             return 0
         else:
             raise NotImplementedError
