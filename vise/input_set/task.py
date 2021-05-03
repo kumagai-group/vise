@@ -120,3 +120,7 @@ class Task(MSONable, ExtendedEnum):
     def need_spin(self):
         return True if self is self.defect else False
 
+    @property
+    def fine_to_inherit_structure_from_prev(self):
+        return self.is_atom_relaxed or self.is_dielectric
+

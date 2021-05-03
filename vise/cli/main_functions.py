@@ -65,11 +65,12 @@ class VaspSet:
             self._prior_info = PriorInfo.load_yaml()
         except FileNotFoundError:
             self._prior_info = PriorInfo()
-        task = Task.cluster_opt if self._prior_info.is_cluster else args.task
+        self.task = Task.cluster_opt if self._prior_info.is_cluster \
+            else args.task
 
         options = CategorizedInputOptions(
             structure=self._structure(),
-            task=task,
+            task=self.task,
             xc=args.xc,
             kpt_density=args.kpt_density,
             overridden_potcar=self._overridden_potcar(),
@@ -81,7 +82,8 @@ class VaspSet:
             self._file_transfers.transfer()
 
     def _structure(self):
-        if self.args.prev_dir:
+        # avoid overlapping structure for e.g., phonon forces.
+        if self.args.prev_dir and self.task.fine_to_inherit_structure_from_prev:
             return Structure.from_file(self.args.prev_dir / defaults.contcar)
         return Structure.from_file(self.args.poscar)
 

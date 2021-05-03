@@ -105,3 +105,7 @@ def test_need_spin():
     assert Task.band.need_spin is False
 
 
+def test_fine_to_inherit_structure_from_prev():
+    assert Task.structure_opt.fine_to_inherit_structure_from_prev is True
+    assert Task.phonon_force.fine_to_inherit_structure_from_prev is False
+
