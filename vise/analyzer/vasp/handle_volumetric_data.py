@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2021. Distributed under the terms of the MIT License.
-from math import prod
-from pathlib import Path
+from numpy import prod
 from typing import List
 
 import numpy as np
