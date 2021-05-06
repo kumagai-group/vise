@@ -10,8 +10,23 @@ from vise.analyzer.vasp.handle_volumetric_data import \
 from vise.analyzer.vesta.vesta_file import add_density, VestaFile, calc_isurfs
 from vise.atom_energies.make_atom_vasp_set import make_atom_poscar_dirs
 from vise.util.logger import get_logger
+from vise.util.phonopy.phonopy_input import make_phonopy_input
 
 logger = get_logger(__name__)
+
+
+def make_phonon_poscars(args: Namespace) -> None:
+    phonopy_input = make_phonopy_input(unitcell=args.unitcell)
+    phonopy_input.supercell.to(filename="POSCAR")
+    phonopy_input.to_json_file()
+
+
+def make_phonon_figs(args: Namespace) -> None:
+    args.phonopy_input.set_force_constants_from_vasprun(args.vasprun_name)
+    phonopy = args.phonopy_input.to_phonopy
+    plt = phonopy.auto_band_structure(plot=True)
+    plt.savefig("phonon_band.pdf")
+    plt.show()
 
 
 def make_atom_poscars(args: Namespace) -> None:

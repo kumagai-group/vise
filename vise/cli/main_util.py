@@ -7,12 +7,15 @@ import sys
 import warnings
 from pathlib import Path
 
+from monty.serialization import loadfn
+from pymatgen import Structure
 from pymatgen.core import Element
 from pymatgen.io.vasp.inputs import UnknownPotcarWarning
 from vise.analyzer.vasp.handle_volumetric_data import default_border_fractions
 from vise.cli.main import description, epilog
 from vise.cli.main_util_functions import make_atom_poscars, \
-    make_spin_decomposed_volumetric_files, make_light_weight_vol_data
+    make_spin_decomposed_volumetric_files, make_light_weight_vol_data, \
+    make_phonon_poscars, make_phonon_figs
 from vise.util.logger import get_logger
 
 logger = get_logger(__name__)
@@ -27,6 +30,33 @@ def parse_args(args):
         formatter_class=argparse.RawTextHelpFormatter)
 
     subparsers = parser.add_subparsers()
+
+    # -- make_phonon_poscars ---------------------------------------------------
+    parser_make_phonon_poscars = subparsers.add_parser(
+        name="make_phonon_poscars",
+        description="Tools for .",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        aliases=['mpp'])
+
+    parser_make_phonon_poscars.add_argument(
+        "-u", "--unitcell", type=Structure.from_file,
+        help="")
+
+    parser_make_phonon_poscars.set_defaults(func=make_phonon_poscars)
+
+    # -- make_phonon_figs ---------------------------------------------------
+    parser_make_phonon_figs = subparsers.add_parser(
+        name="make_phonon_figs",
+        description="Tools for .",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        aliases=['mpf'])
+
+    parser_make_phonon_figs.add_argument(
+        "-pi", "--phonopy_input", type=loadfn, help="")
+    parser_make_phonon_figs.add_argument(
+        "-vn", "--vasprun_name", type=str, help="")
+
+    parser_make_phonon_figs.set_defaults(func=make_phonon_figs)
 
     # -- make_atom_poscars -----------------------------------------------------
     parser_make_atom_poscars = subparsers.add_parser(

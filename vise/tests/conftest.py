@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 from pymatgen.core import Lattice
 from pymatgen.core.structure import Structure, IStructure
+from vise.util.structure_symmetrizer import StructureSymmetrizer
 
 
 @pytest.fixture(scope="session")
@@ -26,6 +27,12 @@ def mc_structure():
               [-4.0, 0.0, 7.0]]
     coords = [[0.0, 0.0, 0.0]]
     return Structure(lattice=lattice, species=["H"], coords=coords)
+
+
+@pytest.fixture(scope="session")
+def mc_structure_conv(mc_structure):
+    symmetrizer = StructureSymmetrizer(mc_structure)
+    return symmetrizer.conventional
 
 
 @pytest.fixture(scope="session")
