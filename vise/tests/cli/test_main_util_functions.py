@@ -10,6 +10,10 @@ from vise.cli.main_util_functions import make_atom_poscars, \
 _file_path = "vise.cli.main_util_functions"
 
 
+# def test_make_phonon_poscars():
+#     args = Namespace(unitcell=)
+
+
 def test_make_atom_poscars(mocker):
     args = Namespace(dirname=Path("a"), elements=[Element.H, Element.He])
     mock = mocker.patch(f"{_file_path}.make_atom_poscar_dirs")

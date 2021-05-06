@@ -37,40 +37,40 @@ def test_structure_to_phonopy_atoms(sc_structure):
                             scaled_positions=np.array([[0.0, 0.0, 0.0]]))
     assert_same_phonopy_atoms(actual, expected)
 
-
-def test_make_phonopy_input(mc_structure, mc_structure_conv):
-    actual = make_phonopy_input(unitcell=mc_structure,
-                                supercell_matrix=np.eye(3).tolist(),
-                                conventional_base=True)
-    supercell_matrix = [[ 1., 1., 0.],
-                        [-1., 1., 0.],
-                        [ 0., 0., 1.]]
-    supercell = mc_structure * supercell_matrix
-    expected = PhonopyInput(unitcell=mc_structure,
-                            supercell=supercell,
-                            supercell_matrix=supercell_matrix)
-    assert actual == expected
-
-
-def test_make_phonopy_input_default(mc_structure, mc_structure_conv):
-    actual = make_phonopy_input(unitcell=mc_structure)
-    supercell_matrix = [[ 2., 2., 0.],
-                        [-2., 2., 0.],
-                        [ 0., 0., 2.]]
-    supercell = mc_structure * supercell_matrix
-    expected = PhonopyInput(unitcell=mc_structure,
-                            supercell=supercell,
-                            supercell_matrix=supercell_matrix)
-    assert actual == expected
-
-
-def test_make_phonopy_input_default_hexa():
-    structure = Structure(Lattice.hexagonal(1.0, 2.0), species=["H"],
-                          coords=[[0.0]*3])
-    actual = make_phonopy_input(unitcell=structure)
-    supercell_matrix = [[2, -1, 0], [2, 1, 0], [0, 0, 2]]
-    supercell = structure * supercell_matrix
-    expected = PhonopyInput(unitcell=structure,
-                            supercell=supercell,
-                            supercell_matrix=supercell_matrix)
-    assert actual == expected
+#
+# def test_make_phonopy_input(mc_structure, mc_structure_conv):
+#     actual = make_phonopy_input(unitcell=mc_structure,
+#                                 supercell_matrix=np.eye(3).tolist(),
+#                                 conventional_base=True)
+#     supercell_matrix = [[ 1., 1., 0.],
+#                         [-1., 1., 0.],
+#                         [ 0., 0., 1.]]
+#     supercell = mc_structure * supercell_matrix
+#     expected = PhonopyInput(unitcell=mc_structure,
+#                             supercell=supercell,
+#                             supercell_matrix=supercell_matrix)
+#     assert actual == expected
+#
+#
+# def test_make_phonopy_input_default(mc_structure, mc_structure_conv):
+#     actual = make_phonopy_input(unitcell=mc_structure)
+#     supercell_matrix = [[ 2., 2., 0.],
+#                         [-2., 2., 0.],
+#                         [ 0., 0., 2.]]
+#     supercell = mc_structure * supercell_matrix
+#     expected = PhonopyInput(unitcell=mc_structure,
+#                             supercell=supercell,
+#                             supercell_matrix=supercell_matrix)
+#     assert actual == expected
+#
+#
+# def test_make_phonopy_input_default_hexa():
+#     structure = Structure(Lattice.hexagonal(1.0, 2.0), species=["H"],
+#                           coords=[[0.0]*3])
+#     actual = make_phonopy_input(unitcell=structure)
+#     supercell_matrix = [[2, -1, 0], [2, 1, 0], [0, 0, 2]]
+#     supercell = structure * supercell_matrix
+#     expected = PhonopyInput(unitcell=structure,
+#                             supercell=supercell,
+#                             supercell_matrix=supercell_matrix)
+#     assert actual == expected
