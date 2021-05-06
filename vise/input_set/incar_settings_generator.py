@@ -124,8 +124,6 @@ class IncarSettingsGenerator:
     def _need_hubbard_u(self, set_hubbard_u):
         if isinstance(set_hubbard_u, bool):
             return set_hubbard_u
-        if self._xc.is_lda_or_gga:
-            return True
         return False
 
     @property
