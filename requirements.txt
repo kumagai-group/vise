@@ -16,3 +16,4 @@ fire
 setuptools
 more_itertools
 tqdm
+phonopy
