@@ -236,7 +236,6 @@ def test_ldau_option(default_dict):
                                        num_kpts=5,
                                        num_kpt_multiplication_factor=1,
                                        xc=Xc.pbe,
-                                       task=Task.structure_opt,
-                                       ldau=False)
+                                       task=Task.structure_opt)
     assert "LDAU" not in generator.incar_settings
 
