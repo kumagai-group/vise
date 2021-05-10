@@ -178,6 +178,10 @@ class StructureSymmetrizer:
         return self.spglib_sym_data["number"]
 
     @property
+    def space_group(self):
+        return self.spglib_sym_data["international"]
+
+    @property
     def point_group(self):
         return self.spglib_sym_data["pointgroup"]
 
