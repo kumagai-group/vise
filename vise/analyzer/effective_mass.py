@@ -17,17 +17,20 @@ class EffectiveMass(MSONable, ToJsonFileMixIn):
     temperature: float
     concentrations: List[float]
 
-    def ave_min_eff_mass(self, carrier_type, concentration):
+    def average_mass(self, carrier_type, concentration):
         em = self.effective_mass(carrier_type, concentration)
-        ave = sum(em[i][i] for i in range(3)) / 3
-        _min = lowest_eigval_and_vecs(np.array(em))[0]
-        if isinstance(_min, complex):
-            if abs(_min.imag) < 1e-3:
-                _min = _min.real
+        return sum(em[i][i] for i in range(3)) / 3
+
+    def minimum_mass(self, carrier_type, concentration):
+        em = self.effective_mass(carrier_type, concentration)
+        result = lowest_eigval_and_vecs(np.array(em))[0]
+        if isinstance(result, complex):
+            if abs(result.imag) < 1e-3:
+                result = result.real
             else:
                 raise ValueError("The minimum effective mass shows complex "
-                                 f"value of f{_min}.")
-        return ave, _min
+                                 f"value of f{result}.")
+        return result
 
     def effective_mass(self, carrier_type, concentration):
         i_c = self.concentrations.index(concentration)

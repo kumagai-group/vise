@@ -11,11 +11,10 @@ from vise.analyzer.effective_mass import EffectiveMass, eigvals_and_vecs, \
 
 @pytest.fixture
 def em():
-    return \
-        EffectiveMass(p=[[[1.0, 0, 0], [0, 1.0, 0], [0, 0, 1.0]]],
-                      n=[[[2.0, 0, 0], [0, 2.0, 0], [0, 0, 2.0]]],
-                      temperature=300,
-                      concentrations=[10**18])
+    return EffectiveMass(p=[[[1.0, 0, 0], [0, 1.0, 0], [0, 0, 1.0]]],
+                         n=[[[2.0, 0, 0], [0, 2.0, 0], [0, 0, 2.0]]],
+                         temperature=300,
+                         concentrations=[10**18])
 
 
 def test_str(em):
@@ -47,8 +46,10 @@ def test_effective_mass_json_file_mixin(em, tmpdir):
 def test_effective_mass(em):
     actual = em.effective_mass("p", 10**18)
     assert actual == em.p[0]
-    actual = em.ave_min_eff_mass("p", 10**18)
-    assert actual == (1.0, 1.0)
+    actual = em.average_mass("p", 10**18)
+    assert actual == 1.0
+    actual = em.minimum_mass("p", 10**18)
+    assert actual == 1.0
 
 
 def test_lowest_eigval_and_vec(em):
