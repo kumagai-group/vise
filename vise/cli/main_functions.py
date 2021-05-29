@@ -189,6 +189,7 @@ def plot_absorption(args: Namespace):
                                       Outcar(args.outcar),
                                       use_vasp_real=not args.calc_kk,
                                       ita=args.ita)
+    diele_func_data.to_json_file()
     plotter = AbsorptionCoeffMplPlotter(diele_func_data, yranges=args.y_ranges)
     plotter.construct_plot()
     plotter.plt.savefig(args.filename, format="pdf")
