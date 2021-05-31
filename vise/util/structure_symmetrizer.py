@@ -143,7 +143,7 @@ class StructureSymmetrizer:
                 primitive = cell_to_structure(primitive)
 
                 if primitive != second_primitive:
-                    if sum_frac_coords(primitive) < sum_frac_coords(second_primitive):
+                    if first_structure_is_primitive(primitive, second_primitive):
                         self._primitive = primitive
                         self._second_primitive = second_primitive
 
@@ -270,11 +270,14 @@ class StructureSymmetrizer:
         return self.spglib_sym_data["international"][0]
 
 
-def sum_frac_coords(structure: Structure):
-    each_sum = []
-    for site in structure:
-        each_sum.append(sum(site.coords))
-    return sum(each_sum)
+def first_structure_is_primitive(structure1: Structure, structure2: Structure):
+    for s1, s2 in zip(structure1, structure2):
+        for c1, c2 in zip(s1.frac_coords, s2.frac_coords):
+            if c1 < c2 - 1e-5:
+                return True
+            elif c2 < c1 - 1e-5:
+                return False
+    raise ViseSymmetryError("Primitive cannot be unique.")
 
 
 @dataclass(frozen=True)
