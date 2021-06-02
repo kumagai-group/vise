@@ -120,7 +120,7 @@ class BandDosPlotlyPlotter:
                                fillcolor="blue",
                                mode="markers",
                                marker_size=20,
-                               opacity=0.5,
+                               opacity=0.2,
                                showlegend=False),
                     row=1, col=1),
                 self.fig.add_trace(
@@ -130,7 +130,7 @@ class BandDosPlotlyPlotter:
                                fillcolor="red",
                                mode="markers",
                                marker_size=20,
-                               opacity=0.5,
+                               opacity=0.2,
                                showlegend=False),
                     row=1, col=1),
 
@@ -194,8 +194,8 @@ class BandDosPlotlyPlotter:
                                    showlegend=False,
                                    name="band",
                                    mode="lines",
-                                   opacity=0.7,
-                                   line={"width": 3.0}), row=1, col=1),
+                                   opacity=0.4,
+                                   line={"width": 2.0}), row=1, col=1),
 
     def add_dos(self):
         total_dos = self.dos_plot_data.doses[0][0].dos[0]
