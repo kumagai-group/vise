@@ -146,7 +146,8 @@ class BandPlotter:
                  base_energy: float = None,
                  mpl_defaults: Optional[BandMplSettings] = BandMplSettings()
                  ):
-
+        # need deepcopy to avoid side effect caused by the energy shift
+        band_plot_info = deepcopy(band_plot_info)
         self.band_info_set = band_plot_info.band_info_set
         self.distances_by_branch = band_plot_info.distances_by_branch
         self.x_ticks = band_plot_info.x_ticks
