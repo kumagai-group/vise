@@ -6,7 +6,8 @@ import numpy as np
 import pytest
 from numpy.testing import assert_array_equal
 
-from vise.analyzer.dos_data import PDos, DosData, DosBySpinEnergy
+from vise.analyzer.dos_data import PDos, DosData, DosBySpinEnergy, \
+    scissor_energy
 from vise.analyzer.plot_dos import DosPlotter
 from vise.tests.helpers.assertion import assert_msonable
 
@@ -210,8 +211,16 @@ def test_dos_by_spin_energy():
     assert dos.max_dos(mask) == 3.0
 
 
-def test_dos_plot_data_max_doses():
-    pass
+def test_scissor_energy(pdos_list):
+    dos_data = DosData(energies=[0.0, 0.5, 1.0],
+                       total=np.array([[4, 5, 0], [4, 5, 0]]),
+                       pdos=pdos_list,
+                       base_energy=0.0,
+                       vertical_lines=[0.0, 1.0])
+    actual = scissor_energy(dos_data.dos_plot_data(grouped_atom_indices={"H": [0]}), energy=1.0)
+    assert actual.relative_energies == [0.0, 0.001, 0.999, 1.5, 2.0]
+    assert actual.doses[0][0] == DosBySpinEnergy(name="", dos=[[4, 0, 0, 5, 0], [4, 0, 0, 5, 0]])
+    assert actual.energy_lines == [0.0, 2.0]
 
 # test of MSONable exists in test_plot_dos.py.
 
@@ -219,7 +228,6 @@ def test_dos_plot_data_max_doses():
 """
 TODO:
 + Allow to set vbm, cbm, efermi
-+ Shift energy zero to vbm or efermi.
 
 - + Shift energy zero to manual value
 + Create from FullDosInfo instance with total and atom- and orbital-decomposed pdos

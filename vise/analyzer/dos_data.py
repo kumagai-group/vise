@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
-from copy import copy
+from copy import copy, deepcopy
 from dataclasses import dataclass
 from functools import reduce
 from typing import Dict, Optional, List
@@ -158,3 +158,22 @@ class DosPlotData(MSONable, ToJsonFileMixIn):
                 d["doses"][i][j] = DosBySpinEnergy.from_dict(y)
 
         return cls(**d)
+
+
+def scissor_energy(dos_plot_data: DosPlotData, energy: float):
+    result = deepcopy(dos_plot_data)
+    _idx = np.argmax(np.array(result.relative_energies) >= 1e-3)
+
+    result.relative_energies.insert(_idx, energy - 1e-3)
+    result.relative_energies.insert(_idx, 1e-3)
+
+    for i in range(_idx + 2, len(result.relative_energies)):
+        result.relative_energies[i] += energy
+
+    for i in range(len(dos_plot_data.doses)):
+        for j in range(len(dos_plot_data.doses[0])):
+            for k in range(len(dos_plot_data.doses[0][0].dos)):
+                result.doses[i][j].dos[k].insert(_idx, 0.0)
+                result.doses[i][j].dos[k].insert(_idx, 0.0)
+    result.energy_lines[1] += energy
+    return result
