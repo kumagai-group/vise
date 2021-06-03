@@ -10,6 +10,7 @@ from phonopy.interface.vasp import read_vasp_from_strings, \
     parse_force_constants, get_born_vasprunxml
 from phonopy.structure.atoms import PhonopyAtoms
 from pymatgen import IStructure, Structure
+from pymatgen.io.vasp import Vasprun
 from vise.util.bravais_lattice import BravaisLattice
 from vise.util.centering import Centering
 from vise.util.logger import get_logger
@@ -58,6 +59,9 @@ class PhonopyInput(MSONable, ToJsonFileMixIn):
 
     def set_force_constants_from_vasprun(self, vasprun_name: str) -> None:
         self.force_constants, _ = parse_force_constants(vasprun_name)
+        vasprun = Vasprun(vasprun_name)
+        if vasprun.vasp_version[0] == "6":
+            self.force_constants /= 15.633302 ** 2
 
     def set_nac_params_from_vasprun(self, vasprun_name: str) -> None:
         born, epsilon, _, = get_born_vasprunxml(
