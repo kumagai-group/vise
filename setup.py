@@ -48,6 +48,7 @@ setup(
     entry_points={
         'console_scripts': [
             'vise = vise.cli.main:main',
+            'vise_util = vise.cli.main_util:main',
         ]
     }
 )
