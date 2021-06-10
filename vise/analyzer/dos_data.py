@@ -160,20 +160,14 @@ class DosPlotData(MSONable, ToJsonFileMixIn):
         return cls(**d)
 
 
-def scissor_energy(dos_plot_data: DosPlotData, energy: float):
+def scissor_energy(dos_plot_data: DosPlotData,
+                   energy_shift: float) -> DosPlotData:
     result = deepcopy(dos_plot_data)
-    _idx = np.argmax(np.array(result.relative_energies) >= 1e-3)
+    gap_middle = np.mean(dos_plot_data.energy_lines)
+    energy_over_gap_middle = np.array(result.relative_energies) >= gap_middle
+    shifted_energy_start_idx = int(np.argmax(energy_over_gap_middle))
+    for i in range(shifted_energy_start_idx, len(result.relative_energies)):
+        result.relative_energies[i] += energy_shift
 
-    result.relative_energies.insert(_idx, energy - 1e-3)
-    result.relative_energies.insert(_idx, 1e-3)
-
-    for i in range(_idx + 2, len(result.relative_energies)):
-        result.relative_energies[i] += energy
-
-    for i in range(len(dos_plot_data.doses)):
-        for j in range(len(dos_plot_data.doses[0])):
-            for k in range(len(dos_plot_data.doses[0][0].dos)):
-                result.doses[i][j].dos[k].insert(_idx, 0.0)
-                result.doses[i][j].dos[k].insert(_idx, 0.0)
-    result.energy_lines[1] += energy
+    result.energy_lines[1] += energy_shift
     return result
