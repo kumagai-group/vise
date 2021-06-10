@@ -69,7 +69,7 @@ def test_band_plot_info_msonable(band_info, band_plot_info):
 
 
 @pytest.fixture
-def mock_plt_list(mocker, band_info_set, band_plot_info):
+def mock_band_plt_list(mocker, band_plot_info):
     mock_plt = mocker.patch("vise.analyzer.plot_band.plt", auto_spec=True)
     mock_axis = MagicMock()
     mock_plt.gca.return_value = mock_axis
@@ -131,8 +131,8 @@ def test_band_mpl_defaults():
     assert band_defaults.label_font_size == 40
 
 
-def test_add_band_structures(mock_plt_list):
-    mock_plt, _ = mock_plt_list
+def test_add_band_structures(mock_band_plt_list):
+    mock_plt, _ = mock_band_plt_list
     linewidth = BandMplSettings().linewidth
     # 1st branch, 1st band
     args = {"color": colors[0], "linewidth": next(linewidth)}
@@ -162,40 +162,39 @@ def test_band_plot_info_add(band_plot_info, band_info_set):
     assert added.title == title  # title is set to the original one.
 
 
-
-def test_add_band_edge_circles(mock_plt_list, band_info_set):
-    mock_plt, _ = mock_plt_list
+def test_add_band_edge_circles(mock_band_plt_list, band_info_set):
+    mock_plt, _ = mock_band_plt_list
     edge = band_info_set[0].band_edge
     defaults = BandMplSettings()
 
-    mock_plt.scatter.assert_any_call(edge.vbm_distances[0], edge.vbm,
+    mock_plt.scatter.assert_any_call(edge.vbm_distances[0], 0,
                                      **defaults.circle(0))
-    mock_plt.scatter.assert_any_call(edge.cbm_distances[0], edge.cbm,
+    mock_plt.scatter.assert_any_call(edge.cbm_distances[0], 3.0,
                                      **defaults.circle(0))
-    mock_plt.scatter.assert_any_call(edge.cbm_distances[1], edge.cbm,
+    mock_plt.scatter.assert_any_call(edge.cbm_distances[1], 3.0,
                                      **defaults.circle(0))
-    mock_plt.axhline.assert_any_call(y=edge.vbm, **defaults.hline)
-    mock_plt.axhline.assert_any_call(y=edge.cbm, **defaults.hline)
+    mock_plt.axhline.assert_any_call(y=0.0, **defaults.hline)
+    mock_plt.axhline.assert_any_call(y=3.0, **defaults.hline)
 
 
-def test_figure_legends(mock_plt_list):
-    mock_plt, _ = mock_plt_list
+def test_figure_legends(mock_band_plt_list):
+    mock_plt, _ = mock_band_plt_list
 #    mock_plt.legend.assert_called_once_with(loc="lower right")
     mock_plt.legend.assert_not_called()
 
 
-def test_set_x_range(mock_plt_list):
-    mock_plt, _ = mock_plt_list
+def test_set_x_range(mock_band_plt_list):
+    mock_plt, _ = mock_band_plt_list
     mock_plt.xlim.assert_called_with(distances[0][0], distances[-1][-1])
 
 
-def test_set_y_range(mock_plt_list):
-    mock_plt, _ = mock_plt_list
+def test_set_y_range(mock_band_plt_list):
+    mock_plt, _ = mock_band_plt_list
     mock_plt.ylim.assert_called_with(y_range[0], y_range[1])
 
 
-def test_set_labels(mock_plt_list):
-    mock_plt, _ = mock_plt_list
+def test_set_labels(mock_band_plt_list):
+    mock_plt, _ = mock_band_plt_list
     defaults = BandMplSettings()
     mock_plt.xlabel.assert_called_with("Wave vector",
                                        size=defaults.label_font_size)
@@ -203,8 +202,8 @@ def test_set_labels(mock_plt_list):
                                        size=defaults.label_font_size)
 
 
-def test_set_x_tics(mock_plt_list):
-    mock_plt, mock_axis = mock_plt_list
+def test_set_x_tics(mock_band_plt_list):
+    mock_plt, mock_axis = mock_band_plt_list
 
     mock_axis.set_xticks.assert_called_once_with(x_ticks.distances)
     mock_axis.set_xticklabels.assert_called_once_with(x_ticks.labels)
@@ -212,20 +211,21 @@ def test_set_x_tics(mock_plt_list):
     mock_plt.axvline.assert_any_call(x=x_ticks.distances[1], linestyle="--")
 
 
-def test_set_title(mock_plt_list):
-    mock_plt, _ = mock_plt_list
+def test_set_title(mock_band_plt_list):
+    mock_plt, _ = mock_band_plt_list
     defaults = BandMplSettings()
     mock_plt.title.assert_called_once_with(title, size=defaults.title_font_size)
 
 
-def test_set_float_to_int_formatter(mock_plt_list):
-    _, mock_axis = mock_plt_list
+def test_set_float_to_int_formatter(mock_band_plt_list):
+    _, mock_axis = mock_band_plt_list
+    print(mock_axis)
     mock_axis.yaxis.set_major_formatter.assert_called_once_with(
         float_to_int_formatter)
 
 
-def test_plot_tight_layout(mock_plt_list):
-    mock_plt, _ = mock_plt_list
+def test_plot_tight_layout(mock_band_plt_list):
+    mock_plt, _ = mock_band_plt_list
     mock_plt.tight_layout.assert_called_once_with()
 
 
