@@ -39,8 +39,8 @@ class PDos(MSONable):
 
     @classmethod
     def from_dict(cls, d):
-        if "p" not in d:
-            super().from_dict(d)
+        if "px" in d:
+            return super().from_dict(d)
 
         x = dict(s=d["s"], px=d["p"] / 3, py=d["p"] / 3, pz=d["p"] / 3,
                  dxy=d["d"] / 5, dyz=d["d"] / 5, dxz=d["d"] / 5, dx2=d["d"] / 5,

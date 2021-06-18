@@ -64,7 +64,7 @@ class DosDataFromVasp:
 
                 pdos_kwargs[str(orbital)] = pdos[:, self.min_energy_idx:self.max_energy_idx + 1]
             try:
-                result.append(PDos(**pdos_kwargs))
+                result.append(PDos.from_dict(pdos_kwargs))
             except TypeError:
                 logger.warning("Orbital DOSes are required. SET LORBIT = 11.")
                 raise
