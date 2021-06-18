@@ -37,6 +37,25 @@ class PDos(MSONable):
     def d(self):
         return self.dxy + self.dyz + self.dxz + self.dx2 + self.dz2
 
+    @classmethod
+    def from_dict(cls, d):
+        if "p" not in d:
+            super().from_dict(d)
+
+        x = dict(s=d["s"], px=d["p"] / 3, py=d["p"] / 3, pz=d["p"] / 3,
+                 dxy=d["d"] / 5, dyz=d["d"] / 5, dxz=d["d"] / 5, dx2=d["d"] / 5,
+                 dz2=d["d"] / 5)
+        if "f" in d:
+            x.update({
+                "f_3": d["f"] / 7,
+                "f_2": d["f"] / 7,
+                "f_1": d["f"] / 7,
+                "f0": d["f"] / 7,
+                "f1": d["f"] / 7,
+                "f2": d["f"] / 7,
+                "f3": d["f"] / 7})
+        return cls(**x)
+
     @property
     def f(self):
         try:

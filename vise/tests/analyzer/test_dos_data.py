@@ -82,6 +82,15 @@ def test_dos_data_msonable(dos_data_list):
     assert_msonable(dos_data)
 
 
+def test_pdos_only_s_p_d_doses(orbitals):
+    d = {"s": 1.0, "p": 2.0, "d": 3.0, "f": 4.0}
+    pdos = PDos.from_dict(d)
+    assert pdos.s == pytest.approx(1.0)
+    assert pdos.p == pytest.approx(2.0)
+    assert pdos.d == pytest.approx(3.0)
+    assert pdos.f == pytest.approx(4.0)
+
+
 def test_pdos_s_p_d(orbitals):
     p = sum([orbitals[orb] for orb in ["px", "py", "pz"]])
     d = sum([orbitals[orb] for orb in ["dxy", "dyz", "dxz", "dx2", "dz2"]])
