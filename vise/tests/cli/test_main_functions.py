@@ -32,6 +32,7 @@ default_args.update({"user_incar_settings": None,
                      "outcar": Path("outcar.xml"),
                      })
 
+
 def test_structure_info(mocker):
     args = Namespace(poscar="POSCAR", symprec=0.1, angle_tolerance=5,
                      show_conventional=False)

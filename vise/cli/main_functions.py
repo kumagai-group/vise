@@ -198,10 +198,16 @@ def plot_absorption(args: Namespace):
 def calc_effective_mass(args: Namespace):
     vasprun, outcar = Vasprun(args.vasprun), Outcar(args.outcar)
     band_edge_prop = VaspBandEdgeProperties(vasprun, outcar)
+    try:
+        vbm, cbm = band_edge_prop.vbm_cbm
+    except TypeError:
+        logger.warning("Band gap does not exist, so not suited for effective"
+                       "mass calculation.")
+        return
     effective_mass = make_effective_mass(vasprun,
                                          args.temperature,
                                          args.concentrations,
-                                         band_edge_prop.band_gap)
+                                         vbm, cbm)
     print(effective_mass)
 
 

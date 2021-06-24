@@ -5,7 +5,8 @@ import numpy as np
 import pytest
 from pymatgen.electronic_structure.boltztrap import BoltztrapError
 
-from pymatgen.io.vasp import Vasprun
+from pymatgen.io.vasp import Vasprun, Outcar
+from vise.analyzer.vasp.band_edge_properties import VaspBandEdgeProperties
 
 try:
     from pymatgen.electronic_structure.boltztrap2 import VasprunBSLoader, \
@@ -34,7 +35,7 @@ def test_make_effective_mass(test_data_files):
     # mock_btp.return_value.Effective_mass_doping = {"p": np.array([p]),
     #                                                "n": np.array([n])}
     actual = make_effective_mass(vasprun=v, temp=300, concentrations=[1e18],
-                                 band_gap=2.0)
+                                 vbm=0.5614, cbm=3.0904)
 
     # mock_bi.assert_called_with(mock_vl.return_value, energy_range=3.0)
     # mock_btp.assert_called_with(mock_bi.return_value, temp_r=np.array([300]))
