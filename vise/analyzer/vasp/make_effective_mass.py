@@ -17,7 +17,7 @@ def make_effective_mass(vasprun: Vasprun, temp, concentrations, vbm, cbm):
         raise ImportError('Calculating effective mass requires BoltzTrap2')
 
     vasprun = deepcopy(vasprun)
-    # Need this to fix the band edge assignment issue.
+    # Need this to fix the band edge assignment issue in pymatgen.
     vasprun.efermi = (cbm + vbm) / 2
     vl = VasprunBSLoader(vasprun)
     energy_range = (cbm - vbm) / 2 + 2.0

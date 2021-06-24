@@ -34,6 +34,8 @@ def test_make_effective_mass(test_data_files):
           [-3.07622696e-17, -5.50277544e-17,  5.49195397e-01]]]
     # mock_btp.return_value.Effective_mass_doping = {"p": np.array([p]),
     #                                                "n": np.array([n])}
+    # assume the situation where the efermi locates lower than CBM.
+    v.efermi = 0.55
     actual = make_effective_mass(vasprun=v, temp=300, concentrations=[1e18],
                                  vbm=0.5614, cbm=3.0904)
 
