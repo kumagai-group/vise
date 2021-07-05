@@ -7,12 +7,12 @@ from pathlib import Path
 from typing import Union, Optional, Dict, Iterable, List, Tuple
 
 import numpy as np
-from scipy.constants import physical_constants as pc
 
 from vise.analyzer.vesta.element_colors import atom_color
 from pymatgen.core import DummySpecies
 from pymatgen.core.structure import Structure
 from vise.util.logger import get_logger
+from vise.util.unit_conversion import au_to_angstrom
 
 logger = get_logger(__name__)
 
@@ -366,7 +366,6 @@ def calc_isurfs(border_fractions: List[float], is_chg: bool, volume: float
 
     This is valid only for light-weighted volumetric data.
     """
-    au_to_angstrom = pc["atomic unit of length"][0] * 10 ** 10  # = 0.5291772109
     # Since max value is set to len(border_fracs), isurfs is multiplied by it.
     isurfs = np.array(border_fractions) * len(border_fractions)
     if is_chg:
