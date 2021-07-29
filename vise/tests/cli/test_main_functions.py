@@ -35,17 +35,19 @@ default_args.update({"user_incar_settings": None,
 
 def test_structure_info(mocker):
     args = Namespace(poscar="POSCAR", symprec=0.1, angle_tolerance=5,
-                     show_conventional=False)
-
-    lattice = [[10.0,  0.0,  0.0], [ 0.0, 10.0,  0.0], [-2.0,  0.0, 10.0]]
+                     show_conventional=False, show_primitive=False)
+    lattice = [[10.0,  0.0,  0.0], [0.0, 10.0,  0.0], [-2.0,  0.0, 10.0]]
     coords = [[0.0, 0.0, 0.0], [0.5, 0.5, 0.0]]
-    s = Structure(lattice=lattice, species=["H"] * 2, coords=coords)
 
     mock = mocker.patch("vise.cli.main_functions.Structure")
-    mock.from_file.return_value = s
+    mock.from_file.return_value = Structure(lattice=lattice, species=["H"] * 2,
+                                            coords=coords)
     structure_info(args)
     args = Namespace(poscar="POSCAR", symprec=0.1, angle_tolerance=5,
-                     show_conventional=True)
+                     show_conventional=True, show_primitive=False)
+    structure_info(args)
+    args = Namespace(poscar="POSCAR", symprec=0.1, angle_tolerance=5,
+                     show_conventional=True, show_primitive=True)
     structure_info(args)
 
 

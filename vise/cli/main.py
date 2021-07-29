@@ -71,6 +71,9 @@ def parse_args(args):
     parser_structure_info.add_argument(
         "-c", "--show_conventional", action="store_true",
         help="Describe the conventional cell.")
+    parser_structure_info.add_argument(
+        "-primitive", "--show_primitive", action="store_true",
+        help="Describe the primitive cell.")
 
     parser_structure_info.set_defaults(func=structure_info)
 

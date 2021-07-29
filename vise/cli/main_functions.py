@@ -35,12 +35,22 @@ logger = get_logger(__name__)
 
 
 def structure_info(args: Namespace) -> None:
-    s = Structure.from_file(args.poscar)
-    symmetrizer = StructureSymmetrizer(s,
+    input_structure = Structure.from_file(args.poscar)
+    symmetrizer = StructureSymmetrizer(input_structure,
                                        symprec=args.symprec,
                                        angle_tolerance=args.angle_tolerance)
-    if args.show_conventional:
-        print(symmetrizer.conventional.to(fmt="poscar"))
+    if args.show_primitive:
+        primitive = symmetrizer.primitive.to(fmt="poscar")
+        if primitive != input_structure:
+            print(primitive)
+        else:
+            logger.info("Input structure is a primitive cell.")
+    elif args.show_conventional:
+        conventional = symmetrizer.conventional.to(fmt="poscar")
+        if conventional != input_structure:
+            print(conventional)
+        else:
+            logger.info("Input structure is a conventional cell.")
     else:
         print(symmetrizer)
 
