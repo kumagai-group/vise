@@ -40,15 +40,15 @@ def structure_info(args: Namespace) -> None:
                                        symprec=args.symprec,
                                        angle_tolerance=args.angle_tolerance)
     if args.show_primitive:
-        primitive = symmetrizer.primitive.to(fmt="poscar")
+        primitive = symmetrizer.primitive
         if primitive != input_structure:
-            print(primitive)
+            print(primitive.to(fmt="poscar"))
         else:
             logger.info("Input structure is a primitive cell.")
     elif args.show_conventional:
-        conventional = symmetrizer.conventional.to(fmt="poscar")
+        conventional = symmetrizer.conventional
         if conventional != input_structure:
-            print(conventional)
+            print(conventional.to(fmt="poscar"))
         else:
             logger.info("Input structure is a conventional cell.")
     else:
@@ -69,7 +69,6 @@ def get_poscar_from_mp(args: Namespace) -> None:
 class VaspSet:
     def __init__(self, args: Namespace):
         self.args = args
-        self._file_transfers = None
 
         try:
             self._prior_info = PriorInfo.load_yaml()
@@ -88,7 +87,7 @@ class VaspSet:
 
         vif = VaspInputFiles(options, self._overridden_incar_settings())
         vif.create_input_files(Path.cwd())
-        if self._file_transfers:
+        if hasattr(self, "_file_transfers"):
             self._file_transfers.transfer()
 
     def _structure(self):
