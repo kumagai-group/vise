@@ -25,8 +25,9 @@ logger = get_logger(__name__)
 warnings.simplefilter('ignore', UnknownPotcarWarning)
 
 
-description = """pydefect is a package that helps researchers to 
-do first-principles point defect calculations with the VASP code."""
+description = """Vise is a package that helps researchers to
+to generate VASP input files for several tasks with suitable defaults, 
+and allows for tuning some parameters depending on their particular purposes."""
 
 epilog = f"Author: Yu Kumagai Version: {__version__}"
 
@@ -52,7 +53,7 @@ def parse_args(args):
     # -- structure_info ---------------------------------------------------
     parser_structure_info = subparsers.add_parser(
         name="structure_info",
-        description="Tools showing structure info or conventional cell.",
+        description="Shows structure info or conventional cell.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         aliases=['si'])
 
@@ -69,33 +70,33 @@ def parse_args(args):
         help="Angle tolerance in degree for symmetry analysis.")
     parser_structure_info.add_argument(
         "-c", "--show_conventional", action="store_true",
-        help="Set when showing the conventional cell.")
+        help="Describe the conventional cell.")
 
     parser_structure_info.set_defaults(func=structure_info)
 
     # -- get_poscar -----------------------------------------------------------
     parser_get_poscar = subparsers.add_parser(
         name="get_poscar",
-        description="Tools for generating a POSCAR file.",
+        description="Retrieves a POSCAR file from Materials Project Database.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         aliases=['gp'])
 
     parser_get_poscar.add_argument(
-        "-p", "--poscar", type=str, default="POSCAR",
-        help="POSCAR-type file name.", metavar="FILE")
-    parser_get_poscar.add_argument(
-        "-pi", "--prior_info", type=Path, default=Path("prior_info.yaml"),
-        help="prior_info.yaml file name.", metavar="FILE")
-    parser_get_poscar.add_argument(
         "-m", "--mpid", type=str, required=True,
         help="MP entry id with prefix, e.g., mp-1234.")
+    parser_get_poscar.add_argument(
+        "-p", "--poscar", type=str, default="POSCAR",
+        help="POSCAR-type file name to be written.", metavar="FILE")
+    parser_get_poscar.add_argument(
+        "-pi", "--prior_info", type=Path, default=Path("prior_info.yaml"),
+        help="prior_info.yaml file name to be written.", metavar="FILE")
 
     parser_get_poscar.set_defaults(func=get_poscar_from_mp)
 
     # -- vasp_set ---------------------------------------------------------
     parser_vasp_set = subparsers.add_parser(
         name="vasp_set",
-        description="Tools for constructing vasp input set",
+        description="Constructs vasp input set",
         parents=[vasprun_parser, outcar_parser],
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         aliases=['vs'])
@@ -151,7 +152,7 @@ def parse_args(args):
     # -- plot_band -------------------------------------------------------------
     parser_plot_band = subparsers.add_parser(
         name="plot_band",
-        description="Tools for plotting band structures",
+        description="Plots a band structure",
         parents=[vasprun_parser],
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         aliases=['pb'])
@@ -170,7 +171,7 @@ def parse_args(args):
     # -- plot_dos -----------------------------------------------------------
     parser_plot_dos = subparsers.add_parser(
         name="plot_dos",
-        description="Tools for plotting density of states",
+        description="Plots density of states",
         parents=[vasprun_parser, outcar_parser],
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         aliases=['pd'])
@@ -209,7 +210,7 @@ def parse_args(args):
     # -- plot_absorption -------------------------------------------------------
     parser_plot_absorption = subparsers.add_parser(
         name="plot_absorption",
-        description="Tools for plotting absorption coefficient",
+        description="Plots optical absorption coefficient.",
         parents=[vasprun_parser, outcar_parser],
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         aliases=['pa'])
@@ -235,7 +236,8 @@ def parse_args(args):
     # -- effective_mass -------------------------------------------------------
     parser_effective_mass = subparsers.add_parser(
         name="effective_mass",
-        description="Tools for calculating effective masses",
+        description="Calculating effective masses via BoltzTrap2."
+                    "When using this, one needs to cite its paper(s).",
         parents=[vasprun_parser, outcar_parser],
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         aliases=['em'])
@@ -252,7 +254,7 @@ def parse_args(args):
     # -- band_edge -------------------------------------------------------------
     parser_band_edge = subparsers.add_parser(
         name="band_edge",
-        description="Calculate the band edge positions",
+        description="Calculates the band edge positions",
         parents=[vasprun_parser, outcar_parser],
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         aliases=['be'])
