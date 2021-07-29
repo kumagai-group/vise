@@ -12,6 +12,7 @@ from pymatgen.core import Structure, Element
 from collections import defaultdict
 from itertools import groupby
 
+from tabulate import tabulate
 from vise.defaults import defaults
 from vise.util.centering import Centering
 from vise.util.logger import get_logger
@@ -82,18 +83,15 @@ class StructureSymmetrizer:
         lines = [f"Symprec: {self.symprec}",
                  f"Angle tolerance: {self.angle_tolerance}",
                  f"Space group: {sym_data['international']}",
-                 f"Is primitive: {is_primitive}",
-                 "Site info",
-                 "     : wyckoff |site_sym |equiv_sites"]
-
+                 f"Is primitive: {is_primitive}"]
+        site_info_header = ["site", "wyckoff", "site sym", "equiv sites"]
+        site_infos = []
         for name, site in self.sites.items():
-            lines.append(f"{name:>5}: {site.wyckoff_letter:>7} |"
-                         f"{site.site_symmetry:>8} |"
-                         f"{site.pprint_equiv_atoms}")
-
-        if is_primitive is False:
-            lines.append("-"*20)
-            lines.append(self.primitive.to("poscar"))
+            site_infos.append([f"{name}",
+                               f"{site.wyckoff_letter}",
+                               f"{site.site_symmetry}",
+                               f"{site.pprint_equiv_atoms}"])
+        lines.append(tabulate(site_infos, headers=site_info_header))
 
         return "\n".join(lines)
 
