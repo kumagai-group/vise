@@ -26,8 +26,6 @@ class PriorInfo(MSONable):
     is_cluster: bool = None
     charge: int = None
     icsd_ids: List[int] = None
-    magnetization_criterion: float = defaults.integer_criterion
-    band_gap_criterion: float = defaults.band_gap_criterion
     incar: dict = field(default_factory=dict)
 
     def dump_yaml(self, filename: str = "prior_info.yaml") -> None:
@@ -52,13 +50,13 @@ class PriorInfo(MSONable):
     @property
     def is_magnetic(self) -> Optional[bool]:
         try:
-            return self.total_magnetization > self.magnetization_criterion
+            return self.total_magnetization > defaults.integer_criterion
         except TypeError:
             return
 
     @property
     def has_band_gap(self) -> bool:
-        return self.band_gap > self.band_gap_criterion
+        return self.band_gap > defaults.band_gap_criterion
 
     @property
     def is_metal(self) -> bool:
