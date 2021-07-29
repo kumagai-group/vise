@@ -20,6 +20,7 @@ def test_structure_info_wo_options():
         symprec=defaults.symmetry_length_tolerance,
         angle_tolerance=defaults.symmetry_angle_tolerance,
         show_conventional=False,
+        show_primitive=False,
         func=parsed_args.func)
     assert parsed_args == expected
 
@@ -35,6 +36,7 @@ def test_structure_info_w_options():
         symprec=1.0,
         angle_tolerance=2.0,
         show_conventional=True,
+        show_primitive=False,
         func=parsed_args.func)
     assert parsed_args == expected
 
