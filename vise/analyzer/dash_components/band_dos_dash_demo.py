@@ -2,13 +2,9 @@
 #  Copyright (c) 2020 Kumagai group.
 from pathlib import Path
 
-import pytest
-import dash
-from crystal_toolkit.settings import SETTINGS
 from dash import Dash
 from monty.serialization import loadfn
 from vise.analyzer.dash_components.band_dos_dash import BandDosComponent
-from vise.analyzer.dos_data import DosData
 import dash_html_components as html
 
 import crystal_toolkit.components as ctc
@@ -21,8 +17,7 @@ import crystal_toolkit.components as ctc
 #     fig.show()
 
 
-app = Dash(suppress_callback_exceptions=True,
-           assets_folder=SETTINGS.ASSETS_PATH)
+app = Dash(suppress_callback_exceptions=True)
 ctc.register_app(app)
 
 test_files = Path(__file__).parent / ".." / ".." / "tests" / "test_data_files"

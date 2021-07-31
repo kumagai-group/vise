@@ -63,7 +63,7 @@ def parse_args(args):
     parser_structure_info.add_argument(
         "-s", "--symprec", type=float,
         default=defaults.symmetry_length_tolerance,
-        help="Length tolerance for symmetry analysis.")
+        help="Length tolerance in Å for symmetry analysis.")
     parser_structure_info.add_argument(
         "-a", "--angle_tolerance", type=float,
         default=defaults.symmetry_angle_tolerance,

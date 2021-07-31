@@ -23,7 +23,7 @@ class BZPlotInfo(MSONable):
 
 
 def pairwise(iterable):
-    "s -> (s0,s1), (s1,s2), (s2, s3), ..."
+    """s -> (s0,s1), (s1,s2), (s2, s3), ..."""
     a, b = itertools.tee(iterable)
     next(b)
     return itertools.zip_longest(a, b, fillvalue=iterable[0])
