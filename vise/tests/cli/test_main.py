@@ -100,7 +100,7 @@ def test_vasp_set_w_options():
                               "--outcar", "OUTCAR_1",
                               "--options", "encut", "800",
                               "--uniform_kpt_mode",
-                              "--file_transfer_type", "WAVECAR", "C",
+                              "--file_transfer", "WAVECAR", "C",
                               ])
 
     expected = Namespace(

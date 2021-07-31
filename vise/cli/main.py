@@ -144,9 +144,9 @@ def parse_args(args):
         perpendicular direction. This mode is useful when calculating the 
         supercells. """)
     parser_vasp_set.add_argument(
-        "--file_transfer_type", type=str, nargs="+",
-        help="File transfer which is used with the prev_dir argument and can "
-             "be written with pairs of file names and transfer types of "
+        "--file_transfer", dest="file_transfer_type", type=str, nargs="+",
+        help="File transfer which is used along with the prev_dir argument and "
+             "can be written with pairs of file names and transfer types of "
              "m (move), c (copy) or l (link). An example is: "
              "--file_transfer_type POSCAR c WAVECAR l ")
 
