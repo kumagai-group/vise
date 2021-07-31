@@ -11,6 +11,6 @@ which means *VASP Integrated Supporting Environment*.
 for several tasks with suitable defaults, and allows the users to
 tune some parameters depending on their particular purposes.
 
-**Note: Units used in vise are eV for energy and angstrom for length
+**Note: Units used in vise are eV for energy and Å for length
 following the vasp convention.**
 

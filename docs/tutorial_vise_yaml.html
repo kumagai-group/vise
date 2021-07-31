@@ -37,7 +37,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Change log" href="change_log.html" />
-    <link rel="prev" title="Tutorial – Analyzing calculation results" href="tutorial_band_dos.html" /> 
+    <link rel="prev" title="Tutorial – Calculations of various properties" href="tutorial_properties.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -84,8 +84,9 @@
             
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction of vise.</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_preparation_poscar.html">Tutorial – preparation POSCAR</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial_input_set.html">Tutorial – input set</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial_band_dos.html">Tutorial – Analyzing calculation results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_properties.html">Tutorial – Calculations of various properties</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorial – vise.yaml</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#setting-for-the-vise-yaml">Setting for the vise.yaml</a></li>
 </ul>
@@ -162,12 +163,11 @@
 <h2>Setting for the vise.yaml<a class="headerlink" href="#setting-for-the-vise-yaml" title="Permalink to this headline">¶</a></h2>
 <p>In <code class="code docutils literal notranslate"><span class="pre">vise</span></code>, users can control various types of parameters using <code class="code docutils literal notranslate"><span class="pre">vise.yaml</span></code> file.
 For example, we provide the default <code class="code docutils literal notranslate"><span class="pre">POTCAR</span></code> set regularly we use,
-but of course, users can adopt their favorite <code class="code docutils literal notranslate"><span class="pre">POTCAR</span></code> set by setting <code class="code docutils literal notranslate"><span class="pre">potcar_set</span></code> key as follows</p>
+but of course, users can adopt their favorite <code class="code docutils literal notranslate"><span class="pre">POTCAR</span></code> set as follows</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">overridden_potcar</span><span class="p">:</span> <span class="n">Mg_pv</span> <span class="n">O_h</span>
 </pre></div>
 </div>
 <p>The Mg_pv and O_h <code class="code docutils literal notranslate"><span class="pre">POTCAR</span></code> files are then used instead of the default normal Mg and O <code class="code docutils literal notranslate"><span class="pre">POTCAR</span></code> files.
-(The default <code class="code docutils literal notranslate"><span class="pre">POTCAR</span></code> is described in <code class="code docutils literal notranslate"><span class="pre">potcar_set.yaml</span></code> file.
 Note that <code class="code docutils literal notranslate"><span class="pre">vise</span></code> tries to find the <code class="code docutils literal notranslate"><span class="pre">vise.yaml</span></code> files
 from the current working directory to the parent directly up to the home or root directory.
 If the same options exist in multiple <cite>vise.yaml</cite> files,
@@ -175,14 +175,15 @@ the value written in the yaml file at deeper directory is prioritized.
 Therefore, when two different <code class="code docutils literal notranslate"><span class="pre">vise.yaml</span></code> are located
 at the home directory of the project and <code class="code docutils literal notranslate"><span class="pre">$home/something/</span></code> directory,
 the parameters written in <code class="code docutils literal notranslate"><span class="pre">$home/something/vise.yaml</span></code> are prioritized.</p>
-<p>The properties of Defaults class in <code class="code docutils literal notranslate"><span class="pre">defaults.py</span></code> can be set as the keys
+<p>The properties of Defaults class in <a class="reference external" href="https://github.com/kumagai-group/vise/blob/master/vise/defaults.py">defaults.py</a> can be set as the keys
 of <code class="code docutils literal notranslate"><span class="pre">vise.yaml</span></code>.
 For example, one can write in <code class="code docutils literal notranslate"><span class="pre">vise.yaml</span></code> as</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">xc</span><span class="p">:</span> <span class="n">hse</span>
-<span class="n">potcar_set</span><span class="p">:</span> <span class="n">gw</span>
+<span class="n">user_incar_settings</span><span class="p">:</span>
+    <span class="n">LASPH</span><span class="p">:</span> <span class="kc">False</span>
 </pre></div>
 </div>
-<p>for the XC functional and <code class="code docutils literal notranslate"><span class="pre">POTCAR</span></code> default set.</p>
+<p>for the XC functional and INCAR parameters.</p>
 </div>
 </div>
 
@@ -197,7 +198,7 @@ For example, one can write in <code class="code docutils literal notranslate"><s
         <a href="change_log.html" class="btn btn-neutral float-right" title="Change log" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="tutorial_band_dos.html" class="btn btn-neutral float-left" title="Tutorial – Analyzing calculation results" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="tutorial_properties.html" class="btn btn-neutral float-left" title="Tutorial – Calculations of various properties" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

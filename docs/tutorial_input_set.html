@@ -87,8 +87,12 @@
 <li class="toctree-l1"><a class="reference internal" href="tutorial_preparation_poscar.html">Tutorial – preparation POSCAR</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorial – input set</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#input-files-for-the-cell-relaxation">Input files for the cell relaxation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#kpoints-files">KPOINTS files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#tasks">Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#xc-functional">XC functional</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#potcar-files">POTCAR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#kpoints-files">KPOINTS files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#prev-dir-argument">prev_dir argument</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#options-argument">options argument</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial_properties.html">Tutorial – Calculations of various properties</a></li>
@@ -194,26 +198,10 @@ An example is</p>
 via <code class="code docutils literal notranslate"><span class="pre">vise.yaml</span></code> file, but the command line arguments are prioritized.
 See <a class="reference internal" href="tutorial_vise_yaml.html"><span class="doc">Tutorial – vise.yaml</span></a> for details.</p>
 </div>
-<div class="section" id="kpoints-files">
-<h2>KPOINTS files<a class="headerlink" href="#kpoints-files" title="Permalink to this headline">¶</a></h2>
-<p>The kpoint mesh is determined to be proportional to the reciprocal lattice constants.
-Let’s consider the cubic lattice with a=10Å,
-where the reciprocal lattice length in the “physics” definition is 2π/10.
-When the density of the k-point mesh is set to 2.5Å,
-the number of k points along this direction is ceil(2*π/10*2.5) = ceil(π/2) = 2.
-Users can also control this density via <code class="code docutils literal notranslate"><span class="pre">vise.yaml</span></code>.</p>
-<p>There is an exception for body centered orthorhombic and tetragonal systems.
-In these, although distances of reciprocal lattice constants are not the same,
-the number of k-points needs to be the same to keep the lattice symmetry.
-Therefore, we first calculate the geometric mean of the reciprocal lattice constants,
-and estimate the averaged number of k-points based on it.</p>
-<p>Next, let’s move to <span class="xref std std-doc">tutorial_band_dos</span>.</p>
-</div>
 <div class="section" id="tasks">
 <h2>Tasks<a class="headerlink" href="#tasks" title="Permalink to this headline">¶</a></h2>
-<table class="docutils align-default" id="id1">
-<caption><span class="caption-text">Tasks
- :header-rows: 1</span><a class="headerlink" href="#id1" title="Permalink to this table">¶</a></caption>
+<table class="docutils align-default" id="id103">
+<caption><span class="caption-text">Tasks</span><a class="headerlink" href="#id103" title="Permalink to this table">¶</a></caption>
 <colgroup>
 <col style="width: 8%" />
 <col style="width: 8%" />
@@ -229,20 +217,78 @@ and estimate the averaged number of k-points based on it.</p>
 <col style="width: 8%" />
 <col style="width: 8%" />
 </colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>vasp default</p></th>
+<th class="head"><p>structure_opt_rough</p></th>
+<th class="head"><p>structure_opt</p></th>
+<th class="head"><p>structure_opt_tight</p></th>
+<th class="head"><p>cluster_opt</p></th>
+<th class="head"><p>defect</p></th>
+<th class="head"><p>phonon disp</p></th>
+<th class="head"><p>band</p></th>
+<th class="head"><p>dos</p></th>
+<th class="head"><p>dielectric_dfpt</p></th>
+<th class="head"><p>dielectric_finite_field</p></th>
+<th class="head"><p>dielectric_function</p></th>
+</tr>
+</thead>
 <tbody>
-<tr class="row-odd"><td></td>
-<td><p>vasp default</p></td>
-<td><p>structure_opt</p></td>
-<td><p>structure_opt_rough</p></td>
-<td><p>structure_opt_tight</p></td>
-<td><p>cluster_opt</p></td>
-<td><p>phonon_force</p></td>
-<td><p>defect</p></td>
-<td><p>band</p></td>
-<td><p>dos</p></td>
-<td><p>dielectric_dfpt</p></td>
-<td><p>dielectric_finite_field</p></td>
-<td><p>dielectric_function</p></td>
+<tr class="row-even"><td><p>PREC</p></td>
+<td><p>N</p></td>
+<td><p>N</p></td>
+<td><p>N</p></td>
+<td><p>A</p></td>
+<td><p>N</p></td>
+<td><p>N</p></td>
+<td><p>A</p></td>
+<td><p>N</p></td>
+<td><p>N</p></td>
+<td><p>N</p></td>
+<td><p>N</p></td>
+<td><p>N</p></td>
+</tr>
+<tr class="row-odd"><td><p>LREAL</p></td>
+<td><p>F</p></td>
+<td><p>F</p></td>
+<td><p>F</p></td>
+<td><p>F</p></td>
+<td><p>F</p></td>
+<td><p>A</p></td>
+<td><p>F</p></td>
+<td><p>F</p></td>
+<td><p>F</p></td>
+<td><p>F</p></td>
+<td><p>F</p></td>
+<td><p>F</p></td>
+</tr>
+<tr class="row-even"><td><p>ENCUT</p></td>
+<td><p>max(ENMAX)</p></td>
+<td><p>max(ENMAX) * 1.3</p></td>
+<td><p>max(ENMAX) * 1.3</p></td>
+<td><p>max(ENMAX) * 1.3</p></td>
+<td><p>max(ENMAX)</p></td>
+<td><p>max(ENMAX)</p></td>
+<td><p>max(ENMAX)</p></td>
+<td><p>max(ENMAX)</p></td>
+<td><p>max(ENMAX)</p></td>
+<td><p>max(ENMAX)</p></td>
+<td><p>max(ENMAX)</p></td>
+<td><p>max(ENMAX)</p></td>
+</tr>
+<tr class="row-odd"><td><p>ISPIN</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>2</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
 </tr>
 <tr class="row-even"><td><p>ISIF</p></td>
 <td><p>2</p></td>
@@ -258,82 +304,50 @@ and estimate the averaged number of k-points based on it.</p>
 <td><p>0</p></td>
 <td><p>0</p></td>
 </tr>
-<tr class="row-odd"><td><p>NSW</p></td>
-<td><p>0</p></td>
-<td><p>50</p></td>
-<td><p>50</p></td>
-<td><p>50</p></td>
-<td><p>50</p></td>
-<td><p>50</p></td>
-<td><p>50</p></td>
-<td><p>1</p></td>
-<td><p>1</p></td>
-<td><p>1</p></td>
-<td><p>1</p></td>
-<td><p>1</p></td>
+<tr class="row-odd"><td><p>ADDGRID</p></td>
+<td><p>FALSE</p></td>
+<td><p><a href="#id1"><span class="problematic" id="id2">**</span></a></p></td>
+<td><p><a href="#id3"><span class="problematic" id="id4">**</span></a></p></td>
+<td><p>TRUE</p></td>
+<td><p><a href="#id5"><span class="problematic" id="id6">**</span></a></p></td>
+<td><p><a href="#id7"><span class="problematic" id="id8">**</span></a></p></td>
+<td><p>TRUE</p></td>
+<td><p><a href="#id9"><span class="problematic" id="id10">**</span></a></p></td>
+<td><p><a href="#id11"><span class="problematic" id="id12">**</span></a></p></td>
+<td><p><a href="#id13"><span class="problematic" id="id14">**</span></a></p></td>
+<td><p><a href="#id15"><span class="problematic" id="id16">**</span></a></p></td>
+<td><p><a href="#id17"><span class="problematic" id="id18">**</span></a></p></td>
 </tr>
 <tr class="row-even"><td><p>EDIFF</p></td>
-<td><p>1e-4</p></td>
-<td><p>1e-4</p></td>
-<td><p>1e-7</p></td>
-<td><p>1e-8</p></td>
-<td><p>1e-7</p></td>
-<td><p>1e-8</p></td>
-<td><p>1e-5</p></td>
-<td><p>1e-5</p></td>
-<td><p>1e-5</p></td>
-<td><p>1e-6</p></td>
-<td><p>1e-6</p></td>
-<td><p>1e-5</p></td>
+<td><p>1.00E-04</p></td>
+<td><p>1.00E-04</p></td>
+<td><p>1.00E-07</p></td>
+<td><p>1.00E-08</p></td>
+<td><p>1.00E-07</p></td>
+<td><p>1.00E-05</p></td>
+<td><p>1.00E-08</p></td>
+<td><p>1.00E-05</p></td>
+<td><p>1.00E-05</p></td>
+<td><p>1.00E-06</p></td>
+<td><p>1.00E-06</p></td>
+<td><p>1.00E-05</p></td>
 </tr>
 <tr class="row-odd"><td><p>EDIFFG</p></td>
 <td><p>EDIFF * 10</p></td>
-<td><p>-0.2</p></td>
-<td><p>-0.005</p></td>
-<td><p>-0.001</p></td>
-<td><p>-0.005</p></td>
-<td><ul class="simple">
-<li></li>
-</ul>
-</td>
-<td><p>-0.005</p></td>
-<td><ul class="simple">
-<li></li>
-</ul>
-</td>
-<td><ul class="simple">
-<li></li>
-</ul>
-</td>
-<td><ul class="simple">
-<li></li>
-</ul>
-</td>
-<td><ul class="simple">
-<li></li>
-</ul>
-</td>
-<td><ul class="simple">
-<li></li>
-</ul>
-</td>
+<td><p>-2.00E-01</p></td>
+<td><p>-5.00E-03</p></td>
+<td><p>-1.00E-03</p></td>
+<td><p>-5.00E-03</p></td>
+<td><p>-3.00E-02</p></td>
+<td><p><a href="#id19"><span class="problematic" id="id20">**</span></a></p></td>
+<td><p><a href="#id21"><span class="problematic" id="id22">**</span></a></p></td>
+<td><p><a href="#id23"><span class="problematic" id="id24">**</span></a></p></td>
+<td><p><a href="#id25"><span class="problematic" id="id26">**</span></a></p></td>
+<td><p><a href="#id27"><span class="problematic" id="id28">**</span></a></p></td>
+<td><p><a href="#id29"><span class="problematic" id="id30">**</span></a></p></td>
 </tr>
-<tr class="row-even"><td><p>PREC</p></td>
-<td><p>N</p></td>
-<td><p>N</p></td>
-<td><p>N</p></td>
-<td><p>A</p></td>
-<td><p>N</p></td>
-<td><p>A</p></td>
-<td><p>N</p></td>
-<td><p>N</p></td>
-<td><p>N</p></td>
-<td><p>N</p></td>
-<td><p>N</p></td>
-<td><p>N</p></td>
-</tr>
-<tr class="row-odd"><td><p>IBRION</p></td>
-<td><p>2</p></td>
+<tr class="row-even"><td><p>IBRION</p></td>
+<td><p>-1</p></td>
 <td><p>2</p></td>
 <td><p>2</p></td>
 <td><p>2</p></td>
@@ -346,22 +360,309 @@ and estimate the averaged number of k-points based on it.</p>
 <td><p>2</p></td>
 <td><p>2</p></td>
 </tr>
-<tr class="row-even"><td><p>LORBIT</p></td>
-<td><p>10</p></td>
-<td><p>10</p></td>
-<td><p>10</p></td>
-<td><p>10</p></td>
-<td><p>10</p></td>
-<td><p>10</p></td>
-<td><p>10</p></td>
-<td><p>10</p></td>
-<td><p>11</p></td>
-<td><p>10</p></td>
-<td><p>10</p></td>
-<td><p>10</p></td>
+<tr class="row-odd"><td><p>NBANDS</p></td>
+<td></td>
+<td><p><a href="#id31"><span class="problematic" id="id32">**</span></a></p></td>
+<td><p><a href="#id33"><span class="problematic" id="id34">**</span></a></p></td>
+<td><p><a href="#id35"><span class="problematic" id="id36">**</span></a></p></td>
+<td><p><a href="#id37"><span class="problematic" id="id38">**</span></a></p></td>
+<td><p><a href="#id39"><span class="problematic" id="id40">**</span></a></p></td>
+<td><p><a href="#id41"><span class="problematic" id="id42">**</span></a></p></td>
+<td><p><a href="#id43"><span class="problematic" id="id44">**</span></a>1</p></td>
+<td><p><a href="#id45"><span class="problematic" id="id46">**</span></a>1</p></td>
+<td><p><a href="#id47"><span class="problematic" id="id48">**</span></a></p></td>
+<td><p><a href="#id49"><span class="problematic" id="id50">**</span></a></p></td>
+<td><p><a href="#id51"><span class="problematic" id="id52">**</span></a>1</p></td>
+</tr>
+<tr class="row-even"><td><p>ISMEAR</p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p><a href="#id53"><span class="problematic" id="id54">**</span></a>2</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p><a href="#id55"><span class="problematic" id="id56">**</span></a>2</p></td>
+</tr>
+<tr class="row-odd"><td><p>NSW</p></td>
+<td><p>0</p></td>
+<td><p>50</p></td>
+<td><p>50</p></td>
+<td><p>50</p></td>
+<td><p>50</p></td>
+<td><p>50</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td><p>POTIM</p></td>
+<td><p>0.5</p></td>
+<td><p>0.1</p></td>
+<td><p><a href="#id57"><span class="problematic" id="id58">**</span></a></p></td>
+<td><p><a href="#id59"><span class="problematic" id="id60">**</span></a></p></td>
+<td><p><a href="#id61"><span class="problematic" id="id62">**</span></a></p></td>
+<td><p><a href="#id63"><span class="problematic" id="id64">**</span></a></p></td>
+<td><p><a href="#id65"><span class="problematic" id="id66">**</span></a></p></td>
+<td><p><a href="#id67"><span class="problematic" id="id68">**</span></a></p></td>
+<td><p><a href="#id69"><span class="problematic" id="id70">**</span></a></p></td>
+<td><p><a href="#id71"><span class="problematic" id="id72">**</span></a></p></td>
+<td><p><a href="#id73"><span class="problematic" id="id74">**</span></a></p></td>
+<td><p><a href="#id75"><span class="problematic" id="id76">**</span></a></p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Is NPAR allowed?</p></td>
+<td><p>–</p></td>
+<td><p>Yes</p></td>
+<td><p>Yes</p></td>
+<td><p>Yes</p></td>
+<td><p>Yes</p></td>
+<td><p>Yes</p></td>
+<td><p>Yes</p></td>
+<td><p>Yes</p></td>
+<td><p>Yes</p></td>
+<td><p>No (<a href="#id77"><span class="problematic" id="id78">**</span></a>3)</p></td>
+<td><p>Yes</p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p>Kpoint factor(<a href="#id79"><span class="problematic" id="id80">**</span></a>4)</p></td>
+<td><p>–</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>2</p></td>
+<td><p>2</p></td>
+<td><p>2</p></td>
+<td><p>3</p></td>
+</tr>
+<tr class="row-even"><td><p>Is structure changed? (<a href="#id81"><span class="problematic" id="id82">**</span></a>5)</p></td>
+<td><p>–</p></td>
+<td><p>No</p></td>
+<td><p>Yes</p></td>
+<td><p>Yes</p></td>
+<td><p>Yes</p></td>
+<td><p>No</p></td>
+<td><p>No</p></td>
+<td><p>Yes</p></td>
+<td><p>Yes</p></td>
+<td><p>Yes</p></td>
+<td><p>Yes</p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p>Kpoint mesh rule (<a href="#id83"><span class="problematic" id="id84">**</span></a>6)</p></td>
+<td></td>
+<td><p>primitive</p></td>
+<td><p>primitive</p></td>
+<td><p>primitive</p></td>
+<td><p>Γ-point only</p></td>
+<td><p>uniform</p></td>
+<td><p>uniform</p></td>
+<td><p>band</p></td>
+<td><p>Γ-centered uniform</p></td>
+<td><p>primitive</p></td>
+<td><p>primitive</p></td>
+<td><p>Γ-centered uniform</p></td>
 </tr>
 </tbody>
 </table>
+<p><a href="#id85"><span class="problematic" id="id86">**</span></a>: Not set, thus same as default.</p>
+<p><a href="#id87"><span class="problematic" id="id88">**</span></a>1: Number of bands is determined from the sum of valence electron / 2 and unoccupied band number per element written in <a class="reference external" href="https://github.com/kumagai-group/vise/blob/master/vise/input_set/datasets/unoccupied_bands.yaml">this yaml</a>.</p>
+<p><a href="#id89"><span class="problematic" id="id90">**</span></a>2: Set -5 when there is a band gap and number of irreducible k-points &gt;= 4, otherwise 0.</p>
+<p><a href="#id91"><span class="problematic" id="id92">**</span></a>3: Combination of IBRION=8 and NPAR&gt;=2 is prohibited.</p>
+<p><a href="#id93"><span class="problematic" id="id94">**</span></a>4: The multiplication factor for the number of k-points. For example, the numbers of k-points for DOS are doubled along all the directions.</p>
+<p><a href="#id95"><span class="problematic" id="id96">**</span></a>5: For the band structure calculations, the structures must be primitive cells that are uniquely defined in the seekpath.</p>
+<p><a href="#id97"><span class="problematic" id="id98">**</span></a>6: See comments in <a class="reference external" href="https://github.com/kumagai-group/vise/blob/master/vise/input_set/kpoints_mode.py">this script</a>.</p>
+<p>Caveats:</p>
+<ul class="simple">
+<li><p>SIGMA=0.1, NELM=100, and LASPH=True are set in common.</p></li>
+<li><p>EMIN, EMAX, and NEDOS are set for dos and dielectric_function.
+When vbm and cbm are set, EMIN=vbm - 15 and EMAX=cbm + 15, otherwise EMIN=20 and EMAX=20.
+NEDOS = round((EMAX - EMIN) / 0.01) + 1</p></li>
+<li><p>Combination of ISMEAR=-5 and non-Gamma-centered kpoint mesh is prohibited, so the centering
+is changed to Gamma.</p></li>
+</ul>
+</div>
+<div class="section" id="xc-functional">
+<h2>XC functional<a class="headerlink" href="#xc-functional" title="Permalink to this headline">¶</a></h2>
+<table class="docutils align-default" id="id104">
+<caption><span class="caption-text">XC functional</span><a class="headerlink" href="#id104" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>vasp default</p></th>
+<th class="head"><p>pbe</p></th>
+<th class="head"><p>pbesol</p></th>
+<th class="head"><p>lda</p></th>
+<th class="head"><p>scan</p></th>
+<th class="head"><p>pbe0</p></th>
+<th class="head"><p>hse</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>ALGO</p></td>
+<td><p>N</p></td>
+<td><p>N</p></td>
+<td><p>N</p></td>
+<td><p>N</p></td>
+<td><p>N</p></td>
+<td><p>D</p></td>
+<td><p>D</p></td>
+</tr>
+<tr class="row-odd"><td><p>LREAL</p></td>
+<td><p>FALSE</p></td>
+<td><p>FALSE</p></td>
+<td><p>FALSE</p></td>
+<td><p>FALSE</p></td>
+<td><p>FALSE</p></td>
+<td><p>FALSE</p></td>
+<td><p>FALSE</p></td>
+</tr>
+<tr class="row-even"><td><p>LWAVE</p></td>
+<td><p>TRUE</p></td>
+<td><p>FALSE</p></td>
+<td><p>FALSE</p></td>
+<td><p>FALSE</p></td>
+<td><p>FALSE</p></td>
+<td><p>TRUE</p></td>
+<td><p>TRUE</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Consider Hubbard U (<a href="#id99"><span class="problematic" id="id100">**</span></a>1)</p></td>
+<td><p>FALSE</p></td>
+<td><p>TRUE</p></td>
+<td><p>TRUE</p></td>
+<td><p>TRUE</p></td>
+<td><p>FALSE</p></td>
+<td><p>FALSE</p></td>
+<td><p>FALSE</p></td>
+</tr>
+<tr class="row-odd"><td><p>HF-related tags</p></td>
+<td><p>FALSE</p></td>
+<td><p>FALSE</p></td>
+<td><p>FALSE</p></td>
+<td><p>FALSE</p></td>
+<td><p>FALSE</p></td>
+<td><p>○</p></td>
+<td><p>○</p></td>
+</tr>
+<tr class="row-even"><td><p>HFSCREEN</p></td>
+<td><p>none</p></td>
+<td><p>–</p></td>
+<td><p>–</p></td>
+<td><p>–</p></td>
+<td><p>–</p></td>
+<td><p>–</p></td>
+<td><p>0.208</p></td>
+</tr>
+<tr class="row-odd"><td><p>NKRED</p></td>
+<td><p>1</p></td>
+<td><p>–</p></td>
+<td><p>–</p></td>
+<td><p>–</p></td>
+<td><p>–</p></td>
+<td><p>Kpoint factor</p></td>
+<td><p>Kpoint factor</p></td>
+</tr>
+<tr class="row-even"><td><p>TIME</p></td>
+<td><p>0.4</p></td>
+<td><p>–</p></td>
+<td><p>–</p></td>
+<td><p>–</p></td>
+<td><p>–</p></td>
+<td><p>0.4</p></td>
+<td><p>0.4</p></td>
+</tr>
+</tbody>
+</table>
+<p><a href="#id101"><span class="problematic" id="id102">**</span></a>1: The LDAUU and LDAUL parameters are written in the <a class="reference external" href="https://github.com/kumagai-group/vise/blob/master/vise/input_set/datasets/u_parameter_set.yaml">yaml file</a>.</p>
+</div>
+<div class="section" id="potcar-files">
+<h2>POTCAR files<a class="headerlink" href="#potcar-files" title="Permalink to this headline">¶</a></h2>
+<p>Here, one can see the <a class="reference external" href="https://github.com/kumagai-group/vise/blob/master/vise/input_set/datasets/potcar_set.yaml">POTCAR list</a>, where the first column shows the POTCAR used in vise as default and the second column those adopted in the materials project database.</p>
+</div>
+<div class="section" id="kpoints-files">
+<h2>KPOINTS files<a class="headerlink" href="#kpoints-files" title="Permalink to this headline">¶</a></h2>
+<p>The kpoint mesh is determined to be proportional to the reciprocal lattice constants.
+Let’s consider the cubic lattice with a=10Å,
+where the reciprocal lattice length in the “physics” definition is 2π/10.
+When the density of the k-point mesh is set to 2.5Å,
+the number of k points along this direction is ceil(2*π/10*2.5) = ceil(π/2) = 2.
+Users can also control this density via <code class="code docutils literal notranslate"><span class="pre">vise.yaml</span></code>.</p>
+<p>There is an exception for body centered orthorhombic and tetragonal systems.
+In these, although distances of reciprocal lattice constants are not the same,
+the number of k-points needs to be the same to keep the lattice symmetry.
+Therefore, we first calculate the geometric mean of the reciprocal lattice constants,
+and estimate the averaged number of k-points based on it.</p>
+</div>
+<div class="section" id="prev-dir-argument">
+<h2>prev_dir argument<a class="headerlink" href="#prev-dir-argument" title="Permalink to this headline">¶</a></h2>
+<p>When one sets –prev_dir argument, vise parses the VASP calculations performed in that directory
+to determine the structure, charge, band-edge positions, and magnetization.
+If one wants to transfer files, use the –file_transfer argument together.</p>
+</div>
+<div class="section" id="options-argument">
+<h2>options argument<a class="headerlink" href="#options-argument" title="Permalink to this headline">¶</a></h2>
+<p>The options in <a class="reference external" href="https://github.com/kumagai-group/vise/blob/master/vise/input_set/incar_settings_generator.py">IncarSettingsGenerator</a> and <a class="reference external" href="https://github.com/kumagai-group/vise/blob/master/vise/input_set/structure_kpoints_generator.py">StructureKpointsGenerator</a>
+e.g.,</p>
+<p>for IncarSettingsGenerator,</p>
+<ul class="simple">
+<li><p>charge: float = 0.0,</p></li>
+<li><p>band_gap: Optional[float] = None,</p></li>
+<li><p>vbm_cbm: Optional[List[float]] = None,</p></li>
+<li><p>exchange_ratio: float = 0.25,</p></li>
+<li><p>set_hubbard_u: Optional[bool] = None,</p></li>
+<li><p>auto_npar_kpar: bool = True,</p></li>
+<li><p>cutoff_energy: Optional[float] = None,</p></li>
+<li><p>is_magnetization: bool = False,</p></li>
+</ul>
+<p>and for StructureKpointsGenerator,</p>
+<ul class="simple">
+<li><p>kpt_density: Optional[float] = None,  # in Å</p></li>
+<li><p>gamma_centered: Optional[bool] = None,  # Vasp definition</p></li>
+<li><p>only_even_num_kpts: bool = False,  # If ceil kpt numbers to be even.</p></li>
+<li><p>num_kpt_factor: Optional[int] = None,  # Set NKRED to this as well.</p></li>
+</ul>
+<p>Next, let’s move to <span class="xref std std-doc">tutorial_band_dos</span>.</p>
 </div>
 </div>
 

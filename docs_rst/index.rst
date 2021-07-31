@@ -10,10 +10,12 @@ Welcome to vise's documentation!
    :maxdepth: 2
 
    introduction
+   tutorial_preparation_poscar
    tutorial_input_set
-   tutorial_band_dos
+   tutorial_properties
    tutorial_vise_yaml
    change_log
+   citation
 
 Indices and tables
 ==================
