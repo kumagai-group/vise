@@ -1,0 +1,10 @@
+﻿,vasp default,pbe,pbesol,lda,scan,pbe0,hse
+ALGO,N,N,N,N,N,D,D
+LREAL,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE
+LWAVE,TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,TRUE
+,,,,,,,
+Consider Hubbard U (**1),FALSE,TRUE,TRUE,TRUE,FALSE,FALSE,FALSE
+HF-related tags,FALSE,FALSE,FALSE,FALSE,FALSE,○,○
+HFSCREEN,none,--,--,--,--,--,0.208
+NKRED,1,--,--,--,--,Kpoint factor,Kpoint factor
+TIME,0.4,--,--,--,--,0.4,0.4

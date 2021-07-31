@@ -1,0 +1,285 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Tutorial – Calculations of various properties &mdash; vise  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Tutorial – vise.yaml" href="tutorial_vise_yaml.html" />
+    <link rel="prev" title="Tutorial – input set" href="tutorial_input_set.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> vise
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction of vise.</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_preparation_poscar.html">Tutorial – preparation POSCAR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_input_set.html">Tutorial – input set</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorial – Calculations of various properties</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#band-structure-and-density-of-states">Band structure and density of states</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#static-and-ionic-dielectric-constant">Static and ionic dielectric constant</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#absorption-coefficient">Absorption coefficient</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_vise_yaml.html">Tutorial – vise.yaml</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">vise</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Tutorial – Calculations of various properties</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/tutorial_properties.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="tutorial-calculations-of-various-properties">
+<h1>Tutorial – Calculations of various properties<a class="headerlink" href="#tutorial-calculations-of-various-properties" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="band-structure-and-density-of-states">
+<h2>Band structure and density of states<a class="headerlink" href="#band-structure-and-density-of-states" title="Permalink to this headline">¶</a></h2>
+<p>We can create the input files for the calculations of the band structure (BS) and
+the density of states (DOS) by simply typing</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">vise</span> <span class="n">vs</span> <span class="o">-</span><span class="n">t</span> <span class="n">band</span>
+</pre></div>
+</div>
+<p>and</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">vise</span> <span class="n">vs</span> <span class="o">-</span><span class="n">t</span> <span class="n">dos</span>
+</pre></div>
+</div>
+<p>In each directory, we run the vasp calculations.</p>
+<p>Here, the band path is determined based upon the
+<a class="reference external" href="https://www.materialscloud.org/work/tools/seekpath">seekpath code</a>,
+so if one uses the plot for publication or presentation, please cite the following paper.</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S0927025616305110?via%3Dihub">Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, Band structure diagram paths based on crystallography, Comp. Mat. Sci. 128, 140 (2017).</a> DOI: 10.1016/j.commatsci.2016.10.015.</p></li>
+</ul>
+<p><code class="code docutils literal notranslate"><span class="pre">Vise</span></code> also provides the plotters of BS and DOS based on with
+<code class="code docutils literal notranslate"><span class="pre">plot_band</span></code> (= <code class="code docutils literal notranslate"><span class="pre">pb</span></code>) and <code class="code docutils literal notranslate"><span class="pre">plot_dos</span></code> (= <code class="code docutils literal notranslate"><span class="pre">pd</span></code>) sub-commands.
+Type the following commands in the BS and DOS calculation directories,</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">vise</span> <span class="n">pb</span> <span class="o">-</span><span class="n">f</span> <span class="n">band</span><span class="o">.</span><span class="n">pdf</span>
+</pre></div>
+</div>
+<p>and</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">vise</span> <span class="n">pd</span> <span class="o">-</span><span class="n">f</span> <span class="n">dos</span><span class="o">.</span><span class="n">pdf</span>
+</pre></div>
+</div>
+<p>The band-edge positions including the band gap is also evaluated using
+the <code class="code docutils literal notranslate"><span class="pre">be`(=</span> <span class="pre">:code:`band_edge</span></code>) sub-command.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">vise</span> <span class="n">be</span>
+</pre></div>
+</div>
+<p>The effective masses are calculated using
+<a class="reference external" href="https://www.imc.tuwien.ac.at/forschungsbereich_theoretische_chemie/forschungsgruppen/prof_dr_gkh_madsen_theoretical_materials_chemistry/boltztrap2/">BoltzTrap2</a>.
+The subcommand is <code class="code docutils literal notranslate"><span class="pre">em`(=</span> <span class="pre">:code:`effective_mass</span></code>) sub-command.
+The essential key parameter is the carrier concentration, and user need to
+input exponential parts of base-10 in cm-3 (A typical value is between 17 – 20).</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">vise</span> <span class="n">em</span> <span class="o">-</span><span class="n">c</span> <span class="mi">17</span> <span class="mi">19</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="static-and-ionic-dielectric-constant">
+<h2>Static and ionic dielectric constant<a class="headerlink" href="#static-and-ionic-dielectric-constant" title="Permalink to this headline">¶</a></h2>
+<p>We can also create the input files for the calculation of the static and ionic dielectric constant.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">vise</span> <span class="n">vs</span> <span class="o">-</span><span class="n">t</span> <span class="n">dielectric_dfpt</span>
+</pre></div>
+</div>
+<p>Instead, when one wants to use the finite field method,</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">vise</span> <span class="n">vs</span> <span class="o">-</span><span class="n">t</span> <span class="n">dielectric_finite_field</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="absorption-coefficient">
+<h2>Absorption coefficient<a class="headerlink" href="#absorption-coefficient" title="Permalink to this headline">¶</a></h2>
+<p>We can also create the input files for the calculation of the absorption coefficient.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">vise</span> <span class="n">vs</span> <span class="o">-</span><span class="n">t</span> <span class="n">dielectric_function</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">vise</span> <span class="n">pa</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="tutorial_vise_yaml.html" class="btn btn-neutral float-right" title="Tutorial – vise.yaml" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="tutorial_input_set.html" class="btn btn-neutral float-left" title="Tutorial – input set" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Yu Kumagai
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

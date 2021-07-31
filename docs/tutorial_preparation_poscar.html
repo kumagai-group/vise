@@ -1,0 +1,247 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Tutorial – preparation POSCAR &mdash; vise  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Tutorial – input set" href="tutorial_input_set.html" />
+    <link rel="prev" title="Introduction of vise." href="introduction.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> vise
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction of vise.</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorial – preparation POSCAR</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#preparation-of-the-unit-cell">Preparation of the unit cell</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_input_set.html">Tutorial – input set</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_properties.html">Tutorial – Calculations of various properties</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_vise_yaml.html">Tutorial – vise.yaml</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">vise</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Tutorial – preparation POSCAR</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/tutorial_preparation_poscar.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="tutorial-preparation-poscar">
+<h1>Tutorial – preparation POSCAR<a class="headerlink" href="#tutorial-preparation-poscar" title="Permalink to this headline">¶</a></h1>
+<p>In this tutorial, we show how to prepare POSCAR file using <code class="code docutils literal notranslate"><span class="pre">vise</span></code> via the Materials Project database.</p>
+<div class="section" id="preparation-of-the-unit-cell">
+<h2>Preparation of the unit cell<a class="headerlink" href="#preparation-of-the-unit-cell" title="Permalink to this headline">¶</a></h2>
+<p>Firstly, we obtain the <code class="code docutils literal notranslate"><span class="pre">POSCAR</span></code> file via the Materials Project REST API.
+(Of course, it’s also fine to prepare POSCAR by another way instead.)
+When using the Materials Project REST API,
+we need to set the PMG_MAPI_KEY in the .pmgrc.yaml file at the home directory, e.g.,
+See <a class="reference external" href="https://pymatgen.org/usage.html">pymatgen web page 1</a>, for more details.</p>
+<p>To confirm the pymatgen setting works properly, run the following python script.
+Note that it creates vasp files so it would be better to move to a temporary directory.
+If the <code class="code docutils literal notranslate"><span class="pre">VASP</span></code> files are not created, there should be a problem related to the pymatgen.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pymatgen.io.vasp.sets</span> <span class="kn">import</span> <span class="n">VaspInputSet</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="kn">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">Lattice</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.vasp.sets</span> <span class="kn">import</span> <span class="n">MPRelaxSet</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span><span class="n">Lattice</span><span class="o">.</span><span class="n">cubic</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="p">[</span><span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="s2">&quot;He&quot;</span><span class="p">],</span> <span class="p">[[</span><span class="mf">0.0</span><span class="p">]</span><span class="o">*</span><span class="mi">3</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">]</span><span class="o">*</span><span class="mi">3</span><span class="p">])</span>
+<span class="n">vasp_set</span> <span class="o">=</span> <span class="n">MPRelaxSet</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<span class="n">vasp_set</span><span class="o">.</span><span class="n">write_input</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We can find the materials project id for ScN is mp-2857 via the Materials Project web page
+<code class="code docutils literal notranslate"><span class="pre">Vise</span></code> automatically retrieve the POSCAR files
+using the <code class="code docutils literal notranslate"><span class="pre">get_poscar</span></code> (= <code class="code docutils literal notranslate"><span class="pre">gp</span></code>) sub-command.
+For example, we can get the crystal structure of ScN by typing as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">vise</span> <span class="n">gp</span> <span class="o">-</span><span class="n">m</span> <span class="n">mp</span><span class="o">-</span><span class="mi">2857</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="tutorial_input_set.html" class="btn btn-neutral float-right" title="Tutorial – input set" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="introduction.html" class="btn btn-neutral float-left" title="Introduction of vise." accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Yu Kumagai
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

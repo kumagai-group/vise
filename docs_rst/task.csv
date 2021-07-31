@@ -1,0 +1,19 @@
+﻿,vasp default,structure_opt_rough,structure_opt,structure_opt_tight,cluster_opt,defect,phonon disp,band,dos,dielectric_dfpt,dielectric_finite_field,dielectric_function
+PREC,N,N,N,A,N,N,A,N,N,N,N,N
+LREAL,F,F,F,F,F,A,F,F,F,F,F,F
+ENCUT,max(ENMAX),max(ENMAX) * 1.3,max(ENMAX) * 1.3,max(ENMAX) * 1.3,max(ENMAX) ,max(ENMAX),max(ENMAX) ,max(ENMAX) ,max(ENMAX) ,max(ENMAX) ,max(ENMAX) ,max(ENMAX) 
+ISPIN,1,1,1,1,1,2,1,1,1,1,1,1
+ISIF,2,3,3,3,2,2,2,0,0,0,0,0
+ADDGRID,FALSE,**,**,TRUE,**,**,TRUE,**,**,**,**,**
+EDIFF,1.00E-04,1.00E-04,1.00E-07,1.00E-08,1.00E-07,1.00E-05,1.00E-08,1.00E-05,1.00E-05,1.00E-06,1.00E-06,1.00E-05
+EDIFFG,EDIFF * 10,-2.00E-01,-5.00E-03,-1.00E-03,-5.00E-03,-3.00E-02,**,**,**,**,**,**
+IBRION,-1,2,2,2,2,2,2,2,2,8,2,2
+NBANDS,,**,**,**,**,**,**,**1,**1,**,**,**1
+ISMEAR,1,0,0,0,0,0,0,0,**2,0,0,**2
+NSW,0,50,50,50,50,50,0,0,0,0,0,0
+POTIM,0.5,0.1,**,**,**,**,**,**,**,**,**,**
+----,,,,,,,,,,,,
+Is NPAR allowed?,--,Yes,Yes,Yes,Yes,Yes,Yes,Yes,Yes,No (**3),Yes,Yes
+Kpoint factor(**4),--,1,1,1,1,1,1,1,2,2,2,3
+Is structure changed? (**5),--,No,Yes,Yes,Yes,No,No,Yes,Yes,Yes,Yes,Yes
+Kpoint mesh rule (**6),,primitive,primitive,primitive,Γ-point only,uniform,uniform,band,Γ-centered uniform,primitive,primitive,Γ-centered uniform
