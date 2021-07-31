@@ -36,8 +36,8 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Tutorial – Analyzing calculation results" href="tutorial_band_dos.html" />
-    <link rel="prev" title="Introduction of vise." href="introduction.html" /> 
+    <link rel="next" title="Tutorial – Calculations of various properties" href="tutorial_properties.html" />
+    <link rel="prev" title="Tutorial – preparation POSCAR" href="tutorial_preparation_poscar.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -84,13 +84,14 @@
             
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction of vise.</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_preparation_poscar.html">Tutorial – preparation POSCAR</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorial – input set</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#preparation-of-the-unit-cell">Preparation of the unit cell</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#input-files-for-the-cell-relaxation">Input files for the cell relaxation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#kpoints-files">KPOINTS files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tasks">Tasks</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial_band_dos.html">Tutorial – Analyzing calculation results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_properties.html">Tutorial – Calculations of various properties</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial_vise_yaml.html">Tutorial – vise.yaml</a></li>
 <li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
 </ul>
@@ -161,58 +162,206 @@
   <div class="section" id="tutorial-input-set">
 <h1>Tutorial – input set<a class="headerlink" href="#tutorial-input-set" title="Permalink to this headline">¶</a></h1>
 <p>In this tutorial, we show how to use <code class="code docutils literal notranslate"><span class="pre">vise</span></code> to generate the <code class="code docutils literal notranslate"><span class="pre">VASP</span></code> input files.</p>
-<div class="section" id="preparation-of-the-unit-cell">
-<h2>Preparation of the unit cell<a class="headerlink" href="#preparation-of-the-unit-cell" title="Permalink to this headline">¶</a></h2>
-<p>Firstly, we obtain the POSCAR file via Materials Project REST API.
-(Of course, it’s also fine to prepare POSCAR by another way instead.)
-When we use the Materials Project REST API,
-we need to set the PMG_MAPI_KEY in the .pmgrc.yaml file at the home directory, e.g.,
-See <a class="reference external" href="https://pymatgen.org/usage.html">pymatgen web page 1</a>, for more details.</p>
-<p>By checking the Materials Project web page, we know the id for ScN is mp-2857.
-<code class="code docutils literal notranslate"><span class="pre">Vise</span></code> automatically retrieve the POSCAR files
-using the <code class="code docutils literal notranslate"><span class="pre">get_poscar</span></code> (= <code class="code docutils literal notranslate"><span class="pre">gp</span></code>) sub-command.
-For example, we can get the crystal structure of ScN. by typing as follows:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">vise</span> <span class="n">gp</span> <span class="o">-</span><span class="n">m</span> <span class="n">mp</span><span class="o">-</span><span class="mi">2857</span>
-</pre></div>
-</div>
-</div>
 <div class="section" id="input-files-for-the-cell-relaxation">
 <h2>Input files for the cell relaxation<a class="headerlink" href="#input-files-for-the-cell-relaxation" title="Permalink to this headline">¶</a></h2>
-<p>Secondly, we prepare INCAR, POTCAR, and KPOINTS files.
-In <code class="code docutils literal notranslate"><span class="pre">vise</span></code>, <code class="code docutils literal notranslate"><span class="pre">vasp_set</span></code> (= <code class="code docutils literal notranslate"><span class="pre">vs</span></code>) sub-command generates these files.
-It includes various arguments, in which important ones are
-<code class="code docutils literal notranslate"><span class="pre">--task</span></code> (or <code class="code docutils literal notranslate"><span class="pre">-t</span></code>) and <code class="code docutils literal notranslate"><span class="pre">--xc</span></code> (or <code class="code docutils literal notranslate"><span class="pre">-x</span></code>),
-which determine the task and exchange-correlation (XC) functional.
-The defaults are structure optimization with the PBE functional.
+<p>Let’s assume we have POSCAR file are are about to prepare INCAR, POTCAR, and KPOINTS files
+The used sub-command is the <code class="code docutils literal notranslate"><span class="pre">vasp_set</span></code> (= <code class="code docutils literal notranslate"><span class="pre">vs</span></code>).
+It includes various arguments, among which important are
+<code class="code docutils literal notranslate"><span class="pre">--task</span></code> (or <code class="code docutils literal notranslate"><span class="pre">-t</span></code>) and <code class="code docutils literal notranslate"><span class="pre">--xc</span></code> (or <code class="code docutils literal notranslate"><span class="pre">-x</span></code>)
+that determine the target task and exchange-correlation (XC) functional,
+respectively.
+The defaults are structure optimization and the PBE functional.
 So, we can generate INCAR, POTCAR, and KPOINTS files,
 by typing as follows at the directory where POSCAR exists,</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">vise</span> <span class="n">vs</span>
 </pre></div>
 </div>
-<p>Note that the structure optimization must be generally iterated with 1.3 times larger cutoff energy
-until the forces and stresses converge at the first ionic step so as to reduce the errors caused
+<p>Note that the structure optimization must be generally iterated
+with 1.3 times larger cutoff energy until the forces and stresses converge
+at the first ionic step so as to reduce the errors caused
 by the Pulay Stress to an acceptable accuracy.
 See <a class="reference external" href="https://cms.mpi.univie.ac.at/vasp/vasp/Volume_vs_energy_volume_relaxations_Pulay_Stress.html">vasp manual</a>
 or <a class="reference external" href="https://en.wikipedia.org/wiki/Pulay_stress">wikipedia</a> for details.
-Such increase of the cutoff energy is also done by <code class="code docutils literal notranslate"><span class="pre">vise</span></code>.</p>
+Such increase of the cutoff energy is also considered in <code class="code docutils literal notranslate"><span class="pre">vise</span></code>.</p>
 <p>The <code class="code docutils literal notranslate"><span class="pre">vs</span></code> sub-command allows the <code class="code docutils literal notranslate"><span class="pre">POTCAR</span></code> file to be modified
 from the default set via <code class="code docutils literal notranslate"><span class="pre">--potcar</span></code>.
-The <code class="code docutils literal notranslate"><span class="pre">INCAR</span></code> setting is also controlled via <code class="code docutils literal notranslate"><span class="pre">--user_incar_setting</span></code> (= <code class="code docutils literal notranslate"><span class="pre">-uis</span></code>) argument.</p>
+The <code class="code docutils literal notranslate"><span class="pre">INCAR</span></code> setting is also controlled via <code class="code docutils literal notranslate"><span class="pre">--user_incar_setting</span></code> (= <code class="code docutils literal notranslate"><span class="pre">-uis</span></code>) argument.
+An example is</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">vise</span> <span class="n">vs</span> <span class="n">vise</span> <span class="n">vs</span> <span class="o">--</span><span class="n">potcar</span> <span class="n">Mg_pv</span> <span class="o">-</span><span class="n">uis</span> <span class="n">ALGO</span> <span class="n">All</span>
+</pre></div>
+</div>
 <p>It is also possible to control the <code class="code docutils literal notranslate"><span class="pre">POTCAR</span></code> and <code class="code docutils literal notranslate"><span class="pre">INCAR</span></code> setting
 via <code class="code docutils literal notranslate"><span class="pre">vise.yaml</span></code> file, but the command line arguments are prioritized.
 See <a class="reference internal" href="tutorial_vise_yaml.html"><span class="doc">Tutorial – vise.yaml</span></a> for details.</p>
-<p>Next, let’s move to <a class="reference internal" href="tutorial_band_dos.html"><span class="doc">Tutorial – Analyzing calculation results</span></a>.</p>
 </div>
 <div class="section" id="kpoints-files">
 <h2>KPOINTS files<a class="headerlink" href="#kpoints-files" title="Permalink to this headline">¶</a></h2>
 <p>The kpoint mesh is determined to be proportional to the reciprocal lattice constants.
-Let’s consider the cubic lattice with a=10A, where the reciprocal lattice length in the “physics” definition is 2*pi/10.
-When the density of the k-point mesh is set to 2.5 A,
-the number of k points along this direction is ceil(2*pi/10*2.5) = ceil(pi/2) = 2.
-Users can also control this density via <cite>vise.yaml</cite>.</p>
+Let’s consider the cubic lattice with a=10Å,
+where the reciprocal lattice length in the “physics” definition is 2π/10.
+When the density of the k-point mesh is set to 2.5Å,
+the number of k points along this direction is ceil(2*π/10*2.5) = ceil(π/2) = 2.
+Users can also control this density via <code class="code docutils literal notranslate"><span class="pre">vise.yaml</span></code>.</p>
 <p>There is an exception for body centered orthorhombic and tetragonal systems.
 In these, although distances of reciprocal lattice constants are not the same,
-but the number of k-points needs to be the same to keep the lattice symmetry.</p>
+the number of k-points needs to be the same to keep the lattice symmetry.
+Therefore, we first calculate the geometric mean of the reciprocal lattice constants,
+and estimate the averaged number of k-points based on it.</p>
+<p>Next, let’s move to <span class="xref std std-doc">tutorial_band_dos</span>.</p>
+</div>
+<div class="section" id="tasks">
+<h2>Tasks<a class="headerlink" href="#tasks" title="Permalink to this headline">¶</a></h2>
+<table class="docutils align-default" id="id1">
+<caption><span class="caption-text">Tasks
+ :header-rows: 1</span><a class="headerlink" href="#id1" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td></td>
+<td><p>vasp default</p></td>
+<td><p>structure_opt</p></td>
+<td><p>structure_opt_rough</p></td>
+<td><p>structure_opt_tight</p></td>
+<td><p>cluster_opt</p></td>
+<td><p>phonon_force</p></td>
+<td><p>defect</p></td>
+<td><p>band</p></td>
+<td><p>dos</p></td>
+<td><p>dielectric_dfpt</p></td>
+<td><p>dielectric_finite_field</p></td>
+<td><p>dielectric_function</p></td>
+</tr>
+<tr class="row-even"><td><p>ISIF</p></td>
+<td><p>2</p></td>
+<td><p>3</p></td>
+<td><p>3</p></td>
+<td><p>3</p></td>
+<td><p>2</p></td>
+<td><p>2</p></td>
+<td><p>2</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p>NSW</p></td>
+<td><p>0</p></td>
+<td><p>50</p></td>
+<td><p>50</p></td>
+<td><p>50</p></td>
+<td><p>50</p></td>
+<td><p>50</p></td>
+<td><p>50</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-even"><td><p>EDIFF</p></td>
+<td><p>1e-4</p></td>
+<td><p>1e-4</p></td>
+<td><p>1e-7</p></td>
+<td><p>1e-8</p></td>
+<td><p>1e-7</p></td>
+<td><p>1e-8</p></td>
+<td><p>1e-5</p></td>
+<td><p>1e-5</p></td>
+<td><p>1e-5</p></td>
+<td><p>1e-6</p></td>
+<td><p>1e-6</p></td>
+<td><p>1e-5</p></td>
+</tr>
+<tr class="row-odd"><td><p>EDIFFG</p></td>
+<td><p>EDIFF * 10</p></td>
+<td><p>-0.2</p></td>
+<td><p>-0.005</p></td>
+<td><p>-0.001</p></td>
+<td><p>-0.005</p></td>
+<td><ul class="simple">
+<li></li>
+</ul>
+</td>
+<td><p>-0.005</p></td>
+<td><ul class="simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="simple">
+<li></li>
+</ul>
+</td>
+<td><ul class="simple">
+<li></li>
+</ul>
+</td>
+</tr>
+<tr class="row-even"><td><p>PREC</p></td>
+<td><p>N</p></td>
+<td><p>N</p></td>
+<td><p>N</p></td>
+<td><p>A</p></td>
+<td><p>N</p></td>
+<td><p>A</p></td>
+<td><p>N</p></td>
+<td><p>N</p></td>
+<td><p>N</p></td>
+<td><p>N</p></td>
+<td><p>N</p></td>
+<td><p>N</p></td>
+</tr>
+<tr class="row-odd"><td><p>IBRION</p></td>
+<td><p>2</p></td>
+<td><p>2</p></td>
+<td><p>2</p></td>
+<td><p>2</p></td>
+<td><p>2</p></td>
+<td><p>2</p></td>
+<td><p>2</p></td>
+<td><p>2</p></td>
+<td><p>2</p></td>
+<td><p>8</p></td>
+<td><p>2</p></td>
+<td><p>2</p></td>
+</tr>
+<tr class="row-even"><td><p>LORBIT</p></td>
+<td><p>10</p></td>
+<td><p>10</p></td>
+<td><p>10</p></td>
+<td><p>10</p></td>
+<td><p>10</p></td>
+<td><p>10</p></td>
+<td><p>10</p></td>
+<td><p>10</p></td>
+<td><p>11</p></td>
+<td><p>10</p></td>
+<td><p>10</p></td>
+<td><p>10</p></td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 
@@ -224,10 +373,10 @@ but the number of k-points needs to be the same to keep the lattice symmetry.</p
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="tutorial_band_dos.html" class="btn btn-neutral float-right" title="Tutorial – Analyzing calculation results" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="tutorial_properties.html" class="btn btn-neutral float-right" title="Tutorial – Calculations of various properties" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="introduction.html" class="btn btn-neutral float-left" title="Introduction of vise." accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="tutorial_preparation_poscar.html" class="btn btn-neutral float-left" title="Tutorial – preparation POSCAR" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
