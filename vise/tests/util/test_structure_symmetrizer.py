@@ -39,7 +39,7 @@ def test_repr(symmetrizer_mc):
 Angle tolerance: 5.0
 Space group: C2/m
 Is primitive: False
-site    wyckoff    site_sym    equiv_sites
+site    wyckoff    site sym    equiv sites
 ------  ---------  ----------  -------------
 H1      a          2/m         0 1"""
     assert symmetrizer_mc.__repr__() == expected

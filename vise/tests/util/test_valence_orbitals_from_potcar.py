@@ -5,5 +5,5 @@ from vise.util.valence_orbitals_from_potcar import valence_orbitals_from_potcar
 
 
 def test_valence_orbitals_from_potcar():
-    potcar_single = Potcar(["Ba"], "PBE")[0]
-    assert valence_orbitals_from_potcar(potcar_single) == "(6s)2 (5p)6"
+    potcar_single = Potcar(["Ba_sv"], "PBE")[0]
+    assert valence_orbitals_from_potcar(potcar_single) == "(6s)2 (5p)6 (5s)2"
