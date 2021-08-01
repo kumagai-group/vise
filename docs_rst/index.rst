@@ -14,6 +14,7 @@ Welcome to vise's documentation!
    tutorial_input_set
    tutorial_properties
    tutorial_vise_yaml
+   vise_api
    change_log
    citation
 
