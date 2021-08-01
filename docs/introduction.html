@@ -36,7 +36,7 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Tutorial – input set" href="tutorial_input_set.html" />
+    <link rel="next" title="Tutorial – preparation of POSCAR" href="tutorial_preparation_poscar.html" />
     <link rel="prev" title="Welcome to vise’s documentation!" href="index.html" /> 
 </head>
 
@@ -84,10 +84,12 @@
             
               <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction of vise.</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_preparation_poscar.html">Tutorial – preparation of POSCAR</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial_input_set.html">Tutorial – input set</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial_band_dos.html">Tutorial – Calculations of various properties</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_properties.html">Tutorial – Calculations of various properties</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial_vise_yaml.html">Tutorial – vise.yaml</a></li>
 <li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="citation.html">Citations</a></li>
 </ul>
 
             
@@ -157,12 +159,15 @@
 <h1>Introduction of vise.<a class="headerlink" href="#introduction-of-vise" title="Permalink to this headline">¶</a></h1>
 <p>First-principles calculations are becoming increasingly prevalent in materials science.
 However, preparing input files for the calculations and analyzing calculation
-results are still not an easy task for researchers other than experienced ones.
-To overcome the situation, we have developed <code class="code docutils literal notranslate"><span class="pre">vise</span></code> code,
+results are still not an easy task for researchers other than experts,
+and human errors could come up.</p>
+<p>To overcome the situation, we have developed <code class="code docutils literal notranslate"><span class="pre">vise</span></code> code,
 which means <em>VASP Integrated Supporting Environment</em>.
 <code class="code docutils literal notranslate"><span class="pre">Vise</span></code> supports <code class="code docutils literal notranslate"><span class="pre">VASP</span></code> users to generate its input files
 for several tasks with suitable defaults, and allows the users to
-tune some parameters depending on their particular purposes.</p>
+tune some parameters depending on their purposes.</p>
+<p>It also supports the analyses of the calculated results for electronic band structures, density of states (DOS), effective masses, and optical absorption coefficients.
+Since simple APIs are provided, <code class="code docutils literal notranslate"><span class="pre">vise</span></code> can be easily implemented to python codes for automatic calculations.</p>
 <p><strong>Note: Units used in vise are eV for energy and Å for length
 following the vasp convention.</strong></p>
 </div>
@@ -175,7 +180,7 @@ following the vasp convention.</strong></p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="tutorial_input_set.html" class="btn btn-neutral float-right" title="Tutorial – input set" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="tutorial_preparation_poscar.html" class="btn btn-neutral float-right" title="Tutorial – preparation of POSCAR" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="index.html" class="btn btn-neutral float-left" title="Welcome to vise’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

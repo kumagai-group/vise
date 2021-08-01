@@ -37,7 +37,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Tutorial – Calculations of various properties" href="tutorial_properties.html" />
-    <link rel="prev" title="Tutorial – preparation POSCAR" href="tutorial_preparation_poscar.html" /> 
+    <link rel="prev" title="Tutorial – preparation of POSCAR" href="tutorial_preparation_poscar.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -84,20 +84,21 @@
             
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction of vise.</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial_preparation_poscar.html">Tutorial – preparation POSCAR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_preparation_poscar.html">Tutorial – preparation of POSCAR</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorial – input set</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#input-files-for-the-cell-relaxation">Input files for the cell relaxation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#tasks">Tasks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#xc-functional">XC functional</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#potcar-files">POTCAR files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#kpoints-files">KPOINTS files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#prev-dir-argument">prev_dir argument</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#options-argument">options argument</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#prev-dir-argument">–prev_dir argument</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#options-argument">–options argument</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial_properties.html">Tutorial – Calculations of various properties</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial_vise_yaml.html">Tutorial – vise.yaml</a></li>
 <li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="citation.html">Citations</a></li>
 </ul>
 
             
@@ -165,33 +166,25 @@
             
   <div class="section" id="tutorial-input-set">
 <h1>Tutorial – input set<a class="headerlink" href="#tutorial-input-set" title="Permalink to this headline">¶</a></h1>
-<p>In this tutorial, we show how to use <code class="code docutils literal notranslate"><span class="pre">vise</span></code> to generate the <code class="code docutils literal notranslate"><span class="pre">VASP</span></code> input files.</p>
+<p>We here show how to generate the <code class="code docutils literal notranslate"><span class="pre">VASP</span></code> input files.</p>
 <div class="section" id="input-files-for-the-cell-relaxation">
 <h2>Input files for the cell relaxation<a class="headerlink" href="#input-files-for-the-cell-relaxation" title="Permalink to this headline">¶</a></h2>
-<p>Let’s assume we have POSCAR file are are about to prepare INCAR, POTCAR, and KPOINTS files
-The used sub-command is the <code class="code docutils literal notranslate"><span class="pre">vasp_set</span></code> (= <code class="code docutils literal notranslate"><span class="pre">vs</span></code>).
-It includes various arguments, among which important are
+<p>Let’s assume we have a POSCAR file and are about to prepare INCAR, POTCAR, and KPOINTS files.
+The sub-command for this is the <code class="code docutils literal notranslate"><span class="pre">vasp_set</span></code> (= <code class="code docutils literal notranslate"><span class="pre">vs</span></code>).
+It includes various arguments, but important are
 <code class="code docutils literal notranslate"><span class="pre">--task</span></code> (or <code class="code docutils literal notranslate"><span class="pre">-t</span></code>) and <code class="code docutils literal notranslate"><span class="pre">--xc</span></code> (or <code class="code docutils literal notranslate"><span class="pre">-x</span></code>)
-that determine the target task and exchange-correlation (XC) functional,
+that determine the target task and exchange-correlation (XC) functional adopted,
 respectively.
 The defaults are structure optimization and the PBE functional.
-So, we can generate INCAR, POTCAR, and KPOINTS files,
-by typing as follows at the directory where POSCAR exists,</p>
+So, we can generate INCAR, POTCAR, and KPOINTS files by typing as follows at the directory where POSCAR exists,</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">vise</span> <span class="n">vs</span>
 </pre></div>
 </div>
-<p>Note that the structure optimization must be generally iterated
-with 1.3 times larger cutoff energy until the forces and stresses converge
-at the first ionic step so as to reduce the errors caused
-by the Pulay Stress to an acceptable accuracy.
-See <a class="reference external" href="https://cms.mpi.univie.ac.at/vasp/vasp/Volume_vs_energy_volume_relaxations_Pulay_Stress.html">vasp manual</a>
-or <a class="reference external" href="https://en.wikipedia.org/wiki/Pulay_stress">wikipedia</a> for details.
-Such increase of the cutoff energy is also considered in <code class="code docutils literal notranslate"><span class="pre">vise</span></code>.</p>
 <p>The <code class="code docutils literal notranslate"><span class="pre">vs</span></code> sub-command allows the <code class="code docutils literal notranslate"><span class="pre">POTCAR</span></code> file to be modified
 from the default set via <code class="code docutils literal notranslate"><span class="pre">--potcar</span></code>.
 The <code class="code docutils literal notranslate"><span class="pre">INCAR</span></code> setting is also controlled via <code class="code docutils literal notranslate"><span class="pre">--user_incar_setting</span></code> (= <code class="code docutils literal notranslate"><span class="pre">-uis</span></code>) argument.
 An example is</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">vise</span> <span class="n">vs</span> <span class="n">vise</span> <span class="n">vs</span> <span class="o">--</span><span class="n">potcar</span> <span class="n">Mg_pv</span> <span class="o">-</span><span class="n">uis</span> <span class="n">ALGO</span> <span class="n">All</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">vise</span> <span class="n">vs</span> <span class="o">--</span><span class="n">potcar</span> <span class="n">Mg_pv</span> <span class="o">-</span><span class="n">uis</span> <span class="n">ALGO</span> <span class="n">All</span>
 </pre></div>
 </div>
 <p>It is also possible to control the <code class="code docutils literal notranslate"><span class="pre">POTCAR</span></code> and <code class="code docutils literal notranslate"><span class="pre">INCAR</span></code> setting
@@ -200,6 +193,14 @@ See <a class="reference internal" href="tutorial_vise_yaml.html"><span class="do
 </div>
 <div class="section" id="tasks">
 <h2>Tasks<a class="headerlink" href="#tasks" title="Permalink to this headline">¶</a></h2>
+<p>Here, we show a list of INCAR settings and some conditions for input files for each task. The VASP defaults at August, 1, 2021 are also shown.
+Note that the structure optimization must be generally iterated
+with 1.3 times larger cutoff energy until the forces and stresses converge
+at the first ionic step so as to reduce the errors caused
+by the Pulay Stress to an acceptable accuracy.
+See <a class="reference external" href="https://cms.mpi.univie.ac.at/vasp/vasp/Volume_vs_energy_volume_relaxations_Pulay_Stress.html">vasp manual</a>
+or <a class="reference external" href="https://en.wikipedia.org/wiki/Pulay_stress">wikipedia</a> for details.
+Such increase of the cutoff energy is also considered in <code class="code docutils literal notranslate"><span class="pre">vise</span></code>.</p>
 <table class="docutils align-default" id="id103">
 <caption><span class="caption-text">Tasks</span><a class="headerlink" href="#id103" title="Permalink to this table">¶</a></caption>
 <colgroup>
@@ -490,7 +491,7 @@ See <a class="reference internal" href="tutorial_vise_yaml.html"><span class="do
 </table>
 <p><a href="#id85"><span class="problematic" id="id86">**</span></a>: Not set, thus same as default.</p>
 <p><a href="#id87"><span class="problematic" id="id88">**</span></a>1: Number of bands is determined from the sum of valence electron / 2 and unoccupied band number per element written in <a class="reference external" href="https://github.com/kumagai-group/vise/blob/master/vise/input_set/datasets/unoccupied_bands.yaml">this yaml</a>.</p>
-<p><a href="#id89"><span class="problematic" id="id90">**</span></a>2: Set -5 when there is a band gap and number of irreducible k-points &gt;= 4, otherwise 0.</p>
+<p><a href="#id89"><span class="problematic" id="id90">**</span></a>2: Set ISMEAR=-5 when there is a band gap and number of irreducible k-points is 4 or more, otherwise ISMEAR=0.</p>
 <p><a href="#id91"><span class="problematic" id="id92">**</span></a>3: Combination of IBRION=8 and NPAR&gt;=2 is prohibited.</p>
 <p><a href="#id93"><span class="problematic" id="id94">**</span></a>4: The multiplication factor for the number of k-points. For example, the numbers of k-points for DOS are doubled along all the directions.</p>
 <p><a href="#id95"><span class="problematic" id="id96">**</span></a>5: For the band structure calculations, the structures must be primitive cells that are uniquely defined in the seekpath.</p>
@@ -498,15 +499,16 @@ See <a class="reference internal" href="tutorial_vise_yaml.html"><span class="do
 <p>Caveats:</p>
 <ul class="simple">
 <li><p>SIGMA=0.1, NELM=100, and LASPH=True are set in common.</p></li>
-<li><p>EMIN, EMAX, and NEDOS are set for dos and dielectric_function.
-When vbm and cbm are set, EMIN=vbm - 15 and EMAX=cbm + 15, otherwise EMIN=20 and EMAX=20.
+<li><p>EMIN, EMAX, and NEDOS are set for dos and dielectric_function tasksk.
+When vbm and cbm are given, EMIN=vbm - 15 and EMAX=cbm + 15, otherwise EMIN=20 and EMAX=20.
 NEDOS = round((EMAX - EMIN) / 0.01) + 1</p></li>
 <li><p>Combination of ISMEAR=-5 and non-Gamma-centered kpoint mesh is prohibited, so the centering
-is changed to Gamma.</p></li>
+is changed to Gamma when ISMEAR=-5.</p></li>
 </ul>
 </div>
 <div class="section" id="xc-functional">
 <h2>XC functional<a class="headerlink" href="#xc-functional" title="Permalink to this headline">¶</a></h2>
+<p>We next show a list of INCAR settings and some conditions for input files for each XC functional.</p>
 <table class="docutils align-default" id="id104">
 <caption><span class="caption-text">XC functional</span><a class="headerlink" href="#id104" title="Permalink to this table">¶</a></caption>
 <colgroup>
@@ -600,8 +602,8 @@ is changed to Gamma.</p></li>
 <td><p>–</p></td>
 <td><p>–</p></td>
 <td><p>–</p></td>
-<td><p>Kpoint factor</p></td>
-<td><p>Kpoint factor</p></td>
+<td><p>=Kpoint factor</p></td>
+<td><p>=Kpoint factor</p></td>
 </tr>
 <tr class="row-even"><td><p>TIME</p></td>
 <td><p>0.4</p></td>
@@ -618,7 +620,7 @@ is changed to Gamma.</p></li>
 </div>
 <div class="section" id="potcar-files">
 <h2>POTCAR files<a class="headerlink" href="#potcar-files" title="Permalink to this headline">¶</a></h2>
-<p>Here, one can see the <a class="reference external" href="https://github.com/kumagai-group/vise/blob/master/vise/input_set/datasets/potcar_set.yaml">POTCAR list</a>, where the first column shows the POTCAR used in vise as default and the second column those adopted in the materials project database.</p>
+<p>One can find the <a class="reference external" href="https://github.com/kumagai-group/vise/blob/master/vise/input_set/datasets/potcar_set.yaml">POTCAR list</a>, where the first column shows the POTCAR used in vise as default and the second column those adopted in the materials project database.</p>
 </div>
 <div class="section" id="kpoints-files">
 <h2>KPOINTS files<a class="headerlink" href="#kpoints-files" title="Permalink to this headline">¶</a></h2>
@@ -626,25 +628,24 @@ is changed to Gamma.</p></li>
 Let’s consider the cubic lattice with a=10Å,
 where the reciprocal lattice length in the “physics” definition is 2π/10.
 When the density of the k-point mesh is set to 2.5Å,
-the number of k points along this direction is ceil(2*π/10*2.5) = ceil(π/2) = 2.
-Users can also control this density via <code class="code docutils literal notranslate"><span class="pre">vise.yaml</span></code>.</p>
-<p>There is an exception for body centered orthorhombic and tetragonal systems.
-In these, although distances of reciprocal lattice constants are not the same,
+the number of k points along this direction is ceil(2*π/10*2.5) = ceil(π/2) = 2.</p>
+<p>Body centered orthorhombic and tetragonal systems are exceptions;
+although distances of reciprocal lattice constants are not the same,
 the number of k-points needs to be the same to keep the lattice symmetry.
 Therefore, we first calculate the geometric mean of the reciprocal lattice constants,
-and estimate the averaged number of k-points based on it.</p>
+and estimate the average number of k-points based on it.</p>
 </div>
 <div class="section" id="prev-dir-argument">
-<h2>prev_dir argument<a class="headerlink" href="#prev-dir-argument" title="Permalink to this headline">¶</a></h2>
-<p>When one sets –prev_dir argument, vise parses the VASP calculations performed in that directory
-to determine the structure, charge, band-edge positions, and magnetization.
-If one wants to transfer files, use the –file_transfer argument together.</p>
+<h2>–prev_dir argument<a class="headerlink" href="#prev-dir-argument" title="Permalink to this headline">¶</a></h2>
+<p>The –prev_dir argument allows for parsing the VASP calculations performed in the designated directory
+to extract information on the structure, charge, band-edge positions, and magnetization.
+If one wants to copy, move, and/or link files from the directory, use the –file_transfer argument together.</p>
 </div>
 <div class="section" id="options-argument">
-<h2>options argument<a class="headerlink" href="#options-argument" title="Permalink to this headline">¶</a></h2>
+<h2>–options argument<a class="headerlink" href="#options-argument" title="Permalink to this headline">¶</a></h2>
 <p>The options in <a class="reference external" href="https://github.com/kumagai-group/vise/blob/master/vise/input_set/incar_settings_generator.py">IncarSettingsGenerator</a> and <a class="reference external" href="https://github.com/kumagai-group/vise/blob/master/vise/input_set/structure_kpoints_generator.py">StructureKpointsGenerator</a>
-e.g.,</p>
-<p>for IncarSettingsGenerator,</p>
+classes are set with the –options argument.
+For example, those for IncarSettingsGenerator are,</p>
 <ul class="simple">
 <li><p>charge: float = 0.0,</p></li>
 <li><p>band_gap: Optional[float] = None,</p></li>
@@ -655,14 +656,17 @@ e.g.,</p>
 <li><p>cutoff_energy: Optional[float] = None,</p></li>
 <li><p>is_magnetization: bool = False,</p></li>
 </ul>
-<p>and for StructureKpointsGenerator,</p>
+<p>and those for StructureKpointsGenerator are,</p>
 <ul class="simple">
 <li><p>kpt_density: Optional[float] = None,  # in Å</p></li>
-<li><p>gamma_centered: Optional[bool] = None,  # Vasp definition</p></li>
-<li><p>only_even_num_kpts: bool = False,  # If ceil kpt numbers to be even.</p></li>
-<li><p>num_kpt_factor: Optional[int] = None,  # Set NKRED to this as well.</p></li>
+<li><p>gamma_centered: Optional[bool] = None,</p></li>
+<li><p>only_even_num_kpts: bool = False,  # Set when ceiling kpt numbers to be even.</p></li>
+<li><p>num_kpt_factor: Optional[int] = None,  # NKRED is set to this as well.</p></li>
 </ul>
-<p>Next, let’s move to <span class="xref std std-doc">tutorial_band_dos</span>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">vise</span> <span class="n">vs</span> <span class="o">--</span><span class="n">options</span> <span class="n">cutoff_energy</span> <span class="mi">1000</span> <span class="n">only_even_num_kpts</span> <span class="kc">True</span>
+</pre></div>
+</div>
+<p>Next, let’s move on to <span class="xref std std-doc">tutorial_band_dos</span>.</p>
 </div>
 </div>
 
@@ -677,7 +681,7 @@ e.g.,</p>
         <a href="tutorial_properties.html" class="btn btn-neutral float-right" title="Tutorial – Calculations of various properties" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="tutorial_preparation_poscar.html" class="btn btn-neutral float-left" title="Tutorial – preparation POSCAR" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="tutorial_preparation_poscar.html" class="btn btn-neutral float-left" title="Tutorial – preparation of POSCAR" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

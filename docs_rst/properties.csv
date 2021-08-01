@@ -1,0 +1,3 @@
+﻿,band structure,DOS,dielectric constants,absorption coefficient,effective masses
+task,band **1,dos ,dielectric_dfpt or dielectric_finite_field,dielectric_function, **2
+sub-command,plot_band (pb),plot_dos (pd),--,plot_absorption (pa),effective_mass (em)

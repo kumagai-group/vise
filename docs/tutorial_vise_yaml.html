@@ -84,7 +84,7 @@
             
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction of vise.</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial_preparation_poscar.html">Tutorial – preparation POSCAR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_preparation_poscar.html">Tutorial – preparation of POSCAR</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial_input_set.html">Tutorial – input set</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial_properties.html">Tutorial – Calculations of various properties</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorial – vise.yaml</a><ul>
@@ -92,6 +92,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="citation.html">Citations</a></li>
 </ul>
 
             
@@ -162,17 +163,17 @@
 <div class="section" id="setting-for-the-vise-yaml">
 <h2>Setting for the vise.yaml<a class="headerlink" href="#setting-for-the-vise-yaml" title="Permalink to this headline">¶</a></h2>
 <p>In <code class="code docutils literal notranslate"><span class="pre">vise</span></code>, users can control various types of parameters using <code class="code docutils literal notranslate"><span class="pre">vise.yaml</span></code> file.
-For example, we provide the default <code class="code docutils literal notranslate"><span class="pre">POTCAR</span></code> set regularly we use,
-but of course, users can adopt their favorite <code class="code docutils literal notranslate"><span class="pre">POTCAR</span></code> set as follows</p>
+For example, we provide the default <code class="code docutils literal notranslate"><span class="pre">POTCAR</span></code> set,
+but users can override their favorite <code class="code docutils literal notranslate"><span class="pre">POTCAR</span></code> set as follows:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">overridden_potcar</span><span class="p">:</span> <span class="n">Mg_pv</span> <span class="n">O_h</span>
 </pre></div>
 </div>
-<p>The Mg_pv and O_h <code class="code docutils literal notranslate"><span class="pre">POTCAR</span></code> files are then used instead of the default normal Mg and O <code class="code docutils literal notranslate"><span class="pre">POTCAR</span></code> files.
-Note that <code class="code docutils literal notranslate"><span class="pre">vise</span></code> tries to find the <code class="code docutils literal notranslate"><span class="pre">vise.yaml</span></code> files
+<p>The Mg_pv and O_h <code class="code docutils literal notranslate"><span class="pre">POTCAR</span></code> files are then used instead of the default normal Mg and O <code class="code docutils literal notranslate"><span class="pre">POTCAR</span></code> files.</p>
+<p>Note that <code class="code docutils literal notranslate"><span class="pre">vise</span></code> tries to find the <code class="code docutils literal notranslate"><span class="pre">vise.yaml</span></code> files
 from the current working directory to the parent directly up to the home or root directory.
 If the same options exist in multiple <cite>vise.yaml</cite> files,
-the value written in the yaml file at deeper directory is prioritized.
-Therefore, when two different <code class="code docutils literal notranslate"><span class="pre">vise.yaml</span></code> are located
+the value in the yaml file locating at the deeper directory is prioritized.
+For example, when two different <code class="code docutils literal notranslate"><span class="pre">vise.yaml</span></code> are located
 at the home directory of the project and <code class="code docutils literal notranslate"><span class="pre">$home/something/</span></code> directory,
 the parameters written in <code class="code docutils literal notranslate"><span class="pre">$home/something/vise.yaml</span></code> are prioritized.</p>
 <p>The properties of Defaults class in <a class="reference external" href="https://github.com/kumagai-group/vise/blob/master/vise/defaults.py">defaults.py</a> can be set as the keys

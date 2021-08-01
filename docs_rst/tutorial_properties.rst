@@ -1,89 +1,38 @@
 Tutorial -- Calculations of various properties
----------------------------------------------
+----------------------------------------------
+==================
+List of properties
+==================
 
-====================================
-Band structure and density of states
-====================================
-We can create the input files for the calculations of the band structure (BS) and
-the density of states (DOS) by simply typing
+.. csv-table:: properties
+   :file: properties.csv
+   :header-rows: 1
 
-::
-
-    vise vs -t band
-
-and
-
-::
-
-    vise vs -t dos
-
-In each directory, we run the vasp calculations.
-
-Here, the band path is determined based upon the
+**1: The band path is determined based upon the
 `seekpath code <https://www.materialscloud.org/work/tools/seekpath>`_,
-so if one uses the plot for publication or presentation, please cite the following paper.
+so if one uses the plot for publication or presentation, please cite the related paper.
 
-- `Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, Band structure diagram paths based on crystallography, Comp. Mat. Sci. 128, 140 (2017). <https://www.sciencedirect.com/science/article/pii/S0927025616305110?via%3Dihub>`_ DOI: 10.1016/j.commatsci.2016.10.015.
+**2: For the carrier concentration, calculations for the density of states (DOS) or absorption coefficient would be fine.
 
-:code:`Vise` also provides the plotters of BS and DOS based on with
-:code:`plot_band` (= :code:`pb`) and :code:`plot_dos` (= :code:`pd`) sub-commands.
-Type the following commands in the BS and DOS calculation directories,
+====================
+Plotter and analyzer
+====================
+:code:`Vise` provides plotters for band structures, DOS, and absorption coefficients with
+:code:`plot_band` (= :code:`pb`), :code:`plot_dos` (= :code:`pd`), and :code:`plot_absorption` (= :code:`pa`) sub-commands.
 
-::
+In :code:`plot_absorption` sub-command, 
+The -ckk option allows us to calculate the real part of the dielectric function explicitly from the imaginary part using the Kramers-Kronig transformation.
+he complex shift η is then set via the --ita option.
 
-    vise pb -f band.pdf
-
-and
-
-::
-
-    vise pd -f dos.pdf
-
-The band-edge positions including the band gap is also evaluated using
-the :code:`be`(= :code:`band_edge`) sub-command.
-
-::
-
-    vise be
-
-The effective masses are calculated using
+The band-edge positions including the band gap and effective maases are also evaluated using the :code:`band_edge` (= :code:`be`) and :code:`effective_mass` (= :code:`em`) sub-commands, respectively.
+The calculations of the effective masses use
 `BoltzTrap2 <https://www.imc.tuwien.ac.at/forschungsbereich_theoretische_chemie/forschungsgruppen/prof_dr_gkh_madsen_theoretical_materials_chemistry/boltztrap2/>`_.
-The subcommand is :code:`em`(= :code:`effective_mass`) sub-command.
+so if one uses the effective masses, please cite the related paper.
+
 The essential key parameter is the carrier concentration, and user need to
-input exponential parts of base-10 in cm-3 (A typical value is between 17 -- 20).
+input exponential parts of base-10 in cm-3 (A typical value would be between 17 -- 20).
+For example, carrier concentrations of 10**17 and 10**20 cm-3 are set as follows:
 
 ::
 
     vise em -c 17 19
-
-====================================
-Static and ionic dielectric constant
-====================================
-
-We can also create the input files for the calculation of the static and ionic dielectric constant.
-
-::
-
-    vise vs -t dielectric_dfpt
-
-Instead, when one wants to use the finite field method,
-
-
-::
-
-    vise vs -t dielectric_finite_field
-
-
-======================
-Absorption coefficient
-======================
-
-We can also create the input files for the calculation of the absorption coefficient.
-
-::
-
-    vise vs -t dielectric_function
-
-::
-
-    vise pa
