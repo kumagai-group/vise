@@ -41,7 +41,8 @@ class StructureKpointsGenerator:
         logger.info(f"kpoint density is set to {self._kpt_density}")
         self._is_magnetization = is_magnetization
         self._num_kpt_factor = num_kpt_factor or self._task.default_kpt_factor
-        logger.info(f"kpoint factor is set to {self._num_kpt_factor}")
+        if self._num_kpt_factor != 1:
+            logger.info(f"kpoint factor is set to {self._num_kpt_factor}")
         self._symmetrizer = \
             StructureSymmetrizer(structure=self._initial_structure,
                                  symprec=symprec,
