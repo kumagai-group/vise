@@ -122,5 +122,5 @@ class Task(MSONable, ExtendedEnum):
 
     @property
     def fine_to_inherit_structure_from_prev(self):
-        return self.is_atom_relaxed or self.is_dielectric
-
+        # For phonon_calculations, the POSCAR must no be inherited.
+        return self is not self.phonon_force
