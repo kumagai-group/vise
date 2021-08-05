@@ -89,7 +89,7 @@ def prior_info_from_calc_dir(prev_dir_path: Path,
                                       vasprun.parameters["NELECT"],
                                       potcar)
     structure = vasprun.final_structure.copy()
-    energy_per_atom = vasprun.final_energy / len(structure)
+    energy_per_atom = outcar.final_energy / len(structure)
     band_edge_property = VaspBandEdgeProperties(vasprun, outcar)
     total_magnetization = outcar.total_mag
 

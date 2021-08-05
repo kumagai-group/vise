@@ -6,7 +6,7 @@ from pathlib import Path
 from xml.etree.ElementTree import ParseError
 
 from pymatgen.core import Element
-from pymatgen.io.vasp import Vasprun
+from pymatgen.io.vasp import Vasprun, Outcar
 from pymatgen.io.vasp.inputs import UnknownPotcarWarning
 from vise.atom_energies.make_atom_vasp_set import is_target_element
 from vise.util.logger import get_logger
@@ -35,7 +35,8 @@ def make_energy_yaml():
             logger.warning(f"Parsing vasprun.xml for {e} failed.")
             continue
 
-        print(f"{e + ':':<3} {v.final_energy:11.8f}")
+        outcar = Outcar(Path(e) / "OUTCAR")
+        print(f"{e + ':':<3} {outcar.final_energy:11.8f}")
 
 
 if __name__ == '__main__':
