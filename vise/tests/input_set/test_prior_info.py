@@ -61,7 +61,7 @@ def test_get_structure_from_prev_dir_actual_files(test_data_files):
                                           potcar="MnO_fake_POTCAR")
     # Number of electrons in MnO_uniform_vasprun.xml is changed from 13 to 12
     # artificially for this unittest.
-    assert prior_info.energy_per_atom == -8.024678125
+    assert prior_info.energy_per_atom == -8.02467878
     assert pytest.approx(prior_info.band_gap) == 0.4702
     assert prior_info.vbm_cbm == [4.6666, 5.1368]
     assert prior_info.total_magnetization == 5.0000019
