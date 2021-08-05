@@ -42,8 +42,7 @@ Note that the structure optimization must be generally iterated
 with 1.3 times larger cutoff energy until the forces and stresses converge
 at the first ionic step so as to reduce the errors caused
 by the Pulay Stress to an acceptable accuracy.
-See `vasp manual <https://cms.mpi.univie.ac.at/vasp/vasp/Volume_vs_energy_volume_relaxations_Pulay_Stress.html>`_
-or `wikipedia <https://en.wikipedia.org/wiki/Pulay_stress>`_ for details.
+See `wikipedia <https://en.wikipedia.org/wiki/Pulay_stress>`_ for details.
 Such increase of the cutoff energy is also considered in :code:`vise`.
 
 .. csv-table:: Tasks
@@ -68,7 +67,7 @@ Caveats:
 
 - SIGMA=0.1, NELM=100, and LASPH=True are set in common.
 
-- EMIN, EMAX, and NEDOS are set for dos and dielectric_function tasksk.
+- EMIN, EMAX, and NEDOS are set for dos and dielectric_function tasks.
   When vbm and cbm are given, EMIN=vbm - 15 and EMAX=cbm + 15, otherwise EMIN=20 and EMAX=20.
   NEDOS = round((EMAX - EMIN) / 0.01) + 1
 

@@ -97,6 +97,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial_properties.html">Tutorial – Calculations of various properties</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial_vise_yaml.html">Tutorial – vise.yaml</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vise_api.html">Tutorial – vise API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
 <li class="toctree-l1"><a class="reference internal" href="citation.html">Citations</a></li>
 </ul>
@@ -198,8 +199,7 @@ Note that the structure optimization must be generally iterated
 with 1.3 times larger cutoff energy until the forces and stresses converge
 at the first ionic step so as to reduce the errors caused
 by the Pulay Stress to an acceptable accuracy.
-See <a class="reference external" href="https://cms.mpi.univie.ac.at/vasp/vasp/Volume_vs_energy_volume_relaxations_Pulay_Stress.html">vasp manual</a>
-or <a class="reference external" href="https://en.wikipedia.org/wiki/Pulay_stress">wikipedia</a> for details.
+See <a class="reference external" href="https://en.wikipedia.org/wiki/Pulay_stress">wikipedia</a> for details.
 Such increase of the cutoff energy is also considered in <code class="code docutils literal notranslate"><span class="pre">vise</span></code>.</p>
 <table class="docutils align-default" id="id103">
 <caption><span class="caption-text">Tasks</span><a class="headerlink" href="#id103" title="Permalink to this table">¶</a></caption>
@@ -499,7 +499,7 @@ Such increase of the cutoff energy is also considered in <code class="code docut
 <p>Caveats:</p>
 <ul class="simple">
 <li><p>SIGMA=0.1, NELM=100, and LASPH=True are set in common.</p></li>
-<li><p>EMIN, EMAX, and NEDOS are set for dos and dielectric_function tasksk.
+<li><p>EMIN, EMAX, and NEDOS are set for dos and dielectric_function tasks.
 When vbm and cbm are given, EMIN=vbm - 15 and EMAX=cbm + 15, otherwise EMIN=20 and EMAX=20.
 NEDOS = round((EMAX - EMIN) / 0.01) + 1</p></li>
 <li><p>Combination of ISMEAR=-5 and non-Gamma-centered kpoint mesh is prohibited, so the centering
