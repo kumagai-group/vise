@@ -2,9 +2,7 @@
 #  Copyright (c) 2021. Distributed under the terms of the MIT License.
 from phonopy.interface.calculator import read_crystal_structure
 from phonopy.structure.atoms import PhonopyAtoms
-from pymatgen import Structure, Lattice
-from vise.util.phonopy.phonopy_input import structure_to_phonopy_atoms, \
-    make_phonopy_input, PhonopyInput
+from vise.util.phonopy.phonopy_input import structure_to_phonopy_atoms
 import numpy as np
 
 

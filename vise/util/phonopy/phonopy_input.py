@@ -9,7 +9,7 @@ from phonopy import Phonopy
 from phonopy.interface.vasp import read_vasp_from_strings, \
     parse_force_constants, get_born_vasprunxml
 from phonopy.structure.atoms import PhonopyAtoms
-from pymatgen import IStructure, Structure
+from pymatgen.core import IStructure, Structure
 from pymatgen.io.vasp import Vasprun
 from vise.util.bravais_lattice import BravaisLattice
 from vise.util.centering import Centering

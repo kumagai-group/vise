@@ -4,7 +4,7 @@ from numpy import prod
 from typing import List
 
 import numpy as np
-from pymatgen import Spin
+from pymatgen.electronic_structure.core import Spin
 from pymatgen.io.vasp import Poscar, VolumetricData, Chgcar
 from vise.util.logger import get_logger
 

@@ -4,7 +4,7 @@ from pathlib import Path
 
 from vise.analyzer.vasp.handle_volumetric_data import \
     light_weight_vol_text, make_spin_charges
-from pymatgen import Structure, Lattice
+from pymatgen.core import Structure, Lattice
 from pymatgen.io.vasp import Chgcar
 import numpy as np
 from numpy.testing import assert_almost_equal

@@ -8,8 +8,7 @@ import warnings
 from pathlib import Path
 
 from monty.serialization import loadfn
-from pymatgen import Structure
-from pymatgen.core import Element
+from pymatgen.core import Element, Structure
 from pymatgen.io.vasp.inputs import UnknownPotcarWarning
 from vise.analyzer.vasp.handle_volumetric_data import default_border_fractions
 from vise.cli.main import description, epilog
