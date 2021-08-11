@@ -22,7 +22,9 @@ def sort_coords(coords: np.ndarray) -> np.ndarray:
     center = np.average(coords, axis=0)
     relative_coords = coords - center
     external_prod = np.cross(relative_coords[0], relative_coords[1])
-    if abs(np.linalg.norm(external_prod)) < 1e-8:  # Skip parallel vectors.
+
+    # Skip parallel vectors.
+    if abs(np.linalg.norm(external_prod)) < 1e-8 and len(relative_coords) > 2:
         external_prod = np.cross(relative_coords[0], relative_coords[2])
     normal_to_12_plane = external_prod / np.linalg.norm(external_prod)
 
