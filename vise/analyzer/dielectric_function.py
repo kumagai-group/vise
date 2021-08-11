@@ -6,6 +6,7 @@ from typing import List
 
 import numpy as np
 from monty.json import MSONable
+from tqdm import tqdm
 from vise.util.mix_in import ToJsonFileMixIn
 from scipy.constants import physical_constants as pc
 
@@ -88,14 +89,25 @@ def kramers_kronig_trans(diele_func_imag: np.array,
                          ita: float = 0.01) -> np.ndarray:
     mesh = energies[1] - energies[0]
     result = []
-    ee2ss = [[e ** 2 - energy_grid ** 2 for e in energies] for energy_grid in energies]
-    for imag_idx in [0]:
+    ee2ss = [[e ** 2 - energy_grid ** 2 for e in energies]
+             for energy_grid in energies]
+    for imag_idx in tqdm(range(6)):
         imags = diele_func_imag[:, imag_idx]
-        inner_result = []
-        for ee2s in ee2ss:
-            integrals = [e * imag * ee2 / (ee2 ** 2 + ita ** 2)
-                         for e, ee2, imag in zip(energies, ee2s, imags)]
-            inner_result.append(1 + sum(integrals) * mesh * 2 / pi)
+        if imag_idx == 0 or \
+                (imag_idx > 0
+                 and np.allclose(
+                            imags, diele_func_imag[:, imag_idx - 1]) is False):
+            if np.count_nonzero(imags) == 0:
+                inner_result = [0.0] * len(energies)
+            else:
+                inner_result = []
+                for ee2s in ee2ss:
+                    integrals = [e * imag * ee2 / (ee2 ** 2 + ita ** 2)
+                                 for e, ee2, imag in zip(energies, ee2s, imags)]
+                    integral = sum(integrals) * mesh * 2 / pi
+                    if imag_idx < 3:
+                        integral += 1
+                    inner_result.append(integral)
 
         result.append(inner_result)
 

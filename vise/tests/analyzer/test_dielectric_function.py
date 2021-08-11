@@ -50,11 +50,21 @@ def test_ave_absorption_coeff(diele_func_data):
 def actual_diele_func_data(test_data_files):
     v = Vasprun(test_data_files / "MgSe_absorption_vasprun.xml")
     o = Outcar(test_data_files / "MgSe_absorption_OUTCAR")
-    return make_diele_func(v, o)
+    diele_func = make_diele_func(v, o)
+    print(diele_func)
+    return diele_func
 
 
 def test_target_coeff_e_from_band_gap(actual_diele_func_data):
     actual = actual_diele_func_data.target_coeff_min_e()
     np.testing.assert_almost_equal(actual, 2.9304)
+
+
+# def test_actual_diele_func_data_with_kk_trans():
+#     diele_func_data = DieleFuncData(
+#         energies=[0.0, 1.0],
+#         diele_func_real=[[]])
+#     diele_func = make_diele_func(v, o, use_vasp_real=False)
+#     print(diele_func.diele_func_real)
 
 
