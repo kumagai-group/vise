@@ -53,7 +53,7 @@ Such increase of the cutoff energy is also considered in :code:`vise`.
 
 **1: Number of bands is determined from the sum of valence electron / 2 and unoccupied band number per element written in `this yaml <https://github.com/kumagai-group/vise/blob/master/vise/input_set/datasets/unoccupied_bands.yaml>`_.
 
-**2: Set ISMEAR=-5 when there is a band gap and number of irreducible k-points is 4 or more, otherwise ISMEAR=0.
+**2: Set ISMEAR=-4 or -5 when there is a band gap and number of irreducible k-points is 4 or more, otherwise ISMEAR=0.
 
 **3: Combination of IBRION=8 and NPAR>=2 is prohibited.
 
@@ -115,7 +115,8 @@ If one wants to copy, move, and/or link files from the directory, use the --file
 ==================
 --options argument
 ==================
-The options in `IncarSettingsGenerator <https://github.com/kumagai-group/vise/blob/master/vise/input_set/incar_settings_generator.py>`_ and `StructureKpointsGenerator <https://github.com/kumagai-group/vise/blob/master/vise/input_set/structure_kpoints_generator.py>`_
+The options in `IncarSettingsGenerator <https://github.com/kumagai-group/vise/blob/master/vise/input_set/incar_settings_generator.py>`_
+and `StructureKpointsGenerator <https://github.com/kumagai-group/vise/blob/master/vise/input_set/structure_kpoints_generator.py>`_
 classes are set with the --options argument.
 For example, those for IncarSettingsGenerator are,
 
