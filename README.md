@@ -7,7 +7,7 @@ vise
 VASP Integrated Supporting Environment (vise) is a collection of tools that 
 supports VASP users to prepare input files for the VASP calculations, handle its calculation errors, and analyze its results.
 
-**Note1: Only ensure VASP ver5.4.4 so far.**
+**Note1: Only ensure VASP ver5.4.4 or later so far.**
 
 **Note2: Units used in pydefect are eV for energy and angstrom for length following the vasp convention.**
 
@@ -31,13 +31,7 @@ it using `pip install vise`.
 Executing this software
 ---------------------------------------------------------
 
-1. Command line method
-  - execute ***vise -h*** for detailed description of available options
-
-2. Usage as a module
-  - vise can be imported as a python module
-
-More information in the online manual at: https://kumagai-group.github.io/vise/
+Detailed information is provided in the online manual at: https://kumagai-group.github.io/vise/
 
 Files and directories included in vise distribution
 --------------------------------------------------------
