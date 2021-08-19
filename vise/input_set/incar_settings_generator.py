@@ -140,7 +140,11 @@ class IncarSettingsGenerator:
         if self._task is Task.band:
             return 0
         elif is_band_gap(self._band_gap, self._vbm_cbm) and self._num_kpts >= 4:
-            return -5
+            if self._task in (Task.dos, Task.dielectric_function):
+                # tested -4 and -5 show the same results for spectra.
+                return -4
+            else:
+                return -5
         return 0
 
     @property

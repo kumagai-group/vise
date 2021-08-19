@@ -116,7 +116,7 @@ def test_dos(default_dict):
         "ISIF": 0,
         "IBRION": 2,
         "NSW": 1,
-        "ISMEAR": -5,
+        "ISMEAR": -4,
         "SIGMA": 0.1,
         "LWAVE": False,
         "LCHARG": False,
