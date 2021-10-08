@@ -132,6 +132,18 @@ class BandEdgeProperties:
         return self.cbm_info.energy - self.vbm_info.energy if self.vbm_info else None
 
     @property
+    def min_gap(self):
+        result = float("inf")
+        for spin, eigenvalues in self._eigenvalues.items():
+            lu_band_index = self._ho_band_index(spin) + 1
+
+            ho_eigs = eigenvalues[:, self._ho_band_index(spin)]
+            lu_eigs = eigenvalues[:, lu_band_index]
+
+            result = min([min(lu_eigs - ho_eigs), result])
+        return result
+
+    @property
     def vbm_cbm(self):
         return [self.vbm_info.energy, self.cbm_info.energy] if self.vbm_info else None
 

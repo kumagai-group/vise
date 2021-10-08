@@ -105,9 +105,11 @@ def test_nonmagnetic_insulator():
     assert band_edge.vbm_info.kpoint_coords == [10.4, 10.5, 10.6]
     assert band_edge.cbm_info.kpoint_coords == [10.1, 10.2, 10.3]
 
+    assert band_edge.min_gap == 1.0
+
 
 @pytest.fixture
-def band_edge():
+def magnetic_band_edge():
     eigenvalues = {Spin.up:   np.array([[0.0, 1.0, 10.0], [0.0, 1.1, 10.0]]),
                    Spin.down: np.array([[0.0, 1.4, 10.0], [0.0, 1.5, 10.0]])}
     return BandEdgeProperties(eigenvalues=eigenvalues,
@@ -116,23 +118,27 @@ def band_edge():
                               kpoints=actual_kpt)
 
 
-def test_magnetic_insulator(band_edge):
+def test_magnetic_insulator(magnetic_band_edge):
 
-    assert pytest.approx(band_edge.band_gap) == 0.3
+    assert pytest.approx(magnetic_band_edge.band_gap) == 0.3
 
-    assert band_edge.is_direct is False
+    assert magnetic_band_edge.is_direct is False
 
-    assert pytest.approx(band_edge.vbm_info.energy) == 1.1
-    assert pytest.approx(band_edge.cbm_info.energy) == 1.4
+    assert pytest.approx(magnetic_band_edge.vbm_info.energy) == 1.1
+    assert pytest.approx(magnetic_band_edge.cbm_info.energy) == 1.4
 
-    assert band_edge.vbm_info.spin == Spin.up
-    assert band_edge.cbm_info.spin == Spin.down
+    assert magnetic_band_edge.vbm_info.spin == Spin.up
+    assert magnetic_band_edge.cbm_info.spin == Spin.down
 
-    assert band_edge.vbm_info.band_index == 1
-    assert band_edge.cbm_info.band_index == 1
+    assert magnetic_band_edge.vbm_info.band_index == 1
+    assert magnetic_band_edge.cbm_info.band_index == 1
 
-    assert band_edge.vbm_info.kpoint_coords == [10.4, 10.5, 10.6]
-    assert band_edge.cbm_info.kpoint_coords == [10.1, 10.2, 10.3]
+    assert magnetic_band_edge.vbm_info.kpoint_coords == [10.4, 10.5, 10.6]
+    assert magnetic_band_edge.cbm_info.kpoint_coords == [10.1, 10.2, 10.3]
+
+
+def test_min_gap(magnetic_band_edge):
+    assert magnetic_band_edge.min_gap == 1.4
 
 
 def test_is_metal():
@@ -149,11 +155,11 @@ def test_is_metal():
     assert repr(band_edge_metal) == "Metal"
 
 
-def test_repr(band_edge):
+def test_repr(magnetic_band_edge):
     expected = """Band gap 0.300 eV
 VBM energy position: 1.1, spin:   up, band index 1, k-point index 1, k-point coords 10.400 10.500 10.600
 CBM energy position: 1.4, spin: down, band index 1, k-point index 0, k-point coords 10.100 10.200 10.300"""
-    assert repr(band_edge) == expected
+    assert repr(magnetic_band_edge) == expected
 
 
 def test_is_band_gap():
