@@ -185,7 +185,7 @@ class IncarSettingsGenerator:
             self._incar_settings["LEPSILON"] = True
         elif self._task == Task.dielectric_finite_field:
             self._incar_settings["LCALCEPS"] = True
-            self._incar_settings["IBRION"] = 6
+#            self._incar_settings["IBRION"] = 6
             self._incar_settings["POTIM"] = 0.015
         elif self._task == Task.dielectric_function:
             self._incar_settings["LOPTICS"] = True
