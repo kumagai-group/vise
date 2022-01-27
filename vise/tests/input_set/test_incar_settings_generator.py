@@ -184,6 +184,31 @@ def test_phonon_force(default_dict):
     assert generator.incar_settings == expected
 
 
+def test_dielectric_finite_field(default_dict):
+    default_dict.update({"task": Task.dielectric_finite_field})
+    generator = IncarSettingsGenerator(**default_dict)
+    expected = {
+        'ALGO': 'Normal',
+        'EDIFF': 1e-06,
+        'ENCUT': 400.0,
+        'IBRION': 2,
+        'ISIF': 0,
+        'ISMEAR': 0,
+        'KPAR': 1,
+        'LASPH': True,
+        'LCALCEPS': True,
+        'LCHARG': False,
+        'LORBIT': 10,
+        'LREAL': False,
+        'LWAVE': False,
+        'NELM': 100,
+        'NSW': 1,
+        'POTIM': 0.015,
+        'PREC': 'Normal',
+        'SIGMA': 0.1}
+    assert generator.incar_settings == expected
+
+
 def test_dielectric_function(default_dict):
     default_dict.update({"task": Task.dielectric_function})
     generator = IncarSettingsGenerator(**default_dict)
