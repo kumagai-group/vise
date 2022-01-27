@@ -122,10 +122,16 @@ class IncarSettingsGenerator:
             "NBANDS": self._nbands,
             "NELECT": self._nelect,
         })
-#        if self._multiples_for_grids:
-#            grids = vasp_grid(self._incar_settings["ENCUT"],
-#                              self._incar_settings["PREC"])
-#            self._incar_settings.update({"NGX": })
+        if self._multiples_for_grids:
+            grids = [vasp_grid(self._incar_settings["ENCUT"],
+                               length,
+                               self._incar_settings["PREC"])
+                     for length in self._lattice.abc]
+            m = self._multiples_for_grids
+            ngx, ngy, ngz = (ceil(grids[i] / m[i]) * m[i] for i in range(3))
+            self._incar_settings.update({"NGX": ngx})
+            self._incar_settings.update({"NGY": ngy})
+            self._incar_settings.update({"NGZ": ngz})
 
     def _need_hubbard_u(self, set_hubbard_u):
         if isinstance(set_hubbard_u, bool):

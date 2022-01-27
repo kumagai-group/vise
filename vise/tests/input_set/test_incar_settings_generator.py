@@ -12,7 +12,7 @@ from vise.input_set.xc import Xc
 from vise.defaults import defaults
 
 
-lattice = [[1, 0, 0], [2, 1, 0], [0, 0, 3]]
+lattice = [[1, 0, 0], [2, 0, 0], [0, 0, 3]]
 
 
 @pytest.fixture()
@@ -272,4 +272,15 @@ def test_ldau_option():
         xc=Xc.pbe,
         task=Task.structure_opt)
     assert "LDAU" not in generator.incar_settings
+
+
+def test_grids_option(default_dict, mocker):
+#    mock = mocker.patch("vise.input_set.incar_settings_generator.vasp_grid")
+    # grids = [6, 12, 17]
+    default_dict["multiples_for_grids"] = [5, 2, 4]
+    generator = IncarSettingsGenerator(**default_dict)
+    assert generator.incar_settings["NGX"] == 10
+    assert generator.incar_settings["NGY"] == 12
+    assert generator.incar_settings["NGZ"] == 20
+
 
