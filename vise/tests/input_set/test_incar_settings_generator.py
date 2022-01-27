@@ -2,7 +2,7 @@
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
 import pytest
-from pymatgen.core import Composition
+from pymatgen.core import Composition, Structure
 from pymatgen.io.vasp import Potcar
 
 from vise.input_set.incar_settings_generator import (
@@ -11,9 +11,15 @@ from vise.input_set.task import Task
 from vise.input_set.xc import Xc
 from vise.defaults import defaults
 
+
+lattice = [[1, 0, 0], [2, 1, 0], [0, 0, 3]]
+
+
 @pytest.fixture()
 def default_dict():
-    return {"composition": Composition("HO2"),
+    return {"structure": Structure(lattice,
+                                   species=["H", "O", "O"],
+                                   coords=[[1, 0, 0], [2, 1, 0], [0, 0, 3]]),
             "symbol_list": ["H", "O"],
             "num_kpts": 5,
             "num_kpt_multiplication_factor": 1,
@@ -58,7 +64,9 @@ def test_scan_structure_opt(default_dict):
 
 def test_hse_structure_opt(default_dict):
     default_dict.update({"xc": Xc.hse,
-                         "composition": Composition("UO2"),
+                         "structure": Structure(
+                             lattice, species=["U", "O", "O"],
+                             coords=[[1, 0, 0], [2, 1, 0], [0, 0, 3]]),
                          "symbol_list": ["U", "O"],
                          "potcar": Potcar(["U", "O"]),
                          "exchange_ratio": 0.5,
@@ -254,13 +262,14 @@ def test_with_band_gap_band(default_dict):
     assert generator.incar_settings["ISMEAR"] == 0
 
 
-def test_ldau_option(default_dict):
-    generator = IncarSettingsGenerator(composition=Composition("Zn"),
-                                       symbol_list=["Zn"],
-                                       potcar=Potcar(["Zn"]),
-                                       num_kpts=5,
-                                       num_kpt_multiplication_factor=1,
-                                       xc=Xc.pbe,
-                                       task=Task.structure_opt)
+def test_ldau_option():
+    generator = IncarSettingsGenerator(
+        structure=Structure(lattice, Composition("Zn"), coords=[[0, 0, 0]]),
+        symbol_list=["Zn"],
+        potcar=Potcar(["Zn"]),
+        num_kpts=5,
+        num_kpt_multiplication_factor=1,
+        xc=Xc.pbe,
+        task=Task.structure_opt)
     assert "LDAU" not in generator.incar_settings
 

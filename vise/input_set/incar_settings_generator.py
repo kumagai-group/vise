@@ -4,12 +4,13 @@
 from math import ceil
 from typing import Optional, Union, List, Dict
 
-from pymatgen.core import Composition
+from pymatgen.core import Composition, Structure
 from pymatgen.io.vasp.sets import Potcar
 
 from vise.analyzer.band_edge_properties import is_band_gap
 from vise.defaults import defaults
 from vise.input_set.datasets.dataset_util import num_bands, npar_kpar, LDAU
+from vise.input_set.fft_grids import vasp_grid
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc
 from vise.util.logger import get_logger
@@ -20,7 +21,7 @@ logger = get_logger(__name__)
 class IncarSettingsGenerator:
     def __init__(
             self,
-            composition: Composition,
+            structure: Structure,
             symbol_list: list,
             num_kpts: int,
             num_kpt_multiplication_factor: int,
@@ -38,9 +39,11 @@ class IncarSettingsGenerator:
             cutoff_energy: Optional[float] = None,
             is_magnetization: bool = False,
             num_nodes_for_kpar: int = defaults.default_num_nodes,
-            str_opt_encut_multi_factor: float = defaults.str_opt_encut_factor):
+            str_opt_encut_multi_factor: float = defaults.str_opt_encut_factor,
+            multiples_for_grids: Optional[List[int]] = None):
 
-        self._composition = composition
+        self._composition = structure.composition
+        self._lattice = structure.lattice
         self._symbol_list = symbol_list
         self._num_kpt_multiplication_factor = num_kpt_multiplication_factor
         self._potcar = potcar
@@ -57,6 +60,7 @@ class IncarSettingsGenerator:
         self._is_magnetization = is_magnetization
         self._num_nodes_for_kpar = num_nodes_for_kpar
         self._str_opt_encut_multi_factor = str_opt_encut_multi_factor
+        self._multiples_for_grids = multiples_for_grids
 
         self._incar_settings = {}
         self._set_incar_settings(set_hubbard_u)
@@ -118,6 +122,10 @@ class IncarSettingsGenerator:
             "NBANDS": self._nbands,
             "NELECT": self._nelect,
         })
+#        if self._multiples_for_grids:
+#            grids = vasp_grid(self._incar_settings["ENCUT"],
+#                              self._incar_settings["PREC"])
+#            self._incar_settings.update({"NGX": })
 
     def _need_hubbard_u(self, set_hubbard_u):
         if isinstance(set_hubbard_u, bool):

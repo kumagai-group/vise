@@ -45,7 +45,7 @@ class VaspInputFiles:
         self._potcar = generate_potcar(symbol_list=symbol_list,
                                        **input_options.potcar_options)
         incar_settings_generator = \
-            IncarSettingsGenerator(self._structure.composition,
+            IncarSettingsGenerator(self._structure,
                                    symbol_list,
                                    self._num_kpts,
                                    self._num_kpt_factor,
