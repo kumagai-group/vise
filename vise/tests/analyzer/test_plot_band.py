@@ -106,6 +106,20 @@ def test_slide_energies_when_fermi_is_none():
     assert band_info_edge.fermi_level is None
 
 
+def test_band_plot_info_band_energy_region():
+    band_info = BandInfo(band_energies=[[[[-1.01, -1.008, -1.003, -1.0]]],
+                                        [[[1.01, 1.0]]]],
+                         band_edge=BandEdge(vbm=-1.0, cbm=1.0,
+                                            vbm_distances=[1],
+                                            cbm_distances=[1]),
+                         fermi_level=0.0)
+    assert band_info.band_energy_region() == [[-1.01, -1.0], [1.0, 1.01]]
+    assert band_info.band_energy_region(decision_width=0.0031) \
+           == [[-1.01, -1.008], [-1.003, -1.0], [1.0, 1.0], [1.01, 1.01]]
+    assert band_info.band_energy_region(bottom=0.0) == [[1.0, 1.01]]
+    assert band_info.band_energy_region(top=0.0) == [[-1.01, -1.0]]
+
+
 def test_band_mpl_defaults():
     band_defaults = BandMplSettings()
 

@@ -26,6 +26,8 @@ class XTicks(MSONable):
 class BandEdge(MSONable):
     vbm: float
     cbm: float
+    # The positions of the VBM and CBM denoted by total distances in the band
+    # figure.
     vbm_distances: List[float]
     cbm_distances: List[float]
 
@@ -70,6 +72,37 @@ class BandInfo(MSONable):
     @property
     def is_magnetic(self):
         return len(self.band_energies[0]) == 2
+
+    def band_energy_region(self,
+                           decision_width: float = 0.05,
+                           bottom: float = None,
+                           top: float = None):
+        result = []
+        sorted_energies = sorted([energy
+                                  for i in self.band_energies
+                                  for j in i
+                                  for k in j
+                                  for energy in k])  # flatten nested list.
+        if bottom is not None:
+            sorted_energies = list(filter(lambda x: x >= bottom,
+                                          sorted_energies))
+        if top is not None:
+            sorted_energies = list(filter(lambda x: x <= top,
+                                          sorted_energies))
+
+        prev_energy = sorted_energies.pop(0)
+        lower_bound = prev_energy
+        for energy in sorted_energies:
+            if energy - prev_energy > decision_width:
+                upper_bound = prev_energy
+                result.append([lower_bound, upper_bound])
+                lower_bound = energy  # update lower_bound
+            prev_energy = energy
+        else:
+            upper_bound = energy  # last energy should be the upper bound.
+            result.append([lower_bound, upper_bound])
+
+        return result
 
 
 class ViseBandInfoError(ViseError):
