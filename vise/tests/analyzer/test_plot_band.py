@@ -118,6 +118,8 @@ def test_band_plot_info_band_energy_region():
            == [[-1.01, -1.008], [-1.003, -1.0], [1.0, 1.0], [1.01, 1.01]]
     assert band_info.band_energy_region(bottom=0.0) == [[1.0, 1.01]]
     assert band_info.band_energy_region(top=0.0) == [[-1.01, -1.0]]
+    assert band_info.band_energy_region(offset=0.1) == [[-1.11, -1.1],
+                                                        [0.9, 0.91]]
 
 
 def test_band_mpl_defaults():

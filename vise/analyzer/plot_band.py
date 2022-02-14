@@ -74,10 +74,18 @@ class BandInfo(MSONable):
         return len(self.band_energies[0]) == 2
 
     def band_energy_region(self,
-                           decision_width: float = 0.05,
+                           decision_width: float = 0.1,
                            bottom: float = None,
-                           top: float = None):
+                           top: float = None,
+                           offset: float = None) -> List[List[float]]:
         result = []
+
+        def add_boundary(lower, upper):
+            if offset is not None:
+                result.append([lower - offset, upper - offset])
+            else:
+                result.append([lower, upper])
+
         sorted_energies = sorted([energy
                                   for i in self.band_energies
                                   for j in i
@@ -95,12 +103,12 @@ class BandInfo(MSONable):
         for energy in sorted_energies:
             if energy - prev_energy > decision_width:
                 upper_bound = prev_energy
-                result.append([lower_bound, upper_bound])
+                add_boundary(lower_bound, upper_bound)
                 lower_bound = energy  # update lower_bound
             prev_energy = energy
         else:
             upper_bound = energy  # last energy should be the upper bound.
-            result.append([lower_bound, upper_bound])
+            add_boundary(lower_bound, upper_bound)
 
         return result
 
