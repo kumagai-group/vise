@@ -4,7 +4,7 @@ matplotlib
 scipy
 tabulate
 pymatgen
-monty
+monty==2021.7.8
 palettable
 seekpath
 numpy
