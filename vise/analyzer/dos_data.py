@@ -91,6 +91,16 @@ class DosData(MSONable):
                       xlim: Optional[List[float]] = None,
                       ylim_set: Optional[List[List[float]]] = None,
                       ) -> "DosPlotData":
+        """
+        Args:
+            grouped_atom_indices:
+                key: name of the grouped
+            xlim:
+            ylim_set:
+
+        Returns:
+
+        """
 
         if ylim_set is not None:
             assert len(grouped_atom_indices) + 1 == len(ylim_set)  # total+pdos
@@ -154,7 +164,7 @@ class DosBySpinEnergy(MSONable):
 @dataclass
 class DosPlotData(MSONable, ToJsonFileMixIn):
     relative_energies: List[float]
-    doses: List[List[DosBySpinEnergy]]  # [by ax][by orbital]
+    doses: List[List[DosBySpinEnergy]]  # [by ax][by orbital, i.e., s, p, d, f]
     names: List[str]
     energy_range: List[float]
     dos_ranges: List[List[float]]
