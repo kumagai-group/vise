@@ -27,12 +27,12 @@ setup(
     name='vise',
     version=__version__,
     author="Yu Kumagai",
-    author_email="yuuukuma@gmail.com",
+    author_email="yukumagai@tohoku.ac.jp",
     url='https://github.com/kumagai-group/vise',
     packages=find_packages(),
     license='MIT license',
     description="Package for handling io of vasp package in kumagai group at "
-                "Tokyo Institute of Technology",
+                "IMR, Tohoku university",
     long_description=long_description,
     long_description_content_type="text/markdown",
 
