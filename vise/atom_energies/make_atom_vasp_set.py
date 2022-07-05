@@ -32,7 +32,8 @@ def make_atom_poscar_dirs(path: Path, elems: List[Element] = None):
         structure = Structure(Lattice.cubic(10), [element], [[0.5]*3])
         structure.to(fmt="POSCAR", filename=str(d / "POSCAR"))
         nupdown = mags[element]
-        prior_info = {"incar": {"ISPIN": 2, "NUPDOWN": nupdown, "NELM": 300},
+        prior_info = {"incar": {"ISPIN": 2, "NUPDOWN": float(nupdown),
+                                "NELM": 300},
                       "is_cluster": True}
         (d / "prior_info.yaml").write_text(yaml.dump(prior_info))
 
