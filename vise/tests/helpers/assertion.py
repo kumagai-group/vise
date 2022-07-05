@@ -10,7 +10,22 @@ from monty.json import MSONable, MontyDecoder
 from monty.serialization import loadfn
 import numpy as np
 from py._path.local import LocalPath
+from pymatgen.analysis.structure_matcher import StructureMatcher, \
+    ElementComparator
+from pymatgen.core import IStructure
 from vise.util.mix_in import ToYamlFileMixIn
+
+
+def assert_structure_almost_same(s1: IStructure, s2: IStructure):
+    matcher = StructureMatcher(ltol=0.0001,
+                               stol=0.0001,
+                               angle_tol=0.0001,
+                               primitive_cell=False,
+                               scale=False,
+                               attempt_supercell=False,
+                               allow_subset=False,
+                               comparator=ElementComparator())
+    assert matcher.fit(s1, s2, skip_structure_reduction=True)
 
 
 def assert_msonable(obj):

@@ -4,7 +4,9 @@ from dataclasses import dataclass
 from typing import List, Tuple
 
 import pytest
-from vise.tests.helpers.assertion import assert_dataclass_almost_equal
+from pymatgen.core import IStructure, Lattice
+from vise.tests.helpers.assertion import assert_dataclass_almost_equal, \
+    assert_structure_almost_same
 
 
 @dataclass
@@ -18,6 +20,20 @@ class TestData:
     b: List[float] = None
     c: List[Tuple[float]] = None
     d: Data = None
+
+
+def test_assert_structure_almost_same():
+    coords = [[0.0, 0.0, 0.0]]
+    s1 = IStructure(lattice=Lattice.cubic(1.0), species=["H"], coords=coords)
+    coords = [[0.0, 0.0, 0.0]]
+
+    s2 = IStructure(lattice=Lattice.cubic(1.000001), species=["H"],
+                    coords=coords)
+    assert_structure_almost_same(s1, s2)
+
+    s3 = IStructure(lattice=Lattice.cubic(1.001), species=["H"], coords=coords)
+    with pytest.raises(AssertionError):
+        assert_structure_almost_same(s1, s3)
 
 
 def test_assert_dataclass_almost_equal_float():
