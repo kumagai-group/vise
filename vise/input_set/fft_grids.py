@@ -9,7 +9,8 @@ PI = 3.141592653589793238
 
 
 def vasp_grid(encut: float, lattice_length: float, symprec: str) -> int:
-    """
+    """ Calculate the numbers of FFT grids used in VASP
+
     << src from main.F of vasp.5.4.4>>
     XCUTOF =SQRT(INFO%ENMAX /RYTOEV)/(2*PI/(LATT_CUR%ANORM(1)/AUTOA))
     IF (INFO%SZPREC(1:1)=='h' .OR. INFO%SZPREC(1:1)=='a') THEN
@@ -23,6 +24,7 @@ def vasp_grid(encut: float, lattice_length: float, symprec: str) -> int:
     FFTCHK update original grids based on specific algorithms,
      see setup_actual_grids() in this module file for details.
     """
+    # In case of ACCURATE or HIGH, factor = 4
     factor = 4 if symprec[0].lower() in ["a", "h"] else 3
     cutoff_in_rydberg = encut / RYTOEV
     lattice_length_in_angstrom = lattice_length / AUTOA
