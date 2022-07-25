@@ -29,6 +29,19 @@ potcar_set: mp
     return vise.defaults.defaults
 
 
+@pytest.fixture
+def simple_modified_defaults(tmpdir):
+    os.chdir(tmpdir)
+    tmpdir.join("vise.yaml").write("""
+kpoint_density: 0.5
+""")
+
+    # Need to import here when run multiple tests together.
+    import vise.defaults
+    reload(vise.defaults)
+    return vise.defaults.defaults
+
+
 def test_user_settings_in_defaults(modified_defaults):
     assert modified_defaults.user_settings["ldauu"] == {"Mn": 10}
     assert modified_defaults.ldauu == {"Mn": 10}
@@ -168,3 +181,10 @@ Reciprocal
 
     assert kpoints.read() == kpoints_expected
 
+#
+# def test_to_json_file(tmpdir, simple_modified_defaults):
+#     os.chdir(tmpdir)
+#     simple_modified_defaults.to_json_file()
+#     kpoints = tmpdir.join("vise_defaults.json")
+#
+#     kpoints_expected
