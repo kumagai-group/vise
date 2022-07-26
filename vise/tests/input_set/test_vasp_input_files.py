@@ -7,6 +7,7 @@ import pytest
 from pymatgen.core.structure import Structure
 
 from vise import __version__
+from vise.defaults import defaults
 from vise.input_set.input_options import CategorizedInputOptions
 from vise.input_set.task import Task
 from vise.input_set.vasp_input_files import VaspInputFiles
@@ -32,8 +33,9 @@ def test_integration(tmpdir, vasp_input_files):
 
 
 def test_vise_log(vasp_input_files):
-    expected = ViseLog(version=__version__, task=Task.structure_opt,
-                       xc=Xc.pbe, input_options={"charge": 1},
+    expected = ViseLog(version=__version__, task=Task.structure_opt, xc=Xc.pbe,
+                       input_options={"charge": 1,
+                                      "kpt_density": defaults.kpoint_density},
                        user_incar_settings={"NSW": 2})
     assert vasp_input_files.vise_log == expected
 
