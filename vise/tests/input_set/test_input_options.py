@@ -87,9 +87,10 @@ def test_insulator_kpt_density(sc_structure):
 def test_parameter_dict(sc_structure):
     opts = CategorizedInputOptions(sc_structure, task=Task.structure_opt,
                                    xc=Xc.pbe, vbm_cbm=[0, 0.5])
-    assert opts.vise_log == ViseLog(version=__version__,
-                                    task=Task.structure_opt, xc=Xc.pbe,
-                                    input_options={"vbm_cbm": [0, 0.5]})
+    assert opts.vise_log == ViseLog(
+        version=__version__, task=Task.structure_opt, xc=Xc.pbe,
+        input_options={"vbm_cbm": [0, 0.5],
+                       "kpt_density": defaults.insulator_kpoint_density})
 
 
 def test_defect_kpt_density(sc_structure):

@@ -62,23 +62,23 @@ class CategorizedInputOptions:
     def _set_kpt_density(self):
         band_gap = self._input_options.get("band_gap", None)
         vbm_cbm = self._input_options.get("vbm_cbm", None)
-        self.kpt_density = self._input_options.get("kpt_density", None)
+        kpt_density = self._input_options.get("kpt_density", None)
 
-        if self.kpt_density is None:
+        if kpt_density is None:
             if self.task == Task.defect:
-                self.kpt_density = defaults.defect_kpoint_density
+                kpt_density = defaults.defect_kpoint_density
             elif is_band_gap(band_gap, vbm_cbm):
-                self.kpt_density = defaults.insulator_kpoint_density
+                kpt_density = defaults.insulator_kpoint_density
             else:
-                self.kpt_density = defaults.kpoint_density
-        print(self.kpt_density)
-        logger.info(f"Kpoint density is set to {self.kpt_density}.")
+                kpt_density = defaults.kpoint_density
+            self._input_options["kpt_density"] = kpt_density
+
+        logger.info(f"Kpoint density is set to {kpt_density}.")
 
     @property
     def all_options(self):
         result = copy(self._input_options)
         result.update({"task": self.task, "xc": self.xc,
-                       "kpt_density": self.kpt_density,
                        "initial_structure": self.initial_structure})
         return result
 
