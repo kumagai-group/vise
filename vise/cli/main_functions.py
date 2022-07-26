@@ -89,6 +89,7 @@ class VaspSet:
         vif.create_input_files(Path.cwd())
         if hasattr(self, "_file_transfers"):
             self._file_transfers.transfer()
+        vif.vise_log.to_yaml_file()
 
     def _structure(self):
         # avoid overlapping structure for e.g., phonon forces.
