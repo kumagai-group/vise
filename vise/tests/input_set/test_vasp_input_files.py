@@ -22,7 +22,7 @@ def vasp_input_files():
     input_options = CategorizedInputOptions(
         structure=structure, task=Task.structure_opt, xc=Xc.pbe, charge=1)
 
-    return VaspInputFiles(input_options, overridden_incar_settings={"NSW": 2})
+    return VaspInputFiles(input_options)
 
 
 @pytest.fixture
@@ -32,6 +32,7 @@ def vise_log():
                               "xc": str(Xc.pbe),
                               "input_options": {"charge": 1},
                               "user_incar_settings": {"NSW": 2}})
+
 
 
 def test_integration(tmpdir, vasp_input_files):
@@ -53,5 +54,25 @@ version: 0.6.3
 xc: pbe
 """
     assert_yaml_roundtrip(vise_log, tmpdir, expected_text)
+
+
+def test_vise_log_no_incar_settings(tmpdir):
+    vise_log_no_incar_settings = \
+        ViseLog.from_dict({"version": __version__,
+                           "task": str(Task.structure_opt),
+                           "xc": str(Xc.pbe),
+                           "input_options": {"charge": 1},
+                           "user_incar_settings": {}})
+
+    expected_text = """input_options:
+  charge: 1
+task: structure_opt
+user_incar_settings: {}
+version: 0.6.3
+xc: pbe
+"""
+    assert_yaml_roundtrip(vise_log_no_incar_settings, tmpdir, expected_text)
+
+
 
 

@@ -79,8 +79,7 @@ class VaspInputFiles:
     def vise_log(self):
         d = copy(self._input_options.parameter_dict)
         d["version"] = self._version
-        if self._overridden_incar_settings:
-            d["user_incar_settings"] = self._overridden_incar_settings
+        d["user_incar_settings"] = self._overridden_incar_settings or {}
         return ViseLog.from_dict(d)
 
     @property
