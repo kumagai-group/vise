@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 from copy import copy
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional, Dict, Any
 
+from monty.json import MSONable
 from pymatgen.io.vasp.sets import Poscar, Kpoints, Potcar
 
 from vise import __version__
@@ -14,9 +16,27 @@ from vise.input_set.kpoints import ViseKpoints
 from vise.input_set.potcar_generator import generate_potcar
 from vise.input_set.structure_kpoints_generator import StructureKpointsGenerator
 from vise.util.logger import get_logger
+from vise.util.mix_in import ToYamlFileMixIn
 from vise.util.structure_handler import create_symbol_list
 
 logger = get_logger(__name__)
+
+
+@dataclass
+class ViseLog(MSONable, ToYamlFileMixIn):
+    version: str
+    task: str
+    xc: str
+    input_options: dict
+    user_incar_settings: dict
+
+    def as_dict(self) -> dict:
+        result = {}
+        for k, v in super().as_dict().items():
+            if k[0] == "@":
+                continue
+            result[k] = v
+        return result
 
 
 class VaspInputFiles:
@@ -57,11 +77,11 @@ class VaspInputFiles:
 
     @property
     def vise_log(self):
-        result = copy(self._input_options.parameter_dict)
-        result["version"] = self._version
+        d = copy(self._input_options.parameter_dict)
+        d["version"] = self._version
         if self._overridden_incar_settings:
-            result["user_incar_settings"] = self._overridden_incar_settings
-        return result
+            d["user_incar_settings"] = self._overridden_incar_settings
+        return ViseLog.from_dict(d)
 
     @property
     def initial_structure(self):

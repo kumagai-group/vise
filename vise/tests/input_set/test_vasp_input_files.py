@@ -9,8 +9,9 @@ from pymatgen.core.structure import Structure
 from vise import __version__
 from vise.input_set.input_options import CategorizedInputOptions
 from vise.input_set.task import Task
-from vise.input_set.vasp_input_files import VaspInputFiles
+from vise.input_set.vasp_input_files import VaspInputFiles, ViseLog
 from vise.input_set.xc import Xc
+from vise.tests.helpers.assertion import assert_yaml_roundtrip
 
 
 @pytest.fixture
@@ -24,18 +25,33 @@ def vasp_input_files():
     return VaspInputFiles(input_options, overridden_incar_settings={"NSW": 2})
 
 
+@pytest.fixture
+def vise_log():
+    return ViseLog.from_dict({"version": __version__,
+                              "task": str(Task.structure_opt),
+                              "xc": str(Xc.pbe),
+                              "input_options": {"charge": 1},
+                              "user_incar_settings": {"NSW": 2}})
+
+
 def test_integration(tmpdir, vasp_input_files):
     tmpdir.chdir()
     vasp_input_files.create_input_files(Path.cwd())
 
 
-def test_vise_log(vasp_input_files):
-    expected = {"version": __version__,
-                "task": str(Task.structure_opt),
-                "xc": str(Xc.pbe),
-                "input_options": {"charge": 1},
-                "user_incar_settings": {"NSW": 2}}
-    assert vasp_input_files.vise_log == expected
+def test_vise_log(vasp_input_files, vise_log):
+    assert vasp_input_files.vise_log == vise_log.as_dict()
 
+
+def test_vise_log(vise_log, tmpdir):
+    expected_text = """input_options:
+  charge: 1
+task: structure_opt
+user_incar_settings:
+  NSW: 2
+version: 0.6.3
+xc: pbe
+"""
+    assert_yaml_roundtrip(vise_log, tmpdir, expected_text)
 
 
