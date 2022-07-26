@@ -14,32 +14,36 @@ from vise.util.structure_symmetrizer import StructureSymmetrizer
 
 def test_constructor_num_kpt_multiplication_factor(sc_structure):
     generator = StructureKpointsGenerator(sc_structure,
-                                          task=Task.dielectric_function)
+                                          task=Task.dielectric_function,
+                                          kpt_density=1.0)
     assert generator._num_kpt_factor == 3
 
 
 def test_constructor_only_even_num_kpts(sc_structure):
     generator = StructureKpointsGenerator(sc_structure,
                                           only_even_num_kpts=True,
-                                          task=Task.cluster_opt)
+                                          task=Task.cluster_opt,
+                                          kpt_density=1.0)
     assert generator._only_even_num_kpts is False
 
 
 def test_constructor_kpt_mode(sc_structure):
     generator = StructureKpointsGenerator(sc_structure,
-                                          task=Task.cluster_opt)
+                                          task=Task.cluster_opt,
+                                          kpt_density=1.0)
     assert generator._kpt_mode is KpointsMode.uniform
 
 
 def test_constructor_kpt_shift_structure_opt(sc_structure):
     generator = StructureKpointsGenerator(sc_structure,
-                                          task=Task.structure_opt)
+                                          task=Task.structure_opt,
+                                          kpt_density=1.0)
     assert generator._gamma_centered is None
 
 
 def test_constructor_kpt_shift_dos(sc_structure):
     generator = StructureKpointsGenerator(sc_structure,
-                                          task=Task.dos)
+                                          task=Task.dos, kpt_density=1.0)
     assert generator._gamma_centered is True
 
 
@@ -51,7 +55,8 @@ def test_constructor_symmetrizer(sc_structure, mocker):
                               symprec=10.0,
                               angle_tolerance=20.0,
                               band_ref_dist=30.0,
-                              is_magnetization=True)
+                              is_magnetization=True,
+                              kpt_density=1.0)
     mock.assert_called_once_with(
         structure=sc_structure, symprec=10.0, angle_tolerance=20.0,
         band_mesh_distance=30.0, time_reversal=False)
@@ -60,7 +65,8 @@ def test_constructor_symmetrizer(sc_structure, mocker):
 
 
 def test_mc_structure_primitive(mc_structure):
-    generator = StructureKpointsGenerator(mc_structure, task=Task.structure_opt)
+    generator = StructureKpointsGenerator(mc_structure, task=Task.structure_opt,
+                                          kpt_density=1.0)
     generator.generate_input()
     actual = generator.structure.lattice.matrix
     expected = [[ 6.,-3., 0.],
@@ -70,7 +76,8 @@ def test_mc_structure_primitive(mc_structure):
 
 
 def test_mc_structure_band(mc_structure):
-    generator = StructureKpointsGenerator(mc_structure, task=Task.band)
+    generator = StructureKpointsGenerator(mc_structure, task=Task.band,
+                                          kpt_density=1.0)
     generator.generate_input()
     actual = generator.structure.lattice.matrix
     expected = [[ 6., 3., 0.],
@@ -81,7 +88,8 @@ def test_mc_structure_band(mc_structure):
 
 def test_mc_structure_dos_uniform(mc_structure):
     generator = StructureKpointsGenerator(mc_structure, task=Task.dos,
-                                          kpt_mode=KpointsMode.uniform)
+                                          kpt_mode=KpointsMode.uniform,
+                                          kpt_density=1.0)
     generator.generate_input()
     actual = generator.structure.lattice.matrix
     expected = [[ 6., 3., 0.],
@@ -110,7 +118,8 @@ def test_manual_kpts():
     generator = StructureKpointsGenerator(structure,
                                           task=Task.structure_opt,
                                           kpt_mode=KpointsMode.uniform,
-                                          gamma_centered=True)
+                                          gamma_centered=True,
+                                          kpt_density=1.0)
     generator.generate_input()
     assert generator.kpoints.kpts_shift == [0.0, 0.0, 0.0]
 

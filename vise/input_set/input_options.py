@@ -1,18 +1,20 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
-from copy import deepcopy
+from copy import deepcopy, copy
 from inspect import getfullargspec
 from typing import Dict, Any, List
 
 from pymatgen.core.structure import Structure
 
+from vise import __version__
 from vise.analyzer.band_edge_properties import is_band_gap
 from vise.defaults import defaults
 from vise.input_set.incar_settings_generator import IncarSettingsGenerator
 from vise.input_set.potcar_generator import generate_potcar
 from vise.input_set.structure_kpoints_generator import StructureKpointsGenerator
 from vise.input_set.task import Task
+from vise.input_set.vise_log import ViseLog
 from vise.input_set.xc import Xc
 from vise.util.logger import get_logger
 
@@ -44,12 +46,10 @@ class CategorizedInputOptions:
                  xc: Xc,
                  **input_options):
 
-        self._original_input_options = input_options
         self._input_options = deepcopy(input_options)
-        self._input_options.update(
-            {"initial_structure": structure.copy(),
-             "task": task,
-             "xc": xc})
+        self.initial_structure = structure.copy()
+        self.task = task
+        self.xc = xc
         self._set_kpt_density()
         self._raise_error_when_unknown_options_exist()
 
@@ -62,16 +62,25 @@ class CategorizedInputOptions:
     def _set_kpt_density(self):
         band_gap = self._input_options.get("band_gap", None)
         vbm_cbm = self._input_options.get("vbm_cbm", None)
-        kpt_density = self._input_options.get("kpt_density", None)
+        self.kpt_density = self._input_options.get("kpt_density", None)
 
-        if self._input_options["task"] == Task.defect:
-            kpt_density = defaults.defect_kpoint_density
-        elif is_band_gap(band_gap, vbm_cbm) and kpt_density is None:
-            kpt_density = defaults.insulator_kpoint_density
+        if self.kpt_density is None:
+            if self.task == Task.defect:
+                self.kpt_density = defaults.defect_kpoint_density
+            elif is_band_gap(band_gap, vbm_cbm):
+                self.kpt_density = defaults.insulator_kpoint_density
+            else:
+                self.kpt_density = defaults.kpoint_density
+        print(self.kpt_density)
+        logger.info(f"Kpoint density is set to {self.kpt_density}.")
 
-        if kpt_density:
-            logger.info(f"Kpoint density is set to {kpt_density}.")
-            self._input_options["kpt_density"] = kpt_density
+    @property
+    def all_options(self):
+        result = copy(self._input_options)
+        result.update({"task": self.task, "xc": self.xc,
+                       "kpt_density": self.kpt_density,
+                       "initial_structure": self.initial_structure})
+        return result
 
     @property
     def input_option_set(self) -> set:
@@ -80,8 +89,8 @@ class CategorizedInputOptions:
     def pick_target_options(self, target_args: List[str]) -> Dict[str, Any]:
         result = {}
         for target_arg in target_args:
-            if target_arg in self._input_options:
-                result[target_arg] = self._input_options[target_arg]
+            if target_arg in self.all_options:
+                result[target_arg] = self.all_options[target_arg]
         return result
 
     @property
@@ -97,14 +106,10 @@ class CategorizedInputOptions:
         return self.pick_target_options(target_args=incar_settings_args)
 
     @property
-    def initial_structure(self) -> Structure:
-        return self._input_options["initial_structure"]
-
-    @property
-    def parameter_dict(self):
-        return {"task": str(self._input_options["task"]),
-                "xc": str(self._input_options["xc"]),
-                "input_options": self._original_input_options}
+    def vise_log(self):
+        return ViseLog(version=__version__,
+                       task=self.task, xc=self.xc,
+                       input_options=self._input_options)
 
 
 class ViseInputOptionsError(KeyError):

@@ -3,10 +3,12 @@
 
 import pytest
 
+from vise import __version__
 from vise.defaults import defaults
 from vise.input_set.input_options import (
     CategorizedInputOptions, ViseInputOptionsError)
 from vise.input_set.task import Task
+from vise.input_set.vise_log import ViseLog
 from vise.input_set.xc import Xc
 
 
@@ -14,7 +16,8 @@ def test_no_options(sc_structure):
     opts = CategorizedInputOptions(sc_structure, task=Task.structure_opt, xc=Xc.pbe)
 
     structure_kpoints_keys = set(opts.structure_kpoints_options.keys())
-    assert structure_kpoints_keys == {"initial_structure", "task"}
+    assert structure_kpoints_keys == {"kpt_density", "initial_structure",
+                                      "task"}
 
     potcar_keys = set(opts.potcar_options.keys())
     assert potcar_keys == {"xc"}
@@ -35,8 +38,8 @@ def test_raise_error(sc_structure):
 
 
 def test_structure_kpoints_options(sc_structure):
-    opts = CategorizedInputOptions(sc_structure, task=Task.structure_opt, xc=Xc.pbe,
-                                   kpt_density=100)
+    opts = CategorizedInputOptions(sc_structure, task=Task.structure_opt,
+                                   xc=Xc.pbe, kpt_density=100)
 
     assert opts.structure_kpoints_options["kpt_density"] == 100
 
@@ -84,9 +87,9 @@ def test_insulator_kpt_density(sc_structure):
 def test_parameter_dict(sc_structure):
     opts = CategorizedInputOptions(sc_structure, task=Task.structure_opt,
                                    xc=Xc.pbe, vbm_cbm=[0, 0.5])
-    assert opts.parameter_dict == {"task": str(Task.structure_opt),
-                                   "xc": str(Xc.pbe),
-                                   "input_options": {"vbm_cbm": [0, 0.5]}}
+    assert opts.vise_log == ViseLog(version=__version__,
+                                    task=Task.structure_opt, xc=Xc.pbe,
+                                    input_options={"vbm_cbm": [0, 0.5]})
 
 
 def test_defect_kpt_density(sc_structure):
