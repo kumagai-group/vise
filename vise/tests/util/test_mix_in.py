@@ -11,8 +11,8 @@ from vise.util.mix_in import ToJsonFileMixIn, ToYamlFileMixIn
 class TestTest(MSONable, ToJsonFileMixIn, ToYamlFileMixIn):
     a: str = "aaa"
 
-    def to_yaml(self):
-        return f"a: {self.a}\n"
+    def as_dict(self):
+        return {"a": self.a}
 
     @classmethod
     def from_yaml(cls, filename):

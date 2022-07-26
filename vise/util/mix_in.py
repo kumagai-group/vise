@@ -5,6 +5,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Optional
 
+import yaml
 from monty.serialization import loadfn
 
 
@@ -32,8 +33,11 @@ class ToYamlFileMixIn(ABC):
         filename = filename or self._yaml_filename()
         Path(filename).write_text(self.to_yaml())
 
-    @abstractmethod
     def to_yaml(self):
+        return yaml.dump(self.as_dict())
+
+    @abstractmethod
+    def as_dict(self):
         pass
 
     @classmethod
