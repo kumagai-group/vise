@@ -44,6 +44,7 @@ class CategorizedInputOptions:
                  xc: Xc,
                  **input_options):
 
+        self._original_input_options = input_options
         self._input_options = deepcopy(input_options)
         self._input_options.update(
             {"initial_structure": structure.copy(),
@@ -98,6 +99,12 @@ class CategorizedInputOptions:
     @property
     def initial_structure(self) -> Structure:
         return self._input_options["initial_structure"]
+
+    @property
+    def parameter_dict(self):
+        return {"task": str(self._input_options["task"]),
+                "xc": str(self._input_options["xc"]),
+                "input_options": self._original_input_options}
 
 
 class ViseInputOptionsError(KeyError):

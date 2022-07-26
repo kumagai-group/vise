@@ -81,8 +81,17 @@ def test_insulator_kpt_density(sc_structure):
     assert opts.structure_kpoints_options["kpt_density"] == 100
 
 
+def test_parameter_dict(sc_structure):
+    opts = CategorizedInputOptions(sc_structure, task=Task.structure_opt,
+                                   xc=Xc.pbe, vbm_cbm=[0, 0.5])
+    assert opts.parameter_dict == {"task": str(Task.structure_opt),
+                                   "xc": str(Xc.pbe),
+                                   "input_options": {"vbm_cbm": [0, 0.5]}}
+
+
 def test_defect_kpt_density(sc_structure):
     opts = CategorizedInputOptions(sc_structure, task=Task.defect, xc=Xc.pbe)
     actual = opts.structure_kpoints_options["kpt_density"]
     expected = defaults.defect_kpoint_density
     assert actual == expected
+

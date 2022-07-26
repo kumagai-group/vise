@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
-
+from copy import copy
 from pathlib import Path
 from typing import Optional, Dict, Any
 
@@ -25,9 +25,11 @@ class VaspInputFiles:
                  overridden_incar_settings: Optional[dict] = None):
 
         self._version = __version__
+        self._input_options = input_options
         self._initial_structure = input_options.initial_structure
         self._generate_structure_kpoints(input_options)
         self._generate_potcar_incar_settings(input_options)
+        self._overridden_incar_settings = overridden_incar_settings
         self._incar_settings.update(overridden_incar_settings or {})
 
     def _generate_structure_kpoints(self, input_options):
@@ -52,6 +54,14 @@ class VaspInputFiles:
                                    self._potcar,
                                    **input_options.incar_settings_options)
         self._incar_settings = incar_settings_generator.incar_settings
+
+    @property
+    def vise_log(self):
+        result = copy(self._input_options.parameter_dict)
+        result["version"] = self._version
+        if self._overridden_incar_settings:
+            result["user_incar_settings"] = self._overridden_incar_settings
+        return result
 
     @property
     def initial_structure(self):
