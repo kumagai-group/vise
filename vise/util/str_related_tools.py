@@ -9,12 +9,16 @@ from vise.util.logger import get_logger
 logger = get_logger(__name__)
 
 
-def str2bool(string: str) -> bool:
-    """Convert string to bool using strtobool.
-
-    Note that strtobool returns 0 or 1.
+def str2bool(val: str) -> bool:
+    """Convert a string representation of truth to true (1) or false (0).
     """
-    return bool(strtobool(string))
+    val = val.lower()
+    if val in ('t', 'true'):
+        return True
+    elif val in ('false'):
+        return False
+    else:
+        raise ValueError("invalid truth value %r" % (val,))
 
 
 def is_str_digit(n: str) -> bool:

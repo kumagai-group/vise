@@ -44,7 +44,14 @@ def test_list2dict_2():
     assert actual == expected
 
 
-def test_fail(key_candidates):
+def test_list2dict_3():
+    flattened_list = ["ALGO", "N"]
+    actual = list2dict(flattened_list, ["ALGO"])
+    expected = {"ALGO": "N"}
+    assert actual == expected
+
+
+def test_fail():
     flattened_list = ["ENCAT", "500"]
     with pytest.raises(ValueError):
         list2dict(flattened_list, ["ENCUT"])
