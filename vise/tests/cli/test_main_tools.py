@@ -30,21 +30,16 @@ def test_incorrect_element_potcar_error():
         potcar_str2dict(["MgHH", "Mg"])
 
 
-@pytest.fixture
-def key_candidates():
-    return ["ENCUT", "MAGMOM", "LWAVE", "EFIELD_PEAD"]
-
-
-def test_list2dict(key_candidates):
+def test_list2dict():
     flattened_list = ["ENCUT", "500", "MAGMOM", "4", "4.0", "LWAVE", "F"]
-    actual = list2dict(flattened_list, key_candidates)
+    actual = list2dict(flattened_list, ["ENCUT", "MAGMOM", "LWAVE"])
     expected = {"ENCUT": 500, "MAGMOM": [4, 4.0], "LWAVE": False}
     assert actual == expected
 
 
-def test_list2dict_2(key_candidates):
+def test_list2dict_2():
     flattened_list = ["EFIELD_PEAD", "0.1", "0.1", "0.1"]
-    actual = list2dict(flattened_list, key_candidates)
+    actual = list2dict(flattened_list, ["EFIELD_PEAD"])
     expected = {"EFIELD_PEAD": [0.1, 0.1, 0.1]}
     assert actual == expected
 
@@ -52,12 +47,12 @@ def test_list2dict_2(key_candidates):
 def test_fail(key_candidates):
     flattened_list = ["ENCAT", "500"]
     with pytest.raises(ValueError):
-        list2dict(flattened_list, key_candidates)
+        list2dict(flattened_list, ["ENCUT"])
 
 
-def test_fail2(key_candidates):
+def test_fail2():
     flattened_list = ["ENCUT", "500", "MAGMOM"]
     with pytest.raises(ValueError):
-        list2dict(flattened_list, key_candidates)
+        list2dict(flattened_list, ["ENCUT", "MAGMOM"])
 
 
