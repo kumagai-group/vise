@@ -129,6 +129,12 @@ class VaspSet:
 
         if self.args.options:
             args = list2dict(self.args.options, assignable_option_set)
+            if "kpt_density" in args and self.args.kpt_density:
+                logger.warning(
+                    f"Because kpt_density is set at kpt_density argument and "
+                    f"optional argument, kpt_density argument value "
+                    f"{self.args.kpt_density} is used.")
+                args.pop("kpt_density")
             result.update(args)
         if self.args.uniform_kpt_mode:
             result["kpt_mode"] = KpointsMode.uniform

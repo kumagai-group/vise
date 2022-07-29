@@ -100,10 +100,16 @@ test_data = [
     ({"prev_dir": Path("a"), "file_transfer_type": ["file", "c"]},
      {},
      {},
-     {"x": "y"})
+     {"x": "y"}),
+
+    ({"options": ["kpt_density", "3.5"], "kpt_density": 2.5},
+     {},
+     {"kpt_density": 2.5},
+     {})
 ]
 
 
+# Be careful about literal; all the words are connected (see position of commas)
 @pytest.mark.parametrize("modified_settings,"
                          "overridden_incar_settings,"
                          "overridden_options_args,"
@@ -140,6 +146,15 @@ def test_user_incar_settings(mocker,
     incar_settings.update(overridden_incar_settings)
 
     vif.assert_called_once_with(options.return_value, incar_settings)
+
+
+# def test_user_incar_settings_with_kpt_density_in_options():
+#     args = deepcopy(default_args)
+#     args.update(dict(kpt_density=2.5, options={"kpt_density": 3.5}))
+#     name_space = Namespace(**args)
+#     VaspSet(name_space)
+
+
 
 
 def test_plot_band(tmpdir, test_data_files):
