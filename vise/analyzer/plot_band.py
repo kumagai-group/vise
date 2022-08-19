@@ -78,6 +78,17 @@ class BandInfo(MSONable):
                            bottom: float = None,
                            top: float = None,
                            offset: float = None) -> List[List[float]]:
+        """Estimate continuously filled band energy region.
+
+        Args:
+            decision_width: Max range over which energy is considered continuous
+            bottom: minimum energy to be considered
+            top: maximum energy to be considered
+            offset: subtract offset value from all the band energy
+
+        Returns:
+            energy regions: [[1st min, 1st max], [2nd min, 2nd max], ...]
+        """
         result = []
 
         def add_boundary(lower, upper):
