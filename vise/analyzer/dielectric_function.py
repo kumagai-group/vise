@@ -7,7 +7,7 @@ from typing import List
 import numpy as np
 from monty.json import MSONable
 from tqdm import tqdm
-from vise.util.mix_in import ToJsonFileMixIn
+from vise.util.mix_in import ToJsonFileMixIn, ToCsvFileMixIn
 from scipy.constants import physical_constants as pc
 
 eV_to_inv_cm = pc["electron volt-inverse meter relationship"][0] / 100
@@ -19,11 +19,26 @@ def diele_func_to_coeff(freq, real, imag):
 
 
 @dataclass
-class DieleFuncData(MSONable, ToJsonFileMixIn):
+class DieleFuncData(MSONable, ToJsonFileMixIn, ToCsvFileMixIn):
     energies: List[float]  # in eV
     diele_func_real: List[List[float]]  # [xx, yy, zz, xy, yz, xz]
     diele_func_imag: List[List[float]]  # [xx, yy, zz, xy, yz, xz]
     band_gap: float  # in eV
+
+    @property
+    def csv_column_names(self):
+        direction = ["xx", "yy", "zz", "xy", "yz", "xz"]
+        result = ["energies(eV)"]
+        result.extend([f"real_{d}" for d in direction])
+        result.extend([f"imag_{d}" for d in direction])
+        return result
+
+    @property
+    def csv_data(self):
+        result = []
+        for i, j, k in zip(self.energies, self.diele_func_real, self.diele_func_imag):
+            result.append([i] + j + k)
+        return result
 
     @property
     def ave_absorption_coeff(self):

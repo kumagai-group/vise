@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 from math import pi, sqrt
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -43,6 +44,20 @@ def test_ave_absorption_coeff(diele_func_data):
     actual = diele_func_data.ave_absorption_coeff
     expected = [2 * sqrt(2) * pi * sqrt(sqrt(2 ** 2 + 5 ** 2) - 2)
                 * i * eV_to_inv_cm for i in range(0, 11)]
+    assert actual == expected
+
+
+def test_to_csv_file(tmpdir):
+    diele = DieleFuncData(energies=[0.0],
+                          diele_func_real=[[0.1, 0.2, 0.3, 0.4, 0.5, 0.6]],
+                          diele_func_imag=[[1.1, 1.2, 1.3, 1.4, 1.5, 1.6]],
+                          band_gap=1.0)
+    tmpdir.chdir()
+    diele.to_csv_file()
+    actual = Path("diele_func_data.csv").read_text()
+    expected = """energies(eV),real_xx,real_yy,real_zz,real_xy,real_yz,real_xz,imag_xx,imag_yy,imag_zz,imag_xy,imag_yz,imag_xz
+0.0,0.1,0.2,0.3,0.4,0.5,0.6,1.1,1.2,1.3,1.4,1.5,1.6
+"""
     assert actual == expected
 
 
