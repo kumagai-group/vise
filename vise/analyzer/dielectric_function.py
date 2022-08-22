@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
+import csv
 from dataclasses import dataclass
 from math import sqrt, pi
 from typing import List, Optional
 
 import numpy as np
+import pandas as pd
 from monty.json import MSONable
 from tqdm import tqdm
 from vise.util.mix_in import ToJsonFileMixIn, ToCsvFileMixIn
@@ -25,12 +27,19 @@ class DieleFuncData(MSONable, ToJsonFileMixIn, ToCsvFileMixIn):
     diele_func_imag: List[List[float]]  # [xx, yy, zz, xy, yz, xz]
     band_gap: Optional[float] = None  # in eV
 
+    @classmethod
+    def real_columns(cls):
+        return [f"real_{d}" for d in ["xx", "yy", "zz", "xy", "yz", "xz"]]
+
+    @classmethod
+    def imag_columns(cls):
+        return [f"imag_{d}" for d in ["xx", "yy", "zz", "xy", "yz", "xz"]]
+
     @property
     def csv_column_names(self):
-        direction = ["xx", "yy", "zz", "xy", "yz", "xz"]
         result = ["energies(eV)"]
-        result.extend([f"real_{d}" for d in direction])
-        result.extend([f"imag_{d}" for d in direction])
+        result.extend(self.real_columns())
+        result.extend(self.imag_columns())
         return result
 
     @property
@@ -39,6 +48,14 @@ class DieleFuncData(MSONable, ToJsonFileMixIn, ToCsvFileMixIn):
         for i, j, k in zip(self.energies, self.diele_func_real, self.diele_func_imag):
             result.append([i] + j + k)
         return result
+
+    @classmethod
+    def from_csv(cls, filename: str):
+        df = pd.read_csv(filename)
+        real = df.loc[:, cls.real_columns()].values
+        imag = df.loc[:, cls.imag_columns()].values
+        return cls(energies=df["energies(eV)"].tolist(),
+                   diele_func_real=real, diele_func_imag=imag)
 
     @property
     def ave_absorption_coeff(self):

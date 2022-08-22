@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
+from copy import copy
 from math import pi, sqrt
 from pathlib import Path
 
@@ -10,7 +11,8 @@ from pymatgen.io.vasp import Vasprun, Outcar
 from vise.analyzer.dielectric_function import DieleFuncData, \
     eV_to_inv_cm
 from vise.analyzer.vasp.make_diele_func import make_diele_func
-from vise.tests.helpers.assertion import assert_msonable
+from vise.tests.helpers.assertion import assert_msonable, \
+    assert_dataclass_almost_equal
 
 try:
     import psutil
@@ -59,6 +61,11 @@ def test_to_csv_file(tmpdir):
 0.0,0.1,0.2,0.3,0.4,0.5,0.6,1.1,1.2,1.3,1.4,1.5,1.6
 """
     assert actual == expected
+
+    actual = DieleFuncData.from_csv("diele_func_data.csv")
+    expected = copy(diele)
+    expected.band_gap = None
+    assert_dataclass_almost_equal(actual, expected, digit=3)
 
 
 @pytest.fixture
