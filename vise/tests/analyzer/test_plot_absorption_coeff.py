@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
+from copy import copy
+
 import pytest
 from pymatgen.io.vasp import Vasprun, Outcar
 from vise.analyzer.plot_absorption_coeff import AbsorptionCoeffPlotlyPlotter, \
@@ -25,8 +27,9 @@ def actual_diele_func_data(test_data_files):
 
 @pytest.mark.skipif(PSUTIL_NOT_PRESENT, reason="psutil does not exist")
 def test_absorption_coeff_plotly_plotter(actual_diele_func_data):
-    plotter = AbsorptionCoeffPlotlyPlotter(actual_diele_func_data,
-                                           materials=["GaAs"])
+    data = copy(actual_diele_func_data)
+    data.band_gap = None
+    plotter = AbsorptionCoeffPlotlyPlotter(data, materials=["GaAs"])
     fig = plotter.create_figure()
     show_png(fig)
 

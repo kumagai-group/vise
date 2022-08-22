@@ -2,7 +2,7 @@
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 from dataclasses import dataclass
 from math import sqrt, pi
-from typing import List
+from typing import List, Optional
 
 import numpy as np
 from monty.json import MSONable
@@ -23,7 +23,7 @@ class DieleFuncData(MSONable, ToJsonFileMixIn, ToCsvFileMixIn):
     energies: List[float]  # in eV
     diele_func_real: List[List[float]]  # [xx, yy, zz, xy, yz, xz]
     diele_func_imag: List[List[float]]  # [xx, yy, zz, xy, yz, xz]
-    band_gap: float  # in eV
+    band_gap: Optional[float] = None  # in eV
 
     @property
     def csv_column_names(self):
