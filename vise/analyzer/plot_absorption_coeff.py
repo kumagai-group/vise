@@ -16,7 +16,6 @@ class AbsorptionCoeffPlotter:
     def __init__(self,
                  diele_func_data: DieleFuncData,
                  energy_range: List[float] = None,
-                 coeff_power_range: List[float] = None,
                  materials: List[str] = None,
                  yranges: List[float] = None):
 
@@ -24,7 +23,6 @@ class AbsorptionCoeffPlotter:
         self.absorption_coeff = diele_func_data.ave_absorption_coeff
         self.band_gap = diele_func_data.band_gap
         self.energy_range = energy_range or [0, 10]
-        self.coeff_power_range = coeff_power_range
         self.materials = materials
 
         self._xaxis_title = "Energy (eV)"
@@ -39,7 +37,7 @@ class AbsorptionCoeffPlotter:
 
 class AbsorptionCoeffPlotlyPlotter(AbsorptionCoeffPlotter):
 
-    _yaxis_title = "Absorption coefficient. (cm <sup>-1</sup>)"
+    _yaxis_title = "Absorption coefficient (cm <sup>-1</sup>)"
 
     def create_figure(self):
         fig = go.Figure()
@@ -84,7 +82,7 @@ class AbsorptionCoeffPlotlyPlotter(AbsorptionCoeffPlotter):
 
 
 class AbsorptionCoeffMplPlotter(AbsorptionCoeffPlotter):
-    _yaxis_title = "Absorption coefficient. (cm-1)"
+    _yaxis_title = "Absorption coefficient (cm$^{-1}$)"
 
     def construct_plot(self):
         self._add_coeffs()
