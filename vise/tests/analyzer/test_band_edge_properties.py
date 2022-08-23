@@ -40,7 +40,7 @@ def test_metal_judged_from_non_uniform_band_occupation():
     band_edge = BandEdgeProperties(eigenvalues=eigenvalues,
                                    nelect=4.0,
                                    magnetization=0.0,
-                                   kpoints=actual_kpt)
+                                   kpoint_coords=actual_kpt)
 
     assert band_edge.band_gap is None
     assert band_edge.is_direct is None
@@ -54,7 +54,7 @@ def test_metal_judged_from_fractional_nelect():
     band_edge = BandEdgeProperties(eigenvalues=eigenvalues,
                                    nelect=4.0 + integer_criterion + 1e-5,
                                    magnetization=0.0,
-                                   kpoints=actual_kpt,
+                                   kpoint_coords=actual_kpt,
                                    integer_criterion=0.1)
 
     assert band_edge.band_gap is None
@@ -70,7 +70,7 @@ def test_metal_judged_from_fractional_magnetization():
     band_edge = BandEdgeProperties(eigenvalues=eigenvalues,
                                    nelect=3.0,
                                    magnetization=1.0 + integer_criterion + 1e-5,
-                                   kpoints=actual_kpt,
+                                   kpoint_coords=actual_kpt,
                                    integer_criterion=0.1)
 
     assert band_edge.band_gap is None
@@ -79,16 +79,20 @@ def test_metal_judged_from_fractional_magnetization():
     assert band_edge.cbm_info is None
 
 
-def test_nonmagnetic_insulator():
+@pytest.fixture
+def nonmagnetic_band_edge():
     # k-point indices run fast.
     eigenvalues = {Spin.up: np.array([[0.0, 1.0, 2.0], [0.1, 1.1, 2.1]])}
     integer_criterion = 0.1
-    band_edge = BandEdgeProperties(eigenvalues=eigenvalues,
-                                   nelect=4.0 + integer_criterion - 1e-5,
-                                   magnetization=0.0,
-                                   kpoints=actual_kpt,
-                                   integer_criterion=0.1)
+    return BandEdgeProperties(eigenvalues=eigenvalues,
+                              nelect=4.0 + integer_criterion - 1e-5,
+                              magnetization=0.0,
+                              kpoint_coords=actual_kpt,
+                              integer_criterion=0.1)
 
+
+def test_nonmagnetic_insulator(nonmagnetic_band_edge):
+    band_edge = nonmagnetic_band_edge
     assert pytest.approx(band_edge.band_gap) == 0.90
 
     assert band_edge.is_direct is False
@@ -105,8 +109,6 @@ def test_nonmagnetic_insulator():
     assert band_edge.vbm_info.kpoint_coords == [10.4, 10.5, 10.6]
     assert band_edge.cbm_info.kpoint_coords == [10.1, 10.2, 10.3]
 
-    assert band_edge.min_gap == 1.0
-
 
 @pytest.fixture
 def magnetic_band_edge():
@@ -115,7 +117,7 @@ def magnetic_band_edge():
     return BandEdgeProperties(eigenvalues=eigenvalues,
                               nelect=3.0,
                               magnetization=1.0,
-                              kpoints=actual_kpt)
+                              kpoint_coords=actual_kpt)
 
 
 def test_magnetic_insulator(magnetic_band_edge):
@@ -146,7 +148,7 @@ def test_is_metal():
         eigenvalues={Spin.up: np.array([[0, 1, 2], [0, 3, 4]])},
         nelect=4.0,
         magnetization=0.0,
-        kpoints=actual_kpt)
+        kpoint_coords=actual_kpt)
     assert band_edge_metal.is_metal is True
     assert band_edge_metal.vbm_info is None
     assert band_edge_metal.cbm_info is None

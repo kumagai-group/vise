@@ -6,6 +6,7 @@ from typing import List, Dict, Optional
 
 import numpy as np
 from monty.json import MSONable
+from numpy import argmin
 from pymatgen.electronic_structure.core import Spin
 
 from vise.defaults import defaults
@@ -59,7 +60,7 @@ class BandEdgeProperties:
                  eigenvalues: Dict[Spin, np.ndarray],
                  nelect: float,
                  magnetization: float,
-                 kpoints: List[List[float]],
+                 kpoint_coords: List[List[float]],
                  integer_criterion: float = defaults.integer_criterion):
 
         assert 0 < integer_criterion < 0.5
@@ -69,7 +70,7 @@ class BandEdgeProperties:
         self._nelect = nelect
         #  In Bohr magneton.
         self._magnetization = magnetization
-        self._kpoints = kpoints
+        self._kpoint_coords = kpoint_coords
         self._integer_criterion = integer_criterion
 
         self._calculate_vbm_cbm()
@@ -98,7 +99,7 @@ class BandEdgeProperties:
     def band_edge(self, eigenvalues, band_index, eigenvalue, spin):
         k_index = int(np.where(eigenvalues[:, band_index] == eigenvalue)[0][0])
         return BandEdge(eigenvalue, spin, band_index, k_index,
-                        self._kpoints[k_index])
+                        self._kpoint_coords[k_index])
 
     def _ho_band_index(self, spin):
         if spin == Spin.up:
@@ -134,14 +135,18 @@ class BandEdgeProperties:
     @property
     def min_gap(self):
         result = float("inf")
+        kpoint_idx = []
         for spin, eigenvalues in self._eigenvalues.items():
             lu_band_index = self._ho_band_index(spin) + 1
 
             ho_eigs = eigenvalues[:, self._ho_band_index(spin)]
             lu_eigs = eigenvalues[:, lu_band_index]
-
-            result = min([min(lu_eigs - ho_eigs), result])
-        return result
+            diff = lu_eigs - ho_eigs
+            _kpt = argmin(diff)
+            if diff[_kpt] < result + 1e-5:
+                result = diff[_kpt]
+                kpoint_idx.append(_kpt)
+        return result, kpoint_idx
 
     @property
     def vbm_cbm(self):

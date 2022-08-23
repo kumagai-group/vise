@@ -21,7 +21,7 @@ class VaspBandEdgeProperties(BandEdgeProperties):
         super().__init__(eigenvalues=eigenvalues_from_vasprun(vasprun),
                          nelect=outcar.nelect,
                          magnetization=total_mag,
-                         kpoints=vasprun.actual_kpoints,
+                         kpoint_coords=vasprun.actual_kpoints,
                          integer_criterion=integer_criterion)
 
 
