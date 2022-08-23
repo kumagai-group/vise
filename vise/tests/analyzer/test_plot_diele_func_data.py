@@ -6,7 +6,7 @@ import pytest
 from monty.serialization import loadfn
 from pymatgen.io.vasp import Vasprun, Outcar
 from vise.analyzer.plot_diele_func_data import DieleFuncPlotlyPlotter, \
-    DieleFuncMplPlotter, TensorDirection
+    DieleFuncMplPlotter, TensorDirection, DieleFuncPlotType
 
 from vise.analyzer.vasp.make_diele_func import make_diele_func
 from vise.util.dash_helper import show_png
@@ -29,6 +29,15 @@ def test_tensor_direction():
 
     actual = TensorDirection.xy.val(tensors)
     assert actual == [3.0]
+
+
+def test_diele_func_plot_type():
+    actual = DieleFuncPlotType.absorption_coeff.y_axis_label("plotly")
+    expected = "Absorption coefficient (cm<sup>-1</sup>)"
+    assert actual == expected
+    actual = DieleFuncPlotType.absorption_coeff.y_axis_label("matplotlib")
+    expected = "Absorption coefficient (cm$^{-1}$)"
+    assert actual == expected
 
 
 @pytest.fixture

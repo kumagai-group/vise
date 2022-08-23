@@ -31,12 +31,22 @@ class TensorDirection(ExtendedEnum):
 
 
 class DieleFuncPlotType(ExtendedEnum):
-    diele_real = "diele_real"
-    diele_imag = "diele_imag"
-    absorption_coeff = "absorption_coeff"
-    refraction_real = "refraction_real"
-    refraction_imag = "refraction_imag"
-    reflection = "reflection"
+    diele_real = "Dielectric function real part"
+    diele_imag = "Dielectric function imaginary part"
+    absorption_coeff = "Absorption coefficient"
+    refraction_real = "Refraction real part"
+    refraction_imag = "Refraction imaginary part"
+    reflection = "Reflection"
+
+    def y_axis_label(self, plot_engine):
+        if plot_engine == "plotly":
+            sup_before, sup_after = "<sup>", "</sup>"
+        elif plot_engine == "matplotlib":
+            sup_before, sup_after = "$^{", "}$"
+        else:
+            raise ValueError("The plotter engine is not adequate.")
+
+        return f"{self} (cm{sup_before}-1{sup_after})"
 
 
 class DieleFuncPlotter:
@@ -63,14 +73,13 @@ class DieleFuncPlotter:
 
 class DieleFuncPlotlyPlotter(DieleFuncPlotter):
 
-    _yaxis_title = "Absorption coefficient (cm <sup>-1</sup>)"
-
     def create_figure(self,
                       directions=(TensorDirection.average,),
                       materials: List[str] = None):
         fig = go.Figure()
+        y_axis = DieleFuncPlotType.absorption_coeff.y_axis_label("plotly")
         fig.update_layout(xaxis_title=self._xaxis_title,
-                          yaxis_title=self._yaxis_title,
+                          yaxis_title=y_axis,
                           font_size=25, width=800, height=700)
 
         for direction in directions:
@@ -161,7 +170,8 @@ class DieleFuncMplPlotter(DieleFuncPlotter):
 
     def _set_labels(self):
         self.plt.xlabel(self._xaxis_title)
-        self.plt.ylabel(self._yaxis_title)
+        y_axis = DieleFuncPlotType.absorption_coeff.y_axis_label("matplotlib")
+        self.plt.ylabel(y_axis)
 
     def _set_formatter(self):
         axis = self.plt.gca()
