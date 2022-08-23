@@ -3,9 +3,10 @@
 from copy import copy
 
 import pytest
+from monty.serialization import loadfn
 from pymatgen.io.vasp import Vasprun, Outcar
-from vise.analyzer.plot_diele_func_data import AbsorptionCoeffPlotlyPlotter, \
-    AbsorptionCoeffMplPlotter, TensorDirection
+from vise.analyzer.plot_diele_func_data import DieleFuncPlotlyPlotter, \
+    DieleFuncMplPlotter, TensorDirection
 
 from vise.analyzer.vasp.make_diele_func import make_diele_func
 from vise.util.dash_helper import show_png
@@ -39,13 +40,13 @@ def actual_diele_func_data(test_data_files):
 def test_absorption_coeff_plotly_plotter(actual_diele_func_data):
     data = copy(actual_diele_func_data)
     data.band_gap = None
-    plotter = AbsorptionCoeffPlotlyPlotter(data)
+    plotter = DieleFuncPlotlyPlotter(data)
     fig = plotter.create_figure(materials=["GaAs"])
     show_png(fig)
 
 
 def test_absorption_coeff_mpl_plotter(actual_diele_func_data):
-    plotter = AbsorptionCoeffMplPlotter(actual_diele_func_data)
+    plotter = DieleFuncMplPlotter(actual_diele_func_data)
     #                                        align_gap=False)
     plotter.construct_plot(materials=["GaAs", "Si"])
     plotter.plt.show()

@@ -30,7 +30,16 @@ class TensorDirection(ExtendedEnum):
             return [tensor[idx] for tensor in tensors]
 
 
-class AbsorptionCoeffPlotter:
+class DieleFuncPlotType(ExtendedEnum):
+    diele_real = "diele_real"
+    diele_imag = "diele_imag"
+    absorption_coeff = "absorption_coeff"
+    refraction_real = "refraction_real"
+    refraction_imag = "refraction_imag"
+    reflection = "reflection"
+
+
+class DieleFuncPlotter:
 
     def __init__(self,
                  diele_func_data: DieleFuncData,
@@ -52,7 +61,7 @@ class AbsorptionCoeffPlotter:
         self.plt = plt
 
 
-class AbsorptionCoeffPlotlyPlotter(AbsorptionCoeffPlotter):
+class DieleFuncPlotlyPlotter(DieleFuncPlotter):
 
     _yaxis_title = "Absorption coefficient (cm <sup>-1</sup>)"
 
@@ -101,7 +110,7 @@ class AbsorptionCoeffPlotlyPlotter(AbsorptionCoeffPlotter):
         return fig
 
 
-class AbsorptionCoeffMplPlotter(AbsorptionCoeffPlotter):
+class DieleFuncMplPlotter(DieleFuncPlotter):
     _yaxis_title = "Absorption coefficient (cm$^{-1}$)"
 
     def construct_plot(self, directions=(TensorDirection.average,),

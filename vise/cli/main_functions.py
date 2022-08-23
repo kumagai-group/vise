@@ -9,7 +9,7 @@ import yaml
 from pymatgen.core import Structure
 from pymatgen.ext.matproj import MPRester
 from pymatgen.io.vasp import Vasprun, Outcar
-from vise.analyzer.plot_absorption_coeff import AbsorptionCoeffMplPlotter
+from vise.analyzer.plot_diele_func_data import DieleFuncMplPlotter
 from vise.analyzer.plot_band import BandPlotter
 from vise.analyzer.plot_dos import DosPlotter
 from vise.analyzer.vasp.band_edge_properties import VaspBandEdgeProperties
@@ -206,7 +206,7 @@ def plot_absorption(args: Namespace):
                                       use_vasp_real=not args.calc_kk,
                                       ita=args.ita)
     diele_func_data.to_json_file()
-    plotter = AbsorptionCoeffMplPlotter(diele_func_data, yranges=args.y_ranges)
+    plotter = DieleFuncMplPlotter(diele_func_data, yranges=args.y_ranges)
     plotter.construct_plot()
     plotter.plt.savefig(args.filename, format="pdf")
 
