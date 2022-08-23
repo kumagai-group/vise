@@ -85,6 +85,13 @@ class DieleFuncData(MSONable, ToJsonFileMixIn, ToCsvFileMixIn):
                 for reals, imags in
                 zip(self.diele_func_real, self.diele_func_imag)]
 
+    @property
+    def reflectivity(self):
+        return [[((n - 1) ** 2 + k ** 2) / ((n + 1) ** 2 + k ** 2)
+                 for n, k in zip(ns, ks)]
+                for ns, ks in zip(self.refractive_idx_real,
+                                  self.refractive_idx_imag)]
+
 
 def min_e_w_target_coeff(energies, quantities, target_value):
     for e, quantity in zip(energies, quantities):

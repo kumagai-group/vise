@@ -61,6 +61,15 @@ def test_refractive_idx(diele_func_data):
     assert actual == expected
 
 
+def test_reflectivity(diele_func_data):
+    e_real, e_imag = 1, 4  # values at xx
+    n = sqrt(e_real + sqrt(e_real ** 2 + e_imag ** 2)) / sqrt(2)
+    k = sqrt(-e_real + sqrt(e_real ** 2 + e_imag ** 2)) / sqrt(2)
+    expected = ((n - 1)**2 + k**2) / ((n + 1)**2 + k**2)
+    actual = diele_func_data.reflectivity[10][0]
+    assert actual == expected
+
+
 def test_to_csv_file(tmpdir):
     diele = DieleFuncData(energies=[0.0],
                           diele_func_real=[[0.1, 0.2, 0.3, 0.4, 0.5, 0.6]],
