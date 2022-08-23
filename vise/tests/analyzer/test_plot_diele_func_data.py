@@ -32,9 +32,7 @@ def test_tensor_direction():
 
 @pytest.fixture
 def actual_diele_func_data(test_data_files):
-    v = Vasprun(test_data_files / "MgSe_absorption_vasprun.xml")
-    o = Outcar(test_data_files / "MgSe_absorption_OUTCAR")
-    return make_diele_func(v, o)
+    return loadfn(test_data_files / "MgSe_diele_func_data.json")
 
 
 @pytest.mark.skipif(PSUTIL_NOT_PRESENT, reason="psutil does not exist")
