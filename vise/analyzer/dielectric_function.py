@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
-import csv
 from dataclasses import dataclass
 from math import sqrt, pi
 from typing import List, Optional
@@ -10,14 +9,25 @@ import pandas as pd
 from monty.json import MSONable
 from tqdm import tqdm
 from vise.util.mix_in import ToJsonFileMixIn, ToCsvFileMixIn
+from vise.util.logger import get_logger
 from scipy.constants import physical_constants as pc
+
+logger = get_logger(__name__)
 
 eV_to_inv_cm = pc["electron volt-inverse meter relationship"][0] / 100
 
 
-def diele_func_to_coeff(freq, real, imag):
+def diele_func_to_coeff(energy: float, real: float, imag: float) -> float:
     return (2 * sqrt(2) * pi * sqrt(sqrt(real ** 2 + imag ** 2) - real)
-            * freq * eV_to_inv_cm)
+            * energy * eV_to_inv_cm)
+
+
+def refractive_idx_real(e_real: float, e_imag: float) -> float:
+    return sqrt(e_real + sqrt(e_real ** 2 + e_imag ** 2)) / sqrt(2)
+
+
+def refractive_idx_imag(e_real: float, e_imag: float) -> float:
+    return sqrt(-e_real + sqrt(e_real ** 2 + e_imag ** 2)) / sqrt(2)
 
 
 @dataclass
@@ -58,19 +68,31 @@ class DieleFuncData(MSONable, ToJsonFileMixIn, ToCsvFileMixIn):
                    diele_func_real=real, diele_func_imag=imag)
 
     @property
-    def ave_absorption_coeff(self):
-        reals = [sum(self.diele_func_real[i][:3]) / 3
-                 for i in range(len(self.energies))]
-        imags = [sum(self.diele_func_imag[i][:3]) / 3
-                 for i in range(len(self.energies))]
-        return [diele_func_to_coeff(freq, real, imag)
-                for freq, real, imag in zip(self.energies, reals, imags)]
+    def absorption_coeff(self):
+        return [[diele_func_to_coeff(e, r, i) for r, i in zip(reals, imags)]
+                for e, reals, imags in
+                zip(self.energies, self.diele_func_real, self.diele_func_imag)]
 
-    def target_coeff_min_e(self, target_coeff: float = 10**4):
-        for e, coeff in zip(self.energies, self.ave_absorption_coeff):
-            if coeff > target_coeff:
-                return e
-        return None
+    @property
+    def refractive_idx_real(self):
+        return [[refractive_idx_real(r, i) for r, i in zip(reals, imags)]
+                for reals, imags in
+                zip(self.diele_func_real, self.diele_func_imag)]
+
+    @property
+    def refractive_idx_imag(self):
+        return [[refractive_idx_imag(r, i) for r, i in zip(reals, imags)]
+                for reals, imags in
+                zip(self.diele_func_real, self.diele_func_imag)]
+
+
+def min_e_w_target_coeff(energies, quantities, target_value):
+    for e, quantity in zip(energies, quantities):
+        if quantity > target_value:
+            return e
+    logger.warning(
+        f"The target value {target_value} is not reached in the entire range.")
+    return None
 
 
 def make_shifted_diele_func(diele_func_data: DieleFuncData,

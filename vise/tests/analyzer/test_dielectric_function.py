@@ -9,7 +9,7 @@ import pytest
 from monty.serialization import loadfn
 from pymatgen.io.vasp import Vasprun, Outcar
 from vise.analyzer.dielectric_function import DieleFuncData, \
-    eV_to_inv_cm
+    eV_to_inv_cm, min_e_w_target_coeff
 from vise.analyzer.vasp.make_diele_func import make_diele_func
 from vise.tests.helpers.assertion import assert_msonable, \
     assert_dataclass_almost_equal
@@ -42,10 +42,22 @@ def test_json_file_mixin(diele_func_data, tmpdir):
     assert actual.diele_func_real == diele_func_data.diele_func_real
 
 
-def test_ave_absorption_coeff(diele_func_data):
-    actual = diele_func_data.ave_absorption_coeff
-    expected = [2 * sqrt(2) * pi * sqrt(sqrt(2 ** 2 + 5 ** 2) - 2)
-                * i * eV_to_inv_cm for i in range(0, 11)]
+def test_absorption_coeff(diele_func_data):
+    actual = diele_func_data.absorption_coeff[10][0]
+    expected = (2 * sqrt(2) * pi * sqrt(sqrt(1 ** 2 + 4 ** 2) - 1)
+                * 10.0 * eV_to_inv_cm)
+    assert actual == expected
+
+
+def test_refractive_idx(diele_func_data):
+    e_real, e_imag = 1, 4  # values at xx
+
+    actual = diele_func_data.refractive_idx_real[10][0]
+    expected = sqrt(e_real + sqrt(e_real ** 2 + e_imag ** 2)) / sqrt(2)
+    assert actual == expected
+
+    actual = diele_func_data.refractive_idx_imag[10][0]
+    expected = sqrt(-e_real + sqrt(e_real ** 2 + e_imag ** 2)) / sqrt(2)
     assert actual == expected
 
 
@@ -68,18 +80,9 @@ def test_to_csv_file(tmpdir):
     assert_dataclass_almost_equal(actual, expected, digit=3)
 
 
-@pytest.fixture
-def actual_diele_func_data(test_data_files):
-    v = Vasprun(test_data_files / "MgSe_absorption_vasprun.xml")
-    o = Outcar(test_data_files / "MgSe_absorption_OUTCAR")
-    diele_func = make_diele_func(v, o)
-    print(diele_func)
-    return diele_func
-
-
-def test_target_coeff_e_from_band_gap(actual_diele_func_data):
-    actual = actual_diele_func_data.target_coeff_min_e()
-    np.testing.assert_almost_equal(actual, 2.9304)
+def test_target_coeff_e_from_band_gap():
+    actual = min_e_w_target_coeff([0.0, 0.1, 0.2], [1, 2, 3], 1.5)
+    assert actual == 0.1
 
 
 # def test_actual_diele_func_data_with_kk_trans():
