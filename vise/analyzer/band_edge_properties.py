@@ -70,6 +70,7 @@ class BandEdgeProperties:
         self._nelect = nelect
         #  In Bohr magneton.
         self._magnetization = magnetization
+        # [[k1_x, k1_y, k1_z], [k2_x, k2_y, k2_z], ...]
         self._kpoint_coords = kpoint_coords
         self._integer_criterion = integer_criterion
 
@@ -130,7 +131,8 @@ class BandEdgeProperties:
 
     @property
     def band_gap(self):
-        return self.cbm_info.energy - self.vbm_info.energy if self.vbm_info else None
+        return self.cbm_info.energy - self.vbm_info.energy \
+            if self.vbm_info else None
 
     @property
     def min_gap_w_coords(self) -> Tuple[float, List[List[float]]]:
@@ -160,17 +162,16 @@ class BandEdgeProperties:
 
     @property
     def vbm_cbm(self):
-        return [self.vbm_info.energy, self.cbm_info.energy] if self.vbm_info else None
+        if self.vbm_info:
+            return [self.vbm_info.energy, self.cbm_info.energy]
 
     def __repr__(self):
-        if self.vbm_info is None:
-            return "Metal"
-
-        lines = [f"Band gap {self.band_gap:5.3f} eV",
-                 f"VBM {self.vbm_info}",
-                 f"CBM {self.cbm_info}"]
-
-        return "\n".join(lines)
+        if self.vbm_info:
+            lines = [f"Band gap {self.band_gap:5.3f} eV",
+                     f"VBM {self.vbm_info}",
+                     f"CBM {self.cbm_info}"]
+            return "\n".join(lines)
+        return "Metal"
 
 
 def is_band_gap(band_gap: Optional[float],
