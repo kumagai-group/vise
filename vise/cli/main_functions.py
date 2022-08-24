@@ -202,7 +202,7 @@ def plot_dos(args: Namespace):
     plotter.plt.savefig(args.filename, format="pdf")
 
 
-def plot_absorption(args: Namespace):
+def plot_diele_func(args: Namespace):
     if args.input_csv_name:
         diele_func_data = DieleFuncData.from_csv(args.input_csv_name)
     else:
@@ -213,14 +213,17 @@ def plot_absorption(args: Namespace):
     diele_func_data.to_json_file()
     if args.to_csv:
         diele_func_data.to_csv_file()
-    if args.plot_type is DieleFuncPlotType.absorption_coeff:
-        y_ranges = [10 ** args.y_ranges[0], 10 ** args.y_ranges[1]]
+    if args.y_range:
+        if args.plot_type is DieleFuncPlotType.absorption_coeff:
+            y_range = [10 ** args.y_range[0], 10 ** args.y_range[1]]
+        else:
+            y_range = args.y_range
     else:
-        y_ranges = args.y_ranges
+        y_range = None
 
     plotter = DieleFuncMplPlotter(diele_func_data)
     plotter.construct_plot(directions=args.directions,
-                           plot_type=args.plot_type, y_range=y_ranges)
+                           plot_type=args.plot_type, y_range=y_range)
     filename = args.filename or str(args.plot_type) + ".pdf"
     plotter.plt.savefig(filename, format="pdf")
 

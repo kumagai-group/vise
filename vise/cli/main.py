@@ -13,7 +13,7 @@ from vise.analyzer.atom_grouping_type import AtomGroupingType
 from vise.analyzer.plot_diele_func_data import TensorDirection, \
     DieleFuncPlotType
 from vise.cli.main_functions import get_poscar_from_mp, VaspSet, plot_band, \
-    plot_dos, band_edge_properties, plot_absorption, \
+    plot_dos, band_edge_properties, plot_diele_func, \
     calc_effective_mass, structure_info
 from vise.defaults import defaults
 from vise.input_set.task import Task
@@ -232,7 +232,7 @@ def parse_args(args):
         default=[TensorDirection.average],
         help="Directions for the plot: For example,set 'xx' for x-direction.")
     parser_plot_absorption.add_argument(
-        "-y", "--y_ranges", nargs="+", default=None,
+        "-y", "--y_range", nargs="+", default=None,
         type=float,
         help="Requiring two values. For absorption coefficient, exponential "
              "parts of base-10 for energy range in cm-1.")
@@ -252,7 +252,7 @@ def parse_args(args):
         "--to_csv", action="store_true",
         help="Whether to export the dielectric function to CSV file.")
 
-    parser_plot_absorption.set_defaults(func=plot_absorption)
+    parser_plot_absorption.set_defaults(func=plot_diele_func)
 
     # -- effective_mass -------------------------------------------------------
     parser_effective_mass = subparsers.add_parser(
