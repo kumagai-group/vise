@@ -33,12 +33,22 @@ class TensorDirection(ExtendedEnum):
 
 class DieleFuncPlotType(ExtendedEnum):
     diele_func = "diele_func"
-#    diele_func = "Dielectric function"
-    absorption_coeff = "Absorption coefficient"
-    refraction = "Refraction"
-    reflectivity = "Reflectivity"
+    absorption_coeff = "absorption_coeff"
+    refraction = "refraction"
+    reflectivity = "reflectivity"
 
     def y_axis_label(self, plot_engine):
+        if self is self.diele_func:
+            label = "Dielectric function"
+        elif self is self.absorption_coeff:
+            label = "Absorption coefficient"
+        elif self is self.refraction:
+            label = "Refraction"
+        elif self is self.reflectivity:
+            label = "Reflectivity"
+        else:
+            raise ValueError(f"Need to implement label for {self}.")
+
         if self is self.absorption_coeff:
             if plot_engine == "plotly":
                 sup_before, sup_after = "<sup>", "</sup>"
@@ -46,9 +56,9 @@ class DieleFuncPlotType(ExtendedEnum):
                 sup_before, sup_after = "$^{", "}$"
             else:
                 raise ValueError("The plotter engine is not adequate.")
-            return f"{self} (cm{sup_before}-1{sup_after})"
+            return f"{label} (cm{sup_before}-1{sup_after})"
 
-        return str(self)
+        return label
 
     @property
     def y_axis_default_min(self):
