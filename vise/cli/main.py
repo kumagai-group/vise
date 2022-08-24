@@ -227,12 +227,12 @@ def parse_args(args):
     parser_plot_absorption.add_argument(
         "-d", "--directions", nargs="+", type=TensorDirection,
         default=[TensorDirection.average],
-        help="Directions for the plot: For x-direction, set 'xx'.")
+        help="Directions for the plot: For example,set 'xx' for x-direction.")
     parser_plot_absorption.add_argument(
         "-y", "--y_ranges", nargs="+", default=None,
         type=float,
-        help="Exponential parts of base-10 for energy range in cm-1, "
-             "requiring two values.")
+        help="Requiring two values. For absorption coefficient, exponential "
+             "parts of base-10 for energy range in cm-1.")
     parser_plot_absorption.add_argument(
         "-ckk", "--calc_kk", action="store_true",
         help="Set when real part of dielectric function is explicitly "
@@ -244,10 +244,10 @@ def parse_args(args):
         "--plot_type", type=DieleFuncPlotType,
         default=DieleFuncPlotType.absorption_coeff,
         choices=DieleFuncPlotType.name_list(),
-        help="")
+        help="Choose which type of data is drawn.")
     parser_plot_absorption.add_argument(
         "--to_csv", action="store_true",
-        help="")
+        help="Whether to export the dielectric function to CSV file.")
 
     parser_plot_absorption.set_defaults(func=plot_absorption)
 

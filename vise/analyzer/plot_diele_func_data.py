@@ -32,7 +32,8 @@ class TensorDirection(ExtendedEnum):
 
 
 class DieleFuncPlotType(ExtendedEnum):
-    diele_func = "Dielectric function"
+    diele_func = "diele_func"
+#    diele_func = "Dielectric function"
     absorption_coeff = "Absorption coefficient"
     refraction = "Refraction"
     reflectivity = "Reflectivity"
