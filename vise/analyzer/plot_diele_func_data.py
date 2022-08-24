@@ -172,6 +172,7 @@ class DieleFuncMplPlotter(DieleFuncPlotter):
                  energy_range: List[float] = None):
         super().__init__(diele_func_data, energy_range)
         self.plt = plt
+        self.plt.clf()
 
     def construct_plot(self,
                        directions=(TensorDirection.average,),
