@@ -7,7 +7,11 @@ from typing import Dict, Optional, List
 
 import numpy as np
 from monty.json import MSONable
+from vise.util.logger import get_logger
 from vise.util.mix_in import ToJsonFileMixIn
+
+
+logger = get_logger(__name__)
 
 
 @dataclass
@@ -42,6 +46,8 @@ class PDos(MSONable):
         if "px" in d:
             return super().from_dict(d)
 
+        logger.warning("Because the PDOS are not decomposed to each orbital,"
+                       "e.g., px, py, pz, they are equally divided.")
         x = dict(s=d["s"], px=d["p"] / 3, py=d["p"] / 3, pz=d["p"] / 3,
                  dxy=d["d"] / 5, dyz=d["d"] / 5, dxz=d["d"] / 5, dx2=d["d"] / 5,
                  dz2=d["d"] / 5)
@@ -153,7 +159,7 @@ class DosData(MSONable):
 
 @dataclass
 class DosBySpinEnergy(MSONable):
-    name: str
+    name: str  # e.g., "s"
     dos: List[List[float]]  # [by spin][by energy]
 
     def max_dos(self, mask: List[bool] = None):
@@ -165,10 +171,10 @@ class DosBySpinEnergy(MSONable):
 class DosPlotData(MSONable, ToJsonFileMixIn):
     relative_energies: List[float]
     doses: List[List[DosBySpinEnergy]]  # [by ax][by orbital, i.e., s, p, d, f]
-    names: List[str]
-    energy_range: List[float]
-    dos_ranges: List[List[float]]
-    energy_lines: List[float]
+    names: List[str]  # For each ax, e.g., ["total", "H"]
+    energy_range: List[float]  # e.g., [-5.0, 6.0]
+    dos_ranges: List[List[float]]  # e.g., [[0.0, 6.0], [-1.0, 5.0], ...]
+    energy_lines: List[float]  # e.g., VBM and CBM or Fermi level
 
     @classmethod
     def from_dict(cls, d):
@@ -176,6 +182,7 @@ class DosPlotData(MSONable, ToJsonFileMixIn):
             if k[0] == "@":
                 d.pop(k)
 
+        # For backward compatibility
         if "xlim" in d:
             d["energy_range"] = d.pop("xlim")
         if "ylim_set" in d:
