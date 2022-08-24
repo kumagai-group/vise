@@ -5,6 +5,7 @@ from argparse import Namespace
 from pathlib import Path
 
 from vise.analyzer.atom_grouping_type import AtomGroupingType
+from vise.analyzer.plot_diele_func_data import TensorDirection
 from vise.cli.main import parse_args
 from vise.defaults import defaults
 from vise.input_set.task import Task
@@ -210,6 +211,7 @@ def test_plot_absorption_wo_options():
         vasprun=defaults.vasprun,
         outcar=defaults.outcar,
         filename="absorption.pdf",
+        directions=[TensorDirection.average],
         y_ranges=[10**3, 10**8],
         calc_kk=False,
         ita=0.01,
@@ -222,6 +224,7 @@ def test_plot_absorption_w_options():
                               "--vasprun", "vasprun_1",
                               "--outcar", "OUTCAR_1",
                               "-f", "a",
+                              "-d", "average", "xx",
                               "-y", "-5.0", "5.0",
                               "-ckk",
                               "-i", "0.1"])
@@ -229,6 +232,7 @@ def test_plot_absorption_w_options():
         vasprun=Path("vasprun_1"),
         outcar=Path("OUTCAR_1"),
         filename="a",
+        directions=[TensorDirection.average, TensorDirection.xx],
         y_ranges=[10**-5.0, 10**5.0],
         calc_kk=True,
         ita=0.1,

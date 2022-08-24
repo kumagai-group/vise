@@ -10,6 +10,7 @@ from pathlib import Path
 from pymatgen.io.vasp.inputs import UnknownPotcarWarning
 from vise import __version__
 from vise.analyzer.atom_grouping_type import AtomGroupingType
+from vise.analyzer.plot_diele_func_data import TensorDirection
 from vise.cli.main_functions import get_poscar_from_mp, VaspSet, plot_band, \
     plot_dos, band_edge_properties, plot_absorption, \
     calc_effective_mass, structure_info
@@ -221,6 +222,10 @@ def parse_args(args):
     parser_plot_absorption.add_argument(
         "-f", "--filename", type=str, default="absorption.pdf",
         help="Pdf file name.")
+    parser_plot_absorption.add_argument(
+        "-d", "--directions", nargs="+", type=TensorDirection,
+        default=[TensorDirection.average],
+        help="Directions for the plot: For x-direction, set 'xx'.")
     parser_plot_absorption.add_argument(
         "-y", "--y_ranges", nargs="+", default=[10**3, 10**8],
         type=lambda x: 10 ** float(x),
