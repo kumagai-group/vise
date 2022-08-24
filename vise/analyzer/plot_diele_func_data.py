@@ -156,7 +156,6 @@ class DieleFuncPlotlyPlotter(DieleFuncPlotter):
             x=self.energies, y=tensor, line=dict(width=2.5), name=name))
 
 
-
 class DieleFuncMplPlotter(DieleFuncPlotter):
     def __init__(self, diele_func_data: DieleFuncData,
                  energy_range: List[float] = None):
@@ -169,7 +168,7 @@ class DieleFuncMplPlotter(DieleFuncPlotter):
                        y_range=None):
         self._add_coeffs(directions, plot_type, y_range)
         self._add_band_gap()
-        # self._set_figure_legend()
+        self._set_figure_legend()
         self._set_x_range()
         self._set_labels()
         self._set_formatter()
