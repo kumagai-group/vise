@@ -206,6 +206,8 @@ def plot_absorption(args: Namespace):
                                       use_vasp_real=not args.calc_kk,
                                       ita=args.ita)
     diele_func_data.to_json_file()
+    if args.to_csv:
+        diele_func_data.to_csv_file()
     plotter = DieleFuncMplPlotter(diele_func_data)
     plotter.construct_plot(y_range=args.y_ranges, directions=args.directions)
     plotter.plt.savefig(args.filename, format="pdf")
