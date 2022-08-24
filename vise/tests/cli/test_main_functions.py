@@ -9,7 +9,8 @@ import pytest
 from pymatgen.core import Structure, Element
 from vise.analyzer.atom_grouping_type import AtomGroupingType
 from vise.analyzer.dielectric_function import DieleFuncData
-from vise.analyzer.plot_diele_func_data import TensorDirection
+from vise.analyzer.plot_diele_func_data import TensorDirection, \
+    DieleFuncPlotType
 from vise.cli.main_functions import get_poscar_from_mp, VaspSet, plot_band, \
     plot_dos, band_edge_properties, plot_absorption, \
     structure_info
@@ -195,11 +196,12 @@ def test_absorption_coeff(tmpdir, test_data_files):
     tmpdir.chdir()
     args = Namespace(vasprun=test_data_files / "MgSe_absorption_vasprun.xml",
                      outcar=test_data_files / "MgSe_absorption_OUTCAR",
-                     y_ranges=[10**2, 10**8],
+                     y_ranges=[2.0, 8.0],
                      calc_kk=False,
                      ita=0.1,
                      filename="test.pdf",
                      directions=[TensorDirection.average, TensorDirection.xx],
+                     plot_type=DieleFuncPlotType.absorption_coeff,
                      to_csv=True)
     plot_absorption(args)
     data_from_csv = DieleFuncData.from_csv("diele_func_data.csv")
