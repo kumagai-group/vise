@@ -110,11 +110,11 @@ class DieleFuncPlotter:
                     name = direction.name
                 else:
                     name = f"{b}_{direction.name}"
-                self.add_single_plot(name, tensor)
+                self.add_single_plot(name, tensor, plot_type)
         return values
 
     @abstractmethod
-    def add_single_plot(self, name, tensor):
+    def add_single_plot(self, name, tensor, plot_type):
         pass
 
 
@@ -162,7 +162,7 @@ class DieleFuncPlotlyPlotter(DieleFuncPlotter):
                                       line=dict(width=2, dash="dash"),
                                       line_color="black", name="Band gap"))
 
-    def add_single_plot(self, name, tensor):
+    def add_single_plot(self, name, tensor, plot_type):
         self.fig.add_trace(go.Scatter(
             x=self.energies, y=tensor, line=dict(width=2.5), name=name))
 
@@ -190,15 +190,18 @@ class DieleFuncMplPlotter(DieleFuncPlotter):
         y_min, y_max = y_range or auto_y_range(plot_type, all_plotted_values)
         self.plt.gca().set_ylim(ymin=y_min, ymax=y_max)
 
-    def add_single_plot(self, name, tensor):
-        self.plt.semilogy(self.energies, tensor, label=name)
+    def add_single_plot(self, name, tensor, plot_type):
+        if plot_type is DieleFuncPlotType.absorption_coeff:
+            self.plt.semilogy(self.energies, tensor, label=name)
+        else:
+            self.plt.plot(self.energies, tensor, label=name)
 
     def _add_band_gap(self):
         self.plt.axvline(x=self.band_gap, linestyle="dashed", color="black",
                          linewidth=1)
 
     def _set_figure_legend(self):
-        self.plt.legend(loc="lower right")
+        self.plt.legend()
 
     def _set_x_range(self):
         self.plt.xlim(self.energy_range[0], self.energy_range[1])

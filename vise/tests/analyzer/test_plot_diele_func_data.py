@@ -85,3 +85,9 @@ def test_absorption_coeff_mpl_plotter(actual_diele_func_data):
     plotter = DieleFuncMplPlotter(actual_diele_func_data)
     plotter.construct_plot()
     plotter.plt.show()
+
+
+def test_refraction_mpl_plotter(actual_diele_func_data):
+    plotter = DieleFuncMplPlotter(actual_diele_func_data)
+    plotter.construct_plot(plot_type=DieleFuncPlotType.refraction)
+    plotter.plt.show()
