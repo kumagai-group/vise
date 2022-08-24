@@ -10,7 +10,8 @@ from pathlib import Path
 from pymatgen.io.vasp.inputs import UnknownPotcarWarning
 from vise import __version__
 from vise.analyzer.atom_grouping_type import AtomGroupingType
-from vise.analyzer.plot_diele_func_data import TensorDirection
+from vise.analyzer.plot_diele_func_data import TensorDirection, \
+    DieleFuncPlotType
 from vise.cli.main_functions import get_poscar_from_mp, VaspSet, plot_band, \
     plot_dos, band_edge_properties, plot_absorption, \
     calc_effective_mass, structure_info
@@ -211,13 +212,14 @@ def parse_args(args):
         help="Set when showing the figure in the absolute energies scale.")
     parser_plot_dos.set_defaults(func=plot_dos)
 
-    # -- plot_absorption -------------------------------------------------------
+    # -- plot_diele_func -------------------------------------------------------
     parser_plot_absorption = subparsers.add_parser(
-        name="plot_absorption",
-        description="Plots optical absorption coefficient.",
+        name="plot_diele_func",
+        description="Plots dielectric function and its related quantities such "
+                    "as optical absorption coefficient.",
         parents=[vasprun_parser, outcar_parser],
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-        aliases=['pa'])
+        aliases=['pdf'])
 
     parser_plot_absorption.add_argument(
         "-f", "--filename", type=str, default="absorption.pdf",
@@ -227,8 +229,8 @@ def parse_args(args):
         default=[TensorDirection.average],
         help="Directions for the plot: For x-direction, set 'xx'.")
     parser_plot_absorption.add_argument(
-        "-y", "--y_ranges", nargs="+", default=[10**3, 10**8],
-        type=lambda x: 10 ** float(x),
+        "-y", "--y_ranges", nargs="+", default=None,
+        type=float,
         help="Exponential parts of base-10 for energy range in cm-1, "
              "requiring two values.")
     parser_plot_absorption.add_argument(
@@ -238,6 +240,14 @@ def parse_args(args):
     parser_plot_absorption.add_argument(
         "-i", "--ita", type=float, default=0.01,
         help="Complex shift η in the Kramers-Kronig transformation.")
+    parser_plot_absorption.add_argument(
+        "--plot_type", type=DieleFuncPlotType,
+        default=DieleFuncPlotType.absorption_coeff,
+        choices=DieleFuncPlotType.name_list(),
+        help="")
+    parser_plot_absorption.add_argument(
+        "--to_csv", action="store_true",
+        help="")
 
     parser_plot_absorption.set_defaults(func=plot_absorption)
 
