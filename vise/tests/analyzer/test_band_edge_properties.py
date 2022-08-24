@@ -140,7 +140,9 @@ def test_magnetic_insulator(magnetic_band_edge):
 
 
 def test_min_gap(magnetic_band_edge):
-    assert magnetic_band_edge.min_gap == 1.4
+    actual = magnetic_band_edge.min_gap_w_coords
+    expected = 1.4, [[10.4, 10.5, 10.6], [10.1, 10.2, 10.3]]
+    assert actual == expected
 
 
 def test_is_metal():

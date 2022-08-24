@@ -2,7 +2,7 @@
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 from copy import deepcopy
 from dataclasses import dataclass
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Tuple
 
 import numpy as np
 from monty.json import MSONable
@@ -133,9 +133,18 @@ class BandEdgeProperties:
         return self.cbm_info.energy - self.vbm_info.energy if self.vbm_info else None
 
     @property
-    def min_gap(self):
-        result = float("inf")
-        kpoint_idx = []
+    def min_gap_w_coords(self) -> Tuple[float, List[List[float]]]:
+        """The direct-type minimum gap and its positions in the reciprocal space
+
+        Note that the minimum positions can be multiple.
+
+        Returns:
+            min_gap (float): Minimum gap.
+            kpoint_coords (List[List[float]]):
+               positions in the reciprocal space in frac coords.
+        """
+        min_gap = float("inf")
+        kpoint_indices = []
         for spin, eigenvalues in self._eigenvalues.items():
             lu_band_index = self._ho_band_index(spin) + 1
 
@@ -143,10 +152,11 @@ class BandEdgeProperties:
             lu_eigs = eigenvalues[:, lu_band_index]
             diff = lu_eigs - ho_eigs
             _kpt = argmin(diff)
-            if diff[_kpt] < result + 1e-5:
-                result = diff[_kpt]
-                kpoint_idx.append(_kpt)
-        return result, kpoint_idx
+            if diff[_kpt] < min_gap + 1e-5:
+                min_gap = diff[_kpt]
+                kpoint_indices.append(_kpt)
+        kpoint_coords = [self._kpoint_coords[i] for i in kpoint_indices]
+        return min_gap, kpoint_coords
 
     @property
     def vbm_cbm(self):
