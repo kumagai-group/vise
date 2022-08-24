@@ -127,7 +127,7 @@ class DieleFuncPlotlyPlotter(DieleFuncPlotter):
             self._add_band_gap_line(y_max, y_min)
         self._update_xaxes()
         self._update_yaxes(plot_type, y_max, y_min)
-        return self.fig
+
     def _adjust_layout(self, plot_type):
         y_axis = plot_type.y_axis_label("plotly")
         self.fig.update_layout(xaxis_title=self._x_axis_title,
