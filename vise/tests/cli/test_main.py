@@ -211,7 +211,8 @@ def test_plot_absorption_wo_options():
     expected = Namespace(
         vasprun=defaults.vasprun,
         outcar=defaults.outcar,
-        filename="absorption.pdf",
+        input_csv_name=None,
+        filename=None,
         directions=[TensorDirection.average],
         y_ranges=None,
         calc_kk=False,
@@ -226,6 +227,7 @@ def test_plot_absorption_w_options():
     parsed_args = parse_args(["pdf",
                               "--vasprun", "vasprun_1",
                               "--outcar", "OUTCAR_1",
+                              "--input_csv_name", "diele_func.csv",
                               "-f", "a",
                               "-d", "average", "xx",
                               "-y", "-5", "5",
@@ -236,6 +238,7 @@ def test_plot_absorption_w_options():
     expected = Namespace(
         vasprun=Path("vasprun_1"),
         outcar=Path("OUTCAR_1"),
+        input_csv_name="diele_func.csv",
         filename="a",
         directions=[TensorDirection.average, TensorDirection.xx],
         y_ranges=[-5.0, 5.0],

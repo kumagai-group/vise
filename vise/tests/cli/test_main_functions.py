@@ -159,7 +159,6 @@ def test_user_incar_settings(mocker,
 
 
 
-
 def test_plot_band(tmpdir, test_data_files):
     tmpdir.chdir()
     args = Namespace(vasprun=test_data_files / "KO2_band_vasprun.xml",
@@ -196,12 +195,24 @@ def test_absorption_coeff(tmpdir, test_data_files):
     tmpdir.chdir()
     args = Namespace(vasprun=test_data_files / "MgSe_absorption_vasprun.xml",
                      outcar=test_data_files / "MgSe_absorption_OUTCAR",
+                     input_csv_name=None,
                      y_ranges=[2.0, 8.0],
                      calc_kk=False,
                      ita=0.1,
-                     filename="test.pdf",
-                     directions=[TensorDirection.average, TensorDirection.xx],
+                     filename=None,
+                     directions=[TensorDirection.average],
                      plot_type=DieleFuncPlotType.absorption_coeff,
                      to_csv=True)
     plot_absorption(args)
-    data_from_csv = DieleFuncData.from_csv("diele_func_data.csv")
+
+    args = Namespace(vasprun=test_data_files / "MgSe_absorption_vasprun.xml",
+                     outcar=test_data_files / "MgSe_absorption_OUTCAR",
+                     input_csv_name="diele_func_data.csv",
+                     y_ranges=None,
+                     calc_kk=False,
+                     ita=0.1,
+                     filename=None,
+                     directions=[TensorDirection.xx],
+                     plot_type=DieleFuncPlotType.refraction,
+                     to_csv=False)
+    plot_absorption(args)

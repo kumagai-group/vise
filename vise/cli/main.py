@@ -222,8 +222,11 @@ def parse_args(args):
         aliases=['pdf'])
 
     parser_plot_absorption.add_argument(
-        "-f", "--filename", type=str, default="absorption.pdf",
-        help="Pdf file name.")
+        "-f", "--filename", type=str, default=None,
+        help="Output PDF file name.")
+    parser_plot_absorption.add_argument(
+        "--input_csv_name", type=str, default=None,
+        help="Input CSV file name for dielectric function.")
     parser_plot_absorption.add_argument(
         "-d", "--directions", nargs="+", type=TensorDirection,
         default=[TensorDirection.average],

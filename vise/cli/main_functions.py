@@ -9,6 +9,7 @@ import yaml
 from pymatgen.core import Structure
 from pymatgen.ext.matproj import MPRester
 from pymatgen.io.vasp import Vasprun, Outcar
+from vise.analyzer.dielectric_function import DieleFuncData
 from vise.analyzer.plot_diele_func_data import DieleFuncMplPlotter, \
     DieleFuncPlotType
 from vise.analyzer.plot_band import BandPlotter
@@ -202,10 +203,13 @@ def plot_dos(args: Namespace):
 
 
 def plot_absorption(args: Namespace):
-    diele_func_data = make_diele_func(Vasprun(args.vasprun),
-                                      Outcar(args.outcar),
-                                      use_vasp_real=not args.calc_kk,
-                                      ita=args.ita)
+    if args.input_csv_name:
+        diele_func_data = DieleFuncData.from_csv(args.input_csv_name)
+    else:
+        diele_func_data = make_diele_func(Vasprun(args.vasprun),
+                                          Outcar(args.outcar),
+                                          use_vasp_real=not args.calc_kk,
+                                          ita=args.ita)
     diele_func_data.to_json_file()
     if args.to_csv:
         diele_func_data.to_csv_file()
@@ -215,8 +219,10 @@ def plot_absorption(args: Namespace):
         y_ranges = args.y_ranges
 
     plotter = DieleFuncMplPlotter(diele_func_data)
-    plotter.construct_plot(y_range=y_ranges, directions=args.directions)
-    plotter.plt.savefig(args.filename, format="pdf")
+    plotter.construct_plot(directions=args.directions,
+                           plot_type=args.plot_type, y_range=y_ranges)
+    filename = args.filename or str(args.plot_type) + ".pdf"
+    plotter.plt.savefig(filename, format="pdf")
 
 
 def calc_effective_mass(args: Namespace):
