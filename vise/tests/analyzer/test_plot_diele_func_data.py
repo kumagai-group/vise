@@ -50,12 +50,39 @@ def test_absorption_coeff_plotly_plotter(actual_diele_func_data):
     data = copy(actual_diele_func_data)
     data.band_gap = None
     plotter = DieleFuncPlotlyPlotter(data)
-    fig = plotter.create_figure(materials=["GaAs"])
+    fig = plotter.create_figure()
+    show_png(fig)
+
+
+@pytest.mark.skipif(PSUTIL_NOT_PRESENT, reason="psutil does not exist")
+def test_diele_func_plotly_plotter(actual_diele_func_data):
+    plotter = DieleFuncPlotlyPlotter(actual_diele_func_data)
+    fig = plotter.create_figure(
+        directions=[TensorDirection.xx, TensorDirection.zz],
+        plot_type=DieleFuncPlotType.diele_func)
+    show_png(fig)
+
+
+@pytest.mark.skipif(PSUTIL_NOT_PRESENT, reason="psutil does not exist")
+def test_refraction_plotly_plotter(actual_diele_func_data):
+    plotter = DieleFuncPlotlyPlotter(actual_diele_func_data)
+    fig = plotter.create_figure(
+        directions=[TensorDirection.yy],
+        plot_type=DieleFuncPlotType.refraction)
+    show_png(fig)
+
+
+@pytest.mark.skipif(PSUTIL_NOT_PRESENT, reason="psutil does not exist")
+def test_reflectivity_plotly_plotter(actual_diele_func_data):
+    plotter = DieleFuncPlotlyPlotter(actual_diele_func_data)
+    fig = plotter.create_figure(
+        directions=[TensorDirection.yy],
+        plot_type=DieleFuncPlotType.reflectivity)
     show_png(fig)
 
 
 def test_absorption_coeff_mpl_plotter(actual_diele_func_data):
     plotter = DieleFuncMplPlotter(actual_diele_func_data)
     #                                        align_gap=False)
-    plotter.construct_plot(materials=["GaAs", "Si"])
+    plotter.construct_plot()
     plotter.plt.show()
