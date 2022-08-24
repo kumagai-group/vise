@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
+from abc import abstractmethod
 from math import log10
 from typing import List
 
@@ -86,18 +87,7 @@ class DieleFuncPlotter:
         self.energy_range = energy_range or [0, 10]
         self._x_axis_title = "Energy (eV)"
 
-class DieleFuncPlotlyPlotter(DieleFuncPlotter):
-
-    def create_figure(self,
-                      directions=(TensorDirection.average,),
-                      plot_type=DieleFuncPlotType.absorption_coeff,
-                      y_range: List[float] = None):
-        fig = go.Figure()
-        y_axis = plot_type.y_axis_label("plotly")
-        fig.update_layout(xaxis_title=self._x_axis_title,
-                          yaxis_title=y_axis,
-                          font_size=25, width=800, height=700)
-
+    def add_plot(self, directions, plot_type):
         _idx = np.where(np.array(self.energies) > self.energy_range[1])[0][0]
         values = []
         a = plot_type.tensors(self.diele_func_data)
@@ -109,38 +99,74 @@ class DieleFuncPlotlyPlotter(DieleFuncPlotter):
                     name = direction.name
                 else:
                     name = f"{b}_{direction.name}"
-                fig.add_trace(go.Scatter(x=self.energies,
-                                         y=tensor,
-                                         line=dict(width=2.5),
-                                         name=name))
+                self.add_single_plot(name, tensor)
+        return values
 
-        y_min, y_max = y_range or auto_y_range(plot_type, values)
+    @abstractmethod
+    def add_single_plot(self, name, tensor):
+        pass
 
+
+class DieleFuncPlotlyPlotter(DieleFuncPlotter):
+
+    def __init__(self, diele_func_data: DieleFuncData,
+                 energy_range: List[float] = None):
+        super().__init__(diele_func_data, energy_range)
+        self.fig = go.Figure()
+
+    def create_figure(self,
+                      directions=(TensorDirection.average,),
+                      plot_type=DieleFuncPlotType.absorption_coeff,
+                      y_range: List[float] = None):
+        self._adjust_layout(plot_type)
+
+        all_plotted_values = self.add_plot(directions, plot_type)
+        y_min, y_max = y_range or auto_y_range(plot_type, all_plotted_values)
+
+        if self.band_gap:
+            self._add_band_gap_line(y_max, y_min)
+        self._update_xaxes()
+        self._update_yaxes(plot_type, y_max, y_min)
+        return self.fig
+    def _adjust_layout(self, plot_type):
+        y_axis = plot_type.y_axis_label("plotly")
+        self.fig.update_layout(xaxis_title=self._x_axis_title,
+                               yaxis_title=y_axis, font_size=25,
+                               width=800, height=700)
+
+    def _update_xaxes(self):
+        self.fig.update_xaxes(range=self.energy_range, tickfont_size=20)
+
+    def _update_yaxes(self, plot_type, y_max, y_min):
         if plot_type is DieleFuncPlotType.absorption_coeff:
             kwargs = {"type": "log", "range": [log10(y_min), log10(y_max)]}
         else:
             kwargs = {"range": [y_min, y_max]}
+        self.fig.update_yaxes(tickfont_size=20, showexponent="all",
+                              exponentformat='power', **kwargs)
 
-        if self.band_gap:
-            fig.add_trace(go.Scatter(x=[self.band_gap, self.band_gap],
-                                     y=[y_min, y_max],
-                                     line=dict(width=2, dash="dash"),
-                                     line_color="black",
-                                     name="Band gap"))
+    def _add_band_gap_line(self, y_max, y_min):
+        self.fig.add_trace(go.Scatter(x=[self.band_gap, self.band_gap],
+                                      y=[y_min, y_max],
+                                      line=dict(width=2, dash="dash"),
+                                      line_color="black", name="Band gap"))
 
-        fig.update_xaxes(range=self.energy_range, tickfont_size=20)
-        fig.update_yaxes(tickfont_size=20,
-                         showexponent="all", exponentformat='power',
-                         **kwargs)
-        return fig
+    def add_single_plot(self, name, tensor):
+        self.fig.add_trace(go.Scatter(
+            x=self.energies, y=tensor, line=dict(width=2.5), name=name))
+
 
 
 class DieleFuncMplPlotter(DieleFuncPlotter):
+    def __init__(self, diele_func_data: DieleFuncData,
+                 energy_range: List[float] = None):
+        super().__init__(diele_func_data, energy_range)
+        self.plt = plt
+
     def construct_plot(self,
                        directions=(TensorDirection.average,),
                        plot_type=DieleFuncPlotType.absorption_coeff,
                        y_range=None):
-        self.plt = plt
         self._add_coeffs(directions, plot_type, y_range)
         self._add_band_gap()
         # self._set_figure_legend()
@@ -150,21 +176,12 @@ class DieleFuncMplPlotter(DieleFuncPlotter):
         self.plt.tight_layout()
 
     def _add_coeffs(self, directions, plot_type, y_range):
-        _idx = np.where(np.array(self.energies) > self.energy_range[1])[0][0]
-        values = []
-        a = plot_type.tensors(self.diele_func_data)
-        for b, tensors in zip(["real", "imag"], a):
-            for direction in directions:
-                tensor = direction.val(tensors)
-                values.extend(tensor[:_idx])
-                if len(a) == 1:
-                    name = direction.name
-                else:
-                    name = f"{b}_{direction.name}"
-                self.plt.semilogy(self.energies, tensor, label=name)
-
-        y_min, y_max = y_range or auto_y_range(plot_type, values)
+        all_plotted_values = self.add_plot(directions, plot_type)
+        y_min, y_max = y_range or auto_y_range(plot_type, all_plotted_values)
         self.plt.gca().set_ylim(ymin=y_min, ymax=y_max)
+
+    def add_single_plot(self, name, tensor):
+        self.plt.semilogy(self.energies, tensor, label=name)
 
     def _add_band_gap(self):
         self.plt.axvline(x=self.band_gap, linestyle="dashed", color="black",
