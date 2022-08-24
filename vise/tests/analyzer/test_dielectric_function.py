@@ -71,22 +71,23 @@ def test_reflectivity(diele_func_data):
 
 
 def test_to_csv_file(tmpdir):
-    diele = DieleFuncData(energies=[0.0],
-                          diele_func_real=[[0.1, 0.2, 0.3, 0.4, 0.5, 0.6]],
-                          diele_func_imag=[[1.1, 1.2, 1.3, 1.4, 1.5, 1.6]],
+    diele = DieleFuncData(energies=[0.0, 3.0],
+                          diele_func_real=[[0.1, 0.2, 0.3, 0.4, 0.5, 0.6],
+                                           [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]],
+                          diele_func_imag=[[1.1, 1.2, 1.3, 1.4, 1.5, 1.6],
+                                           [1.1, 1.2, 1.3, 1.4, 1.5, 1.6]],
                           band_gap=1.0)
     tmpdir.chdir()
     diele.to_csv_file()
     actual = Path("diele_func_data.csv").read_text()
-    expected = """energies(eV),real_xx,real_yy,real_zz,real_xy,real_yz,real_xz,imag_xx,imag_yy,imag_zz,imag_xy,imag_yz,imag_xz
-0.0,0.1,0.2,0.3,0.4,0.5,0.6,1.1,1.2,1.3,1.4,1.5,1.6
+    expected = """energies(eV),real_xx,real_yy,real_zz,real_xy,real_yz,real_xz,imag_xx,imag_yy,imag_zz,imag_xy,imag_yz,imag_xz,band_gap
+0.0,0.1,0.2,0.3,0.4,0.5,0.6,1.1,1.2,1.3,1.4,1.5,1.6,1.0
+3.0,0.1,0.2,0.3,0.4,0.5,0.6,1.1,1.2,1.3,1.4,1.5,1.6
 """
     assert actual == expected
 
     actual = DieleFuncData.from_csv("diele_func_data.csv")
-    expected = copy(diele)
-    expected.band_gap = None
-    assert_dataclass_almost_equal(actual, expected, digit=3)
+    assert_dataclass_almost_equal(actual, diele, digit=3)
 
 
 def test_target_coeff_e_from_band_gap():

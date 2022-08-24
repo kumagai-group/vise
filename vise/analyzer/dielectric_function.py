@@ -50,6 +50,7 @@ class DieleFuncData(MSONable, ToJsonFileMixIn, ToCsvFileMixIn):
         result = ["energies(eV)"]
         result.extend(self.real_columns())
         result.extend(self.imag_columns())
+        result.append("band_gap")
         return result
 
     @property
@@ -57,6 +58,7 @@ class DieleFuncData(MSONable, ToJsonFileMixIn, ToCsvFileMixIn):
         result = []
         for i, j, k in zip(self.energies, self.diele_func_real, self.diele_func_imag):
             result.append([i] + j + k)
+        result[0].append(self.band_gap)
         return result
 
     @classmethod
@@ -64,8 +66,10 @@ class DieleFuncData(MSONable, ToJsonFileMixIn, ToCsvFileMixIn):
         df = pd.read_csv(filename)
         real = df.loc[:, cls.real_columns()].values
         imag = df.loc[:, cls.imag_columns()].values
+        band_gap = df.loc[0, "band_gap"]
         return cls(energies=df["energies(eV)"].tolist(),
-                   diele_func_real=real, diele_func_imag=imag)
+                   diele_func_real=real, diele_func_imag=imag,
+                   band_gap=band_gap)
 
     @property
     def absorption_coeff(self):
