@@ -4,8 +4,9 @@ import csv
 import re
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Optional, Dict, List, Any
+from typing import Optional, Dict, List, Any, Tuple
 
+import pandas as pd
 import yaml
 from monty.serialization import loadfn
 
@@ -39,20 +40,27 @@ class ToCsvFileMixIn(ToFileMixIn, ABC):
     def to_csv_file(self,
                     filename: Optional[str] = None,
                     ) -> None:
-        filename = Path(filename or self._csv_filename)
-        with open(filename, 'w', newline='') as file:
-            writer = csv.writer(file)
-            writer.writerow(self.csv_column_names)
-            writer.writerows(self.csv_data)
+        self.to_dataframe.to_csv(filename or self._csv_filename, index=False)
+
+        # filename = Path(filename or self._csv_filename)
+        # with open(filename, 'w', newline='') as file:
+        #     writer = csv.writer(file)
+        #     names, data = self.csv_data
+        #     writer.writerow(names)
+        #     writer.writerows(data)
+
+    @classmethod
+    def from_csv_file(cls, filename):
+        return cls.from_dataframe(pd.read_csv(filename))
 
     @property
     @abstractmethod
-    def csv_column_names(self) -> List[Any]:
+    def to_dataframe(self) -> pd.DataFrame:
         pass
 
-    @property
+    @classmethod
     @abstractmethod
-    def csv_data(self) -> List[List[Any]]:
+    def from_dataframe(cls, df):
         pass
 
     @property

@@ -82,11 +82,11 @@ def test_to_csv_file(tmpdir):
     actual = Path("diele_func_data.csv").read_text()
     expected = """energies(eV),real_xx,real_yy,real_zz,real_xy,real_yz,real_xz,imag_xx,imag_yy,imag_zz,imag_xy,imag_yz,imag_xz,band_gap
 0.0,0.1,0.2,0.3,0.4,0.5,0.6,1.1,1.2,1.3,1.4,1.5,1.6,1.0
-3.0,0.1,0.2,0.3,0.4,0.5,0.6,1.1,1.2,1.3,1.4,1.5,1.6
+3.0,0.1,0.2,0.3,0.4,0.5,0.6,1.1,1.2,1.3,1.4,1.5,1.6,
 """
     assert actual == expected
 
-    actual = DieleFuncData.from_csv("diele_func_data.csv")
+    actual = DieleFuncData.from_csv_file("diele_func_data.csv")
     assert_dataclass_almost_equal(actual, diele, digit=3)
 
 

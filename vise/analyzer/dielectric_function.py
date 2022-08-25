@@ -46,24 +46,20 @@ class DieleFuncData(MSONable, ToJsonFileMixIn, ToCsvFileMixIn):
         return [f"imag_{d}" for d in ["xx", "yy", "zz", "xy", "yz", "xz"]]
 
     @property
-    def csv_column_names(self):
-        result = ["energies(eV)"]
-        result.extend(self.real_columns())
-        result.extend(self.imag_columns())
-        result.append("band_gap")
-        return result
+    def to_dataframe(self) -> pd.DataFrame:
+        names = ["energies(eV)"]
+        names.extend(self.real_columns())
+        names.extend(self.imag_columns())
+        names.append("band_gap")
 
-    @property
-    def csv_data(self):
-        result = []
+        data = []
         for i, j, k in zip(self.energies, self.diele_func_real, self.diele_func_imag):
-            result.append([i] + j + k)
-        result[0].append(self.band_gap)
-        return result
+            data.append([i] + j + k)
+        data[0].append(self.band_gap)
+        return pd.DataFrame(data, columns=names)
 
     @classmethod
-    def from_csv(cls, filename: str):
-        df = pd.read_csv(filename)
+    def from_dataframe(cls, df):
         real = df.loc[:, cls.real_columns()].values
         imag = df.loc[:, cls.imag_columns()].values
         band_gap = df.loc[0, "band_gap"]

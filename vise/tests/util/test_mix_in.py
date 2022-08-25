@@ -3,6 +3,7 @@
 from dataclasses import dataclass
 from pathlib import Path
 
+import pandas as pd
 from monty.json import MSONable
 from monty.serialization import loadfn
 from vise.util.mix_in import ToJsonFileMixIn, ToYamlFileMixIn, ToCsvFileMixIn
@@ -21,12 +22,13 @@ class TestTest(MSONable, ToJsonFileMixIn, ToCsvFileMixIn, ToYamlFileMixIn):
         return cls(**d)
 
     @property
-    def csv_column_names(self):
-        return "a"
+    def to_dataframe(self):
+        return pd.DataFrame({"a": [self.a]})
 
-    @property
-    def csv_data(self):
-        return [["aaa"]]
+    @classmethod
+    def from_dataframe(cls, df: pd.DataFrame):
+        d = df.to_dict()
+        return cls.from_dict({"a": d["a"][0]})
 
 
 def test_to_json_file_mix_in(tmpdir):
@@ -46,6 +48,9 @@ def test_to_csv_file_mix_in(tmpdir):
 aaa
 """
     assert actual == expected
+
+    actual = TestTest.from_csv_file("test_test.csv")
+    assert actual == test
 
 
 def test_to_yaml_file_mix_in(tmpdir):
