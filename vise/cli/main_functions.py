@@ -191,11 +191,12 @@ def plot_dos(args: Namespace):
             ylim_set = [[0, y_max] for y_max in args.y_max_ranges]
 
     structure = vasprun.final_structure
-    grouped_atom_indices = args.type.grouped_atom_indices(structure, args.target)
+    grouped_atom_indices = args.type.grouped_atom_indices(structure,
+                                                          args.target)
     logger.info(f"Grouped atom indices: {grouped_atom_indices}")
     plot_data = dos_data.dos_plot_data(grouped_atom_indices,
-                                       xlim=args.x_range,
-                                       ylim_set=ylim_set)
+                                       energy_range=args.x_range,
+                                       dos_ranges=ylim_set)
     plot_data.to_json_file()
     plotter = DosPlotter(plot_data, args.legend)
     plotter.construct_plot()
