@@ -131,7 +131,8 @@ def test_dos_data_lim(dos_data_list):
 
 def test_dos_data_lim_2(dos_data):
     dos_plot_data_w_x_lim = dos_data.dos_plot_data(
-        xlim=[-0.9, -0.1], grouped_atom_indices={"H": [0], "He": [1, 2]})
+        energy_range=[-0.9, -0.1],
+        grouped_atom_indices={"H": [0], "He": [1, 2]})
     # (1+2+3+4+5) * (2 + 3)* 1.1 = 82.5
     assert dos_plot_data_w_x_lim.dos_ranges == \
            [[-5.5, 5.5], [-82.5, 82.5], [-82.5, 82.5]]
