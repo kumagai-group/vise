@@ -131,10 +131,8 @@ class DosData(MSONable):
         abs_xlim = [x + self.base_energy for x in energy_range]
 
         if dos_ranges is None:
-            if self.spin:
-                dos_ranges = [[-y, y] for y in self.max_y_ranges(doses, abs_xlim)]
-            else:
-                dos_ranges = [[0, y] for y in self.max_y_ranges(doses, abs_xlim)]
+            dos_ranges = default_dos_ranges(abs_xlim, doses, self.energies,
+                                            self.spin)
 
         energies = [e - self.base_energy for e in self.energies]
         shifted_energy_lines = [e - self.base_energy
@@ -143,18 +141,26 @@ class DosData(MSONable):
         return DosPlotData(energies, doses, names, energy_range, dos_ranges,
                            shifted_energy_lines)
 
-    def max_y_ranges(self, doses, xlim, multi=1.1, round_digit=2):
-        mask = np.ma.masked_outside(self.energies, xlim[0], xlim[1]).mask
-        max_dos_by_ax = []
-        for dos_by_ax in doses:
-            max_dos_by_ax.append(np.max([dos_by_spin.max_dos(mask)
-                                         for dos_by_spin in dos_by_ax]))
 
-        total_dos_max = max_dos_by_ax[0]
+def default_dos_ranges(energy_range, doses, energies, spin_polarized,
+                       multi: float = 1.1, round_digit: int = 2):
+    mask = np.ma.masked_outside(energies, energy_range[0], energy_range[1]).mask
+    max_dos_by_ax = []
+    for dos_by_ax in doses:
+        max_dos_by_ax.append(np.max([dos_by_spin.max_dos(mask)
+                                     for dos_by_spin in dos_by_ax]))
+
+    total_dos_max = max_dos_by_ax[0]
+    plot_maxes = [total_dos_max]
+    if len(max_dos_by_ax) > 1:
         pdos_max = max(max_dos_by_ax[1:])
-        plot_maxes = [total_dos_max] + [pdos_max] * (len(doses) - 1)
+        plot_maxes.extend([pdos_max] * (len(doses) - 1))
 
-        return [round(i * multi, round_digit) for i in plot_maxes]
+    max_y_ranges = [round(i * multi, round_digit) for i in plot_maxes]
+
+    if spin_polarized:
+        return [[-y, y] for y in max_y_ranges]
+    return [[0, y] for y in max_y_ranges]
 
 
 @dataclass
@@ -181,7 +187,6 @@ class DosPlotData(MSONable, ToJsonFileMixIn):
         for k in copy(d):
             if k[0] == "@":
                 d.pop(k)
-
         # For backward compatibility
         if "xlim" in d:
             d["energy_range"] = d.pop("xlim")
@@ -192,6 +197,14 @@ class DosPlotData(MSONable, ToJsonFileMixIn):
         for i, x in enumerate(d["doses"]):
             for j, y in enumerate(x):
                 d["doses"][i][j] = DosBySpinEnergy.from_dict(y)
+
+        if "energy_range" not in d:
+            d["energy_range"] = [-5, 10]
+        if "dos_ranges" not in d:
+            spin_polarized = len(d["doses"][0][0].dos) == 2
+            d["dos_ranges"] = default_dos_ranges(
+                d["energy_range"], d["doses"], d["relative_energies"],
+                spin_polarized, multi=1.1, round_digit=2)
 
         return cls(**d)
 

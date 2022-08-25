@@ -7,7 +7,7 @@ import pytest
 from numpy.testing import assert_array_equal
 
 from vise.analyzer.dos_data import PDos, DosData, DosBySpinEnergy, \
-    scissor_energy
+    scissor_energy, DosPlotData
 from vise.analyzer.plot_dos import DosPlotter
 from vise.tests.helpers.assertion import assert_msonable
 
@@ -219,6 +219,17 @@ def test_dos_by_spin_energy():
                           dos=[[-3, -2, -1, 0], [1,  2,  3, 4]])
     mask = [True, False, False, True]
     assert dos.max_dos(mask) == 3.0
+
+
+def test_dos_plot_data_default_settings():
+    d = dict(relative_energies=[0.0, 0.5, 1.0, 1.5],
+             doses=[[DosBySpinEnergy(
+                 name="test", dos=[[-3, -2, -1, 0], [1,  2, 3, 4]]).as_dict()]],
+             names=["total"],
+             energy_lines=[0.5])
+    actual = DosPlotData.from_dict(d)
+    assert actual.dos_ranges == [[-4.4, 4.4]]
+    assert actual.energy_range == [-5, 10]
 
 
 def test_scissor_energy(pdos_list):
