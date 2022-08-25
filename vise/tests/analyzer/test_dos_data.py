@@ -64,8 +64,8 @@ def dos_data(pdos_list):
 def dos_data_list(dos_data):
     dos_plot_data_w_lims = dos_data.dos_plot_data(
         grouped_atom_indices={"H": [0], "He": [1, 2]},
-        xlim=[-100, 100],
-        ylim_set=[[-20, 20], [-30, 30], [-40, 40]])
+        energy_range=[-100, 100],
+        dos_ranges=[[-20, 20], [-30, 30], [-40, 40]])
     dos_plot_data_wo_lims = dos_data.dos_plot_data(
         grouped_atom_indices={"H": [0], "He": [1, 2]})
 
@@ -208,7 +208,7 @@ def test_max_y_range():
 
     dos_plot_data = dos_data.dos_plot_data(
         grouped_atom_indices={"H": [0]},
-        xlim=[-1.1, 1.1])
+        energy_range=[-1.1, 1.1])
 
     assert dos_plot_data.dos_ranges == [[0, 3.3], [0, 231.0]]
 

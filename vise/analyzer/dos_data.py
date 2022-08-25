@@ -94,22 +94,22 @@ class DosData(MSONable):
 
     def dos_plot_data(self,
                       grouped_atom_indices: Dict[str, List[int]],
-                      xlim: Optional[List[float]] = None,
-                      ylim_set: Optional[List[List[float]]] = None,
+                      energy_range: Optional[List[float]] = None,
+                      dos_ranges: Optional[List[List[float]]] = None,
                       ) -> "DosPlotData":
         """
         Args:
             grouped_atom_indices:
                 key: name of the grouped
-            xlim:
-            ylim_set:
+            energy_range:
+            dos_ranges:
 
         Returns:
 
         """
 
-        if ylim_set is not None:
-            assert len(grouped_atom_indices) + 1 == len(ylim_set)  # total+pdos
+        if dos_ranges is not None:
+            assert len(grouped_atom_indices) + 1 == len(dos_ranges)  # total+pdos
 
         # Total dos does not have spin decomposition.
         doses = [[DosBySpinEnergy("", self.total.tolist())]]
@@ -127,21 +127,21 @@ class DosData(MSONable):
             doses.append(pdos_by_ax)
             names.append(name)
 
-        xlim = xlim or [-5, 10]
-        abs_xlim = [x + self.base_energy for x in xlim]
+        energy_range = energy_range or [-5, 10]
+        abs_xlim = [x + self.base_energy for x in energy_range]
 
-        if ylim_set is None:
+        if dos_ranges is None:
             if self.spin:
-                ylim_set = [[-y, y] for y in self.max_y_ranges(doses, abs_xlim)]
+                dos_ranges = [[-y, y] for y in self.max_y_ranges(doses, abs_xlim)]
             else:
-                ylim_set = [[0, y] for y in self.max_y_ranges(doses, abs_xlim)]
+                dos_ranges = [[0, y] for y in self.max_y_ranges(doses, abs_xlim)]
 
         energies = [e - self.base_energy for e in self.energies]
-        shifted_vertical_lines = [e - self.base_energy
-                                  for e in self.vertical_lines]
+        shifted_energy_lines = [e - self.base_energy
+                                for e in self.vertical_lines]
 
-        return DosPlotData(energies, doses, names, xlim, ylim_set,
-                           shifted_vertical_lines)
+        return DosPlotData(energies, doses, names, energy_range, dos_ranges,
+                           shifted_energy_lines)
 
     def max_y_ranges(self, doses, xlim, multi=1.1, round_digit=2):
         mask = np.ma.masked_outside(self.energies, xlim[0], xlim[1]).mask
@@ -159,7 +159,7 @@ class DosData(MSONable):
 
 @dataclass
 class DosBySpinEnergy(MSONable):
-    name: str  # e.g., "s"
+    name: str  # e.g., "s", "p", ...
     dos: List[List[float]]  # [by spin][by energy]
 
     def max_dos(self, mask: List[bool] = None):
