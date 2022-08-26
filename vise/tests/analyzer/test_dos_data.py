@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 from copy import deepcopy
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -9,7 +10,8 @@ from numpy.testing import assert_array_equal
 from vise.analyzer.dos_data import PDos, DosData, DosBySpinEnergy, \
     scissor_energy, DosPlotData
 from vise.analyzer.plot_dos import DosPlotter
-from vise.tests.helpers.assertion import assert_msonable
+from vise.tests.helpers.assertion import assert_msonable, \
+    assert_dataclass_almost_equal
 
 energies = [-9, 0, 9]
 total = np.array([[0, 5, 0], [0, 5, 0]])
@@ -230,6 +232,31 @@ def test_dos_plot_data_default_settings():
     actual = DosPlotData.from_dict(d)
     assert actual.dos_ranges == [[-4.4, 4.4]]
     assert actual.energy_range == [-5, 10]
+
+
+def test_dos_plot_data_csv():
+    dos_plot_data = DosPlotData(
+        relative_energies=[0.0, 0.5, 1.0],
+        doses=[
+            [DosBySpinEnergy(name="",
+                             dos=[[2.0, 3.0, 4.0], [-3.0, -2.0, -1.0]])],
+            [DosBySpinEnergy(name="s",
+                             dos=[[12.0, 13.0, 14.0], [-13.0, -12.0, -11.0]])],
+        ],
+        names=["total", "H"],
+        energy_range=[-5, 10],
+        dos_ranges=[[-4.4, 4.4]],
+        energy_lines=[0.5])
+    dos_plot_data.to_csv_file()
+    actual = Path("dos_plot_data.csv").read_text()
+    expected = """energy(eV),total__up,total__down,H_s_up,H_s_down,energy_lines
+0.0,2.0,-3.0,12.0,-13.0,0.5
+0.5,3.0,-2.0,13.0,-12.0,
+1.0,4.0,-1.0,14.0,-11.0,
+"""
+    assert actual == expected
+    actual = DosPlotData.from_csv_file("dos_plot_data.csv")
+    assert_dataclass_almost_equal(actual, dos_plot_data, digit=3)
 
 
 def test_scissor_energy(pdos_list):

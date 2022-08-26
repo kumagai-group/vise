@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
+from collections import defaultdict
 from copy import copy, deepcopy
 from dataclasses import dataclass
 from functools import reduce
 from typing import Dict, Optional, List
 
 import numpy as np
+import pandas as pd
 from monty.json import MSONable
 from vise.util.logger import get_logger
-from vise.util.mix_in import ToJsonFileMixIn
-
+from vise.util.mix_in import ToJsonFileMixIn, ToCsvFileMixIn
 
 logger = get_logger(__name__)
 
@@ -165,7 +166,7 @@ def default_dos_ranges(energy_range, doses, energies, spin_polarized,
 
 @dataclass
 class DosBySpinEnergy(MSONable):
-    name: str  # e.g., "s", "p", ...
+    name: str  # e.g., "s", "p", ..., in case of total, name=""
     dos: List[List[float]]  # [by spin][by energy]
 
     def max_dos(self, mask: List[bool] = None):
@@ -174,13 +175,51 @@ class DosBySpinEnergy(MSONable):
 
 
 @dataclass
-class DosPlotData(MSONable, ToJsonFileMixIn):
+class DosPlotData(MSONable, ToJsonFileMixIn, ToCsvFileMixIn):
     relative_energies: List[float]
     doses: List[List[DosBySpinEnergy]]  # [by ax][by orbital, i.e., s, p, d, f]
     names: List[str]  # For each ax, e.g., ["total", "H"]
     energy_range: List[float]  # e.g., [-5.0, 6.0]
     dos_ranges: List[List[float]]  # e.g., [[0.0, 6.0], [-1.0, 5.0], ...]
     energy_lines: List[float]  # e.g., VBM and CBM or Fermi level
+
+    @property
+    def to_dataframe(self) -> pd.DataFrame:
+        columns = ["energy(eV)"]
+        inv_data = [[e for e in self.relative_energies]]
+
+        for name, dos_by_ax in zip(self.names, self.doses):
+            for dos_by_spin_energy in dos_by_ax:
+                for spin, dos_by_spin in zip(["up", "down"],
+                                             dos_by_spin_energy.dos):
+
+                    columns.append(f"{name}_{dos_by_spin_energy.name}_{spin}")
+                    inv_data.append(dos_by_spin)
+
+        columns.append("energy_lines")
+        inv_data.append(self.energy_lines)
+
+        df = pd.DataFrame(inv_data).T
+        df.columns = columns
+        return df
+
+    @classmethod
+    def from_dataframe(cls, df):
+        sanitized_data = defaultdict(lambda: defaultdict(list))
+        for full_name in df.columns[1:-1]:
+            name, orbital, spin = full_name.split("_")
+            sanitized_data[name][orbital].append(list(df[full_name]))
+
+        doses, names = [], []
+        for k, v in sanitized_data.items():
+            names.append(k)
+            doses.append([{"name": k2, "dos": v2} for k2, v2 in v.items()])
+
+        d = {"relative_energies": df["energy(eV)"].tolist(),
+             "doses": doses,
+             "names": names,
+             "energy_lines": [i for i in df.energy_lines if i]}
+        return cls.from_dict(d)
 
     @classmethod
     def from_dict(cls, d):
