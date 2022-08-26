@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
-from copy import deepcopy
 from pathlib import Path
 
 import numpy as np
@@ -265,9 +264,11 @@ def test_scissor_energy(pdos_list):
                        pdos=pdos_list,
                        base_energy=0.0,
                        vertical_lines=[0.0, 1.0])
-    actual = scissor_energy(dos_data.dos_plot_data(grouped_atom_indices={"H": [0]}), energy_shift=1.0)
+    actual = scissor_energy(dos_data.dos_plot_data(
+        grouped_atom_indices={"H": [0]}), energy_shift=1.0)
     assert actual.relative_energies == [0.0, 1.5, 2.0]
-    assert actual.doses[0][0] == DosBySpinEnergy(name="", dos=[[4, 0, 5], [4, 0, 5]])
+    assert actual.doses[0][0] == DosBySpinEnergy(name="",
+                                                 dos=[[4, 0, 5], [4, 0, 5]])
     assert actual.energy_lines == [0.0, 2.0]
 
 # test of MSONable exists in test_plot_dos.py.

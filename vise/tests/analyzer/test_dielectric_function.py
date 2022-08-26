@@ -1,16 +1,13 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
-from copy import copy
 from math import pi, sqrt
 from pathlib import Path
 
 import numpy as np
 import pytest
 from monty.serialization import loadfn
-from pymatgen.io.vasp import Vasprun, Outcar
 from vise.analyzer.dielectric_function import DieleFuncData, \
     eV_to_inv_cm, min_e_w_target_coeff
-from vise.analyzer.vasp.make_diele_func import make_diele_func
 from vise.tests.helpers.assertion import assert_msonable, \
     assert_dataclass_almost_equal
 

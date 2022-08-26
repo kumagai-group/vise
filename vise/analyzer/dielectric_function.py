@@ -53,7 +53,8 @@ class DieleFuncData(MSONable, ToJsonFileMixIn, ToCsvFileMixIn):
         names.append("band_gap")
 
         data = []
-        for i, j, k in zip(self.energies, self.diele_func_real, self.diele_func_imag):
+        for i, j, k in zip(self.energies,
+                           self.diele_func_real, self.diele_func_imag):
             data.append([i] + j + k)
         data[0].append(self.band_gap)
         return pd.DataFrame(data, columns=names)
