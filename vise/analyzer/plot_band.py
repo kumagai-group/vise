@@ -4,7 +4,7 @@
 from copy import deepcopy
 from dataclasses import dataclass
 from itertools import cycle
-from typing import List, Optional
+from typing import List, Optional, Tuple, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -18,6 +18,12 @@ from vise.util.mix_in import ToJsonFileMixIn
 
 @dataclass(frozen=True)
 class XTicks(MSONable):
+    """Info used for X-axis ticks in the band structure plot.
+
+    labels: Special point names, e.g., "Γ", "C$\mid$${\rm C}_2$",
+    distances: Distances to the corresponding labels. So, the length must be the
+    same as that of labels.
+    """
     labels: List[str]
     distances: List[float]
 
@@ -35,6 +41,7 @@ class BandEdge(MSONable):
 class BandInfo(MSONable):
     def __init__(self,
                  # [branch][spin][band][k-point]
+                 # A branch is an area separated by a vertical bar.
                  band_energies: List[List[List[List[float]]]],
                  band_edge: Optional[BandEdge] = None,
                  fermi_level: Optional[float] = None):

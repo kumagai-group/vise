@@ -138,64 +138,52 @@ class BandDosPlotlyPlotter:
             base_energy = self.band_plot_info.band_info_set[0].fermi_level
             h_lines = [0.0]
 
-        # Add vbm and cbm lines.
+        self._add_vbm_cbm(h_lines, last_path, "royalblue", "dash")
+        if h_lines_2:
+            self._add_vbm_cbm(h_lines_2, last_path, "green", "dot")
+
+        self._add_special_points_and_border_lines()
+
+        self._add_bands(base_energy, self.band_plot_info, "black")
+        if self.band_plot_info_2:
+            self._add_bands(base_energy, self.band_plot_info_2, "green", 0.4)
+
+    def _add_vbm_cbm(self, h_lines, last_path, color, dash):
         for energy in h_lines:
             self.fig.add_shape(dict(type="line",
-                               x0=0, x1=last_path, y0=energy, y1=energy,
-                               line=dict(color="royalblue", width=3, dash="dash")),
+                                    x0=0, x1=last_path, y0=energy, y1=energy,
+                                    line=dict(color=color, width=3, dash=dash)),
                                row=1, col=1)
 
-        if h_lines_2:
-            for energy in h_lines_2:
-                self.fig.add_shape(dict(type="line",
-                                   x0=0, x1=last_path, y0=energy, y1=energy,
-                                   line=dict(color="green", width=3, dash="dot")),
-                                   row=1, col=1)
-
+    def _add_special_points_and_border_lines(self):
         new_labels = [plotly_sanitize_label(label)
                       for label in self.band_plot_info.x_ticks.labels]
         distances = self.band_plot_info.x_ticks.distances
-
-        self.fig.update_xaxes(tickvals=self.band_plot_info.x_ticks.distances,
+        self.fig.update_xaxes(tickvals=distances,
                               ticktext=new_labels,
                               tickfont_size=tickfont_size,
                               row=1, col=1)
-
-        # Add k-path border lines.
         for label, distance in zip(new_labels, distances):
             if "|" in label:
                 self.fig.add_shape(dict(type="line",
-                                   x0=distance, x1=distance, y0=-20, y1=20,
-                                   line=dict(color="black",
-                                             width=2)), row=1, col=1)
+                                        x0=distance, x1=distance, y0=-20, y1=20,
+                                        line=dict(color="black",
+                                                  width=2)), row=1, col=1)
 
+    def _add_bands(self, base_energy, band_plot_info, color, opacity=1.0):
         for d, e in zip(self.band_plot_info.distances_by_branch,
-                        self.band_plot_info.band_info_set[0].band_energies):
+                        band_plot_info.band_info_set[0].band_energies):
             for i in e[0]:
                 self.fig.add_trace(
                     go.Scatter(x=d,
                                y=[j - base_energy for j in i],
                                hoverinfo="skip",
-                               line_color="black",
+                               line_color=color,
                                showlegend=False,
                                name="band",
                                mode="lines",
+                               opacity=opacity,
                                line={"width": 2.0}), row=1, col=1),
-
-        if self.band_plot_info_2:
-            for d, e in zip(self.band_plot_info.distances_by_branch,
-                            self.band_plot_info_2.band_info_set[0].band_energies):
-                for i in e[0]:
-                    self.fig.add_trace(
-                        go.Scatter(x=d,
-                                   y=[j - base_energy for j in i],
-                                   hoverinfo="skip",
-                                   line_color="green",
-                                   showlegend=False,
-                                   name="band",
-                                   mode="lines",
-                                   opacity=0.4,
-                                   line={"width": 2.0}), row=1, col=1),
 
     def add_dos(self):
         total_dos = self.dos_plot_data.doses[0][0].dos[0]
