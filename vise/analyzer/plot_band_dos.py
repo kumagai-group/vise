@@ -11,19 +11,12 @@ tickfont_size = 20
 
 
 def plotly_sanitize_label(label: str):
-    str_replace = {"$\mid$": "|",
-                   "_0": "<sub>0</sub>",
-                   "_1": "<sub>1</sub>",
-                   "_2": "<sub>2</sub>",
-                   "_3": "<sub>3</sub>",
-                   "_4": "<sub>4</sub>",
-                   r"${\rm ": "",
-                   "}": "",
-                   "$": ""}
+    str_replace = {"$\mid$": "|", r"${\rm ": "", "}": "", "$": ""}
+    result = re.sub(r'(\w*)_(\w*)', '\\1<sub>\\2</sub>', label)
     for key in str_replace.keys():
-        if key in label:
-            label = label.replace(key, str_replace[key])
-    return label
+        if key in result:
+            result = result.replace(key, str_replace[key])
+    return result
 
 
 class BandDosPlotlyPlotter:

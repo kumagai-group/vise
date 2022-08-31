@@ -13,6 +13,14 @@ except ModuleNotFoundError:
     PSUTIL_NOT_PRESENT = True
 
 
+def test_plotly_sanitize_label():
+    assert plotly_sanitize_label(r"A$\mid$B") == "A|B"
+    assert plotly_sanitize_label("A_0") == "A<sub>0</sub>"
+    assert plotly_sanitize_label("A_i1") == "A<sub>i1</sub>"
+
+
+
+
 @pytest.mark.skipif(PSUTIL_NOT_PRESENT, reason="psutil does not exist")
 def test(test_data_files):
     band_plot_data = loadfn(str(test_data_files / "KAlSi3O8_band_plot_info.json"))
