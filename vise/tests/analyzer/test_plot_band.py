@@ -35,12 +35,14 @@ base_energy = -1.0
 # [by branch][by spin][by band idx][by k-path idx]
 band_energies = [[[[-3.0, -2, -1, -1, -1, -2, -3], [7.0, 6, 5, 4, 3, 2, 3]]],
                  [[[-4.0, -5, -6, -7], [5, 2, 7, 8]]]]
+irreps = [[], [[(4, ["E1", "E2"])]]]
 shifted_band_energies = [(np.array(e) + 1.0).tolist() for e in band_energies]
 
 band_edge = BandEdge(vbm=-1, cbm=2, vbm_distances=[2, 3, 4], cbm_distances=[5, 7])
 fermi_level = 1.5
 
-band_info_fermi = BandInfo(band_energies=band_energies, fermi_level=fermi_level)
+band_info_fermi = BandInfo(band_energies=band_energies, fermi_level=fermi_level,
+                           irreps=irreps)
 band_info_edge = BandInfo(band_energies=band_energies, band_edge=band_edge)
 
 colors = ['#E15759', '#4E79A7', '#F28E2B', '#76B7B2']

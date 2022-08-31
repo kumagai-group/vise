@@ -44,10 +44,13 @@ class BandInfo(MSONable):
                  # A branch is an area separated by a vertical bar.
                  band_energies: List[List[List[List[float]]]],
                  band_edge: Optional[BandEdge] = None,
-                 fermi_level: Optional[float] = None):
+                 fermi_level: Optional[float] = None,
+                 # [branch][spin](k-point idx, [irrep names])
+                 irreps: List[List[Tuple[int, List[str]]]] = None):
         self.band_energies = deepcopy(band_energies)
         self.band_edge = deepcopy(band_edge)
         self.fermi_level = fermi_level
+        self.irreps = irreps
 
         if self.band_edge is None and self.fermi_level is None:
             raise ViseBandInfoError
