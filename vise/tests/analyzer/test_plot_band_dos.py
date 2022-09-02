@@ -3,11 +3,14 @@
 
 import pytest
 from monty.serialization import loadfn
-from vise.analyzer.plot_band_dos import BandDosPlotlyPlotter
+from vise.analyzer.dos_data import DosPlotData
+from vise.analyzer.plot_band_dos import BandDosPlotlyPlotter, \
+    plotly_sanitize_label
 from vise.util.dash_helper import show_png
 
 try:
     import psutil
+
     PSUTIL_NOT_PRESENT = False
 except ModuleNotFoundError:
     PSUTIL_NOT_PRESENT = True
@@ -19,12 +22,21 @@ def test_plotly_sanitize_label():
     assert plotly_sanitize_label("A_i1") == "A<sub>i1</sub>"
 
 
+# dos_plot_info = DosPlotData()
 
 
 @pytest.mark.skipif(PSUTIL_NOT_PRESENT, reason="psutil does not exist")
-def test(test_data_files):
-    band_plot_data = loadfn(str(test_data_files / "KAlSi3O8_band_plot_info.json"))
-    dos_plot_data = loadfn(str(test_data_files / "KAlSi3O8_dos_plot_data.json"))
-    band_dos_component = BandDosPlotlyPlotter(dos_plot_data, band_plot_data)
+def test_no_data():
+    band_dos_component = BandDosPlotlyPlotter()
 #    band_dos_component.fig.show()
     show_png(band_dos_component.fig)
+
+
+@pytest.mark.skipif(PSUTIL_NOT_PRESENT, reason="psutil does not exist")
+def test_plotly_band_dos_actual_files(test_data_files):
+    band_plot_data = loadfn(
+        str(test_data_files / "KAlSi3O8_band_plot_info.json"))
+    dos_plot_data = loadfn(str(test_data_files / "KAlSi3O8_dos_plot_data.json"))
+    band_dos_component = BandDosPlotlyPlotter(dos_plot_data, band_plot_data)
+    band_dos_component.fig.show()
+    # show_png(band_dos_component.fig)

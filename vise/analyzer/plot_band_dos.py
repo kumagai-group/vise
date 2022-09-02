@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
+import re
+from typing import Optional, List, Tuple
+
 from plotly.subplots import make_subplots
 from vise.analyzer.dos_data import DosPlotData
-from vise.analyzer.plot_band import BandPlotInfo
+from vise.analyzer.plot_band import BandPlotInfo, BandEdge
 from plotly import graph_objects as go
 
 
-subplot_font_size = 24
-tickfont_size = 20
-
-
-def plotly_sanitize_label(label: str):
+def plotly_sanitize_label(label: str) -> str:
     str_replace = {"$\mid$": "|", r"${\rm ": "", "}": "", "$": ""}
     result = re.sub(r'(\w*)_(\w*)', '\\1<sub>\\2</sub>', label)
     for key in str_replace.keys():
@@ -19,132 +18,139 @@ def plotly_sanitize_label(label: str):
     return result
 
 
+class BandDosPlotlySettings:
+    def __init__(self,
+                 band_colors: Optional[Tuple[str, str]] = ("black", "green"),
+                 band_opacity: Optional[Tuple[float, float]] = (0.7, 0.2),
+                 band_line_widths: Optional[Tuple[float, float]] = (2.0, 3.0),
+                 layout_width: Optional[int] = 1600,
+                 layout_height: Optional[int] = 700,
+                 yaxis_range: Optional[Tuple[float, float]] = (-5.0, 10.0),
+
+                 vbm_color: Optional[str] = "blue",
+                 cbm_color: Optional[str] = "red",
+
+                 h_line_colors:  Optional[Tuple[str, str]] = ("royalblue", "green"),
+
+                 subplot_font_size: Optional[int] = 24,
+                 tickfont_size: Optional[int] = 20,
+                 ):
+        self.band_colors = band_colors
+        self.band_opacity = band_opacity
+        self.band_line_widths = band_line_widths
+        self.layout_width = layout_width
+        self.layout_height = layout_height
+        self.yaxis_range = yaxis_range
+        self.vbm_color = vbm_color
+        self.cbm_color = cbm_color
+        self.h_line_colors = h_line_colors
+        self.subplot_font_size = subplot_font_size
+        self.tickfont_size = tickfont_size
+
+
 class BandDosPlotlyPlotter:
 
     def __init__(self,
                  dos_plot_data: DosPlotData = None,
                  band_plot_info: BandPlotInfo = None,
-                 band_plot_info_2: BandPlotInfo = None):
+                 plotly_defaults: Optional[BandDosPlotlySettings]
+                 = BandDosPlotlySettings()
+                 ):
 
         self.dos_plot_data = dos_plot_data
         self.band_plot_info = band_plot_info
-        self.band_plot_info_2 = band_plot_info_2
+        self.plotly_defaults = plotly_defaults
 
+        self._create_fig_w_subplots(dos_plot_data)
+        self._set_subplot_font_size()
+        self._set_y_axis()
+        self._add_band()
+        self._add_dos()
+        self.fig.update_layout(width=plotly_defaults.layout_width,
+                               height=plotly_defaults.layout_height)
+
+    def _set_subplot_font_size(self):
+        for i in self.fig['layout']['annotations']:
+            i['font'] = dict(size=self.plotly_defaults.subplot_font_size)
+
+    def _set_y_axis(self):
+        self.fig["layout"]["yaxis"]["range"] = self.plotly_defaults.yaxis_range
+        self.fig.update_yaxes(tickfont_size=self.plotly_defaults.tickfont_size)
+
+    def _create_fig_w_subplots(self, dos_plot_data):
         if dos_plot_data:
-            num_dos = len(dos_plot_data.doses)
-            names = ["band"] + dos_plot_data.names
-            column_width = [0.25] + [0.75 / num_dos] * num_dos
+            num_dos_panels = len(dos_plot_data.doses)
+            names = [""] + [plotly_sanitize_label(name)
+                            for name in dos_plot_data.names]
+            column_width = [0.25] + [0.75 / num_dos_panels] * num_dos_panels
         else:
-            num_dos = 1
-            names = ["band"]
+            num_dos_panels = 1
+            names = [""]
             column_width = [0.4, 0.6]
 
         self.fig = make_subplots(rows=1,
-                                 cols=1 + num_dos,
+                                 cols=1 + num_dos_panels,
                                  column_widths=column_width,
                                  shared_yaxes=True,
-                                 horizontal_spacing=0.012,
+                                 horizontal_spacing=0.005,
                                  subplot_titles=names,
-                                 x_title="DOS (1/eV/unit cell)",
                                  y_title="Energy (eV)")
+        if self.dos_plot_data:
+            self.fig.update_xaxes(title_text="DOS (1/eV/unit cell)",
+                                  row=1, col=2)
 
-        for i in self.fig['layout']['annotations']:
-            i['font'] = dict(size=subplot_font_size)
-
-        self.fig["layout"]["yaxis"]["range"] = [-5, 10]
-#            [-5, dos_plot_data.energy_range[1]]
-
-        self.fig.update_yaxes(tickfont_size=tickfont_size)
-
-        if band_plot_info:
-            self.add_band()
-        else:
+    def _add_band(self):
+        if self.band_plot_info is None:
             # add empty trace when band_plot_info is None.
-            self.fig.add_trace(go.Scatter(x=[], y=[], name="band"), row=1, col=1)
+            self.fig.add_trace(go.Scatter(x=[], y=[], name="band"),
+                               row=1, col=1)
+            return
 
-        self.fig.update_layout(width=1600, height=700)
+        self._last_kpt_distance = self.band_plot_info.x_ticks.distances[-1]
+        self.fig["layout"]["xaxis"]["range"] = [0.0, self._last_kpt_distance]
 
-        if dos_plot_data:
-            self.add_dos()
-
-    def add_band(self):
-        last_path = self.band_plot_info.x_ticks.distances[-1]
-        self.fig["layout"]["xaxis"]["range"] = [0.0, last_path]
-
-        band_edge = self.band_plot_info.band_info_set[0].band_edge
-        h_lines_2 = None
-
-        if band_edge:
-            base_energy = band_edge.vbm
-            cbm = band_edge.cbm - base_energy
-            h_lines = [0.0, cbm]
-            # Add vbm and cbm.
-            self.fig.add_trace(
-                go.Scatter(x=band_edge.vbm_distances,
-                           y=[0.0] * len(band_edge.vbm_distances),
-                           line_color="blue",
-                           fillcolor="blue",
-                           mode="markers",
-                           marker_size=20,
-                           opacity=0.7,
-                           showlegend=False),
-                row=1, col=1),
-            self.fig.add_trace(
-                go.Scatter(x=band_edge.cbm_distances,
-                           y=[cbm] * len(band_edge.cbm_distances),
-                           line_color="red",
-                           fillcolor="red",
-                           mode="markers",
-                           marker_size=20,
-                           opacity=0.7,
-                           showlegend=False),
-                row=1, col=1),
-
-            if self.band_plot_info_2:
-                band_edge_2 = self.band_plot_info_2.band_info_set[0].band_edge
-                vbm = band_edge_2.vbm - base_energy
-                cbm = band_edge_2.cbm - base_energy
-                h_lines_2 = [vbm, cbm]
-                # Add vbm and cbm.
-                self.fig.add_trace(
-                    go.Scatter(x=band_edge_2.vbm_distances,
-                               y=[vbm] * len(band_edge_2.vbm_distances),
-                               line_color="blue",
-                               fillcolor="blue",
-                               mode="markers",
-                               marker_size=20,
-                               opacity=0.2,
-                               showlegend=False),
-                    row=1, col=1),
-                self.fig.add_trace(
-                    go.Scatter(x=band_edge_2.cbm_distances,
-                               y=[cbm] * len(band_edge_2.cbm_distances),
-                               line_color="red",
-                               fillcolor="red",
-                               mode="markers",
-                               marker_size=20,
-                               opacity=0.2,
-                               showlegend=False),
-                    row=1, col=1),
-
-        else:
-            base_energy = self.band_plot_info.band_info_set[0].fermi_level
-            h_lines = [0.0]
-
-        self._add_vbm_cbm(h_lines, last_path, "royalblue", "dash")
-        if h_lines_2:
-            self._add_vbm_cbm(h_lines_2, last_path, "green", "dot")
+        for (subtitle, band_info), width, color, opacity, h_line_color in \
+                zip(self.band_plot_info.band_infos.items(),
+                    self.plotly_defaults.band_line_widths,
+                    self.plotly_defaults.band_colors,
+                    self.plotly_defaults.band_opacity,
+                    self.plotly_defaults.h_line_colors):
+            self._add_bands(band_info, width, color, opacity)
+            if band_info.band_edge:
+                self._add_band_edges(band_info.band_edge, opacity, h_line_color)
+            else:
+                self._add_horizontal_lines([band_info.fermi_level],
+                                           h_line_color, "dash")
 
         self._add_special_points_and_border_lines()
 
-        self._add_bands(base_energy, self.band_plot_info, "black")
-        if self.band_plot_info_2:
-            self._add_bands(base_energy, self.band_plot_info_2, "green", 0.4)
+    def _add_band_edges(self, band_edge: BandEdge, opacity, h_line_color):
+        self._add_horizontal_lines(
+            [band_edge.vbm, band_edge.cbm], h_line_color, "dash")
+        self._add_band_edge_circles(band_edge.vbm_distances,
+                                    opacity=opacity, energy=band_edge.vbm,
+                                    color=self.plotly_defaults.vbm_color)
+        self._add_band_edge_circles(band_edge.cbm_distances,
+                                    opacity=opacity, energy=band_edge.cbm,
+                                    color=self.plotly_defaults.cbm_color)
 
-    def _add_vbm_cbm(self, h_lines, last_path, color, dash):
-        for energy in h_lines:
+    def _add_band_edge_circles(self, distances, opacity, energy, color):
+        self.fig.add_trace(
+            go.Scatter(x=distances,
+                       y=[energy] * len(distances),
+                       line_color=color,
+                       fillcolor=color,
+                       mode="markers",
+                       marker_size=20,
+                       opacity=opacity,
+                       showlegend=False),
+            row=1, col=1),
+
+    def _add_horizontal_lines(self, line_heights, color, dash):
+        for height in line_heights:
             self.fig.add_shape(dict(type="line",
-                                    x0=0, x1=last_path, y0=energy, y1=energy,
+                                    x0=0, x1=self._last_kpt_distance,
+                                    y0=height, y1=height,
                                     line=dict(color=color, width=3, dash=dash)),
                                row=1, col=1)
 
@@ -154,7 +160,7 @@ class BandDosPlotlyPlotter:
         distances = self.band_plot_info.x_ticks.distances
         self.fig.update_xaxes(tickvals=distances,
                               ticktext=new_labels,
-                              tickfont_size=tickfont_size,
+                              tickfont_size=self.plotly_defaults.tickfont_size,
                               row=1, col=1)
         for label, distance in zip(new_labels, distances):
             if "|" in label:
@@ -163,22 +169,26 @@ class BandDosPlotlyPlotter:
                                         line=dict(color="black",
                                                   width=2)), row=1, col=1)
 
-    def _add_bands(self, base_energy, band_plot_info, color, opacity=1.0):
-        for d, e in zip(self.band_plot_info.distances_by_branch,
-                        band_plot_info.band_info_set[0].band_energies):
+    def _add_bands(self, band_info, width, color, opacity=1.0):
+        assert len(band_info.band_energies[0]) == 1
+        for branch_idx, (d, e) in enumerate(zip(
+                self.band_plot_info.distances_by_branch,
+                band_info.band_energies)):
             for i in e[0]:
                 self.fig.add_trace(
                     go.Scatter(x=d,
-                               y=[j - base_energy for j in i],
+                               y=i,
                                hoverinfo="skip",
                                line_color=color,
                                showlegend=False,
                                name="band",
                                mode="lines",
                                opacity=opacity,
-                               line={"width": 2.0}), row=1, col=1),
+                               line={"width": width}), row=1, col=1),
 
-    def add_dos(self):
+    def _add_dos(self):
+        if self.dos_plot_data is None:
+            return
         total_dos = self.dos_plot_data.doses[0][0].dos[0]
         energies = self.dos_plot_data.relative_energies
         cbm = min([e for d, e in zip(total_dos, energies)
@@ -190,7 +200,8 @@ class BandDosPlotlyPlotter:
                   "#9467bd",  # muted purple
                   ]
         for i, (doses, y_lim) in enumerate(zip(self.dos_plot_data.doses,
-                                               self.dos_plot_data.dos_ranges), 2):
+                                               self.dos_plot_data.dos_ranges),
+                                           2):
             for dos, color in zip(doses, colors):
                 self.fig.add_trace(
                     go.Scatter(y=self.dos_plot_data.relative_energies,
@@ -205,13 +216,14 @@ class BandDosPlotlyPlotter:
                 )
             for energy in [0.0, cbm]:
                 self.fig.add_shape(dict(type="line",
-                                   x0=y_lim[0], x1=y_lim[1],
-                                   y0=energy, y1=energy,
-                                   line=dict(color="royalblue",
-                                             width=3,
-                                             dash="dash")), row=1, col=i)
-            self.fig.update_xaxes(range=y_lim, row=1, col=i,
-                                  tickfont_size=tickfont_size)
+                                        x0=y_lim[0], x1=y_lim[1],
+                                        y0=energy, y1=energy,
+                                        line=dict(color="royalblue",
+                                                  width=3,
+                                                  dash="dash")), row=1, col=i)
+            self.fig.update_xaxes(
+                range=y_lim, row=1, col=i,
+                tickfont_size=self.plotly_defaults.tickfont_size)
         self.fig.update_layout(legend=dict(yanchor="top", y=0.99,
                                            xanchor="right", x=0.99,
                                            font_size=20))
