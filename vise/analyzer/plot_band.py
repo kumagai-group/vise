@@ -4,7 +4,7 @@
 from copy import deepcopy
 from dataclasses import dataclass
 from itertools import cycle
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Tuple, Union, Dict
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -14,6 +14,9 @@ from num2words import num2words
 from vise.error import ViseError
 from vise.util.matplotlib import float_to_int_formatter
 from vise.util.mix_in import ToJsonFileMixIn
+from vise.util.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 @dataclass(frozen=True)
@@ -169,11 +172,11 @@ class BandMplSettings:
         self.show_legend = show_legend
         self.legend = {"loc": legend_location}
 
-    def band_structure(self, index):
+    def band_structure(self, index, label):
         result = {"color": self.colors[index],
                   "linewidth": next(self.linewidth)}
         if index > 0:
-            result["label"] = num2words(index + 1, ordinal=True)
+            result["label"] = label
         return result
 
     def circle(self, index):
@@ -184,10 +187,14 @@ class BandMplSettings:
 
 @dataclass
 class BandPlotInfo(MSONable, ToJsonFileMixIn):
-    band_info_set: List[BandInfo]
+    """Multiple BandInfo are accepted.
+
+    Ex: include both the PBE band and GW band
+    """
+    band_infos: Dict[str, BandInfo]  # keys are subtitles.
     distances_by_branch: List[List[float]]
     x_ticks: XTicks
-    title: str = None
+    title: str = None  # title of all plots
 
     def __post_init__(self):
         assert self.distances_by_branch[0][0] == self.x_ticks.distances[0]
@@ -195,7 +202,8 @@ class BandPlotInfo(MSONable, ToJsonFileMixIn):
 
     def __add__(self, other: "BandPlotInfo"):
         assert self.distances_by_branch == other.distances_by_branch
-        new_band_info_set = self.band_info_set + other.band_info_set
+        new_band_info_set = deepcopy(self.band_infos)
+        new_band_info_set.update(other.band_infos)
         return BandPlotInfo(new_band_info_set, self.distances_by_branch,
                             self.x_ticks, self.title)
 
@@ -206,11 +214,12 @@ class BandPlotter:
                  band_plot_info: BandPlotInfo,
                  energy_range: List[float],
                  base_energy: float = None,
+                 base_energy_title: str = None,
                  mpl_defaults: Optional[BandMplSettings] = BandMplSettings()
                  ):
         # need deepcopy to avoid side effect caused by the energy shift
         band_plot_info = deepcopy(band_plot_info)
-        self.band_info_set = band_plot_info.band_info_set
+        self.band_infos = band_plot_info.band_infos
         self.distances_by_branch = band_plot_info.distances_by_branch
         self.x_ticks = band_plot_info.x_ticks
 
@@ -219,16 +228,27 @@ class BandPlotter:
         self.mpl_defaults = mpl_defaults
         self.plt = plt
 
+        if base_energy is None:
+            if base_energy_title is None:
+                base_energy_title = next(iter(self.band_infos))
+                logger.warning(f"Base energy is set to {base_energy_title}.")
+
+            base_band_info = self.band_infos[base_energy_title]
+
+            if base_band_info.band_edge is not None:
+                base_energy = base_band_info.band_edge.vbm
+            elif self.band_infos[base_energy_title].fermi_level:
+                base_energy = base_band_info.fermi_level
+            else:
+                logger.warning(f"Band edge and Fermi level are absent in "
+                               f"{base_energy_title}, so absolute energy"
+                               f"is used for plot.")
+                base_energy = 0.0
+
         self._slide_energies(base_energy)
 
     def _slide_energies(self, base_energy):
-        if base_energy is None:
-            if self.band_info_set[0].band_edge is not None:
-                base_energy = self.band_info_set[0].band_edge.vbm
-            elif self.band_info_set[0].fermi_level:
-                base_energy = self.band_info_set[0].fermi_level
-
-        for band_info in self.band_info_set:
+        for band_info in self.band_infos.values():
             band_info.slide_energies(base_energy)
 
     def construct_plot(self):
@@ -243,8 +263,8 @@ class BandPlotter:
         self.plt.tight_layout()
 
     def _add_band_set(self):
-        for index, band_info in enumerate(self.band_info_set):
-            self._add_band_structures(band_info, index)
+        for index, (band_name, band_info) in enumerate(self.band_infos.items()):
+            self._add_band_structures(band_info, band_name, index)
 
             if band_info.band_edge:
                 self._add_band_edge(band_info.band_edge, index)
@@ -252,8 +272,8 @@ class BandPlotter:
                 if band_info.fermi_level:
                     self._add_fermi_level(band_info.fermi_level)
 
-    def _add_band_structures(self, band_info, index):
-        mpl_args = self.mpl_defaults.band_structure(index)
+    def _add_band_structures(self, band_info, band_name, index):
+        mpl_args = self.mpl_defaults.band_structure(index, band_name)
         for distances, energies_each_branch \
                 in zip(self.distances_by_branch,  band_info.band_energies):
             for spin_index, energies_by_spin in enumerate(energies_each_branch):
@@ -281,7 +301,7 @@ class BandPlotter:
         self.plt.axhline(y=fermi_level, **self.mpl_defaults.hline)
 
     def _set_figure_legend(self):
-        if self.mpl_defaults.show_legend and len(self.band_info_set) > 1:
+        if self.mpl_defaults.show_legend and len(self.band_infos) > 1:
             self.plt.legend(**self.mpl_defaults.legend)
 
     def _set_x_range(self):
@@ -304,7 +324,8 @@ class BandPlotter:
             plt.axvline(x=distance, linestyle=linestyle)
 
     def _set_title(self):
-        self.plt.title(self.title, size=self.mpl_defaults.title_font_size)
+        if self.title:
+            self.plt.title(self.title, size=self.mpl_defaults.title_font_size)
 
     def _set_formatter(self):
         axis = self.plt.gca()

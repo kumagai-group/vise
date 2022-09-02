@@ -55,13 +55,13 @@ def band_info():
 
 
 @pytest.fixture
-def band_info_set(band_info):
-    return [band_info]
+def band_infos(band_info):
+    return {"subtitle": band_info}
 
 
 @pytest.fixture
-def band_plot_info(band_info_set):
-    return BandPlotInfo(band_info_set, distances, x_ticks, title)
+def band_plot_info(band_infos):
+    return BandPlotInfo(band_infos, distances, x_ticks, title)
 
 
 def test_band_plot_info_msonable(band_info, band_plot_info):
@@ -167,22 +167,17 @@ def test_add_band_structures(mock_band_plt_list):
     mock_plt.plot.assert_any_call(distances[1], shifted_band_energies[1][0][1], **args)
 
 
-def test_band_plot_info_add(band_plot_info, band_info_set):
-    band_plot_info_2 = BandPlotInfo(band_info_set,
-                                    distances,
-                                    x_ticks,
-                                    "a")
+def test_band_plot_info_add(band_plot_info, band_info: BandInfo):
+    band_plot_info_2 = BandPlotInfo({"a": band_info}, distances, x_ticks)
     added = band_plot_info + band_plot_info_2
-    assert added.band_info_set[0] == band_info_set[0]
-    assert added.band_info_set[1] == band_info_set[0]
+    assert added.band_infos["a"].as_dict() == band_info.as_dict()
     assert added.distances_by_branch == distances
     assert added.x_ticks == x_ticks
-    assert added.title == title  # title is set to the original one.
 
 
-def test_add_band_edge_circles(mock_band_plt_list, band_info_set):
+def test_add_band_edge_circles(mock_band_plt_list, band_infos):
     mock_plt, _ = mock_band_plt_list
-    edge = band_info_set[0].band_edge
+    edge = band_infos["subtitle"].band_edge
     defaults = BandMplSettings()
 
     mock_plt.scatter.assert_any_call(edge.vbm_distances[0], 0,
@@ -232,7 +227,7 @@ def test_set_x_tics(mock_band_plt_list):
 def test_set_title(mock_band_plt_list):
     mock_plt, _ = mock_band_plt_list
     defaults = BandMplSettings()
-    mock_plt.title.assert_called_once_with(title, size=defaults.title_font_size)
+    mock_plt.title.assert_called_once_with("Title", size=defaults.title_font_size)
 
 
 def test_set_float_to_int_formatter(mock_band_plt_list):
@@ -270,7 +265,7 @@ def test_reference_energy(ref_energy, subtracted_energy, mocker, band_plot_info)
 
 
 @pytest.fixture
-def two_band_set():
+def two_band_infos():
     first_branch_energies = [[[-3.0, -2, -1, -1, -1, -2, -3],
                                [7.0, 6, 5, 4, 3, 2, 3]],
                               [[-2.0, -1, 0, 0, 0, -1, -2],
@@ -303,33 +298,33 @@ def two_band_set():
                            band_edge=band_edge_2,
                            fermi_level=None)
 
-    return [band_info_1, band_info_2]
+    return {"1": band_info_1, "2": band_info_2}
 
 
 @pytest.fixture
-def mock_two_bands_plt_axis(two_band_set, mocker):
+def mock_two_bands_plt_axis(two_band_infos, mocker):
     mock_plt = mocker.patch("vise.analyzer.plot_band.plt", auto_spec=True)
     mock_axis = MagicMock()
     mock_plt.gca.return_value = mock_axis
-    band_plot_info = BandPlotInfo(two_band_set, distances, x_ticks, title)
+    band_plot_info = BandPlotInfo(two_band_infos, distances, x_ticks, title)
     plotter = BandPlotter(band_plot_info, y_range)
     plotter.construct_plot()
     return mock_plt, mock_axis
 
 
 def test_check_color_generator_with_last_call(
-        two_band_set, mock_two_bands_plt_axis):
+        two_band_infos, mock_two_bands_plt_axis):
     mock_plt, _ = mock_two_bands_plt_axis
     mock_plt.plot.assert_called_with(
         distances[1],
-        two_band_set[-1].band_energies[-1][-1][-1],
+        two_band_infos["2"].band_energies[-1][-1][-1],
         color=colors[1],
         linewidth=1.0,
         linestyle=":")
 
 
-def test_draw_two_bands(two_band_set):
-    band_plot_info = BandPlotInfo(two_band_set, distances, x_ticks, title)
+def test_draw_two_bands(two_band_infos):
+    band_plot_info = BandPlotInfo(two_band_infos, distances, x_ticks, title)
     band_plotter = BandPlotter(band_plot_info, y_range)
     band_plotter.construct_plot()
     band_plotter.plt.show()
