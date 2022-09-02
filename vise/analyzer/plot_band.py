@@ -196,6 +196,16 @@ class BandPlotInfo(MSONable, ToJsonFileMixIn):
     x_ticks: XTicks
     title: str = None  # title of all plots
 
+    @classmethod
+    def from_dict(cls, d):
+        """Needed for backward compatibility"""
+        if "band_info_set" in d:
+            d["band_infos"] = d.pop("band_info_set")
+
+        if isinstance(d["band_infos"], list):
+            d["band_infos"] = {str(i): x for i, x in enumerate(d["band_infos"])}
+        return super().from_dict(d)
+
     def __post_init__(self):
         assert self.distances_by_branch[0][0] == self.x_ticks.distances[0]
         assert self.distances_by_branch[-1][-1] == self.x_ticks.distances[-1]
