@@ -238,24 +238,24 @@ class BandPlotter:
         self.mpl_defaults = mpl_defaults
         self.plt = plt
 
-        if base_energy is None:
-            if base_energy_title is None:
-                base_energy_title = next(iter(self.band_infos))
-                logger.warning(f"Base energy is set to {base_energy_title}.")
-
-            base_band_info = self.band_infos[base_energy_title]
-
-            if base_band_info.band_edge is not None:
-                base_energy = base_band_info.band_edge.vbm
-            elif self.band_infos[base_energy_title].fermi_level:
-                base_energy = base_band_info.fermi_level
-            else:
-                logger.warning(f"Band edge and Fermi level are absent in "
-                               f"{base_energy_title}, so absolute energy"
-                               f"is used for plot.")
-                base_energy = 0.0
+        base_energy = self._get_base_energy(base_energy, base_energy_title)
 
         self._slide_energies(base_energy)
+
+    def _get_base_energy(self, base_energy, base_energy_title):
+        if base_energy:
+            return base_energy
+
+        if base_energy_title is None:
+            base_energy_title = next(iter(self.band_infos))
+            logger.warning(f"Base energy is set to {base_energy_title}.")
+
+        base_band_info = self.band_infos[base_energy_title]
+
+        if base_band_info.band_edge:
+            return base_band_info.band_edge.vbm
+
+        return base_band_info.fermi_level
 
     def _slide_energies(self, base_energy):
         for band_info in self.band_infos.values():
