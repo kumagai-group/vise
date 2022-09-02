@@ -205,7 +205,7 @@ def plot_dos(args: Namespace):
 
 def plot_diele_func(args: Namespace):
     if args.input_csv_name:
-        diele_func_data = DieleFuncData.from_csv(args.input_csv_name)
+        diele_func_data = DieleFuncData.from_csv_file(args.input_csv_name)
     else:
         diele_func_data = make_diele_func(Vasprun(args.vasprun),
                                           Outcar(args.outcar),
