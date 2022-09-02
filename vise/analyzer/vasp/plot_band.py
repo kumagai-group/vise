@@ -29,11 +29,19 @@ class BandPlotInfoFromVasp:
     def __init__(self,
                  vasprun: Vasprun,
                  kpoints_filename: str,
+                 first_band_plot_name: str = None,
                  vasprun2: Vasprun = None,
+                 second_band_plot_name: str = None,
                  energy_window: List[float] = None):
+        self._composition = vasprun.final_structure.composition
+        if vasprun2:
+            assert self._composition == vasprun2.final_structure.composition
         self.vasprun = vasprun
         self.kpoints_filename = kpoints_filename
+        self.first_band_plot_name = first_band_plot_name or "1"
+
         self.vasprun2 = vasprun2
+        self.second_band_plot_name = second_band_plot_name or "2"
         self.energy_window = energy_window
         self.bs = self.vasprun.get_band_structure(self.kpoints_filename,
                                                   line_mode=True)
@@ -42,25 +50,26 @@ class BandPlotInfoFromVasp:
         bs_plotter = BSPlotter(self.bs)
         plot_data = bs_plotter.bs_plot_data(zero_to_efermi=False)
         distances = [list(d) for d in plot_data["distances"]]
-        self._composition = self.vasprun.final_structure.composition
 
-        band_info = [BandInfo(band_energies=self._remove_spin_key(plot_data),
-                              band_edge=self._band_edge(self.bs, plot_data),
-                              fermi_level=self.bs.efermi)]
+        band_info_1 = BandInfo(band_energies=self._remove_spin_key(plot_data),
+                               band_edge=self._band_edge(self.bs, plot_data),
+                               fermi_level=self.bs.efermi)
+
+        band_info = {self.first_band_plot_name: band_info_1}
 
         if self.vasprun2:
             bs2 = self.vasprun2.get_band_structure(self.kpoints_filename,
                                                    line_mode=True)
             plot_data2 = BSPlotter(bs2).bs_plot_data(zero_to_efermi=False)
-            band_info.append(
-                BandInfo(band_energies=self._remove_spin_key(plot_data2),
-                         band_edge=self._band_edge(bs2, plot_data2),
-                         fermi_level=self.bs.efermi))
+            band_info[self.second_band_plot_name] = BandInfo(
+                band_energies=self._remove_spin_key(plot_data2),
+                band_edge=self._band_edge(bs2, plot_data2),
+                fermi_level=self.bs.efermi)
 
         x = bs_plotter.get_ticks_old()
         x_ticks = XTicks(_sanitize_labels(x["label"]), x["distance"])
 
-        return BandPlotInfo(band_info_set=band_info,
+        return BandPlotInfo(band_infos=band_info,
                             distances_by_branch=distances,
                             x_ticks=x_ticks,
                             title=self._title)
