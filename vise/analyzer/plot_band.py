@@ -42,7 +42,7 @@ class BandEdge(MSONable):
 
 IRREP_TYPE = Tuple[List[float], List[float], List[str]]
 
-class BandInfo(MSONable):
+class BandEnergyInfo(MSONable):
     def __init__(self,
                  # [branch][spin][band][k-point]
                  # A branch is an area in which the k-points are continuous.
@@ -195,7 +195,7 @@ class BandPlotInfo(MSONable, ToJsonFileMixIn):
 
     Ex: include both the PBE band and GW band
     """
-    band_infos: Dict[str, BandInfo]  # keys are subtitles.
+    band_infos: Dict[str, BandEnergyInfo]  # keys are subtitles.
     distances_by_branch: List[List[float]]
     x_ticks: XTicks
     title: str = None  # title of all plots

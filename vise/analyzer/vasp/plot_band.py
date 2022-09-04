@@ -9,7 +9,7 @@ import numpy as np
 
 from pymatgen.electronic_structure.plotter import BSPlotter
 from pymatgen.io.vasp import Vasprun
-from vise.analyzer.plot_band import BandPlotInfo, BandInfo, XTicks, BandEdge
+from vise.analyzer.plot_band import BandPlotInfo, BandEnergyInfo, XTicks, BandEdge
 from vise.analyzer.plot_brillouin_zone import BZPlotInfo
 from vise.util.string import latexify
 
@@ -51,9 +51,9 @@ class BandPlotInfoFromVasp:
         plot_data = bs_plotter.bs_plot_data(zero_to_efermi=False)
         distances = [list(d) for d in plot_data["distances"]]
 
-        band_info_1 = BandInfo(band_energies=self._remove_spin_key(plot_data),
-                               band_edge=self._band_edge(self.bs, plot_data),
-                               fermi_level=self.bs.efermi)
+        band_info_1 = BandEnergyInfo(band_energies=self._remove_spin_key(plot_data),
+                                     band_edge=self._band_edge(self.bs, plot_data),
+                                     fermi_level=self.bs.efermi)
 
         band_info = {self.first_band_plot_name: band_info_1}
 
@@ -61,7 +61,7 @@ class BandPlotInfoFromVasp:
             bs2 = self.vasprun2.get_band_structure(self.kpoints_filename,
                                                    line_mode=True)
             plot_data2 = BSPlotter(bs2).bs_plot_data(zero_to_efermi=False)
-            band_info[self.second_band_plot_name] = BandInfo(
+            band_info[self.second_band_plot_name] = BandEnergyInfo(
                 band_energies=self._remove_spin_key(plot_data2),
                 band_edge=self._band_edge(bs2, plot_data2),
                 fermi_level=self.bs.efermi)

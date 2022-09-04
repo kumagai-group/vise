@@ -8,7 +8,7 @@ import numpy as np
 import pytest
 
 from vise.analyzer.plot_band import (
-    BandPlotter, BandInfo, BandEdge, XTicks, BandMplSettings,
+    BandPlotter, BandEnergyInfo, BandEdge, XTicks, BandMplSettings,
     BandPlotInfo, ViseBandInfoError)
 from vise.tests.helpers.assertion import assert_msonable
 from vise.util.matplotlib import float_to_int_formatter
@@ -32,17 +32,18 @@ shifted_band_energies = [(np.array(e) + 1.0).tolist() for e in band_energies]
 band_edge = BandEdge(vbm=-1, cbm=2, vbm_distances=[2, 3, 4], cbm_distances=[5, 7])
 fermi_level = 1.5
 
-band_info_fermi = BandInfo(band_energies=band_energies, fermi_level=fermi_level,
-                           irreps=irreps)
-band_info_edge = BandInfo(band_energies=band_energies, band_edge=band_edge)
+band_info_fermi = BandEnergyInfo(band_energies=band_energies, fermi_level=fermi_level,
+                                 irreps=irreps)
+band_info_edge = BandEnergyInfo(band_energies=band_energies, band_edge=band_edge)
 
 colors = ['#E15759', '#4E79A7', '#F28E2B', '#76B7B2']
 
 
 @pytest.fixture
 def band_info():
-    return BandInfo(band_energies=deepcopy(band_energies), band_edge=band_edge,
-                    fermi_level=fermi_level)
+    return BandEnergyInfo(band_energies=deepcopy(band_energies), band_edge=band_edge,
+                          fermi_level=fermi_level,
+                          irreps=)
 
 
 @pytest.fixture
@@ -84,7 +85,7 @@ def test_band_info_slide_energies(band_info):
 def test_raise_error_when_both_band_edge_fermi_level_absent():
     # [spin][branch idx][band idx][k-path idx]
     with pytest.raises(ViseBandInfoError):
-        BandInfo(band_energies=band_energies)
+        BandEnergyInfo(band_energies=band_energies)
 
 
 def test_slide_energies_when_band_edge_is_none():
@@ -100,12 +101,12 @@ def test_slide_energies_when_fermi_is_none():
 
 
 def test_band_plot_info_band_energy_region():
-    band_info = BandInfo(band_energies=[[[[-1.01, -1.008, -1.003, -1.0]]],
-                                        [[[1.01, 1.0]]]],
-                         band_edge=BandEdge(vbm=-1.0, cbm=1.0,
+    band_info = BandEnergyInfo(band_energies=[[[[-1.01, -1.008, -1.003, -1.0]]],
+                                              [[[1.01, 1.0]]]],
+                               band_edge=BandEdge(vbm=-1.0, cbm=1.0,
                                             vbm_distances=[1],
                                             cbm_distances=[1]),
-                         fermi_level=0.0)
+                               fermi_level=0.0)
     assert band_info.band_energy_region() == [[-1.01, -1.0], [1.0, 1.01]]
     assert band_info.band_energy_region(decision_width=0.0031) \
            == [[-1.01, -1.008], [-1.003, -1.0], [1.0, 1.0], [1.01, 1.01]]
@@ -158,7 +159,7 @@ def test_add_band_structures(mock_band_plt_list):
     mock_plt.plot.assert_any_call(distances[1], shifted_band_energies[1][0][1], **args)
 
 
-def test_band_plot_info_add(band_plot_info, band_info: BandInfo):
+def test_band_plot_info_add(band_plot_info, band_info: BandEnergyInfo):
     band_plot_info_2 = BandPlotInfo({"a": band_info}, distances, x_ticks)
     added = band_plot_info + band_plot_info_2
     assert added.band_infos["a"].as_dict() == band_info.as_dict()
@@ -269,9 +270,9 @@ def two_band_infos():
 
     band_edge_1 = BandEdge(vbm=0, cbm=1,
                            vbm_distances=[2, 3, 4], cbm_distances=[5, 7])
-    band_info_1 = BandInfo(band_energies=first_band_energies,
-                           band_edge=band_edge_1,
-                           fermi_level=None)
+    band_info_1 = BandEnergyInfo(band_energies=first_band_energies,
+                                 band_edge=band_edge_1,
+                                 fermi_level=None)
 
     first_branch_energies = [[[-5, -5, -5, -5, -4, -5, -5],
                               [ 5,  5,  5,  5,  4,  5,  5]],
@@ -285,9 +286,9 @@ def two_band_infos():
 
     band_edge_2 = BandEdge(vbm=-4, cbm=4,
                            vbm_distances=[4], cbm_distances=[4])
-    band_info_2 = BandInfo(band_energies=second_band_energies,
-                           band_edge=band_edge_2,
-                           fermi_level=None)
+    band_info_2 = BandEnergyInfo(band_energies=second_band_energies,
+                                 band_edge=band_edge_2,
+                                 fermi_level=None)
 
     return {"1": band_info_1, "2": band_info_2}
 
