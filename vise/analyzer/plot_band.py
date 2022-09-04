@@ -4,7 +4,7 @@
 from copy import deepcopy
 from dataclasses import dataclass
 from itertools import cycle
-from typing import List, Optional, Tuple, Dict
+from typing import List, Optional, Tuple, Dict, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -40,24 +40,19 @@ class BandEdge(MSONable):
     cbm_distances: List[float]
 
 
-IRREP_TYPE = Tuple[List[float], List[float], List[str]]
-
 class BandEnergyInfo(MSONable):
     def __init__(self,
-                 # [branch][spin][band][k-point]
+                 # [branch][spin][band][k-point][energy, irrep]
                  # A branch is an area in which the k-points are continuous.
                  # Each branch is separated by a vertical bar.
                  # We need to distinguish branch to draw continuous line in the
                  # area and calculate the effective masses.
-                 band_energies: List[List[List[List[float]]]],
+                 band_energies: List[List[List[List[List[Union[float, str]]]]]],
                  band_edge: Optional[BandEdge] = None,
-                 fermi_level: Optional[float] = None,
-                 # [branch][spin]([distances], [eigvals], [irrep names])
-                 irreps: List[List[IRREP_TYPE]] = None):
+                 fermi_level: Optional[float] = None):
         self.band_energies = deepcopy(band_energies)
         self.band_edge = deepcopy(band_edge)
         self.fermi_level = fermi_level
-        self.irreps = irreps
 
         if self.band_edge is None and self.fermi_level is None:
             raise ViseBandInfoError
@@ -68,23 +63,24 @@ class BandEnergyInfo(MSONable):
         self._slide_fermi_level(base_energy)
 
     def _slide_band_energies(self, base_energy):
-        new_array = []
         for band_energies_each_branch in self.band_energies:
-            inner_array = []
-            for band_energies_each_band in band_energies_each_branch:
-                a = np.array(band_energies_each_band)
-                inner_array.append((a - base_energy).tolist())
-            new_array.append(inner_array)
-        self.band_energies = new_array
-
-    def _slide_fermi_level(self, base_energy):
-        if self.fermi_level:
-            self.fermi_level -= base_energy
+            for band_energies_each_spin in band_energies_each_branch:
+                for band_energies_each_band in band_energies_each_spin:
+                    for band_energies_each_kpoint in band_energies_each_band:
+                        band_energies_each_kpoint[0] -= base_energy
 
     def _slide_band_edge(self, base_energy):
         if self.band_edge:
             self.band_edge.vbm -= base_energy
             self.band_edge.cbm -= base_energy
+
+    def _slide_fermi_level(self, base_energy):
+        if self.fermi_level:
+            self.fermi_level -= base_energy
+    #
+    # def _slide_irrep_energies(self, base_energy):
+    #     if self.irreps:
+    #         self.
 
     @property
     def is_magnetic(self):
@@ -114,7 +110,7 @@ class BandEnergyInfo(MSONable):
             else:
                 result.append([lower, upper])
 
-        sorted_energies = sorted([energy
+        sorted_energies = sorted([energy[0]
                                   for i in self.band_energies
                                   for j in i
                                   for k in j
@@ -297,7 +293,9 @@ class BandPlotter:
                     mpl_args["linestyle"] = ":"
 
                 for energies_of_a_band in energies_by_spin:
-                    self.plt.plot(distances, energies_of_a_band, **mpl_args)
+                    energies = [e[0] for e in energies_of_a_band]
+                    print(energies)
+                    self.plt.plot(distances, energies, **mpl_args)
                     mpl_args.pop("label", None)
 
     def _add_band_edge(self, band_edge, index):

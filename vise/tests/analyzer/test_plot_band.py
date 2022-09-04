@@ -4,7 +4,6 @@
 from copy import deepcopy
 from unittest.mock import MagicMock
 
-import numpy as np
 import pytest
 
 from vise.analyzer.plot_band import (
@@ -24,26 +23,32 @@ y_range = [-10, 10]
 title = "Title"
 base_energy = -1.0
 # [by branch][by spin][by band idx][by k-path idx]
-band_energies = [[[[-3.0, -2, -1, -1, -1, -2, -3], [7.0, 6, 5, 4, 3, 2, 3]]],
-                 [[[-4.0, -5, -6, -7], [5, 2, 7, 8]]]]
-irreps = [[], [[(4, ["E1", "E2"])]]]
-shifted_band_energies = [(np.array(e) + 1.0).tolist() for e in band_energies]
+# two branches, no spin, single band, and 7 and 4 k-points in two branches.
+# irrep exists for first k-point in the first branch.
+band_energies = \
+    [[[[[-3.0, "GM1"], [-2], [-1], [-1], [-1], [-2], [-3]],
+       [[7.0], [6], [5], [4], [3], [2], [3]]]],
+     [[[[-4.0], [-5], [-6], [-7]], [[5], [2], [7], [8]]]]]
+shifted_band_energies = \
+    [[[[[-2.0, "GM1"], [-1], [0], [0], [0], [-1], [-2]],
+       [[8.0], [7], [6], [5], [4], [3], [4]]]],
+     [[[[-3.0], [-4], [-5], [-6]], [[6], [3], [8], [9]]]]]
 
 band_edge = BandEdge(vbm=-1, cbm=2, vbm_distances=[2, 3, 4], cbm_distances=[5, 7])
 fermi_level = 1.5
 
-band_info_fermi = BandEnergyInfo(band_energies=band_energies, fermi_level=fermi_level,
-                                 irreps=irreps)
-band_info_edge = BandEnergyInfo(band_energies=band_energies, band_edge=band_edge)
+band_info_fermi = BandEnergyInfo(band_energies=band_energies,
+                                 fermi_level=fermi_level)
+band_info_edge = BandEnergyInfo(band_energies=band_energies,
+                                band_edge=band_edge)
 
 colors = ['#E15759', '#4E79A7', '#F28E2B', '#76B7B2']
 
 
 @pytest.fixture
 def band_info():
-    return BandEnergyInfo(band_energies=deepcopy(band_energies), band_edge=band_edge,
-                          fermi_level=fermi_level,
-                          irreps=)
+    return BandEnergyInfo(band_energies=deepcopy(band_energies),
+                          band_edge=band_edge, fermi_level=fermi_level)
 
 
 @pytest.fixture
@@ -80,6 +85,7 @@ def test_band_info_slide_energies(band_info):
     assert band_info.band_energies == shifted_band_energies
     assert band_info.band_edge == expected_band_edge
     assert band_info.fermi_level == fermi_level - base_energy
+    assert band_info.fermi_level == fermi_level - base_energy
 
 
 def test_raise_error_when_both_band_edge_fermi_level_absent():
@@ -101,8 +107,8 @@ def test_slide_energies_when_fermi_is_none():
 
 
 def test_band_plot_info_band_energy_region():
-    band_info = BandEnergyInfo(band_energies=[[[[-1.01, -1.008, -1.003, -1.0]]],
-                                              [[[1.01, 1.0]]]],
+    band_info = BandEnergyInfo(band_energies=[[[[[-1.01], [-1.008], [-1.003], [-1.0]]]],
+                                              [[[[1.01], [1.0]]]]],
                                band_edge=BandEdge(vbm=-1.0, cbm=1.0,
                                             vbm_distances=[1],
                                             cbm_distances=[1]),
@@ -146,17 +152,21 @@ def test_add_band_structures(mock_band_plt_list):
     linewidth = BandMplSettings().linewidth
     # 1st branch, 1st band
     args = {"color": colors[0], "linewidth": next(linewidth)}
-    mock_plt.plot.assert_any_call(distances[0], shifted_band_energies[0][0][0], **args)
+    plotted_band_energies = \
+    [[[[-2.0, -1, 0, 0, 0, -1, -2],
+       [8.0, 7, 6, 5, 4, 3, 4]]],
+     [[[-3.0, -4, -5, -6], [6, 3, 8, 9]]]]
+    mock_plt.plot.assert_any_call(distances[0], plotted_band_energies[0][0][0], **args)
 
     # 2nd branch, 1st band
     args.pop("label", None)
-    mock_plt.plot.assert_any_call(distances[1], shifted_band_energies[1][0][0], **args)
+    mock_plt.plot.assert_any_call(distances[1], plotted_band_energies[1][0][0], **args)
 
     # 1st branch, 2nd band
-    mock_plt.plot.assert_any_call(distances[0], shifted_band_energies[0][0][1], **args)
+    mock_plt.plot.assert_any_call(distances[0], plotted_band_energies[0][0][1], **args)
 
     # 2nd branch, 2nd band
-    mock_plt.plot.assert_any_call(distances[1], shifted_band_energies[1][0][1], **args)
+    mock_plt.plot.assert_any_call(distances[1], plotted_band_energies[1][0][1], **args)
 
 
 def test_band_plot_info_add(band_plot_info, band_info: BandEnergyInfo):
@@ -258,14 +268,14 @@ def test_reference_energy(ref_energy, subtracted_energy, mocker, band_plot_info)
 
 @pytest.fixture
 def two_band_infos():
-    first_branch_energies = [[[-3.0, -2, -1, -1, -1, -2, -3],
-                               [7.0, 6, 5, 4, 3, 2, 3]],
-                              [[-2.0, -1, 0, 0, 0, -1, -2],
-                               [6.0, 5, 4, 3, 2, 1, 2]]]
-    second_branch_energies = [[[-4, -5, -6, -7],
-                               [5, 2, 7, 8]],
-                              [[-3, -4, -5, -6],
-                               [4, 1, 6, 7]]]
+    first_branch_energies = [[[[-3.0], [-2], [-1], [-1], [-1], [-2], [-3]],
+                               [[7.0], [6], [5], [4], [3], [2], [3]]],
+                              [[[-2.0], [-1], [0], [0], [0], [-1], [-2]],
+                               [[6.0], [5], [4], [3], [2], [1], [2]]]]
+    second_branch_energies = [[[[-4], [-5], [-6], [-7]],
+                               [[5], [2], [7], [8]]],
+                              [[[-3], [-4], [-5], [-6]],
+                               [[4], [1], [6], [7]]]]
     first_band_energies = [first_branch_energies, second_branch_energies]
 
     band_edge_1 = BandEdge(vbm=0, cbm=1,
@@ -274,14 +284,14 @@ def two_band_infos():
                                  band_edge=band_edge_1,
                                  fermi_level=None)
 
-    first_branch_energies = [[[-5, -5, -5, -5, -4, -5, -5],
-                              [ 5,  5,  5,  5,  4,  5,  5]],
-                             [[-6, -6, -6, -6, -5, -6, -6],
-                              [6, 6, 6, 6, 5, 6, 6]]]
-    second_branch_energies = [[[-5, -5, -5, -5],
-                               [5, 5, 5, 5]],
-                              [[-6, -6, -6, -6],
-                               [6, 6, 6, 6]]]
+    first_branch_energies = [[[[-5], [-5], [-5], [-5], [-4], [-5], [-5]],
+                              [[5],  [5],  [5],  [5],  [4],  [5],  [5]]],
+                             [[[-6], [-6], [-6], [-6], [-5], [-6], [-6]],
+                              [[6], [6], [6], [6], [5], [6], [6]]]]
+    second_branch_energies = [[[[-5], [-5], [-5], [-5]],
+                               [[5], [5], [5], [5]]],
+                              [[[-6], [-6], [-6], [-6]],
+                               [[6], [6], [6], [6]]]]
     second_band_energies = [first_branch_energies, second_branch_energies]
 
     band_edge_2 = BandEdge(vbm=-4, cbm=4,
@@ -304,12 +314,11 @@ def mock_two_bands_plt_axis(two_band_infos, mocker):
     return mock_plt, mock_axis
 
 
-def test_check_color_generator_with_last_call(
-        two_band_infos, mock_two_bands_plt_axis):
+def test_check_color_generator_with_last_call(mock_two_bands_plt_axis):
     mock_plt, _ = mock_two_bands_plt_axis
     mock_plt.plot.assert_called_with(
         distances[1],
-        two_band_infos["2"].band_energies[-1][-1][-1],
+        [6, 6, 6, 6],
         color=colors[1],
         linewidth=1.0,
         linestyle=":")
