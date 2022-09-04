@@ -40,15 +40,20 @@ class BandEdge(MSONable):
     cbm_distances: List[float]
 
 
+IRREP_TYPE = Tuple[List[float], List[float], List[str]]
+
 class BandInfo(MSONable):
     def __init__(self,
                  # [branch][spin][band][k-point]
-                 # A branch is an area separated by a vertical bar.
+                 # A branch is an area in which the k-points are continuous.
+                 # Each branch is separated by a vertical bar.
+                 # We need to distinguish branch to draw continuous line in the
+                 # area and calculate the effective masses.
                  band_energies: List[List[List[List[float]]]],
                  band_edge: Optional[BandEdge] = None,
                  fermi_level: Optional[float] = None,
-                 # [branch][spin](k-point idx, [irrep names])
-                 irreps: List[List[Tuple[int, List[str]]]] = None):
+                 # [branch][spin]([distances], [eigvals], [irrep names])
+                 irreps: List[List[IRREP_TYPE]] = None):
         self.band_energies = deepcopy(band_energies)
         self.band_edge = deepcopy(band_edge)
         self.fermi_level = fermi_level
@@ -202,7 +207,7 @@ class BandPlotInfo(MSONable, ToJsonFileMixIn):
             d["band_infos"] = d.pop("band_info_set")
 
         if isinstance(d["band_infos"], list):
-            d["band_infos"] = {str(i): x for i, x in enumerate(d["band_infos"])}
+            d["band_infos"] = {str(i + 1): x for i, x in enumerate(d["band_infos"])}
         return super().from_dict(d)
 
     def __post_init__(self):
