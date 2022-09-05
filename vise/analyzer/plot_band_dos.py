@@ -30,10 +30,14 @@ class BandDosPlotlySettings:
                  vbm_color: Optional[str] = "blue",
                  cbm_color: Optional[str] = "red",
 
-                 h_line_colors:  Optional[Tuple[str, str]] = ("royalblue", "green"),
+                 h_line_colors: Optional[Tuple[str, str]] = ("royalblue", "green"),
+                 h_line_width: Optional[int] = 3,
 
                  subplot_font_size: Optional[int] = 24,
                  tickfont_size: Optional[int] = 20,
+
+                 edge_circle_mode: Optional[str] = "markers",
+                 edge_circle_size: Optional[int] = 20
                  ):
         self.band_colors = band_colors
         self.band_opacity = band_opacity
@@ -44,8 +48,12 @@ class BandDosPlotlySettings:
         self.vbm_color = vbm_color
         self.cbm_color = cbm_color
         self.h_line_colors = h_line_colors
+        self.h_line_width = h_line_width
         self.subplot_font_size = subplot_font_size
         self.tickfont_size = tickfont_size
+        self.band_edge_circles = {"mode": edge_circle_mode,
+                                  "marker_size": edge_circle_size,
+                                  "showlegend": False}
 
 
 class BandDosPlotlyPlotter:
@@ -110,7 +118,7 @@ class BandDosPlotlyPlotter:
         self.fig["layout"]["xaxis"]["range"] = [0.0, self._last_kpt_distance]
 
         for (subtitle, band_info), width, color, opacity, h_line_color in \
-                zip(self.band_plot_info.band_infos.items(),
+                zip(self.band_plot_info.band_energy_infos.items(),
                     self.plotly_defaults.band_line_widths,
                     self.plotly_defaults.band_colors,
                     self.plotly_defaults.band_opacity,
@@ -136,23 +144,19 @@ class BandDosPlotlyPlotter:
 
     def _add_band_edge_circles(self, distances, opacity, energy, color):
         self.fig.add_trace(
-            go.Scatter(x=distances,
-                       y=[energy] * len(distances),
-                       line_color=color,
-                       fillcolor=color,
-                       mode="markers",
-                       marker_size=20,
-                       opacity=opacity,
-                       showlegend=False),
+            go.Scatter(x=distances, y=[energy] * len(distances),
+                       line_color=color, fillcolor=color, opacity=opacity,
+                       **self.plotly_defaults.band_edge_circles),
             row=1, col=1),
 
     def _add_horizontal_lines(self, line_heights, color, dash):
         for height in line_heights:
-            self.fig.add_shape(dict(type="line",
-                                    x0=0, x1=self._last_kpt_distance,
-                                    y0=height, y1=height,
-                                    line=dict(color=color, width=3, dash=dash)),
-                               row=1, col=1)
+            self.fig.add_shape(
+                dict(type="line", x0=0, x1=self._last_kpt_distance,
+                     y0=height, y1=height,
+                     line=dict(color=color, dash=dash,
+                               width=self.plotly_defaults.h_line_width)),
+                row=1, col=1)
 
     def _add_special_points_and_border_lines(self):
         new_labels = [plotly_sanitize_label(label)
@@ -170,14 +174,18 @@ class BandDosPlotlyPlotter:
                                                   width=2)), row=1, col=1)
 
     def _add_bands(self, band_info, width, color, opacity=1.0):
-        assert len(band_info.band_energies[0]) == 1
-        for branch_idx, (d, e) in enumerate(zip(
+        try:
+            assert len(band_info.band_energies[0]) == 1
+        except AssertionError:
+            print("Currently, spin-polarization is not allowed.")
+
+        for branch_idx, (distances, eigvals) in enumerate(zip(
                 self.band_plot_info.distances_by_branch,
                 band_info.band_energies)):
-            for i in e[0]:
+            for eigvals_along_kpath in eigvals[0]:  # only spin-up
                 self.fig.add_trace(
-                    go.Scatter(x=d,
-                               y=i,
+                    go.Scatter(x=distances,
+                               y=eigvals_along_kpath,
                                hoverinfo="skip",
                                line_color=color,
                                showlegend=False,
@@ -185,6 +193,19 @@ class BandDosPlotlyPlotter:
                                mode="lines",
                                opacity=opacity,
                                line={"width": width}), row=1, col=1),
+            if band_info.irreps:
+                irreps = band_info.irreps[branch_idx][0]
+                if irreps:
+                    (irrep_distances, irrep_eigvals, labels) = irreps
+                    self.fig.add_trace(
+                        go.Scatter(x=irrep_distances,
+                                   y=irrep_eigvals,
+                                   text=labels,
+                                   hovertemplate="%{text}: <br>Energy: %{y}",
+                                   line_color=color,
+                                   showlegend=False,
+                                   mode="markers",
+                                   opacity=opacity), row=1, col=1),
 
     def _add_dos(self):
         if self.dos_plot_data is None:

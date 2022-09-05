@@ -151,11 +151,12 @@ def test_add_band_structures(mock_band_plt_list):
     mock_plt, _ = mock_band_plt_list
     linewidth = BandMplSettings().linewidth
     # 1st branch, 1st band
-    args = {"color": colors[0], "linewidth": next(linewidth)}
+    args = {"color": colors[0], "linewidth": next(linewidth), 'label': 'subtitle'}
     plotted_band_energies = \
     [[[[-2.0, -1, 0, 0, 0, -1, -2],
        [8.0, 7, 6, 5, 4, 3, 4]]],
      [[[-3.0, -4, -5, -6], [6, 3, 8, 9]]]]
+    print(distances[0], plotted_band_energies[0][0][0], args)
     mock_plt.plot.assert_any_call(distances[0], plotted_band_energies[0][0][0], **args)
 
     # 2nd branch, 1st band
@@ -172,7 +173,7 @@ def test_add_band_structures(mock_band_plt_list):
 def test_band_plot_info_add(band_plot_info, band_info: BandEnergyInfo):
     band_plot_info_2 = BandPlotInfo({"a": band_info}, distances, x_ticks)
     added = band_plot_info + band_plot_info_2
-    assert added.band_infos["a"].as_dict() == band_info.as_dict()
+    assert added.band_energy_infos["a"].as_dict() == band_info.as_dict()
     assert added.distances_by_branch == distances
     assert added.x_ticks == x_ticks
 

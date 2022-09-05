@@ -4,10 +4,9 @@
 from copy import deepcopy
 from dataclasses import dataclass
 from itertools import cycle
-from typing import List, Optional, Tuple, Dict, Union
+from typing import List, Optional, Dict, Union
 
 import matplotlib.pyplot as plt
-import numpy as np
 from monty.json import MSONable
 
 from vise.error import ViseError
@@ -77,10 +76,6 @@ class BandEnergyInfo(MSONable):
     def _slide_fermi_level(self, base_energy):
         if self.fermi_level:
             self.fermi_level -= base_energy
-    #
-    # def _slide_irrep_energies(self, base_energy):
-    #     if self.irreps:
-    #         self.
 
     @property
     def is_magnetic(self):
@@ -90,7 +85,7 @@ class BandEnergyInfo(MSONable):
                            decision_width: float = 0.1,
                            bottom: float = None,
                            top: float = None,
-                           offset: float = None) -> List[List[float]]:
+                           offset: float = 0.0) -> List[List[float]]:
         """Estimate continuously filled band energy region.
 
         Args:
@@ -105,10 +100,7 @@ class BandEnergyInfo(MSONable):
         result = []
 
         def add_boundary(lower, upper):
-            if offset is not None:
-                result.append([lower - offset, upper - offset])
-            else:
-                result.append([lower, upper])
+            result.append([lower - offset, upper - offset])
 
         sorted_energies = sorted([energy[0]
                                   for i in self.band_energies
@@ -174,9 +166,8 @@ class BandMplSettings:
 
     def band_structure(self, index, label):
         result = {"color": self.colors[index],
-                  "linewidth": next(self.linewidth)}
-        if index > 0:
-            result["label"] = label
+                  "linewidth": next(self.linewidth),
+                  "label": label}
         return result
 
     def circle(self, index):
@@ -191,20 +182,10 @@ class BandPlotInfo(MSONable, ToJsonFileMixIn):
 
     Ex: include both the PBE band and GW band
     """
-    band_infos: Dict[str, BandEnergyInfo]  # keys are subtitles.
+    band_energy_infos: Dict[str, BandEnergyInfo]  # keys are subtitles.
     distances_by_branch: List[List[float]]
     x_ticks: XTicks
     title: str = None  # title of all plots
-
-    @classmethod
-    def from_dict(cls, d):
-        """Needed for backward compatibility"""
-        if "band_info_set" in d:
-            d["band_infos"] = d.pop("band_info_set")
-
-        if isinstance(d["band_infos"], list):
-            d["band_infos"] = {str(i + 1): x for i, x in enumerate(d["band_infos"])}
-        return super().from_dict(d)
 
     def __post_init__(self):
         assert self.distances_by_branch[0][0] == self.x_ticks.distances[0]
@@ -212,8 +193,8 @@ class BandPlotInfo(MSONable, ToJsonFileMixIn):
 
     def __add__(self, other: "BandPlotInfo"):
         assert self.distances_by_branch == other.distances_by_branch
-        new_band_info_set = deepcopy(self.band_infos)
-        new_band_info_set.update(other.band_infos)
+        new_band_info_set = deepcopy(self.band_energy_infos)
+        new_band_info_set.update(other.band_energy_infos)
         return BandPlotInfo(new_band_info_set, self.distances_by_branch,
                             self.x_ticks, self.title)
 
@@ -229,7 +210,7 @@ class BandPlotter:
                  ):
         # need deepcopy to avoid side effect caused by the energy shift
         band_plot_info = deepcopy(band_plot_info)
-        self.band_infos = band_plot_info.band_infos
+        self.band_energy_infos = band_plot_info.band_energy_infos
         self.distances_by_branch = band_plot_info.distances_by_branch
         self.x_ticks = band_plot_info.x_ticks
 
@@ -247,10 +228,11 @@ class BandPlotter:
             return base_energy
 
         if base_energy_title is None:
-            base_energy_title = next(iter(self.band_infos))
-            logger.warning(f"Base energy is set to {base_energy_title}.")
+            base_energy_title = next(iter(self.band_energy_infos))
+            if len(self.band_energy_infos) > 1:
+                logger.warning(f"Base energy is set to {base_energy_title}.")
 
-        base_band_info = self.band_infos[base_energy_title]
+        base_band_info = self.band_energy_infos[base_energy_title]
 
         if base_band_info.band_edge:
             return base_band_info.band_edge.vbm
@@ -258,7 +240,7 @@ class BandPlotter:
         return base_band_info.fermi_level
 
     def _slide_energies(self, base_energy):
-        for band_info in self.band_infos.values():
+        for band_info in self.band_energy_infos.values():
             band_info.slide_energies(base_energy)
 
     def construct_plot(self):
@@ -273,7 +255,7 @@ class BandPlotter:
         self.plt.tight_layout()
 
     def _add_band_set(self):
-        for index, (band_name, band_info) in enumerate(self.band_infos.items()):
+        for index, (band_name, band_info) in enumerate(self.band_energy_infos.items()):
             self._add_band_structures(band_info, band_name, index)
 
             if band_info.band_edge:
@@ -294,7 +276,6 @@ class BandPlotter:
 
                 for energies_of_a_band in energies_by_spin:
                     energies = [e[0] for e in energies_of_a_band]
-                    print(energies)
                     self.plt.plot(distances, energies, **mpl_args)
                     mpl_args.pop("label", None)
 
@@ -313,7 +294,7 @@ class BandPlotter:
         self.plt.axhline(y=fermi_level, **self.mpl_defaults.hline)
 
     def _set_figure_legend(self):
-        if self.mpl_defaults.show_legend and len(self.band_infos) > 1:
+        if self.mpl_defaults.show_legend and len(self.band_energy_infos) > 1:
             self.plt.legend(**self.mpl_defaults.legend)
 
     def _set_x_range(self):

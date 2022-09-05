@@ -65,8 +65,8 @@ def test_vasp_band_plotter(is_metal, expected_band_edge, mocker):
     expected_x_ticks = XTicks(labels=["A", "${\\rm A}_0$", "Γ"],
                               distances=label_distances)
 
-    assert plot_info.band_infos["1"].band_energies == [[[[0.1], [0.2], [0.3]]]]
-    assert plot_info.band_infos["1"].band_edge == expected_band_edge
+    assert plot_info.band_energy_infos["1"].band_energies == [[[[[0.1]], [[0.2]], [[0.3]]]]]
+    assert plot_info.band_energy_infos["1"].band_edge == expected_band_edge
     assert plot_info.distances_by_branch == [[0.0, 0.1, 0.2]]
     assert plot_info.x_ticks == expected_x_ticks
     assert plot_info.title == "MgO$_{2}$"
@@ -96,7 +96,7 @@ def test_bz_plotter_with_actual_vasp_files(test_data_files: Path):
 def test_draw_two_bands(test_data_files: Path):
     mpl_settings = BandMplSettings(linewidth=[0.3, 1.0],
                                    circle_size=50,
-                                   show_legend=False)
+                                   show_legend=True)
 
     vasprun_file = str(test_data_files / "CdAs2O6-vasprun1.xml")
     vasprun2_file = str(test_data_files / "CdAs2O6-vasprun2.xml")
@@ -104,7 +104,8 @@ def test_draw_two_bands(test_data_files: Path):
     vasprun = Vasprun(vasprun_file)
     vasprun2 = Vasprun(vasprun2_file)
     plot_info = BandPlotInfoFromVasp(
-        vasprun, kpoints_file, vasprun2,
+        vasprun, kpoints_file, first_band_plot_name="pbe",
+        vasprun2=vasprun2, second_band_plot_name="dd hybrid",
         energy_window=[-20.0, 20.0]).make_band_plot_info()
 
     plotter = BandPlotter(plot_info, [-10, 10], mpl_defaults=mpl_settings)
@@ -134,11 +135,11 @@ def test_energy_window(mocker):
 
     mock_bsp = mocker.patch("vise.analyzer.vasp.plot_band.BSPlotter", auto_spec=True)
     mock_bsp.return_value.bs_plot_data.return_value = plot_data
-    mock_bsp.return_value.get_ticks_old.return_value = {"label": labels, "distance": distances[0]}
+    mock_bsp.return_value.get_ticks_old.return_value = {"label": labels, "distance": label_distances}
 
     plot_info = BandPlotInfoFromVasp(stub_vasprun, "KPOINTS",
                                      energy_window=[0.0, 1.0]).make_band_plot_info()
 
-    assert (plot_info.band_infos["1"].band_energies
-            == [[[[-0.2, -0.1, -0.3, 0.1]]]])
+    assert (plot_info.band_energy_infos["1"].band_energies
+            == [[[[[-0.2], [-0.1], [-0.3], [0.1]]]]])
 

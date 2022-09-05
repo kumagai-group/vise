@@ -3,8 +3,7 @@
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
 import re
-from copy import deepcopy
-from typing import List
+from typing import List, Union
 import numpy as np
 
 from pymatgen.electronic_structure.plotter import BSPlotter
@@ -69,7 +68,7 @@ class BandPlotInfoFromVasp:
         x = bs_plotter.get_ticks_old()
         x_ticks = XTicks(_sanitize_labels(x["label"]), x["distance"])
 
-        return BandPlotInfo(band_infos=band_info,
+        return BandPlotInfo(band_energy_infos=band_info,
                             distances_by_branch=distances,
                             x_ticks=x_ticks,
                             title=self._title)
@@ -97,14 +96,14 @@ class BandPlotInfoFromVasp:
 
         return BZPlotInfo(faces, labels, band_paths, rec_lat.matrix.tolist())
 
-    def _remove_spin_key(self, plot_data) -> List[List[List[List[float]]]]:
+    def _remove_spin_key(self, plot_data) -> List[List[List[List[List[Union[float, str]]]]]]:
         """
         Pymatgen at 2020.11.11
          energy: A dict storing bands for spin up and spin down data
             {Spin:[np.array(nb_bands,kpoints),...]} as a list of discontinuous kpath
             of energies. The energy of multiple continuous branches are stored together.
 
-        -> [branch][spin][band][k-point]
+        -> [branch][spin][band][k-point][energy, irrep]
         """
         num_spin = len(plot_data["energy"])
         num_branch = len(plot_data["energy"]["1"])
@@ -122,11 +121,13 @@ class BandPlotInfoFromVasp:
                         _min = np.min(branch_energy[i, :])
                         if not self.in_energy(_max, _min):
                             removed_idxs.append(i)
-                    x = np.delete(branch_energy, removed_idxs, axis=0).tolist()
+                    energies_by_spin = np.delete(branch_energy, removed_idxs, axis=0).tolist()
                 else:
-                    x = branch_energy.tolist()
+                    energies_by_spin = branch_energy.tolist()
 
-                result[branch_idx][spin_idx] = deepcopy(x)
+                result[branch_idx][spin_idx] = \
+                    [[[energy] for energy in energies_by_band]
+                     for energies_by_band in energies_by_spin]
 
         return result
 
