@@ -180,13 +180,6 @@ def test_merge_band_edge():
     band_edge = BandEdge(energy=-0.1, spin=Spin.down, band_index=0,
                          kpoint_index=1, kpoint_coords=[0.1, 0.1, 0.1],
                          name="band")
-    actual = merge_band_edge(dos_edge, band_edge, "vbm")
-    expected = BandEdge(energy=0.0, spin=Spin.up, band_index=0,
-                        kpoint_coords=[0.0, 0.0, 0.0], name="dos")
-    assert actual == expected
-
-    actual = merge_band_edge(dos_edge, band_edge, "cbm")
-    expected = BandEdge(energy=-0.1, spin=Spin.down, band_index=0,
-                        kpoint_coords=[0.1, 0.1, 0.1], name="band")
-    assert actual == expected
+    assert merge_band_edge(dos_edge, band_edge, "vbm") == dos_edge
+    assert merge_band_edge(dos_edge, band_edge, "cbm") == band_edge
 

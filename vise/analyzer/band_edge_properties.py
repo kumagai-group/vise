@@ -194,6 +194,4 @@ def merge_band_edge(be_1: BandEdge, be_2: BandEdge, edge: str):
     else:
         result = be_1 if be_1.energy < be_2.energy else be_2
 
-    result = deepcopy(result)
-    result.kpoint_index = None
-    return result
+    return deepcopy(result)
