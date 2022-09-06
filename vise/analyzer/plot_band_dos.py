@@ -5,7 +5,8 @@ from typing import Optional, List, Tuple
 
 from plotly.subplots import make_subplots
 from vise.analyzer.dos_data import DosPlotData
-from vise.analyzer.plot_band import BandPlotInfo, BandEdge
+from vise.analyzer.plot_band import BandPlotInfo, BandEdge, BandEnergyInfo, \
+    get_base_energy, slide_band_energies
 from plotly import graph_objects as go
 
 
@@ -67,6 +68,9 @@ class BandDosPlotlyPlotter:
 
         self.dos_plot_data = dos_plot_data
         self.band_plot_info = band_plot_info
+        base_energy = get_base_energy(self.band_plot_info.band_energy_infos)
+        slide_band_energies(self.band_plot_info.band_energy_infos, base_energy)
+
         self.plotly_defaults = plotly_defaults
 
         self._create_fig_w_subplots(dos_plot_data)
@@ -144,7 +148,7 @@ class BandDosPlotlyPlotter:
 
     def _add_band_edge_circles(self, distances, opacity, energy, color):
         self.fig.add_trace(
-            go.Scatter(x=distances, y=[energy] * len(distances),
+            go.Scatter(x=distances, y=[round(energy, 2)] * len(distances),
                        line_color=color, fillcolor=color, opacity=opacity,
                        **self.plotly_defaults.band_edge_circles),
             row=1, col=1),
@@ -173,19 +177,29 @@ class BandDosPlotlyPlotter:
                                         line=dict(color="black",
                                                   width=2)), row=1, col=1)
 
-    def _add_bands(self, band_info, width, color, opacity=1.0):
+    def _add_bands(self, band_info: BandEnergyInfo, width, color, opacity=1.0):
         try:
             assert len(band_info.band_energies[0]) == 1
         except AssertionError:
             print("Currently, spin-polarization is not allowed.")
 
+        irrep_x, irrep_y, labels = [], [], []
         for branch_idx, (distances, eigvals) in enumerate(zip(
                 self.band_plot_info.distances_by_branch,
                 band_info.band_energies)):
             for eigvals_along_kpath in eigvals[0]:  # only spin-up
+                x_wo_irrep, y_wo_irrep = [], []
+                for x, y in zip(distances, eigvals_along_kpath):
+                    x_wo_irrep.append(x)
+                    y_wo_irrep.append(y[0])
+                    if len(y) == 2:
+                        irrep_x.append(x)
+                        irrep_y.append(round(y[0], 2))
+                        labels.append(y[1])
+
                 self.fig.add_trace(
-                    go.Scatter(x=distances,
-                               y=eigvals_along_kpath,
+                    go.Scatter(x=x_wo_irrep,
+                               y=y_wo_irrep,
                                hoverinfo="skip",
                                line_color=color,
                                showlegend=False,
@@ -193,19 +207,17 @@ class BandDosPlotlyPlotter:
                                mode="lines",
                                opacity=opacity,
                                line={"width": width}), row=1, col=1),
-            if band_info.irreps:
-                irreps = band_info.irreps[branch_idx][0]
-                if irreps:
-                    (irrep_distances, irrep_eigvals, labels) = irreps
-                    self.fig.add_trace(
-                        go.Scatter(x=irrep_distances,
-                                   y=irrep_eigvals,
-                                   text=labels,
-                                   hovertemplate="%{text}: <br>Energy: %{y}",
-                                   line_color=color,
-                                   showlegend=False,
-                                   mode="markers",
-                                   opacity=opacity), row=1, col=1),
+
+        if irrep_x:
+            self.fig.add_trace(
+                go.Scatter(x=irrep_x,
+                           y=irrep_y,
+                           text=labels,
+                           hovertemplate="%{text}: <br>Energy: %{y}",
+                           line_color=color,
+                           showlegend=False,
+                           mode="markers",
+                           opacity=opacity), row=1, col=1),
 
     def _add_dos(self):
         if self.dos_plot_data is None:

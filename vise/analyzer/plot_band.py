@@ -129,6 +129,29 @@ class BandEnergyInfo(MSONable):
         return result
 
 
+@dataclass
+class BandPlotInfo(MSONable, ToJsonFileMixIn):
+    """Multiple BandInfo are accepted.
+
+    Ex: include both the PBE band and GW band
+    """
+    band_energy_infos: Dict[str, BandEnergyInfo]  # keys are subtitles.
+    distances_by_branch: List[List[float]]
+    x_ticks: XTicks
+    title: str = None  # title of all plots
+
+    def __post_init__(self):
+        assert self.distances_by_branch[0][0] == self.x_ticks.distances[0]
+        assert self.distances_by_branch[-1][-1] == self.x_ticks.distances[-1]
+
+    def __add__(self, other: "BandPlotInfo"):
+        assert self.distances_by_branch == other.distances_by_branch
+        new_band_info_set = deepcopy(self.band_energy_infos)
+        new_band_info_set.update(other.band_energy_infos)
+        return BandPlotInfo(new_band_info_set, self.distances_by_branch,
+                            self.x_ticks, self.title)
+
+
 class ViseBandInfoError(ViseError):
     pass
 
@@ -176,29 +199,6 @@ class BandMplSettings:
                 "s": self.circle_size}
 
 
-@dataclass
-class BandPlotInfo(MSONable, ToJsonFileMixIn):
-    """Multiple BandInfo are accepted.
-
-    Ex: include both the PBE band and GW band
-    """
-    band_energy_infos: Dict[str, BandEnergyInfo]  # keys are subtitles.
-    distances_by_branch: List[List[float]]
-    x_ticks: XTicks
-    title: str = None  # title of all plots
-
-    def __post_init__(self):
-        assert self.distances_by_branch[0][0] == self.x_ticks.distances[0]
-        assert self.distances_by_branch[-1][-1] == self.x_ticks.distances[-1]
-
-    def __add__(self, other: "BandPlotInfo"):
-        assert self.distances_by_branch == other.distances_by_branch
-        new_band_info_set = deepcopy(self.band_energy_infos)
-        new_band_info_set.update(other.band_energy_infos)
-        return BandPlotInfo(new_band_info_set, self.distances_by_branch,
-                            self.x_ticks, self.title)
-
-
 class BandPlotter:
 
     def __init__(self,
@@ -219,29 +219,9 @@ class BandPlotter:
         self.mpl_defaults = mpl_defaults
         self.plt = plt
 
-        base_energy = self._get_base_energy(base_energy, base_energy_title)
-
-        self._slide_energies(base_energy)
-
-    def _get_base_energy(self, base_energy, base_energy_title):
-        if base_energy:
-            return base_energy
-
-        if base_energy_title is None:
-            base_energy_title = next(iter(self.band_energy_infos))
-            if len(self.band_energy_infos) > 1:
-                logger.warning(f"Base energy is set to {base_energy_title}.")
-
-        base_band_info = self.band_energy_infos[base_energy_title]
-
-        if base_band_info.band_edge:
-            return base_band_info.band_edge.vbm
-
-        return base_band_info.fermi_level
-
-    def _slide_energies(self, base_energy):
-        for band_info in self.band_energy_infos.values():
-            band_info.slide_energies(base_energy)
+        if base_energy is None:
+            base_energy = get_base_energy(self.band_energy_infos, base_energy_title)
+        slide_band_energies(self.band_energy_infos, base_energy)
 
     def construct_plot(self):
         self._add_band_set()
@@ -323,5 +303,24 @@ class BandPlotter:
     def _set_formatter(self):
         axis = self.plt.gca()
         axis.yaxis.set_major_formatter(float_to_int_formatter)
+
+
+def get_base_energy(band_energy_infos, base_energy_title=None):
+    if base_energy_title is None:
+        base_energy_title = next(iter(band_energy_infos))
+        if len(band_energy_infos) > 1:
+            logger.warning(f"Base energy is set to {base_energy_title}.")
+
+    base_band_info = band_energy_infos[base_energy_title]
+
+    if base_band_info.band_edge:
+        return base_band_info.band_edge.vbm
+
+    return base_band_info.fermi_level
+
+
+def slide_band_energies(band_energy_infos, base_energy):
+    for band_info in band_energy_infos.values():
+        band_info.slide_energies(base_energy)
 
 

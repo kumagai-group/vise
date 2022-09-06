@@ -78,7 +78,7 @@ def mock_band_plt_list(mocker, band_plot_info):
 
 
 def test_band_info_slide_energies(band_info):
-    band_info.slide_energies(base_energy=base_energy)
+    band_info.slide_band_energies(base_energy=base_energy)
     expected_band_edge = BandEdge(vbm=0, cbm=3,
                                   vbm_distances=[2, 3, 4], cbm_distances=[5, 7])
 
