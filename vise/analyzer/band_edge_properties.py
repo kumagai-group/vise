@@ -18,8 +18,9 @@ logger = get_logger(__name__)
 @dataclass
 class BandEdge(MSONable):
     energy: float
-    spin: Spin = None
-    band_index: int = None
+    spin: Spin
+    band_index: int
+    kpoint_coords: List[float]
     kpoint_index: int = None
 
     def is_direct(self, other: "BandEdge"):
