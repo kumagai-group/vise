@@ -134,8 +134,8 @@ class BandEdgeProperties:
         return self.cbm_info.energy - self.vbm_info.energy \
             if self.vbm_info else None
 
-    @property
-    def min_gap_w_coords(self) -> Tuple[float, List[List[float]]]:
+    def min_gap_w_coords(self, same_energy_threshold: float = 1e-5
+                         ) -> Tuple[float, List[List[float]]]:
         """The direct-type minimum gap and its positions in the reciprocal space
 
         Note that the minimum positions can be multiple.
@@ -154,7 +154,7 @@ class BandEdgeProperties:
             lu_eigs = eigenvalues[:, lu_band_index]
             diff = lu_eigs - ho_eigs
             _kpt = argmin(diff)
-            if diff[_kpt] < min_gap + 1e-5:
+            if diff[_kpt] < min_gap + same_energy_threshold:
                 min_gap = diff[_kpt]
                 kpoint_indices.append(_kpt)
         kpoint_coords = [self._kpoint_coords[i] for i in kpoint_indices]
