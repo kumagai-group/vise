@@ -7,7 +7,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from vise.analyzer.plot_band import (
-    BandPlotter, BandEnergyInfo, BandEdge, XTicks, BandMplSettings,
+    BandMplPlotter, BandEnergyInfo, BandEdge, XTicks, BandMplSettings,
     BandPlotInfo, ViseBandInfoError)
 from vise.tests.helpers.assertion import assert_msonable
 from vise.util.matplotlib import float_to_int_formatter
@@ -72,7 +72,7 @@ def mock_band_plt_list(mocker, band_plot_info):
     mock_plt = mocker.patch("vise.analyzer.plot_band.plt", auto_spec=True)
     mock_axis = MagicMock()
     mock_plt.gca.return_value = mock_axis
-    plotter = BandPlotter(band_plot_info, y_range)
+    plotter = BandMplPlotter(band_plot_info, y_range)
     plotter.construct_plot()
     return mock_plt, mock_axis
 
@@ -247,7 +247,7 @@ def test_plot_tight_layout(mock_band_plt_list):
 
 #@pytest.mark.skip()
 def test_draw_bands(band_plot_info):
-    band_plotter = BandPlotter(band_plot_info, y_range)
+    band_plotter = BandMplPlotter(band_plot_info, y_range)
     band_plotter.construct_plot()
     band_plotter.plt.show()
 
@@ -259,7 +259,7 @@ def test_reference_energy(ref_energy, subtracted_energy, mocker, band_plot_info)
     mock_axis = MagicMock()
     mock_plt.gca.return_value = mock_axis
 
-    plotter = BandPlotter(band_plot_info, y_range, ref_energy)
+    plotter = BandMplPlotter(band_plot_info, y_range, ref_energy)
     plotter.construct_plot()
 
     band_defaults = BandMplSettings()
@@ -310,7 +310,7 @@ def mock_two_bands_plt_axis(two_band_infos, mocker):
     mock_axis = MagicMock()
     mock_plt.gca.return_value = mock_axis
     band_plot_info = BandPlotInfo(two_band_infos, distances, x_ticks, title)
-    plotter = BandPlotter(band_plot_info, y_range)
+    plotter = BandMplPlotter(band_plot_info, y_range)
     plotter.construct_plot()
     return mock_plt, mock_axis
 
@@ -327,7 +327,7 @@ def test_check_color_generator_with_last_call(mock_two_bands_plt_axis):
 
 def test_draw_two_bands(two_band_infos):
     band_plot_info = BandPlotInfo(two_band_infos, distances, x_ticks, title)
-    band_plotter = BandPlotter(band_plot_info, y_range)
+    band_plotter = BandMplPlotter(band_plot_info, y_range)
     band_plotter.construct_plot()
     band_plotter.plt.show()
 

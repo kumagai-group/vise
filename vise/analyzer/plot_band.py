@@ -199,7 +199,7 @@ class BandMplSettings:
                 "s": self.circle_size}
 
 
-class BandPlotter:
+class BandMplPlotter:
 
     def __init__(self,
                  band_plot_info: BandPlotInfo,

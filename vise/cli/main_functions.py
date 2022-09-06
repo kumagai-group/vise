@@ -12,7 +12,7 @@ from pymatgen.io.vasp import Vasprun, Outcar
 from vise.analyzer.dielectric_function import DieleFuncData
 from vise.analyzer.plot_diele_func_data import DieleFuncMplPlotter, \
     DieleFuncPlotType
-from vise.analyzer.plot_band import BandPlotter
+from vise.analyzer.plot_band import BandMplPlotter
 from vise.analyzer.plot_dos import DosPlotter
 from vise.analyzer.vasp.band_edge_properties import VaspBandEdgeProperties
 from vise.analyzer.vasp.dos_data import DosDataFromVasp
@@ -159,7 +159,7 @@ def plot_band(args: Namespace):
         vasprun=Vasprun(args.vasprun), kpoints_filename=args.kpoints_filename)
     plot_info = band_plot_info_from_vasp.make_band_plot_info()
     plot_info.to_json_file()
-    plotter = BandPlotter(plot_info, energy_range=args.y_range)
+    plotter = BandMplPlotter(plot_info, energy_range=args.y_range)
     plotter.construct_plot()
     plotter.plt.savefig(args.filename, format="pdf")
 

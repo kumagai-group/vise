@@ -11,7 +11,7 @@ from vise.analyzer.plot_band import BandEdge, XTicks, BandMplSettings
 from vise.analyzer.plot_brillouin_zone import BZPlotlyPlotter
 from vise.analyzer.vasp.plot_band import greek_to_unicode, italic_to_roman, \
     BandPlotInfoFromVasp
-from vise.analyzer.plot_band import BandPlotter
+from vise.analyzer.plot_band import BandMplPlotter
 import numpy as np
 from vise.util.dash_helper import show_png
 
@@ -77,7 +77,7 @@ def test_draw_band_plotter_with_actual_vasp_files(test_data_files: Path):
     kpoints_file = str(test_data_files / "KO2_band_KPOINTS")
     vasprun = Vasprun(vasprun_file)
     plot_info = BandPlotInfoFromVasp(vasprun, kpoints_file).make_band_plot_info()
-    plotter = BandPlotter(plot_info, [-10, 10])
+    plotter = BandMplPlotter(plot_info, [-10, 10])
     plotter.construct_plot()
     plotter.plt.show()
 
@@ -108,7 +108,7 @@ def test_draw_two_bands(test_data_files: Path):
         vasprun2=vasprun2, second_band_plot_name="dd hybrid",
         energy_window=[-20.0, 20.0]).make_band_plot_info()
 
-    plotter = BandPlotter(plot_info, [-10, 10], mpl_defaults=mpl_settings)
+    plotter = BandMplPlotter(plot_info, [-10, 10], mpl_defaults=mpl_settings)
     plotter.construct_plot()
     plotter.plt.show()
 
