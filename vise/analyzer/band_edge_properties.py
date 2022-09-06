@@ -22,6 +22,7 @@ class BandEdge(MSONable):
     band_index: int
     kpoint_coords: List[float]
     kpoint_index: int = None
+    name: str = None
 
     def is_direct(self, other: "BandEdge"):
         return (self.spin == other.spin and

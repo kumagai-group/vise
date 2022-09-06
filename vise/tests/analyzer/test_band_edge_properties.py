@@ -8,7 +8,7 @@ import pytest
 from pymatgen.electronic_structure.core import Spin
 
 from vise.analyzer.band_edge_properties import (
-    BandEdge, BandEdgeProperties, is_band_gap)
+    BandEdge, BandEdgeProperties, is_band_gap, merge_band_edge)
 from vise.defaults import defaults
 from vise.tests.helpers.assertion import assert_msonable
 
@@ -22,7 +22,8 @@ expected_metal = \
 
 def test_band_edge_msonable():
     assert_msonable(BandEdge(energy=0.0, spin=Spin.up, band_index=0,
-                             kpoint_index=1, kpoint_coords=[0.0, 0.0, 0.0]))
+                             kpoint_index=1, kpoint_coords=[0.0, 0.0, 0.0],
+                             name="test"))
 
 
 def test_band_edge_equal():
