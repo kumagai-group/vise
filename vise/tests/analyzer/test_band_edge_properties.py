@@ -171,3 +171,22 @@ def test_is_band_gap():
     assert is_band_gap(None, [1.0, 1.0 + defaults.band_gap_criterion + 1e-5]) is True
     assert is_band_gap(None, [1.0, 1.0 + defaults.band_gap_criterion - 1e-5]) is False
     assert is_band_gap(None, None) is False
+
+
+def test_merge_band_edge():
+    dos_edge = BandEdge(energy=0.0, spin=Spin.up, band_index=0,
+                        kpoint_index=1, kpoint_coords=[0.0, 0.0, 0.0],
+                        name="dos")
+    band_edge = BandEdge(energy=-0.1, spin=Spin.down, band_index=0,
+                         kpoint_index=1, kpoint_coords=[0.1, 0.1, 0.1],
+                         name="band")
+    actual = merge_band_edge(dos_edge, band_edge, "vbm")
+    expected = BandEdge(energy=0.0, spin=Spin.up, band_index=0,
+                        kpoint_coords=[0.0, 0.0, 0.0], name="dos")
+    assert actual == expected
+
+    actual = merge_band_edge(dos_edge, band_edge, "cbm")
+    expected = BandEdge(energy=-0.1, spin=Spin.down, band_index=0,
+                        kpoint_coords=[0.1, 0.1, 0.1], name="band")
+    assert actual == expected
+
