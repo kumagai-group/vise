@@ -21,7 +21,6 @@ class BandEdge(MSONable):
     spin: Spin = None
     band_index: int = None
     kpoint_index: int = None
-    kpoint_coords: List[float] = None
 
     def is_direct(self, other: "BandEdge"):
         return (self.spin == other.spin and
@@ -36,15 +35,13 @@ class BandEdge(MSONable):
                f"k-point index {self.kpoint_index}, k-point coords {kpt_coords}"
 
     def as_dict(self):
-        d = {"@module":       self.__class__.__module__,
-             "@class":        self.__class__.__name__,
-             "energy":        self.energy,
-             "spin":          int(self.spin),
-             "band_index":    self.band_index,
-             "kpoint_index":  self.kpoint_index,
-             "kpoint_coords": self.kpoint_coords}
-
-        return d
+        return {"@module":       self.__class__.__module__,
+                "@class":        self.__class__.__name__,
+                "energy":        self.energy,
+                "spin":          int(self.spin),
+                "band_index":    self.band_index,
+                "kpoint_index":  self.kpoint_index,
+                "kpoint_coords": self.kpoint_coords}
 
     @classmethod
     def from_dict(cls, d):
@@ -81,26 +78,28 @@ class BandEdgeProperties:
             self.cbm_info = None
 
     def _calculate_vbm_cbm(self):
-        self.vbm_info = BandEdge(float("-inf"))
-        self.cbm_info = BandEdge(float("inf"))
+        vbm_energy = float("-inf")
+        cbm_energy = float("inf")
         for spin, eigenvalues in self._eigenvalues.items():
             # ho = highest occupied
             ho_eigenvalue = np.amax(eigenvalues[:, self._ho_band_index(spin)])
-            if ho_eigenvalue > self.vbm_info.energy:
+            if ho_eigenvalue > vbm_energy:
                 self.vbm_info = self.band_edge(
                     eigenvalues, self._ho_band_index(spin), ho_eigenvalue, spin)
+                vbm_energy = ho_eigenvalue
 
             # lu = lowest unoccupied
             lu_band_index = self._ho_band_index(spin) + 1
             lu_eigenvalue = np.amin(eigenvalues[:, lu_band_index])
-            if lu_eigenvalue < self.cbm_info.energy:
+            if lu_eigenvalue < cbm_energy:
                 self.cbm_info = self.band_edge(
                     eigenvalues, lu_band_index, lu_eigenvalue, spin)
+                cbm_energy = lu_eigenvalue
 
     def band_edge(self, eigenvalues, band_index, eigenvalue, spin):
         k_index = int(np.where(eigenvalues[:, band_index] == eigenvalue)[0][0])
-        return BandEdge(eigenvalue, spin, band_index, k_index,
-                        self._kpoint_coords[k_index])
+        return BandEdge(eigenvalue, spin, band_index,
+                        self._kpoint_coords[k_index], k_index)
 
     def _ho_band_index(self, spin):
         if spin == Spin.up:
