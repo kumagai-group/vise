@@ -7,7 +7,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from vise.analyzer.plot_band import (
-    BandMplPlotter, BandEnergyInfo, BandEdge, XTicks, BandMplSettings,
+    BandMplPlotter, BandEnergyInfo, BandEdgeForPlot, XTicks, BandMplSettings,
     BandPlotInfo, ViseBandInfoError)
 from vise.tests.helpers.assertion import assert_msonable
 from vise.util.matplotlib import float_to_int_formatter
@@ -34,7 +34,7 @@ shifted_band_energies = \
        [[8.0], [7], [6], [5], [4], [3], [4]]]],
      [[[[-3.0], [-4], [-5], [-6]], [[6], [3], [8], [9]]]]]
 
-band_edge = BandEdge(vbm=-1, cbm=2, vbm_distances=[2, 3, 4], cbm_distances=[5, 7])
+band_edge = BandEdgeForPlot(vbm=-1, cbm=2, vbm_distances=[2, 3, 4], cbm_distances=[5, 7])
 fermi_level = 1.5
 
 band_info_fermi = BandEnergyInfo(band_energies=band_energies,
@@ -78,9 +78,9 @@ def mock_band_plt_list(mocker, band_plot_info):
 
 
 def test_band_info_slide_energies(band_info):
-    band_info.slide_band_energies(base_energy=base_energy)
-    expected_band_edge = BandEdge(vbm=0, cbm=3,
-                                  vbm_distances=[2, 3, 4], cbm_distances=[5, 7])
+    band_info.slide_energies(base_energy=base_energy)
+    expected_band_edge = BandEdgeForPlot(vbm=0, cbm=3,
+                                         vbm_distances=[2, 3, 4], cbm_distances=[5, 7])
 
     assert band_info.band_energies == shifted_band_energies
     assert band_info.band_edge == expected_band_edge
@@ -109,9 +109,9 @@ def test_slide_energies_when_fermi_is_none():
 def test_band_plot_info_band_energy_region():
     band_info = BandEnergyInfo(band_energies=[[[[[-1.01], [-1.008], [-1.003], [-1.0]]]],
                                               [[[[1.01], [1.0]]]]],
-                               band_edge=BandEdge(vbm=-1.0, cbm=1.0,
-                                            vbm_distances=[1],
-                                            cbm_distances=[1]),
+                               band_edge=BandEdgeForPlot(vbm=-1.0, cbm=1.0,
+                                                         vbm_distances=[1],
+                                                         cbm_distances=[1]),
                                fermi_level=0.0)
     assert band_info.band_energy_region() == [[-1.01, -1.0], [1.0, 1.01]]
     assert band_info.band_energy_region(decision_width=0.0031) \
@@ -279,8 +279,8 @@ def two_band_infos():
                                [[4], [1], [6], [7]]]]
     first_band_energies = [first_branch_energies, second_branch_energies]
 
-    band_edge_1 = BandEdge(vbm=0, cbm=1,
-                           vbm_distances=[2, 3, 4], cbm_distances=[5, 7])
+    band_edge_1 = BandEdgeForPlot(vbm=0, cbm=1,
+                                  vbm_distances=[2, 3, 4], cbm_distances=[5, 7])
     band_info_1 = BandEnergyInfo(band_energies=first_band_energies,
                                  band_edge=band_edge_1,
                                  fermi_level=None)
@@ -295,8 +295,8 @@ def two_band_infos():
                                [[6], [6], [6], [6]]]]
     second_band_energies = [first_branch_energies, second_branch_energies]
 
-    band_edge_2 = BandEdge(vbm=-4, cbm=4,
-                           vbm_distances=[4], cbm_distances=[4])
+    band_edge_2 = BandEdgeForPlot(vbm=-4, cbm=4,
+                                  vbm_distances=[4], cbm_distances=[4])
     band_info_2 = BandEnergyInfo(band_energies=second_band_energies,
                                  band_edge=band_edge_2,
                                  fermi_level=None)

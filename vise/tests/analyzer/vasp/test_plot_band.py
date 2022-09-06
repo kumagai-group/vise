@@ -7,7 +7,7 @@ import pytest
 from pymatgen.core import Composition
 from pymatgen.io.vasp import Vasprun
 
-from vise.analyzer.plot_band import BandEdge, XTicks, BandMplSettings
+from vise.analyzer.plot_band import BandEdgeForPlot, XTicks, BandMplSettings
 from vise.analyzer.plot_brillouin_zone import BZPlotlyPlotter
 from vise.analyzer.vasp.plot_band import greek_to_unicode, italic_to_roman, \
     BandPlotInfoFromVasp
@@ -33,8 +33,8 @@ def test_italic_to_roman():
 
 
 test_data = [(True, None),
-             (False, BandEdge(vbm=-100, cbm=100,
-                              vbm_distances=[0], cbm_distances=[1, 2]))]
+             (False, BandEdgeForPlot(vbm=-100, cbm=100,
+                                     vbm_distances=[0], cbm_distances=[1, 2]))]
 
 
 @pytest.mark.parametrize("is_metal,expected_band_edge", test_data)

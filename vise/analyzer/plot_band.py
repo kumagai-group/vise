@@ -30,13 +30,19 @@ class XTicks(MSONable):
 
 
 @dataclass
-class BandEdge(MSONable):
+class BandEdgeForPlot(MSONable):
     vbm: float
     cbm: float
     # The positions of the VBM and CBM denoted by total distances in the band
     # figure.
     vbm_distances: List[float]
     cbm_distances: List[float]
+
+
+# backward compatibility
+@dataclass
+class BandEdge(BandEdgeForPlot):
+    pass
 
 
 class BandEnergyInfo(MSONable):
@@ -47,7 +53,7 @@ class BandEnergyInfo(MSONable):
                  # We need to distinguish branch to draw continuous line in the
                  # area and calculate the effective masses.
                  band_energies: List[List[List[List[List[Union[float, str]]]]]],
-                 band_edge: Optional[BandEdge] = None,
+                 band_edge: Optional[BandEdgeForPlot] = None,
                  fermi_level: Optional[float] = None):
         self.band_energies = deepcopy(band_energies)
         self.band_edge = deepcopy(band_edge)

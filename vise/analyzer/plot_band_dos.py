@@ -5,7 +5,7 @@ from typing import Optional, List, Tuple
 
 from plotly.subplots import make_subplots
 from vise.analyzer.dos_data import DosPlotData
-from vise.analyzer.plot_band import BandPlotInfo, BandEdge, BandEnergyInfo, \
+from vise.analyzer.plot_band import BandPlotInfo, BandEdgeForPlot, BandEnergyInfo, \
     get_base_energy, slide_band_energies
 from plotly import graph_objects as go
 
@@ -68,8 +68,9 @@ class BandDosPlotlyPlotter:
 
         self.dos_plot_data = dos_plot_data
         self.band_plot_info = band_plot_info
-        base_energy = get_base_energy(self.band_plot_info.band_energy_infos)
-        slide_band_energies(self.band_plot_info.band_energy_infos, base_energy)
+        if band_plot_info:
+            base_energy = get_base_energy(self.band_plot_info.band_energy_infos)
+            slide_band_energies(self.band_plot_info.band_energy_infos, base_energy)
 
         self.plotly_defaults = plotly_defaults
 
@@ -136,7 +137,7 @@ class BandDosPlotlyPlotter:
 
         self._add_special_points_and_border_lines()
 
-    def _add_band_edges(self, band_edge: BandEdge, opacity, h_line_color):
+    def _add_band_edges(self, band_edge: BandEdgeForPlot, opacity, h_line_color):
         self._add_horizontal_lines(
             [band_edge.vbm, band_edge.cbm], h_line_color, "dash")
         self._add_band_edge_circles(band_edge.vbm_distances,

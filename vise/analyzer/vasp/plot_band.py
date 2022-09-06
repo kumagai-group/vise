@@ -8,7 +8,7 @@ import numpy as np
 
 from pymatgen.electronic_structure.plotter import BSPlotter
 from pymatgen.io.vasp import Vasprun
-from vise.analyzer.plot_band import BandPlotInfo, BandEnergyInfo, XTicks, BandEdge
+from vise.analyzer.plot_band import BandPlotInfo, BandEnergyInfo, XTicks, BandEdgeForPlot
 from vise.analyzer.plot_brillouin_zone import BZPlotInfo
 from vise.util.string import latexify
 
@@ -138,7 +138,7 @@ class BandPlotInfoFromVasp:
         if bs.is_metal():
             return None
         else:
-            return BandEdge(
+            return BandEdgeForPlot(
                 vbm=plot_data["vbm"][0][1],
                 cbm=plot_data["cbm"][0][1],
                 vbm_distances=[i[0] for i in plot_data["vbm"]],
