@@ -1,17 +1,39 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2021. Distributed under the terms of the MIT License.
+from copy import copy
 from dataclasses import dataclass
 from typing import List, Tuple
 
 import pytest
+from monty.json import MSONable
 from pymatgen.core import IStructure, Lattice
 from vise.tests.helpers.assertion import assert_dataclass_almost_equal, \
-    assert_structure_almost_same
+    assert_structure_almost_same, assert_msonable
 
 
 @dataclass
 class Data:
     x: float
+
+
+def test_assert_msonable_round_trip_cover_all_attributes():
+    @dataclass
+    class TestMSONableData(MSONable):
+        x: float = None
+        y: str = None
+
+        def as_dict(self):
+            return {"x": self.x}
+
+        @classmethod
+        def from_dict(cls, d):
+            kwargs = copy(d)
+            kwargs.pop("@module", None)
+            kwargs.pop("@class", None)
+            return cls(**d)
+
+    with pytest.raises(AssertionError):
+        assert_msonable(TestMSONableData(1.0, "a"))
 
 
 @dataclass

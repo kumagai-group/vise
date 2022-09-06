@@ -30,7 +30,9 @@ def assert_structure_almost_same(s1: IStructure, s2: IStructure):
 
 def assert_msonable(obj):
     assert isinstance(obj, MSONable)
-    assert obj.as_dict() == obj.__class__.from_dict(obj.as_dict()).as_dict()
+    rounded_obj = obj.__class__.from_dict(obj.as_dict())
+    assert obj == rounded_obj
+    assert obj.as_dict() == rounded_obj.as_dict()
     assert json.loads(obj.to_json(), cls=MontyDecoder)
 
 
