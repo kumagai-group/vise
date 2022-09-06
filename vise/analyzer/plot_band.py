@@ -45,20 +45,17 @@ class BandEdge(BandEdgeForPlot):
     pass
 
 
+@dataclass
 class BandEnergyInfo(MSONable):
-    def __init__(self,
-                 # [branch][spin][band][k-point][energy, irrep]
-                 # A branch is an area in which the k-points are continuous.
-                 # Each branch is separated by a vertical bar.
-                 # We need to distinguish branch to draw continuous line in the
-                 # area and calculate the effective masses.
-                 band_energies: List[List[List[List[List[Union[float, str]]]]]],
-                 band_edge: Optional[BandEdgeForPlot] = None,
-                 fermi_level: Optional[float] = None):
-        self.band_energies = deepcopy(band_energies)
-        self.band_edge = deepcopy(band_edge)
-        self.fermi_level = fermi_level
+    # [branch][spin][band][k-point][energy, irrep] A branch is an area in which
+    # the k-points are continuous. Each branch is separated by a vertical bar.
+    # We need to distinguish branch to draw continuous line in the area and
+    # calculate the effective masses.
+    band_energies: List[List[List[List[List[Union[float, str]]]]]]
+    band_edge: Optional[BandEdgeForPlot] = None
+    fermi_level: Optional[float] = None
 
+    def __post_init__(self):
         if self.band_edge is None and self.fermi_level is None:
             raise ViseBandInfoError
 
