@@ -162,7 +162,7 @@ class BandEdgeProperties:
         return min_gap, kpoint_coords
 
     @property
-    def vbm_cbm(self):
+    def vbm_cbm(self) -> List[float]:
         if self.vbm_info:
             return [self.vbm_info.energy, self.cbm_info.energy]
 
@@ -185,7 +185,7 @@ def is_band_gap(band_gap: Optional[float],
     return False
 
 
-def merge_band_edge(be_1: BandEdge, be_2: BandEdge, edge: str):
+def merge_band_edge(be_1: BandEdge, be_2: BandEdge, edge: str) -> BandEdge:
     if edge not in ["vbm", "cbm"]:
         raise ValueError("edge needs to be vbm or cbm")
 

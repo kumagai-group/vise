@@ -134,7 +134,7 @@ class BandEnergyInfo(MSONable):
 
 @dataclass
 class BandPlotInfo(MSONable, ToJsonFileMixIn):
-    """Multiple BandInfo are accepted.
+    """Multiple BandInfo with the same k-point path are accepted.
 
     Ex: include both the PBE band and GW band
     """
