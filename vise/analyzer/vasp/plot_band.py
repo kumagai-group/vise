@@ -48,6 +48,10 @@ class BandPlotInfoFromVasp:
                                                    line_mode=True)
             self.second_band_plot_name = second_band_plot_name or "2"
 
+        else:
+            self.vasprun2, self.bs2, self.second_band_plot_name \
+                = None, None, None
+
     def make_band_plot_info(self):
         bs_plotter = BSPlotter(self.bs)
         plot_data = bs_plotter.bs_plot_data(zero_to_efermi=False)
