@@ -18,8 +18,8 @@ def test_special_points_from_kpoints(test_data_files: Path):
 def test_make_irreps_with_actual_vasp_files(test_data_files: Path):
     wavecar_file = str(test_data_files / "H_band_WAVECAR")
     poscar_file = str(test_data_files / "H_band_POSCAR")
-    actual = make_irreps_from_wavecar(special_point_chars=["GM", "H"],
-                                      kplist=[9, 14],
+    actual = make_irreps_from_wavecar(special_point_characters=["GM", "H"],
+                                      kpt_indices=[9, 14],
                                       wavecar_filename=wavecar_file,
                                       poscar_filename=poscar_file,
                                       )
