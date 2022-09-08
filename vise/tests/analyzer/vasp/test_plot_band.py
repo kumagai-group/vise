@@ -84,8 +84,8 @@ def test_draw_band_plotter_with_actual_vasp_files(test_data_files: Path):
 
 @pytest.mark.skipif(PSUTIL_NOT_PRESENT, reason="psutil does not exist")
 def test_bz_plotter_with_actual_vasp_files(test_data_files: Path):
-    vasprun_file = str(test_data_files / "KO2_band_vasprun.xml")
-    kpoints_file = str(test_data_files / "KO2_band_KPOINTS")
+    vasprun_file = str(test_data_files / "H_band_vasprun.xml")
+    kpoints_file = str(test_data_files / "H_band_KPOINTS")
     vasprun = Vasprun(vasprun_file)
     bz_plot_info = BandPlotInfoFromVasp(vasprun, kpoints_file).make_bz_plot_info()
     fig = BZPlotlyPlotter(bz_plot_info).create_figure()

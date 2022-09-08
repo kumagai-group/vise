@@ -29,21 +29,24 @@ class BandPlotInfoFromVasp:
                  vasprun: Vasprun,
                  kpoints_filename: str,
                  first_band_plot_name: str = None,
+                 wavecar_name: str = None,
                  vasprun2: Vasprun = None,
                  second_band_plot_name: str = None,
                  energy_window: List[float] = None):
         self._composition = vasprun.final_structure.composition
-        if vasprun2:
-            assert self._composition == vasprun2.final_structure.composition
-        self.vasprun = vasprun
-        self.kpoints_filename = kpoints_filename
+        self.bs = vasprun.get_band_structure(kpoints_filename, line_mode=True)
         self.first_band_plot_name = first_band_plot_name or "1"
-
-        self.vasprun2 = vasprun2
-        self.second_band_plot_name = second_band_plot_name or "2"
+        self.wavecar_name = wavecar_name
+        self.rlat = vasprun.final_structure.lattice.reciprocal_lattice
+        self.kpoints = self.bs.kpoints
         self.energy_window = energy_window
-        self.bs = self.vasprun.get_band_structure(self.kpoints_filename,
-                                                  line_mode=True)
+
+        if vasprun2:
+            assert vasprun.final_structure == vasprun2.final_structure
+            self.vasprun2 = vasprun2
+            self.bs2 = vasprun2.get_band_structure(kpoints_filename,
+                                                   line_mode=True)
+            self.second_band_plot_name = second_band_plot_name or "2"
 
     def make_band_plot_info(self):
         bs_plotter = BSPlotter(self.bs)
@@ -53,17 +56,14 @@ class BandPlotInfoFromVasp:
         band_info_1 = BandEnergyInfo(band_energies=self._remove_spin_key(plot_data),
                                      band_edge=self._band_edge(self.bs, plot_data),
                                      fermi_level=self.bs.efermi)
-
         band_info = {self.first_band_plot_name: band_info_1}
 
         if self.vasprun2:
-            bs2 = self.vasprun2.get_band_structure(self.kpoints_filename,
-                                                   line_mode=True)
-            plot_data2 = BSPlotter(bs2).bs_plot_data(zero_to_efermi=False)
+            plot_data2 = BSPlotter(self.bs2).bs_plot_data(zero_to_efermi=False)
             band_info[self.second_band_plot_name] = BandEnergyInfo(
                 band_energies=self._remove_spin_key(plot_data2),
-                band_edge=self._band_edge(bs2, plot_data2),
-                fermi_level=self.bs.efermi)
+                band_edge=self._band_edge(self.bs2, plot_data2),
+                fermi_level=self.bs2.efermi)
 
         x = bs_plotter.get_ticks_old()
         x_ticks = XTicks(_sanitize_labels(x["label"]), x["distance"])
@@ -74,14 +74,14 @@ class BandPlotInfoFromVasp:
                             title=self._title)
 
     def make_bz_plot_info(self):
-        rec_lat = self.vasprun.final_structure.lattice.reciprocal_lattice
-        faces = [[[float(k) for k in j] for j in i] for i in rec_lat.get_wigner_seitz_cell()]
+        faces = [[[float(k) for k in j] for j in i]
+                 for i in self.rlat.get_wigner_seitz_cell()]
         labels = {}
 
         concat = False
         band_paths = []
         init_point = None
-        for kpoint in self.bs.kpoints:
+        for kpoint in self.kpoints:
             if kpoint.label:
                 c_coords = list(kpoint.cart_coords)
                 f_coords = list(kpoint.frac_coords)
@@ -94,7 +94,7 @@ class BandPlotInfoFromVasp:
             else:
                 concat = False
 
-        return BZPlotInfo(faces, labels, band_paths, rec_lat.matrix.tolist())
+        return BZPlotInfo(faces, labels, band_paths, self.rlat.matrix.tolist())
 
     def _remove_spin_key(self, plot_data) -> List[List[List[List[List[Union[float, str]]]]]]:
         """
@@ -121,7 +121,8 @@ class BandPlotInfoFromVasp:
                         _min = np.min(branch_energy[i, :])
                         if not self.in_energy(_max, _min):
                             removed_idxs.append(i)
-                    energies_by_spin = np.delete(branch_energy, removed_idxs, axis=0).tolist()
+                    energies_by_spin = np.delete(branch_energy,
+                                                 removed_idxs, axis=0).tolist()
                 else:
                     energies_by_spin = branch_energy.tolist()
 
