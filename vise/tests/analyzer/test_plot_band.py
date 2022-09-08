@@ -101,8 +101,8 @@ def test_slide_energies_when_band_edge_is_none():
 
 
 def test_slide_energies_when_fermi_is_none():
-    band_info_edge.slide_energies(base_energy=base_energy)
-    assert band_info_edge.band_edge.vbm == band_edge.vbm - base_energy
+    band_info_edge.slide_energies(base_energy=-1.0)
+    assert band_info_edge.band_edge.vbm == 0.0
     assert band_info_edge.fermi_level is None
 
 
