@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
 import re
@@ -8,7 +7,8 @@ import numpy as np
 
 from pymatgen.electronic_structure.plotter import BSPlotter
 from pymatgen.io.vasp import Vasprun
-from vise.analyzer.plot_band import BandPlotInfo, BandEnergyInfo, XTicks, BandEdgeForPlot
+from vise.analyzer.plot_band import BandPlotInfo, BandEnergyInfo, XTicks, \
+    BandEdgeForPlot
 from vise.analyzer.plot_brillouin_zone import BZPlotInfo
 from vise.util.string import latexify
 
@@ -22,6 +22,14 @@ def greek_to_unicode(label: str) -> str:
 
 def italic_to_roman(label: str) -> str:
     return re.sub(r"([A-Z])_([0-9])", r"{\\rm \1}_\2", label)
+
+
+def _sanitize_label(label: str):
+    return italic_to_roman(greek_to_unicode(label))
+
+
+def _sanitize_labels(labels: str):
+    return [_sanitize_label(label) for label in labels]
 
 
 class BandPlotInfoFromVasp:
@@ -52,14 +60,15 @@ class BandPlotInfoFromVasp:
             self.vasprun2, self.bs2, self.second_band_plot_name \
                 = None, None, None
 
-    def make_band_plot_info(self):
+    def make_band_plot_info(self) -> BandPlotInfo:
         bs_plotter = BSPlotter(self.bs)
         plot_data = bs_plotter.bs_plot_data(zero_to_efermi=False)
         distances = [list(d) for d in plot_data["distances"]]
 
-        band_info_1 = BandEnergyInfo(band_energies=self._remove_spin_key(plot_data),
-                                     band_edge=self._band_edge(self.bs, plot_data),
-                                     fermi_level=self.bs.efermi)
+        band_info_1 = BandEnergyInfo(
+            band_energies=self._remove_spin_key(plot_data),
+            band_edge=self._band_edge(self.bs, plot_data),
+            fermi_level=self.bs.efermi)
         band_info = {self.first_band_plot_name: band_info_1}
 
         if self.vasprun2:
@@ -77,14 +86,11 @@ class BandPlotInfoFromVasp:
                             x_ticks=x_ticks,
                             title=self._title)
 
-    def make_bz_plot_info(self):
+    def make_bz_plot_info(self) -> BZPlotInfo:
         faces = [[[float(k) for k in j] for j in i]
                  for i in self.rlat.get_wigner_seitz_cell()]
-        labels = {}
+        labels, concat, band_paths, init_point = {}, False, [], None
 
-        concat = False
-        band_paths = []
-        init_point = None
         for kpoint in self.kpoints:
             if kpoint.label:
                 c_coords = list(kpoint.cart_coords)
@@ -100,12 +106,14 @@ class BandPlotInfoFromVasp:
 
         return BZPlotInfo(faces, labels, band_paths, self.rlat.matrix.tolist())
 
-    def _remove_spin_key(self, plot_data) -> List[List[List[List[List[Union[float, str]]]]]]:
+    def _remove_spin_key(self, plot_data) \
+            -> List[List[List[List[List[Union[float, str]]]]]]:
         """
         Pymatgen at 2020.11.11
          energy: A dict storing bands for spin up and spin down data
-            {Spin:[np.array(nb_bands,kpoints),...]} as a list of discontinuous kpath
-            of energies. The energy of multiple continuous branches are stored together.
+            {Spin:[np.array(nb_bands,kpoints),...]} as a list of discontinuous
+            kpath of energies. The energy of multiple continuous branches are
+            stored together.
 
         -> [branch][spin][band][k-point][energy, irrep]
         """
@@ -139,7 +147,8 @@ class BandPlotInfoFromVasp:
     def in_energy(self, _max, _min):
         return _max >= self.energy_window[0] and _min <= self.energy_window[1]
 
-    def _band_edge(self, bs, plot_data):
+    @staticmethod
+    def _band_edge(bs, plot_data):
         if bs.is_metal():
             return None
         else:
@@ -154,9 +163,3 @@ class BandPlotInfoFromVasp:
         return latexify(self._composition.reduced_formula)
 
 
-def _sanitize_label(label):
-    return italic_to_roman(greek_to_unicode(label))
-
-
-def _sanitize_labels(labels):
-    return [_sanitize_label(label) for label in labels]
