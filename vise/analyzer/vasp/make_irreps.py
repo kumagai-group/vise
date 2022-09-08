@@ -20,32 +20,46 @@ except ImportError:
 
 def special_points_from_kpoints(kpoints_filename):
     kpoints = Kpoints.from_file(kpoints_filename)
-    result = set(kpoints.labels)
-    result.discard(None)
-    result.discard("None")
-    return {s.replace("GAMMA", "GM") for s in result}
+    special_points, kpt_idx = [], []
+
+    for idx, label in enumerate(kpoints.labels, 1):
+        if label in [None, "None"] or label in special_points:
+            continue
+        special_points.append(label)
+        kpt_idx.append(idx)
+
+    special_points = [x.replace("GAMMA", "GM") for x in special_points]
+
+    return special_points, kpt_idx
 
 
-def make_irreps_from_wavecar(wavecar_filename: str = "WAVECAR",
+def make_irreps_from_wavecar(special_point_chars: List[str],
+                             kplist: List[int],
+                             wavecar_filename: str = "WAVECAR",
                              poscar_filename: str = "POSCAR",
                              expansion_cutoff: float = 50.0,
-                             special_point_chars: List[str] = None,
-                             degenthresh=0.01):  # in eV
+                             degenthresh: float = 0.01):  # in eV
 
     bandstr = BandStructure(fWAV=wavecar_filename,
                             fPOS=poscar_filename,
                             Ecut=expansion_cutoff,
-                            kplist=np.array([14]),
+                            kplist=np.array(kplist),
                             spinor=False,
                             searchUC=True)
     characters = bandstr.write_characters(degen_thresh=degenthresh,
                                           kpnames=special_point_chars)
     irrep = {}
-    for spc, kpt in zip(special_point_chars, characters["k-points"]):
+    for spc, ckpt, kpt in zip(special_point_chars, characters["k-points"],
+                              bandstr.kpoints):
         chars = []
-        for e, i, d in zip(kpt["energies"], kpt["irreps"], kpt["dimensions"]):
-            chars.append(Character(find_irrep(i), e, d))
-        irrep[spc] = Irrep(tuple(bandstr.kpoints[0].K), chars)
+        for e, i, d in zip(ckpt["energies"], ckpt["irreps"], ckpt["dimensions"]):
+            try:
+                irrep_str = find_irrep(i)
+            except ViseNoIrrepError:
+                irrep_str = "Unknown"
+            chars.append(Character(irrep_str, e, d))
+
+        irrep[spc] = Irrep(tuple(kpt.K), chars)
 
     return Irreps(bandstr.spacegroup.number, irrep)
 
