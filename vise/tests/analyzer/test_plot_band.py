@@ -51,12 +51,7 @@ def band_edge():
 
 
 @pytest.fixture
-def band_energy_info_fermi(band_energies):
-    return BandEnergyInfo(band_energies=band_energies, fermi_level=fermi_level)
-
-
-@pytest.fixture
-def band_info_edge(band_energies, band_edge):
+def band_energy_info_wo_fermi(band_energies, band_edge):
     return BandEnergyInfo(band_energies=band_energies, band_edge=band_edge)
 
 
@@ -108,16 +103,10 @@ def test_raise_error_when_both_band_edge_fermi_level_absent(band_energies):
         BandEnergyInfo(band_energies=band_energies)
 
 
-def test_slide_energies_when_band_edge_is_none(band_energy_info_fermi):
-    band_energy_info_fermi.slide_energies(base_energy=base_energy)
-    assert band_energy_info_fermi.band_edge is None
-    assert band_energy_info_fermi.fermi_level == fermi_level - base_energy
-
-
-def test_slide_energies_when_fermi_is_none(band_info_edge):
-    band_info_edge.slide_energies(base_energy=-1.0)
-    assert band_info_edge.band_edge.vbm == 0.0
-    assert band_info_edge.fermi_level is None
+def test_slide_energies_when_fermi_is_none(band_energy_info_wo_fermi):
+    band_energy_info_wo_fermi.slide_energies(base_energy=-1.0)
+    assert band_energy_info_wo_fermi.band_edge.vbm == 0.0
+    assert band_energy_info_wo_fermi.fermi_level is None
 
 
 def test_band_plot_info_band_energy_region():
