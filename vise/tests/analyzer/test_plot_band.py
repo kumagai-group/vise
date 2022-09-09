@@ -51,7 +51,7 @@ def band_edge():
 
 
 @pytest.fixture
-def band_info_fermi(band_energies):
+def band_energy_info_fermi(band_energies):
     return BandEnergyInfo(band_energies=band_energies, fermi_level=fermi_level)
 
 
@@ -61,14 +61,14 @@ def band_info_edge(band_energies, band_edge):
 
 
 @pytest.fixture
-def band_info(band_edge, band_energies):
+def band_energy_info(band_edge, band_energies):
     return BandEnergyInfo(band_energies=band_energies,
                           band_edge=band_edge, fermi_level=fermi_level)
 
 
 @pytest.fixture
-def band_infos(band_info):
-    return {"subtitle": band_info}
+def band_infos(band_energy_info):
+    return {"subtitle": band_energy_info}
 
 
 @pytest.fixture
@@ -76,9 +76,9 @@ def band_plot_info(band_infos):
     return BandPlotInfo(band_infos, distances, x_ticks, title)
 
 
-def test_band_plot_info_msonable(band_edge, band_info, band_plot_info):
+def test_band_plot_info_msonable(band_edge, band_energy_info, band_plot_info):
     assert_msonable(band_edge)
-    assert_msonable(band_info)
+    assert_msonable(band_energy_info)
     assert_msonable(band_plot_info)
 
 
@@ -92,14 +92,14 @@ def mock_band_plt_list(mocker, band_plot_info):
     return mock_plt, mock_axis
 
 
-def test_band_info_slide_energies(band_info):
-    band_info.slide_energies(base_energy=base_energy)
+def test_band_info_slide_energies(band_energy_info):
+    band_energy_info.slide_energies(base_energy=base_energy)
     expected_band_edge = BandEdgeForPlot(
         vbm=0, cbm=3, vbm_distances=[2, 3, 4], cbm_distances=[5, 7])
-    assert band_info.band_energies == shifted_band_energies
-    assert band_info.band_edge == expected_band_edge
-    assert band_info.fermi_level == fermi_level - base_energy
-    assert band_info.fermi_level == fermi_level - base_energy
+    assert band_energy_info.band_energies == shifted_band_energies
+    assert band_energy_info.band_edge == expected_band_edge
+    assert band_energy_info.fermi_level == fermi_level - base_energy
+    assert band_energy_info.fermi_level == fermi_level - base_energy
 
 
 def test_raise_error_when_both_band_edge_fermi_level_absent(band_energies):
@@ -108,10 +108,10 @@ def test_raise_error_when_both_band_edge_fermi_level_absent(band_energies):
         BandEnergyInfo(band_energies=band_energies)
 
 
-def test_slide_energies_when_band_edge_is_none(band_info_fermi):
-    band_info_fermi.slide_energies(base_energy=base_energy)
-    assert band_info_fermi.band_edge is None
-    assert band_info_fermi.fermi_level == fermi_level - base_energy
+def test_slide_energies_when_band_edge_is_none(band_energy_info_fermi):
+    band_energy_info_fermi.slide_energies(base_energy=base_energy)
+    assert band_energy_info_fermi.band_edge is None
+    assert band_energy_info_fermi.fermi_level == fermi_level - base_energy
 
 
 def test_slide_energies_when_fermi_is_none(band_info_edge):
@@ -122,8 +122,8 @@ def test_slide_energies_when_fermi_is_none(band_info_edge):
 
 def test_band_plot_info_band_energy_region():
     band_info = BandEnergyInfo(
-        band_energies=[[[[[-1.01], [-1.008], [-1.003], [-1.0]]]],
-                       [[[[1.01], [1.0]]]]],
+        band_energies=[[[[-1.01, -1.008, -1.003, -1.0]]],
+                       [[[1.01, 1.0]]]],
         band_edge=BandEdgeForPlot(vbm=-1.0, cbm=1.0,
                                   vbm_distances=[1], cbm_distances=[1]),
         fermi_level=0.0)
@@ -187,10 +187,10 @@ def test_add_band_structures(mock_band_plt_list):
                                   **args)
 
 
-def test_band_plot_info_add(band_plot_info, band_info: BandEnergyInfo):
-    band_plot_info_2 = BandPlotInfo({"a": band_info}, distances, x_ticks)
+def test_band_plot_info_add(band_plot_info, band_energy_info: BandEnergyInfo):
+    band_plot_info_2 = BandPlotInfo({"a": band_energy_info}, distances, x_ticks)
     added = band_plot_info + band_plot_info_2
-    assert added.band_energy_infos["a"].as_dict() == band_info.as_dict()
+    assert added.band_energy_infos["a"].as_dict() == band_energy_info.as_dict()
     assert added.distances_by_branch == distances
     assert added.x_ticks == x_ticks
 
