@@ -25,30 +25,45 @@ base_energy = -1.0
 # [by branch][by spin][by band idx][by k-path idx]
 # two branches, no spin, single band, and 7 and 4 k-points in two branches.
 # irrep exists for first k-point in the first branch.
-band_energies = \
-    [[[[[-3.0, "GM1"], [-2], [-1], [-1], [-1], [-2], [-3]],
-       [[7.0], [6], [5], [4], [3], [2], [3]]]],
-     [[[[-4.0], [-5], [-6], [-7]], [[5], [2], [7], [8]]]]]
+
+
+@pytest.fixture
+def band_energies():
+    return [[[[[-3.0, "GM1"], [-2], [-1], [-1], [-1], [-2], [-3]],
+              [[7.0], [6], [5], [4], [3], [2], [3]]]],
+            [[[[-4.0], [-5], [-6], [-7]], [[5], [2], [7], [8]]]]]
+
+
 shifted_band_energies = \
     [[[[[-2.0, "GM1"], [-1], [0], [0], [0], [-1], [-2]],
        [[8.0], [7], [6], [5], [4], [3], [4]]]],
      [[[[-3.0], [-4], [-5], [-6]], [[6], [3], [8], [9]]]]]
 
-band_edge = BandEdgeForPlot(vbm=-1, cbm=2,
-                            vbm_distances=[2, 3, 4], cbm_distances=[5, 7])
 fermi_level = 1.5
 
-band_info_fermi = BandEnergyInfo(band_energies=band_energies,
-                                 fermi_level=fermi_level)
-band_info_edge = BandEnergyInfo(band_energies=band_energies,
-                                band_edge=band_edge)
 
 colors = ['#E15759', '#4E79A7', '#F28E2B', '#76B7B2']
 
 
 @pytest.fixture
-def band_info():
-    return BandEnergyInfo(band_energies=deepcopy(band_energies),
+def band_edge():
+    return BandEdgeForPlot(vbm=-1, cbm=2,
+                           vbm_distances=[2, 3, 4], cbm_distances=[5, 7])
+
+
+@pytest.fixture
+def band_info_fermi(band_energies):
+    return BandEnergyInfo(band_energies=band_energies, fermi_level=fermi_level)
+
+
+@pytest.fixture
+def band_info_edge(band_energies, band_edge):
+    return BandEnergyInfo(band_energies=band_energies, band_edge=band_edge)
+
+
+@pytest.fixture
+def band_info(band_edge, band_energies):
+    return BandEnergyInfo(band_energies=band_energies,
                           band_edge=band_edge, fermi_level=fermi_level)
 
 
@@ -62,7 +77,7 @@ def band_plot_info(band_infos):
     return BandPlotInfo(band_infos, distances, x_ticks, title)
 
 
-def test_band_plot_info_msonable(band_info, band_plot_info):
+def test_band_plot_info_msonable(band_edge, band_info, band_plot_info):
     assert_msonable(band_edge)
     assert_msonable(band_info)
     assert_msonable(band_plot_info)
@@ -89,19 +104,19 @@ def test_band_info_slide_energies(band_info):
     assert band_info.fermi_level == fermi_level - base_energy
 
 
-def test_raise_error_when_both_band_edge_fermi_level_absent():
+def test_raise_error_when_both_band_edge_fermi_level_absent(band_energies):
     # [spin][branch idx][band idx][k-path idx]
     with pytest.raises(ViseBandInfoError):
         BandEnergyInfo(band_energies=band_energies)
 
 
-def test_slide_energies_when_band_edge_is_none():
+def test_slide_energies_when_band_edge_is_none(band_info_fermi):
     band_info_fermi.slide_energies(base_energy=base_energy)
     assert band_info_fermi.band_edge is None
     assert band_info_fermi.fermi_level == fermi_level - base_energy
 
 
-def test_slide_energies_when_fermi_is_none():
+def test_slide_energies_when_fermi_is_none(band_info_edge):
     band_info_edge.slide_energies(base_energy=-1.0)
     assert band_info_edge.band_edge.vbm == 0.0
     assert band_info_edge.fermi_level is None
@@ -257,9 +272,9 @@ def test_draw_bands(band_plot_info):
 
 
 @pytest.mark.parametrize("ref_energy,subtracted_energy",
-                         [(1.0, 1.0), (None, band_edge.vbm)])
+                         [(1.0, 1.0), (None, -1)])
 def test_reference_energy(ref_energy, subtracted_energy,
-                          mocker, band_plot_info):
+                          mocker, band_plot_info, band_edge):
     mock_plt = mocker.patch("vise.analyzer.plot_band.plt", auto_spec=True)
     mock_axis = MagicMock()
     mock_plt.gca.return_value = mock_axis
