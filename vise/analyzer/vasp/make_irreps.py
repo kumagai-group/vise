@@ -5,7 +5,7 @@ from typing import List, Tuple
 import numpy as np
 from pymatgen.io.vasp import Kpoints
 
-from vise.analyzer.irrep import Irreps, Irrep, Character
+from vise.analyzer.irrep import Irreps, Irrep
 from vise.error import ViseError
 from vise.util.logger import get_logger
 
@@ -53,16 +53,18 @@ def make_irreps_from_wavecar(special_point_characters: List[str],
     irrep_dict = {}
     for character, c_kpt, kpt in \
             zip(special_point_characters, characters["k-points"], bs.kpoints):
-        chars = []
-        for energy, irrep, dimension in \
-                zip(c_kpt["energies"], c_kpt["irreps"], c_kpt["dimensions"]):
+        symbols = []
+        for irrep in c_kpt["irreps"]:
             try:
                 irrep_str = find_irrep(irrep)
             except ViseNoIrrepError:
                 irrep_str = "Unknown"
-            chars.append(Character(irrep_str, energy, dimension))
+            symbols.append(irrep_str)
 
-        irrep_dict[character] = Irrep(tuple(kpt.K), chars)
+        irrep_dict[character] = Irrep(tuple(kpt.K),
+                                      symbols,
+                                      c_kpt["energies"].tolist(),
+                                      c_kpt["dimensions"])
 
     return Irreps(bs.spacegroup.number, irrep_dict)
 

@@ -3,7 +3,7 @@
 from pathlib import Path
 
 import pytest
-from vise.analyzer.irrep import Irrep, Character
+from vise.analyzer.irrep import Irrep
 from vise.analyzer.vasp.make_irreps import make_irreps_from_wavecar, find_irrep, \
     ViseNoIrrepError, special_points_from_kpoints
 from vise.tests.helpers.assertion import assert_dataclass_almost_equal
@@ -27,17 +27,15 @@ def test_make_irreps_with_actual_vasp_files(test_data_files: Path):
 
     assert_dataclass_almost_equal(actual.irreps["H"],
                                   Irrep((0.5, -0.5, 0.5),
-                                      [Character("H1+", -5.93323, 1),
-                                       Character("H4-", 2.71352, 3),
-                                       Character("H3+", 3.80069, 2)]), digit=5)
+                                        ["H1+", "H4-", "H3+"],
+                                        [-5.93323, 2.71352, 3.80069],
+                                        [1, 3, 2]), digit=3)
 
     assert_dataclass_almost_equal(actual.irreps["GM"],
                                   Irrep((0.0, 0.0, 0.0),
-                                        [Character("GM1+", -6.5536, 1),
-                                         Character("GM1+", 0.9245, 1),
-                                         Character("GM4-", 6.7080, 3),
-                                         Character("Unknown", 8.6659, 1)]),
-                                  digit=2)
+                                        ["GM1+", "GM1+", "GM4-", "Unknown"],
+                                        [-6.5536, 0.9245, 6.7080, 8.6659],
+                                        [1, 1, 3, 1]), digit=2)
 
 
 def test_find_irrep():

@@ -8,16 +8,15 @@ COORDS_TYPE = Tuple[float, float, float]
 
 
 @dataclass
-class Character:
-    character: str
-    energy: float
-    degeneracy: int
-
-
-@dataclass
 class Irrep:
     frac_coords: COORDS_TYPE
-    characters: List[Character]
+    symbols: List[str]
+    energies: List[float]
+    degeneracies: List[int]
+
+    @property
+    def irrep_info_set(self):
+        return zip(self.symbols, self.energies, self.degeneracies)
 
 
 @dataclass
