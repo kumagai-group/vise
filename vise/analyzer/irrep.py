@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2022. Distributed under the terms of the MIT License.
 from dataclasses import dataclass
-from typing import Dict, List, Tuple
+from typing import Dict, List
 
-
-COORDS_TYPE = Tuple[float, float, float]
+from monty.json import MSONable
 
 
 @dataclass
-class Irrep:
-    frac_coords: COORDS_TYPE
+class Irrep(MSONable):
+    frac_coords: List[float]
     symbols: List[str]
     energies: List[float]
     degeneracies: List[int]
@@ -20,7 +19,7 @@ class Irrep:
 
 
 @dataclass
-class Irreps:
+class Irreps(MSONable):
     sg_num: int
     # key is special point name. Gamma = GM
     irreps: Dict[str, Irrep]
