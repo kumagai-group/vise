@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
-from copy import deepcopy
 from unittest.mock import MagicMock
 
 import pytest
@@ -56,9 +55,10 @@ def band_energy_info_wo_fermi(band_energies, band_edge):
 
 
 @pytest.fixture
-def band_energy_info(band_edge, band_energies):
+def band_energy_info(band_edge, band_energies, irreps):
     return BandEnergyInfo(band_energies=band_energies,
-                          band_edge=band_edge, fermi_level=fermi_level)
+                          band_edge=band_edge, fermi_level=fermi_level,
+                          irreps=irreps)
 
 
 @pytest.fixture
@@ -94,7 +94,7 @@ def test_band_info_slide_energies(band_energy_info):
     assert band_energy_info.band_energies == shifted_band_energies
     assert band_energy_info.band_edge == expected_band_edge
     assert band_energy_info.fermi_level == fermi_level - base_energy
-    assert band_energy_info.fermi_level == fermi_level - base_energy
+    assert band_energy_info.irreps.irreps["GM"].energies[0] == 1.1
 
 
 def test_raise_error_when_both_band_edge_fermi_level_absent(band_energies):

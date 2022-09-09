@@ -8,6 +8,7 @@ from typing import List, Optional, Dict
 
 import matplotlib.pyplot as plt
 from monty.json import MSONable
+from vise.analyzer.irrep import Irreps
 
 from vise.error import ViseError
 from vise.util.matplotlib import float_to_int_formatter
@@ -54,6 +55,7 @@ class BandEnergyInfo(MSONable):
     band_energies: List[List[List[List[float]]]]
     band_edge: Optional[BandEdgeForPlot] = None
     fermi_level: Optional[float] = None
+    irreps: Optional[Irreps] = None
 
     def __post_init__(self):
         if self.band_edge is None and self.fermi_level is None:
@@ -63,6 +65,7 @@ class BandEnergyInfo(MSONable):
         self._slide_band_energies(base_energy)
         self._slide_band_edge(base_energy)
         self._slide_fermi_level(base_energy)
+        self._slide_irreps(base_energy)
 
     def _slide_band_energies(self, base_energy):
         self.band_energies = [[[[w - base_energy for w in x] for x in y]
@@ -76,6 +79,11 @@ class BandEnergyInfo(MSONable):
     def _slide_fermi_level(self, base_energy):
         if self.fermi_level:
             self.fermi_level -= base_energy
+
+    def _slide_irreps(self, base_energy):
+        if self.irreps:
+            for i in self.irreps.irreps.values():
+                i.energies = [e - base_energy for e in i.energies]
 
     @property
     def is_magnetic(self):
@@ -102,7 +110,7 @@ class BandEnergyInfo(MSONable):
         def add_boundary(lower, upper):
             result.append([lower - offset, upper - offset])
 
-        sorted_energies = sorted([energy[0]
+        sorted_energies = sorted([energy
                                   for i in self.band_energies
                                   for j in i
                                   for k in j
