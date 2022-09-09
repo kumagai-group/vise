@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 from pymatgen.core import Lattice
 from pymatgen.core.structure import Structure, IStructure
+from vise.analyzer.irrep import Irrep, Irreps
 from vise.util.structure_symmetrizer import StructureSymmetrizer
 
 
@@ -53,3 +54,11 @@ def simple_cubic():
     lattice = Lattice.cubic(1.0)
     coords = [[0.0, 0.0, 0.0]]
     return IStructure(lattice=lattice, species=["H"], coords=coords)
+
+
+@pytest.fixture
+def irreps():
+    irrep = Irrep(frac_coords=[0.0, 0.0, 0.0], symbols=["GM1+"], energies=[0.1],
+                  degeneracies=[1])
+    return Irreps(sg_num=225, irreps={"GM": irrep})
+
