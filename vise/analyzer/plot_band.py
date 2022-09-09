@@ -4,7 +4,7 @@
 from copy import deepcopy
 from dataclasses import dataclass
 from itertools import cycle
-from typing import List, Optional, Dict, Union
+from typing import List, Optional, Dict
 
 import matplotlib.pyplot as plt
 from monty.json import MSONable
@@ -51,7 +51,7 @@ class BandEnergyInfo(MSONable):
     # the k-points are continuous. Each branch is separated by a vertical bar.
     # We need to distinguish branch to draw continuous line in the area and
     # calculate the effective masses.
-    band_energies: List[List[List[List[List[Union[float, str]]]]]]
+    band_energies: List[List[List[List[float]]]]
     band_edge: Optional[BandEdgeForPlot] = None
     fermi_level: Optional[float] = None
 
@@ -65,11 +65,8 @@ class BandEnergyInfo(MSONable):
         self._slide_fermi_level(base_energy)
 
     def _slide_band_energies(self, base_energy):
-        for band_energies_each_branch in self.band_energies:
-            for band_energies_each_spin in band_energies_each_branch:
-                for band_energies_each_band in band_energies_each_spin:
-                    for band_energies_each_kpoint in band_energies_each_band:
-                        band_energies_each_kpoint[0] -= base_energy
+        self.band_energies = [[[[w - base_energy for w in x] for x in y]
+                               for y in z] for z in self.band_energies]
 
     def _slide_band_edge(self, base_energy):
         if self.band_edge:
@@ -258,8 +255,7 @@ class BandMplPlotter:
                     mpl_args["linestyle"] = ":"
 
                 for energies_of_a_band in energies_by_spin:
-                    energies = [e[0] for e in energies_of_a_band]
-                    self.plt.plot(distances, energies, **mpl_args)
+                    self.plt.plot(distances, energies_of_a_band, **mpl_args)
                     mpl_args.pop("label", None)
 
     def _add_band_edge(self, band_edge, index):

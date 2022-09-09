@@ -29,15 +29,14 @@ base_energy = -1.0
 
 @pytest.fixture
 def band_energies():
-    return [[[[[-3.0, "GM1"], [-2], [-1], [-1], [-1], [-2], [-3]],
-              [[7.0], [6], [5], [4], [3], [2], [3]]]],
-            [[[[-4.0], [-5], [-6], [-7]], [[5], [2], [7], [8]]]]]
+    return [[[[-3.0, -2, -1, -1, -1, -2, -3], [7.0, 6, 5, 4, 3, 2, 3]]],
+            [[[-4.0, -5, -6, -7], [5, 2, 7, 8]]]]
 
 
 shifted_band_energies = \
-    [[[[[-2.0, "GM1"], [-1], [0], [0], [0], [-1], [-2]],
-       [[8.0], [7], [6], [5], [4], [3], [4]]]],
-     [[[[-3.0], [-4], [-5], [-6]], [[6], [3], [8], [9]]]]]
+    [[[[-2.0, -1.0, 0.0, 0.0, 0.0, -1.0, -2.0],
+       [8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 4.0]]],
+     [[[-3.0, -4.0, -5.0, -6.0], [6.0, 3.0, 8.0, 9.0]]]]
 
 fermi_level = 1.5
 
@@ -97,7 +96,6 @@ def test_band_info_slide_energies(band_info):
     band_info.slide_energies(base_energy=base_energy)
     expected_band_edge = BandEdgeForPlot(
         vbm=0, cbm=3, vbm_distances=[2, 3, 4], cbm_distances=[5, 7])
-
     assert band_info.band_energies == shifted_band_energies
     assert band_info.band_edge == expected_band_edge
     assert band_info.fermi_level == fermi_level - base_energy
@@ -289,14 +287,14 @@ def test_reference_energy(ref_energy, subtracted_energy,
 
 @pytest.fixture
 def two_band_infos():
-    first_branch_energies = [[[[-3.0], [-2], [-1], [-1], [-1], [-2], [-3]],
-                               [[7.0], [6], [5], [4], [3], [2], [3]]],
-                              [[[-2.0], [-1], [0], [0], [0], [-1], [-2]],
-                               [[6.0], [5], [4], [3], [2], [1], [2]]]]
-    second_branch_energies = [[[[-4], [-5], [-6], [-7]],
-                               [[5], [2], [7], [8]]],
-                              [[[-3], [-4], [-5], [-6]],
-                               [[4], [1], [6], [7]]]]
+    first_branch_energies = [[[-3.0, -2, -1, -1, -1, -2, -3],
+                               [7.0, 6, 5, 4, 3, 2, 3]],
+                              [[-2.0, -1, 0, 0, 0, -1, -2],
+                               [6.0, 5, 4, 3, 2, 1, 2]]]
+    second_branch_energies = [[[-4, -5, -6, -7],
+                               [5, 2, 7, 8]],
+                              [[-3, -4, -5, -6],
+                               [4, 1, 6, 7]]]
     first_band_energies = [first_branch_energies, second_branch_energies]
 
     band_edge_1 = BandEdgeForPlot(vbm=0, cbm=1,
@@ -305,14 +303,14 @@ def two_band_infos():
                                  band_edge=band_edge_1,
                                  fermi_level=None)
 
-    first_branch_energies = [[[[-5], [-5], [-5], [-5], [-4], [-5], [-5]],
-                              [[5],  [5],  [5],  [5],  [4],  [5],  [5]]],
-                             [[[-6], [-6], [-6], [-6], [-5], [-6], [-6]],
-                              [[6], [6], [6], [6], [5], [6], [6]]]]
-    second_branch_energies = [[[[-5], [-5], [-5], [-5]],
-                               [[5], [5], [5], [5]]],
-                              [[[-6], [-6], [-6], [-6]],
-                               [[6], [6], [6], [6]]]]
+    first_branch_energies = [[[-5, -5, -5, -5, -4, -5, -5],
+                              [5, 5, 5, 5, 4, 5, 5]],
+                             [[-6, -6, -6, -6, -5, -6, -6],
+                              [6, 6, 6, 6, 5, 6, 6]]]
+    second_branch_energies = [[[-5, -5, -5, -5],
+                               [5, 5, 5, 5]],
+                              [[-6, -6, -6, -6],
+                               [6, 6, 6, 6]]]
     second_band_energies = [first_branch_energies, second_branch_energies]
 
     band_edge_2 = BandEdgeForPlot(vbm=-4, cbm=4,
