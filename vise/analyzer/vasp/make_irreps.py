@@ -6,6 +6,7 @@ import numpy as np
 from pymatgen.io.vasp import Kpoints
 
 from vise.analyzer.irrep import Irreps, Irrep
+from vise.analyzer.vasp.plot_band import greek_to_unicode
 from vise.error import ViseError
 from vise.util.logger import get_logger
 
@@ -59,12 +60,13 @@ def make_irreps_from_wavecar(special_point_characters: List[str],
                 irrep_str = find_irrep(irrep)
             except ViseNoIrrepError:
                 irrep_str = "Unknown"
-            symbols.append(irrep_str)
+            symbols.append(greek_to_unicode(irrep_str))
 
-        irrep_dict[character] = Irrep(tuple(kpt.K),
-                                      symbols,
-                                      c_kpt["energies"].tolist(),
-                                      c_kpt["dimensions"])
+        irrep_dict[greek_to_unicode(character)] = \
+            Irrep(kpt.K,
+                  symbols,
+                  c_kpt["energies"].tolist(),
+                  c_kpt["dimensions"])
 
     return Irreps(bs.spacegroup.number, irrep_dict)
 

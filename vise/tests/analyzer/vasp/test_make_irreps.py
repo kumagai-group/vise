@@ -30,10 +30,9 @@ def test_make_irreps_with_actual_vasp_files(test_data_files: Path):
                                         ["H1+", "H4-", "H3+"],
                                         [-5.93323, 2.71352, 3.80069],
                                         [1, 3, 2]), digit=3)
-
-    assert_dataclass_almost_equal(actual.irreps["GM"],
+    assert_dataclass_almost_equal(actual.irreps["Γ"],
                                   Irrep([0.0, 0.0, 0.0],
-                                        ["GM1+", "GM1+", "GM4-", "Unknown"],
+                                        ["Γ1+", "Γ1+", "Γ4-", "Unknown"],
                                         [-6.5536, 0.9245, 6.7080, 8.6659],
                                         [1, 1, 3, 1]), digit=2)
 

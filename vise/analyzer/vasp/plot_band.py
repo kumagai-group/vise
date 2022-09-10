@@ -15,7 +15,7 @@ from vise.util.string import latexify
 
 
 def greek_to_unicode(label: str) -> str:
-    d = {"GAMMA": "Γ", "SIGMA": "Σ", "DELTA": "Δ"}
+    d = {"GAMMA": "Γ", "GM": "Γ", "SIGMA": "Σ", "DELTA": "Δ"}
     for k, v in d.items():
         label = label.replace(k, v)
     return label
