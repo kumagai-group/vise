@@ -192,11 +192,7 @@ class BandDosPlotlyPlotter:
                 x_wo_irrep, y_wo_irrep = [], []
                 for x, y in zip(distances, eigvals_along_kpath):
                     x_wo_irrep.append(x)
-                    y_wo_irrep.append(y[0])
-                    if len(y) == 2:
-                        irrep_x.append(x)
-                        irrep_y.append(round(y[0], 2))
-                        labels.append(y[1])
+                    y_wo_irrep.append(y)
 
                 self.fig.add_trace(
                     go.Scatter(x=x_wo_irrep,

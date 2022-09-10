@@ -34,11 +34,11 @@ def test_no_data():
 
 
 @pytest.mark.skipif(PSUTIL_NOT_PRESENT, reason="psutil does not exist")
-def test_plotly_band_dos_actual_files(test_data_files):
+def test_plotly_band_dos_actual_files(test_data_files, irreps):
     band_plot_data: BandPlotInfo = loadfn(
         str(test_data_files / "MgSe_band_plot_info.json"))
     dos_plot_data = loadfn(str(test_data_files / "MgSe_dos_plot_data.json"))
-    band_plot_data.band_energy_infos["1"].band_energies[0][0][1][0].append("GM1+")
+    band_plot_data.band_energy_infos["1"].irreps = irreps
     band_dos_component = BandDosPlotlyPlotter(dos_plot_data, band_plot_data)
 #    band_dos_component.fig.show()
     show_png(band_dos_component.fig)
