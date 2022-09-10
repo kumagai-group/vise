@@ -3,7 +3,7 @@
 
 import re
 from copy import deepcopy
-from typing import List, Union
+from typing import List
 import numpy as np
 
 from pymatgen.electronic_structure.plotter import BSPlotter
@@ -111,8 +111,9 @@ class BandPlotInfoFromVasp:
         """
         Pymatgen at 2020.11.11
          energy: A dict storing bands for spin up and spin down data
-            {Spin:[np.array(nb_bands,kpoints),...]} as a list of discontinuous kpath
-            of energies. The energy of multiple continuous branches are stored together.
+            {Spin:[np.array(nb_bands,kpoints),...]} as a list of discontinuous
+            kpath of energies. The energy of multiple continuous branches are
+            stored together.
         -> [branch][spin][band][k-point]
         """
         num_spin = len(plot_data["energy"])

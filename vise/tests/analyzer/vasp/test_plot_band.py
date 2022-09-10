@@ -56,16 +56,20 @@ def test_vasp_band_plotter(is_metal, expected_band_edge, mocker):
                  "vbm": [[0, -100]],
                  "cbm": [[1, 100], [2, 100]]}
 
-    mock_bsp = mocker.patch("vise.analyzer.vasp.plot_band.BSPlotter", auto_spec=True)
+    mock_bsp = mocker.patch("vise.analyzer.vasp.plot_band.BSPlotter",
+                            auto_spec=True)
     mock_bsp.return_value.bs_plot_data.return_value = plot_data
-    mock_bsp.return_value.get_ticks_old.return_value = {"label": labels, "distance": [0.0, 0.1, 0.2]}
+    mock_bsp.return_value.get_ticks_old.return_value = \
+        {"label": labels, "distance": [0.0, 0.1, 0.2]}
 
-    plot_info = BandPlotInfoFromVasp(stub_vasprun, "KPOINTS").make_band_plot_info()
+    band_plot_info = BandPlotInfoFromVasp(stub_vasprun, "KPOINTS")
+    plot_info = band_plot_info.make_band_plot_info()
 
     expected_x_ticks = XTicks(labels=["A", "${\\rm A}_0$", "Γ"],
                               distances=label_distances)
 
-    assert plot_info.band_energy_infos["1"].band_energies == [[[[0.1], [0.2], [0.3]]]]
+    assert plot_info.band_energy_infos["1"].band_energies == \
+           [[[[0.1], [0.2], [0.3]]]]
     assert plot_info.band_energy_infos["1"].band_edge == expected_band_edge
     assert plot_info.distances_by_branch == [[0.0, 0.1, 0.2]]
     assert plot_info.x_ticks == expected_x_ticks
@@ -87,10 +91,14 @@ def test_bz_plotter_with_actual_vasp_files(test_data_files: Path):
     vasprun_file = str(test_data_files / "H_band_vasprun.xml")
     kpoints_file = str(test_data_files / "H_band_KPOINTS")
     vasprun = Vasprun(vasprun_file)
-    bz_plot_info = BandPlotInfoFromVasp(vasprun, kpoints_file).make_bz_plot_info()
+    band_plot_info = BandPlotInfoFromVasp(vasprun, kpoints_file)
+    bz_plot_info = band_plot_info.make_bz_plot_info()
     fig = BZPlotlyPlotter(bz_plot_info).create_figure()
     # fig.show()
     show_png(fig)
+
+
+# def test_irrep_actual_vasp_files(test_data_files: Path):
 
 
 def test_draw_two_bands(test_data_files: Path):
@@ -133,12 +141,14 @@ def test_energy_window(mocker):
                  "vbm": None,
                  "cbm": None}
 
-    mock_bsp = mocker.patch("vise.analyzer.vasp.plot_band.BSPlotter", auto_spec=True)
+    mock_bsp = mocker.patch("vise.analyzer.vasp.plot_band.BSPlotter",
+                            auto_spec=True)
     mock_bsp.return_value.bs_plot_data.return_value = plot_data
-    mock_bsp.return_value.get_ticks_old.return_value = {"label": labels, "distance": label_distances}
+    mock_bsp.return_value.get_ticks_old.return_value = \
+        {"label": labels, "distance": label_distances}
 
-    plot_info = BandPlotInfoFromVasp(stub_vasprun, "KPOINTS",
-                                     energy_window=[0.0, 1.0]).make_band_plot_info()
+    plot_info = BandPlotInfoFromVasp(
+        stub_vasprun, "KPOINTS", energy_window=[0.0, 1.0]).make_band_plot_info()
 
     assert (plot_info.band_energy_infos["1"].band_energies
             == [[[[-0.2, -0.1, -0.3, 0.1]]]])

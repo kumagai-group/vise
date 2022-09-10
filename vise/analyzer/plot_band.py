@@ -48,7 +48,7 @@ class BandEdge(BandEdgeForPlot):
 
 @dataclass
 class BandEnergyInfo(MSONable):
-    # [branch][spin][band][k-point][energy, irrep] A branch is an area in which
+    # [branch][spin][band][k-point] A branch is an area in which
     # the k-points are continuous. Each branch is separated by a vertical bar.
     # We need to distinguish branch to draw continuous line in the area and
     # calculate the effective masses.
