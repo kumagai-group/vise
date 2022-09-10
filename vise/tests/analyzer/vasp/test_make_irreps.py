@@ -3,7 +3,7 @@
 from pathlib import Path
 
 import pytest
-from vise.analyzer.irrep import Irrep
+from vise.analyzer.plot_band import Irrep
 from vise.analyzer.vasp.make_irreps import make_irreps_from_wavecar, find_irrep, \
     ViseNoIrrepError, special_points_from_kpoints
 from vise.tests.helpers.assertion import assert_dataclass_almost_equal

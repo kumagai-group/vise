@@ -71,6 +71,19 @@ def band_plot_info(band_infos):
     return BandPlotInfo(band_infos, distances, x_ticks, title)
 
 
+def test_irrep_msonable(irreps):
+    assert_msonable(irreps)
+
+
+def test_irrep_info_set(irreps):
+    assert list(irreps()["Γ"].irrep_info_set) == [("Γ1+", 0.1, 1)]
+
+
+def test_get_distances(irreps):
+    actual = irreps.get_distances(XTicks(labels=["Γ"], distances=[0.0]))
+    assert actual == [[0.0]]
+
+
 def test_band_plot_info_msonable(band_edge, band_energy_info, band_plot_info):
     assert_msonable(band_edge)
     assert_msonable(band_energy_info)
@@ -337,5 +350,4 @@ def test_draw_two_bands(two_band_infos):
     band_plotter = BandMplPlotter(band_plot_info, y_range)
     band_plotter.construct_plot()
     band_plotter.plt.show()
-
 

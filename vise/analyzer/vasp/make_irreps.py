@@ -5,7 +5,7 @@ from typing import List, Tuple
 import numpy as np
 from pymatgen.io.vasp import Kpoints
 
-from vise.analyzer.irrep import Irreps, Irrep
+from vise.analyzer.plot_band import Irrep, Irreps
 from vise.analyzer.vasp.plot_band import greek_to_unicode
 from vise.error import ViseError
 from vise.util.logger import get_logger

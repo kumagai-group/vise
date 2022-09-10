@@ -8,7 +8,6 @@ from typing import List, Optional, Dict
 
 import matplotlib.pyplot as plt
 from monty.json import MSONable
-from vise.analyzer.irrep import Irreps
 
 from vise.error import ViseError
 from vise.util.matplotlib import float_to_int_formatter
@@ -16,6 +15,38 @@ from vise.util.mix_in import ToJsonFileMixIn
 from vise.util.logger import get_logger
 
 logger = get_logger(__name__)
+
+
+@dataclass
+class Irrep(MSONable):
+    frac_coords: List[float]
+    symbols: List[str]
+    energies: List[float]
+    degeneracies: List[int]
+
+    @property
+    def irrep_info_set(self):
+        return zip(self.symbols, self.energies, self.degeneracies)
+
+
+@dataclass
+class Irreps(MSONable):
+    sg_num: int
+    # key is special point name. Gamma = GM
+    irreps: Dict[str, Irrep]
+
+    def __call__(self):
+        return self.irreps
+
+    def get_distances(self, x_ticks: "XTicks") -> List[List[float]]:
+        result = []
+        for special_point_symbol in self.irreps:
+            dist_list = []
+            for label, distance in zip(x_ticks.labels, x_ticks.distances):
+                if special_point_symbol in label:
+                    dist_list.append(distance)
+            result.append(dist_list)
+        return result
 
 
 @dataclass(frozen=True)
@@ -329,5 +360,4 @@ def get_base_energy(band_energy_infos, base_energy_title=None):
 def slide_band_energies(band_energy_infos, base_energy):
     for band_info in band_energy_infos.values():
         band_info.slide_energies(base_energy)
-
 
