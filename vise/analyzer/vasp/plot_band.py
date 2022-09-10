@@ -2,6 +2,7 @@
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
 import re
+from copy import deepcopy
 from typing import List, Union
 import numpy as np
 
@@ -106,16 +107,13 @@ class BandPlotInfoFromVasp:
 
         return BZPlotInfo(faces, labels, band_paths, self.rlat.matrix.tolist())
 
-    def _remove_spin_key(self, plot_data) \
-            -> List[List[List[List[List[Union[float, str]]]]]]:
+    def _remove_spin_key(self, plot_data):
         """
         Pymatgen at 2020.11.11
          energy: A dict storing bands for spin up and spin down data
-            {Spin:[np.array(nb_bands,kpoints),...]} as a list of discontinuous
-            kpath of energies. The energy of multiple continuous branches are
-            stored together.
-
-        -> [branch][spin][band][k-point][energy, irrep]
+            {Spin:[np.array(nb_bands,kpoints),...]} as a list of discontinuous kpath
+            of energies. The energy of multiple continuous branches are stored together.
+        -> [branch][spin][band][k-point]
         """
         num_spin = len(plot_data["energy"])
         num_branch = len(plot_data["energy"]["1"])
@@ -133,14 +131,11 @@ class BandPlotInfoFromVasp:
                         _min = np.min(branch_energy[i, :])
                         if not self.in_energy(_max, _min):
                             removed_idxs.append(i)
-                    energies_by_spin = np.delete(branch_energy,
-                                                 removed_idxs, axis=0).tolist()
+                    x = np.delete(branch_energy, removed_idxs, axis=0).tolist()
                 else:
-                    energies_by_spin = branch_energy.tolist()
+                    x = branch_energy.tolist()
 
-                result[branch_idx][spin_idx] = \
-                    [[[energy] for energy in energies_by_band]
-                     for energies_by_band in energies_by_spin]
+                result[branch_idx][spin_idx] = deepcopy(x)
 
         return result
 

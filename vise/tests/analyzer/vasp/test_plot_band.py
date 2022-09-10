@@ -65,7 +65,7 @@ def test_vasp_band_plotter(is_metal, expected_band_edge, mocker):
     expected_x_ticks = XTicks(labels=["A", "${\\rm A}_0$", "Γ"],
                               distances=label_distances)
 
-    assert plot_info.band_energy_infos["1"].band_energies == [[[[[0.1]], [[0.2]], [[0.3]]]]]
+    assert plot_info.band_energy_infos["1"].band_energies == [[[[0.1], [0.2], [0.3]]]]
     assert plot_info.band_energy_infos["1"].band_edge == expected_band_edge
     assert plot_info.distances_by_branch == [[0.0, 0.1, 0.2]]
     assert plot_info.x_ticks == expected_x_ticks
@@ -141,5 +141,5 @@ def test_energy_window(mocker):
                                      energy_window=[0.0, 1.0]).make_band_plot_info()
 
     assert (plot_info.band_energy_infos["1"].band_energies
-            == [[[[[-0.2], [-0.1], [-0.3], [0.1]]]]])
+            == [[[[-0.2, -0.1, -0.3, 0.1]]]])
 
