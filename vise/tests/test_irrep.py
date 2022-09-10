@@ -9,4 +9,4 @@ def test_irrep_msonable(irreps):
 
 
 def test_irrep_info_set(irreps):
-    assert list(irreps.irreps["GM"].irrep_info_set) == [("GM1+", 0.1, 1)]
+    assert list(irreps()["GM"].irrep_info_set) == [("GM1+", 0.1, 1)]

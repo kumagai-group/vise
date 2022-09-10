@@ -24,5 +24,8 @@ class Irreps(MSONable):
     # key is special point name. Gamma = GM
     irreps: Dict[str, Irrep]
 
+    def __call__(self):
+        return self.irreps
+
 
 
