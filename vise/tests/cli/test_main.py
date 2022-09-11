@@ -132,6 +132,8 @@ def test_plot_band_wo_options():
         kpoints_filename="KPOINTS",
         y_range=[-10.0, 10.0],
         filename="band.pdf",
+        wavecar_filename=None,
+        poscar="POSCAR",
         func=parsed_args.func,
     )
     assert parsed_args == expected
@@ -143,6 +145,8 @@ def test_plot_band_w_options():
                               "--kpoints", "KPOINTS_1",
                               "--y_range", "-1.0", "1.0",
                               "--filename", "band_1.pdf",
+                              "--wavecar", "WAVECAR",
+                              "--poscar", "POSCAR-test"
                               ])
 
     expected = Namespace(
@@ -150,6 +154,8 @@ def test_plot_band_w_options():
         kpoints_filename="KPOINTS_1",
         y_range=[-1.0, 1.0],
         filename="band_1.pdf",
+        wavecar_filename="WAVECAR",
+        poscar="POSCAR-test",
         func=parsed_args.func,
     )
 

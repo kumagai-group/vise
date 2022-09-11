@@ -169,6 +169,13 @@ def parse_args(args):
         "-y", "--y_range", nargs="+", default=[-10, 10], type=float,
         help="Energy range, requiring two values.")
     parser_plot_band.add_argument(
+        "-w", "--wavecar", dest="wavecar_filename", default=None, type=str,
+        help="WAVECAR file name.")
+    parser_plot_band.add_argument(
+        "-p", "--poscar", type=str, default="POSCAR",
+        help="POSCAR-type file name to be read, which is used for evaluating "
+             "the irreps.", metavar="FILE")
+    parser_plot_band.add_argument(
         "-f", "--filename", type=str, default="band.pdf", help="Pdf file name.")
 
     parser_plot_band.set_defaults(func=plot_band)
