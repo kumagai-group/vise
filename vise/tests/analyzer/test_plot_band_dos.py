@@ -23,7 +23,6 @@ def test_plotly_sanitize_label():
     assert plotly_sanitize_label("A_i1") == "A<sub>i1</sub>"
 
 
-# dos_plot_info = DosPlotData()
 
 
 @pytest.mark.skipif(PSUTIL_NOT_PRESENT, reason="psutil does not exist")
@@ -40,5 +39,5 @@ def test_plotly_band_dos_actual_files(test_data_files, irreps):
     dos_plot_data = loadfn(str(test_data_files / "MgSe_dos_plot_data.json"))
     band_plot_data.band_energy_infos["1"].irreps = irreps
     band_dos_component = BandDosPlotlyPlotter(dos_plot_data, band_plot_data)
-#    band_dos_component.fig.show()
-    show_png(band_dos_component.fig)
+    band_dos_component.fig.show()
+    # show_png(band_dos_component.fig)

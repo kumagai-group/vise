@@ -137,6 +137,7 @@ class BandDosPlotlyPlotter:
                                            h_line_color, "dash")
 
         self._add_special_points_and_border_lines()
+        self._add_irrep_points()
 
     def _add_band_edges(self, band_edge: BandEdgeForPlot, opacity,
                         h_line_color):
@@ -180,6 +181,21 @@ class BandDosPlotlyPlotter:
                                         line=dict(color="black",
                                                   width=2)), row=1, col=1)
 
+    def _add_irrep_points(self):
+        for band_e_info in self.band_plot_info.band_energy_infos.values():
+            if band_e_info.irreps is None:
+                continue
+            distances = band_e_info.irreps.get_distances(self.band_plot_info.x_ticks)
+            for irrep, d in zip(band_e_info.irreps().values(), distances):
+                for symbol, energy, degeneracy in irrep.irrep_info_set:
+                    print(symbol)
+                    self.fig.add_trace(
+                        go.Scatter(x=d, y=[energy] * len(d), mode='markers',
+                                   hovertemplate=
+                                   f"{symbol} ({degeneracy})<extra></extra>",
+                                   showlegend=False),
+                        row=1, col=1),
+
     def _add_bands(self, band_info: BandEnergyInfo, width, color, opacity=1.0):
         try:
             assert len(band_info.band_energies[0]) == 1
@@ -212,7 +228,8 @@ class BandDosPlotlyPlotter:
                 go.Scatter(x=irrep_x,
                            y=irrep_y,
                            text=labels,
-                           hovertemplate="%{text}: <br>Energy: %{y}",
+                           hovertemplate=
+                           "%{text}: <br>Energy: %{y}<extra></extra>",
                            line_color=color,
                            showlegend=False,
                            mode="markers",
