@@ -188,12 +188,13 @@ class BandDosPlotlyPlotter:
             distances = band_e_info.irreps.get_distances(self.band_plot_info.x_ticks)
             for irrep, d in zip(band_e_info.irreps().values(), distances):
                 for symbol, energy, degeneracy in irrep.irrep_info_set:
-                    print(symbol)
+                    hover = f"""{energy:.2f} eV 
+                    {symbol} ({degeneracy})<extra></extra>"""
                     self.fig.add_trace(
                         go.Scatter(x=d, y=[energy] * len(d), mode='markers',
-                                   hovertemplate=
-                                   f"{symbol} ({degeneracy})<extra></extra>",
-                                   showlegend=False),
+                                   hovertemplate=hover,
+                                   showlegend=False,
+                                   line_color="pink"),
                         row=1, col=1),
 
     def _add_bands(self, band_info: BandEnergyInfo, width, color, opacity=1.0):
