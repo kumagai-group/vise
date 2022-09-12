@@ -133,6 +133,7 @@ def test_plot_band_wo_options():
         y_range=[-10.0, 10.0],
         filename="band.pdf",
         wavecar_filename=None,
+        plotly=False,
         poscar="POSCAR",
         func=parsed_args.func,
     )
@@ -146,6 +147,7 @@ def test_plot_band_w_options():
                               "--y_range", "-1.0", "1.0",
                               "--filename", "band_1.pdf",
                               "--wavecar", "WAVECAR",
+                              "--plotly",
                               "--poscar", "POSCAR-test"
                               ])
 
@@ -155,6 +157,7 @@ def test_plot_band_w_options():
         y_range=[-1.0, 1.0],
         filename="band_1.pdf",
         wavecar_filename="WAVECAR",
+        plotly=True,
         poscar="POSCAR-test",
         func=parsed_args.func,
     )

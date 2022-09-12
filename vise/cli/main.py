@@ -176,6 +176,8 @@ def parse_args(args):
         help="POSCAR-type file name to be read, which is used for evaluating "
              "the irreps.", metavar="FILE")
     parser_plot_band.add_argument(
+        "--plotly", action="store_true", help="Plot with plotly")
+    parser_plot_band.add_argument(
         "-f", "--filename", type=str, default="band.pdf", help="Pdf file name.")
 
     parser_plot_band.set_defaults(func=plot_band)
