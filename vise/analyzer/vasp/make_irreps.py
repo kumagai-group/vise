@@ -3,12 +3,15 @@
 from typing import List, Tuple
 
 import numpy as np
+from irreptables import IrrepTable
+from pymatgen.core import Structure
 from pymatgen.io.vasp import Kpoints
 
 from vise.analyzer.plot_band import Irrep, Irreps
 from vise.analyzer.vasp.plot_band import greek_to_unicode
 from vise.error import ViseError
 from vise.util.logger import get_logger
+from vise.util.structure_symmetrizer import StructureSymmetrizer
 
 logger = get_logger(__name__)
 
@@ -36,24 +39,44 @@ def special_points_from_kpoints(kpoints_filename: str) \
     return special_points, kpt_indices
 
 
-def make_irreps_from_wavecar(special_point_characters: List[str],
+def make_irreps_from_wavecar(special_point_symbols: List[str],
                              kpt_indices: List[int],
+                             sg_num: int = None,
                              wavecar_filename: str = "WAVECAR",
                              poscar_filename: str = "POSCAR",
                              plane_wave_cutoff: float = 50.0,
                              degeneracy_threshold: float = 0.01) -> Irreps:
 
+    if sg_num is None:
+        structure = Structure.from_file(poscar_filename)
+        sg_analyzer = StructureSymmetrizer(structure=structure)
+        sg_num = sg_analyzer.sg_number
+
+    logger.info("We set spinor is False.")
+    irrep_table = IrrepTable(sg_num, spinor=False)
+    symbols = {i.kpname for i in irrep_table.irreps}
+
+    listed_k_indices, listed_symbols = [], []
+    for s, k_index in zip(special_point_symbols, kpt_indices):
+        if s in symbols:
+            listed_symbols.append(s)
+            listed_k_indices.append(k_index)
+        else:
+            logger.info(f"{s} is not listed in the IrrepTable.")
+
     bs = BandStructure(fWAV=wavecar_filename,
                        fPOS=poscar_filename,
                        Ecut=plane_wave_cutoff,
-                       kplist=np.array(kpt_indices),
+                       kplist=np.array(listed_k_indices),
                        spinor=False,
                        searchUC=True)
+
     characters = bs.write_characters(degen_thresh=degeneracy_threshold,
-                                     kpnames=special_point_characters)
+                                     kpnames=listed_symbols)
+
     irrep_dict = {}
-    for character, c_kpt, kpt in \
-            zip(special_point_characters, characters["k-points"], bs.kpoints):
+    for symbol, c_kpt, kpt in \
+            zip(listed_symbols, characters["k-points"], bs.kpoints):
         symbols = []
         for irrep in c_kpt["irreps"]:
             try:
@@ -62,7 +85,7 @@ def make_irreps_from_wavecar(special_point_characters: List[str],
                 irrep_str = "Unknown"
             symbols.append(greek_to_unicode(irrep_str))
 
-        irrep_dict[greek_to_unicode(character)] = \
+        irrep_dict[greek_to_unicode(symbol)] = \
             Irrep(kpt.K,
                   symbols,
                   c_kpt["energies"].tolist(),

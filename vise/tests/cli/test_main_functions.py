@@ -158,14 +158,24 @@ def test_user_incar_settings(mocker,
 #     VaspSet(name_space)
 
 
-
 def test_plot_band(tmpdir, test_data_files):
     tmpdir.chdir()
-    args = Namespace(vasprun=test_data_files / "KO2_band_vasprun.xml",
-                     kpoints_filename=str(test_data_files / "KO2_band_KPOINTS"),
+    args = Namespace(vasprun=test_data_files / "H_band_vasprun.xml",
+                     kpoints_filename=str(test_data_files / "H_band_KPOINTS"),
                      y_range=[-10, 10],
                      filename="test.pdf")
 
+    plot_band(args)
+
+
+def test_plot_band_irrep_and_plotly(test_data_files):
+    args = Namespace(vasprun=test_data_files / "H_band_vasprun.xml",
+                     kpoints_filename=str(test_data_files / "H_band_KPOINTS"),
+                     y_range=[-10, 10],
+                     wavecar_filename=str(test_data_files / "H_band_WAVECAR"),
+                     poscar=str(test_data_files / "H_band_POSCAR"),
+                     plotly=True,
+                     filename="test.pdf")
     plot_band(args)
 
 
