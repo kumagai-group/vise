@@ -188,8 +188,8 @@ class BandDosPlotlyPlotter:
             distances = band_e_info.irreps.get_distances(self.band_plot_info.x_ticks)
             for irrep, d in zip(band_e_info.irreps().values(), distances):
                 for symbol, energy, degeneracy in irrep.irrep_info_set:
-                    hover = f"""{energy:.2f} eV 
-                    {symbol} ({degeneracy})<extra></extra>"""
+                    hover = f"{energy:.2f} eV {symbol} " \
+                            f"({degeneracy})<extra></extra>"
                     self.fig.add_trace(
                         go.Scatter(x=d, y=[energy] * len(d), mode='markers',
                                    hovertemplate=hover,
@@ -203,7 +203,6 @@ class BandDosPlotlyPlotter:
         except AssertionError:
             print("Currently, spin-polarization is not allowed.")
 
-        irrep_x, irrep_y, labels = [], [], []
         for branch_idx, (distances, eigvals) in enumerate(zip(
                 self.band_plot_info.distances_by_branch,
                 band_info.band_energies)):
@@ -223,18 +222,6 @@ class BandDosPlotlyPlotter:
                                mode="lines",
                                opacity=opacity,
                                line={"width": width}), row=1, col=1),
-
-        if irrep_x:
-            self.fig.add_trace(
-                go.Scatter(x=irrep_x,
-                           y=irrep_y,
-                           text=labels,
-                           hovertemplate=
-                           "%{text}: <br>Energy: %{y}<extra></extra>",
-                           line_color=color,
-                           showlegend=False,
-                           mode="markers",
-                           opacity=opacity), row=1, col=1),
 
     def _add_dos(self):
         if self.dos_plot_data is None:
