@@ -107,7 +107,7 @@ def test_band_info_slide_energies(band_energy_info):
     assert band_energy_info.band_energies == shifted_band_energies
     assert band_energy_info.band_edge == expected_band_edge
     assert band_energy_info.fermi_level == fermi_level - base_energy
-    assert band_energy_info.irreps.irreps["GM"].energies[0] == 1.1
+    assert band_energy_info.irreps.irreps["Γ"].energies[0] == 1.1
 
 
 def test_raise_error_when_both_band_edge_fermi_level_absent(band_energies):
