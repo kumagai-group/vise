@@ -86,10 +86,10 @@ def make_irreps_from_wavecar(special_point_symbols: List[str],
             symbols.append(greek_to_unicode(irrep_str))
 
         irrep_dict[greek_to_unicode(symbol)] = \
-            Irrep(kpt.K,
+            Irrep(kpt.K.tolist(),
                   symbols,
                   c_kpt["energies"].tolist(),
-                  c_kpt["dimensions"])
+                  c_kpt["dimensions"].tolist())
 
     return Irreps(bs.spacegroup.number, irrep_dict)
 
