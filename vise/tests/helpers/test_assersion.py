@@ -4,6 +4,7 @@ from copy import copy
 from dataclasses import dataclass
 from typing import List, Tuple
 
+import numpy as np
 import pytest
 from monty.json import MSONable
 from pymatgen.core import IStructure, Lattice
@@ -71,6 +72,11 @@ def test_assert_dataclass_almost_equal_float():
         assert_dataclass_almost_equal(TestData(1.0), TestData(1.01), digit=2)
 
     assert_dataclass_almost_equal(TestData(1.0), TestData(1.01), digit=1)
+
+
+def test_assert_dataclass_almost_equal_w_different_type_attr():
+    with pytest.raises(AssertionError):
+        assert_dataclass_almost_equal(TestData(1.0), TestData(np.float32(1.0)))
 
 
 def test_assert_dataclass_almost_equal_iterable():

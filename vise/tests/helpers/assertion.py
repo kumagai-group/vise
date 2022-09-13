@@ -105,6 +105,8 @@ def assert_dataclass_almost_equal(actual, expected, digit=8):
 
 
 def assert_attribute_almost_same(v1, v2, digit):
+    assert v1.__class__ == v2.__class__
+
     if isinstance(v1, float):
         try:
             assert round(v1, digit) == round(v2, digit)
