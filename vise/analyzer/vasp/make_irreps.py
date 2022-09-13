@@ -45,7 +45,8 @@ def make_irreps_from_wavecar(special_point_symbols: List[str],
                              wavecar_filename: str = "WAVECAR",
                              poscar_filename: str = "POSCAR",
                              plane_wave_cutoff: float = 50.0,
-                             degeneracy_threshold: float = 0.01) -> Irreps:
+                             degeneracy_threshold: float = 0.01,
+                             **bs_kwargs) -> Irreps:
 
     if sg_num is None:
         structure = Structure.from_file(poscar_filename)
@@ -69,7 +70,7 @@ def make_irreps_from_wavecar(special_point_symbols: List[str],
                        Ecut=plane_wave_cutoff,
                        kplist=np.array(listed_k_indices),
                        spinor=False,
-                       searchUC=True)
+                       **bs_kwargs)
 
     characters = bs.write_characters(degen_thresh=degeneracy_threshold,
                                      kpnames=listed_symbols)
