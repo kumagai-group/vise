@@ -163,6 +163,9 @@ def test_plot_band(tmpdir, test_data_files):
     args = Namespace(vasprun=test_data_files / "H_band_vasprun.xml",
                      kpoints_filename=str(test_data_files / "H_band_KPOINTS"),
                      y_range=[-10, 10],
+                     wavecar_filename=None,
+                     poscar=str(test_data_files / "H_band_POSCAR"),
+                     plotly=False,
                      filename="test.pdf")
 
     plot_band(args)
