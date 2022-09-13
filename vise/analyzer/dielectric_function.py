@@ -61,9 +61,9 @@ class DieleFuncData(MSONable, ToJsonFileMixIn, ToCsvFileMixIn):
 
     @classmethod
     def from_dataframe(cls, df):
-        real = df.loc[:, cls.real_columns()].values
-        imag = df.loc[:, cls.imag_columns()].values
-        band_gap = df.loc[0, "band_gap"]
+        real = df.loc[:, cls.real_columns()].values.tolist()
+        imag = df.loc[:, cls.imag_columns()].values.tolist()
+        band_gap = float(df.loc[0, "band_gap"])
         return cls(energies=df["energies(eV)"].tolist(),
                    diele_func_real=real, diele_func_imag=imag,
                    band_gap=band_gap)
