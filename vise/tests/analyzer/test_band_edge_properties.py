@@ -23,7 +23,7 @@ expected_metal = \
 def test_band_edge_msonable():
     assert_msonable(BandEdge(energy=0.0, spin=Spin.up, band_index=0,
                              kpoint_index=1, kpoint_coords=[0.0, 0.0, 0.0],
-                             name="test"))
+                             symbol="X1"))
 
 
 def test_band_edge_equal():
