@@ -108,13 +108,20 @@ def assert_dataclass_almost_equal(actual, expected, digit=8):
     assert actual.__class__ == expected.__class__
 
     for k, v1 in actual.__dict__.items():
-        print(f"key {k}")
-        v2 = expected.__getattribute__(k)
-        assert_attribute_almost_same(v1, v2, digit)
+        try:
+            v2 = expected.__getattribute__(k)
+            assert_attribute_almost_same(v1, v2, digit)
+        except AssertionError:
+            print(f"Error raised key {k}")
 
 
 def assert_attribute_almost_same(v1, v2, digit):
-    assert v1.__class__ == v2.__class__
+    try:
+        assert v1.__class__ == v2.__class__
+    except AssertionError:
+        print("type(v1), type(v2)")
+        print(type(v1), type(v2))
+        raise
 
     if isinstance(v1, float):
         try:
