@@ -23,6 +23,7 @@ expected_metal = \
 def test_band_edge_msonable():
     assert_msonable(BandEdge(energy=0.0, spin=Spin.up, band_index=0,
                              kpoint_index=1, kpoint_coords=[0.0, 0.0, 0.0],
+                             data_source="dos",
                              symbol="X1"))
 
 
@@ -176,10 +177,10 @@ def test_is_band_gap():
 def test_merge_band_edge():
     dos_edge = BandEdge(energy=0.0, spin=Spin.up, band_index=0,
                         kpoint_index=1, kpoint_coords=[0.0, 0.0, 0.0],
-                        name="dos")
+                        data_source="dos")
     band_edge = BandEdge(energy=-0.1, spin=Spin.down, band_index=0,
                          kpoint_index=1, kpoint_coords=[0.1, 0.1, 0.1],
-                         name="band")
+                         data_source="band")
     assert merge_band_edge(dos_edge, band_edge, "vbm") == dos_edge
     assert merge_band_edge(dos_edge, band_edge, "cbm") == band_edge
 

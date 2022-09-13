@@ -22,6 +22,7 @@ class BandEdge(MSONable):
     band_index: int
     kpoint_coords: List[float]
     kpoint_index: int = None
+    data_source: str = None
     symbol: str = None
 
     def is_direct(self, other: "BandEdge"):
@@ -44,7 +45,8 @@ class BandEdge(MSONable):
                 "band_index":    self.band_index,
                 "kpoint_index":  self.kpoint_index,
                 "kpoint_coords": self.kpoint_coords,
-                "symbol":          self.symbol}
+                "data_source":   self.data_source,
+                "symbol":        self.symbol}
 
     @classmethod
     def from_dict(cls, d):
