@@ -33,23 +33,27 @@ def refractive_idx_imag(e_real: float, e_imag: float) -> float:
 @dataclass
 class DieleFuncData(MSONable, ToJsonFileMixIn, ToCsvFileMixIn):
     energies: List[float]  # in eV
+    directions: List[str]
     diele_func_real: List[List[float]]  # [xx, yy, zz, xy, yz, xz]
     diele_func_imag: List[List[float]]  # [xx, yy, zz, xy, yz, xz]
     band_gap: Optional[float] = None  # in eV
 
-    @classmethod
-    def real_columns(cls):
-        return [f"real_{d}" for d in ["xx", "yy", "zz", "xy", "yz", "xz"]]
+    def __post_init__(self):
+        assert len(self.directions) == len(self.diele_func_real[0])
 
-    @classmethod
-    def imag_columns(cls):
-        return [f"imag_{d}" for d in ["xx", "yy", "zz", "xy", "yz", "xz"]]
+    @property
+    def real_columns(self):
+        return [f"real_{d}" for d in self.directions]
+
+    @property
+    def imag_columns(self):
+        return [f"imag_{d}" for d in self.directions]
 
     @property
     def to_dataframe(self) -> pd.DataFrame:
         names = ["energies(eV)"]
-        names.extend(self.real_columns())
-        names.extend(self.imag_columns())
+        names.extend(self.real_columns)
+        names.extend(self.imag_columns)
         names.append("band_gap")
 
         data = []
@@ -61,12 +65,23 @@ class DieleFuncData(MSONable, ToJsonFileMixIn, ToCsvFileMixIn):
 
     @classmethod
     def from_dataframe(cls, df):
-        real = df.loc[:, cls.real_columns()].values.tolist()
-        imag = df.loc[:, cls.imag_columns()].values.tolist()
-        band_gap = float(df.loc[0, "band_gap"])
+        real_T, imag_T, directions = [], [], []
+        for column_name, item in df.iteritems():
+            if column_name in ["energies(eV)", "band_gap"]:
+                continue
+            elif "real" in column_name:
+                real_T.append(item)
+                directions.append(column_name.split("_")[-1])
+            elif "imag" in column_name:
+                imag_T.append(item)
+            else:
+                raise KeyError("The input CSV does not have proper format.")
+
         return cls(energies=df["energies(eV)"].tolist(),
-                   diele_func_real=real, diele_func_imag=imag,
-                   band_gap=band_gap)
+                   diele_func_real=np.array(real_T).T.tolist(),
+                   diele_func_imag=np.array(imag_T).T.tolist(),
+                   directions=directions,
+                   band_gap=float(df.loc[0, "band_gap"]))
 
     @property
     def absorption_coeff(self):

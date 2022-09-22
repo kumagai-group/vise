@@ -22,7 +22,9 @@ except ModuleNotFoundError:
 def diele_func_data():
     array_real = [1, 2, 3, 0, 0, 0]
     array_imag = [4, 5, 6, 0, 0, 0]
+    directions = ["xx", "yy", "zz", "xy", "yz", "xz"]
     return DieleFuncData(energies=list(np.linspace(0.0, 10.0, num=11)),
+                         directions=directions,
                          diele_func_real=[array_real]*11,
                          diele_func_imag=[array_imag]*11,
                          band_gap=1.0)
@@ -69,17 +71,16 @@ def test_reflectivity(diele_func_data):
 
 def test_to_csv_file(tmpdir):
     diele = DieleFuncData(energies=[0.0, 3.0],
-                          diele_func_real=[[0.1, 0.2, 0.3, 0.4, 0.5, 0.6],
-                                           [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]],
-                          diele_func_imag=[[1.1, 1.2, 1.3, 1.4, 1.5, 1.6],
-                                           [1.1, 1.2, 1.3, 1.4, 1.5, 1.6]],
+                          diele_func_real=[[0.1, 0.2, 0.3], [0.1, 0.2, 0.3]],
+                          diele_func_imag=[[1.1, 1.2, 1.3], [1.1, 1.2, 1.3]],
+                          directions=["xx", "yy", "ave"],
                           band_gap=1.0)
     tmpdir.chdir()
     diele.to_csv_file()
     actual = Path("diele_func_data.csv").read_text()
-    expected = """energies(eV),real_xx,real_yy,real_zz,real_xy,real_yz,real_xz,imag_xx,imag_yy,imag_zz,imag_xy,imag_yz,imag_xz,band_gap
-0.0,0.1,0.2,0.3,0.4,0.5,0.6,1.1,1.2,1.3,1.4,1.5,1.6,1.0
-3.0,0.1,0.2,0.3,0.4,0.5,0.6,1.1,1.2,1.3,1.4,1.5,1.6,
+    expected = """energies(eV),real_xx,real_yy,real_ave,imag_xx,imag_yy,imag_ave,band_gap
+0.0,0.1,0.2,0.3,1.1,1.2,1.3,1.0
+3.0,0.1,0.2,0.3,1.1,1.2,1.3,
 """
     assert actual == expected
 
