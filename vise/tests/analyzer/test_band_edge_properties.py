@@ -10,7 +10,8 @@ from pymatgen.electronic_structure.core import Spin
 from vise.analyzer.band_edge_properties import (
     BandEdge, BandEdgeProperties, is_band_gap, merge_band_edge)
 from vise.defaults import defaults
-from vise.tests.helpers.assertion import assert_msonable
+from vise.tests.helpers.assertion import assert_msonable, \
+    assert_dataclass_almost_equal
 
 parent_dir = Path(__file__).parent
 
@@ -175,12 +176,34 @@ def test_is_band_gap():
 
 
 def test_merge_band_edge():
-    dos_edge = BandEdge(energy=0.0, spin=Spin.up, band_index=0,
-                        kpoint_index=1, kpoint_coords=[0.0, 0.0, 0.0],
-                        data_source="dos")
-    band_edge = BandEdge(energy=-0.1, spin=Spin.down, band_index=0,
-                         kpoint_index=1, kpoint_coords=[0.1, 0.1, 0.1],
+    edge1 = BandEdge(energy=0.0, spin=Spin.up, band_index=0,
+                     kpoint_index=1, kpoint_coords=[0.0, 0.0, 0.0],
+                     data_source="dos")
+    edge2 = BandEdge(energy=-0.0011, spin=Spin.down, band_index=0,
+                     kpoint_index=1, kpoint_coords=[0.1, 0.1, 0.1],
+                     data_source="band")
+    assert merge_band_edge(edge1, edge2, "vbm") == edge1
+    assert merge_band_edge(edge1, edge2, "cbm") == edge2
+
+
+def test_merge_band_edge_same():
+    edge1 = BandEdge(energy=0.0, spin=Spin.up, band_index=0,
+                     kpoint_index=1, kpoint_coords=[0.0, 0.0, 0.0],
+                     data_source="dos")
+    edge2 = BandEdge(energy=-0.09, spin=Spin.down, band_index=0,
+                     kpoint_index=1, kpoint_coords=[0.1, 0.1, 0.1],
+                     data_source="band")
+    # Because the kpoint coords are different, edge2 is returned.
+    actual = merge_band_edge(edge1, edge2, "vbm", threshold=0.1)
+    assert_dataclass_almost_equal(actual, edge1)
+
+    same_edge = BandEdge(energy=0.09, spin=Spin.up, band_index=0,
+                         kpoint_index=1, kpoint_coords=[0.0, 0.0, 0.0],
                          data_source="band")
-    assert merge_band_edge(dos_edge, band_edge, "vbm") == dos_edge
-    assert merge_band_edge(dos_edge, band_edge, "cbm") == band_edge
+    # Higher energy is used for VBM.
+    actual = merge_band_edge(edge1, same_edge, "vbm", threshold=0.1)
+    expected = BandEdge(energy=0.09, spin=Spin.up, band_index=0,
+                        kpoint_index=1, kpoint_coords=[0.0, 0.0, 0.0],
+                        data_source="band dos")
+    assert_dataclass_almost_equal(actual, expected)
 

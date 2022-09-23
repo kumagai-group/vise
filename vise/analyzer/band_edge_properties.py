@@ -188,7 +188,8 @@ def is_band_gap(band_gap: Optional[float],
     return False
 
 
-def merge_band_edge(be_1: BandEdge, be_2: BandEdge, edge: str) -> BandEdge:
+def merge_band_edge(be_1: BandEdge, be_2: BandEdge, edge: str,
+                    threshold=0.001) -> BandEdge:
     if edge not in ["vbm", "cbm"]:
         raise ValueError("edge needs to be vbm or cbm")
 
@@ -196,5 +197,10 @@ def merge_band_edge(be_1: BandEdge, be_2: BandEdge, edge: str) -> BandEdge:
         result = be_1 if be_1.energy > be_2.energy else be_2
     else:
         result = be_1 if be_1.energy < be_2.energy else be_2
+
+    if abs(be_1.energy - be_2.energy) < threshold \
+            and np.allclose(be_1.kpoint_coords, be_2.kpoint_coords) \
+            and be_1.spin == be_2.spin:
+        result.data_source = f"{be_1.data_source} {be_2.data_source}"
 
     return deepcopy(result)
