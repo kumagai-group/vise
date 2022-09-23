@@ -98,18 +98,19 @@ class DieleFuncPlotter:
         self.energy_range = energy_range or [0, 10]
         self._x_axis_title = "Energy (eV)"
 
-    def add_plot(self, directions, plot_type):
+    def add_plot(self, directions, plot_type: DieleFuncPlotType):
         _idx = np.where(np.array(self.energies) > self.energy_range[1])[0][0]
         values = []
         a = plot_type.tensors(self.diele_func_data)
         for b, tensors in zip(["real", "imag"], a):
             for direction in directions:
-                tensor = direction.val(tensors)
+                _index = self.diele_func_data.directions.index(direction)
+                tensor = tensors[_index]
                 values.extend(tensor[:_idx])
                 if len(a) == 1:
-                    name = direction.name
+                    name = direction
                 else:
-                    name = f"{b}_{direction.name}"
+                    name = f"{b}_{direction}"
                 self.add_single_plot(name, tensor, plot_type)
         return values
 
@@ -126,7 +127,7 @@ class DieleFuncPlotlyPlotter(DieleFuncPlotter):
         self.fig = go.Figure()
 
     def create_figure(self,
-                      directions=(TensorDirection.average,),
+                      directions=("ave",),
                       plot_type=DieleFuncPlotType.absorption_coeff,
                       y_range: List[float] = None):
         self._adjust_layout(plot_type)
@@ -175,14 +176,14 @@ class DieleFuncMplPlotter(DieleFuncPlotter):
         self.plt.clf()
 
     def construct_plot(self,
-                       directions=(TensorDirection.average,),
+                       directions=("ave",),
                        plot_type=DieleFuncPlotType.absorption_coeff,
                        y_range=None):
         self._add_coeffs(directions, plot_type, y_range)
         self._add_band_gap()
         self._set_figure_legend()
         self._set_x_range()
-        self._set_labels()
+        self._set_labels(plot_type)
         self._set_formatter()
         self.plt.tight_layout()
 
@@ -207,9 +208,9 @@ class DieleFuncMplPlotter(DieleFuncPlotter):
     def _set_x_range(self):
         self.plt.xlim(self.energy_range[0], self.energy_range[1])
 
-    def _set_labels(self):
+    def _set_labels(self, plot_type):
         self.plt.xlabel(self._x_axis_title)
-        y_axis = DieleFuncPlotType.absorption_coeff.y_axis_label("matplotlib")
+        y_axis = plot_type.y_axis_label("matplotlib")
         self.plt.ylabel(y_axis)
 
     def _set_formatter(self):

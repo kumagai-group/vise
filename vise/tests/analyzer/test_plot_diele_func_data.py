@@ -4,11 +4,9 @@ from copy import copy
 
 import pytest
 from monty.serialization import loadfn
-from pymatgen.io.vasp import Vasprun, Outcar
 from vise.analyzer.plot_diele_func_data import DieleFuncPlotlyPlotter, \
-    DieleFuncMplPlotter, TensorDirection, DieleFuncPlotType
+    DieleFuncMplPlotter, DieleFuncPlotType
 
-from vise.analyzer.vasp.make_diele_func import make_diele_func
 from vise.util.dash_helper import show_png
 
 
@@ -17,18 +15,6 @@ try:
     PSUTIL_NOT_PRESENT = False
 except ModuleNotFoundError:
     PSUTIL_NOT_PRESENT = True
-
-
-def test_tensor_direction():
-    tensors = [[0.0, 1.0, 2.0, 3.0, 4.0, 5.0]]
-    actual = TensorDirection.average.val(tensors)
-    assert actual == [1.0]
-
-    actual = TensorDirection.xx.val(tensors)
-    assert actual == [0.0]
-
-    actual = TensorDirection.xy.val(tensors)
-    assert actual == [3.0]
 
 
 def test_diele_func_plot_type():
@@ -58,7 +44,7 @@ def test_absorption_coeff_plotly_plotter(actual_diele_func_data):
 def test_diele_func_plotly_plotter(actual_diele_func_data):
     plotter = DieleFuncPlotlyPlotter(actual_diele_func_data)
     plotter.create_figure(
-        directions=[TensorDirection.xx, TensorDirection.zz],
+        directions=["xx", "zz"],
         plot_type=DieleFuncPlotType.diele_func)
     show_png(plotter.fig)
 
@@ -67,7 +53,7 @@ def test_diele_func_plotly_plotter(actual_diele_func_data):
 def test_refraction_plotly_plotter(actual_diele_func_data):
     plotter = DieleFuncPlotlyPlotter(actual_diele_func_data)
     plotter.create_figure(
-        directions=[TensorDirection.yy],
+        directions=["yy"],
         plot_type=DieleFuncPlotType.refraction)
     show_png(plotter.fig)
 
@@ -76,7 +62,7 @@ def test_refraction_plotly_plotter(actual_diele_func_data):
 def test_reflectivity_plotly_plotter(actual_diele_func_data):
     plotter = DieleFuncPlotlyPlotter(actual_diele_func_data)
     plotter.create_figure(
-        directions=[TensorDirection.yy],
+        directions=["yy"],
         plot_type=DieleFuncPlotType.reflectivity)
     show_png(plotter.fig)
 

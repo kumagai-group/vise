@@ -10,8 +10,7 @@ from pathlib import Path
 from pymatgen.io.vasp.inputs import UnknownPotcarWarning
 from vise import __version__
 from vise.analyzer.atom_grouping_type import AtomGroupingType
-from vise.analyzer.plot_diele_func_data import TensorDirection, \
-    DieleFuncPlotType
+from vise.analyzer.plot_diele_func_data import DieleFuncPlotType
 from vise.cli.main_functions import get_poscar_from_mp, VaspSet, plot_band, \
     plot_dos, band_edge_properties, plot_diele_func, \
     calc_effective_mass, structure_info
@@ -237,8 +236,9 @@ def parse_args(args):
         "--input_csv_name", type=str, default=None,
         help="Input CSV file name for dielectric function.")
     parser_plot_absorption.add_argument(
-        "-d", "--directions", nargs="+", type=TensorDirection,
-        default=[TensorDirection.average],
+        "-d", "--directions", nargs="+", type=str,
+        default=["ave"],
+        choices=["xx", "yy", "zz", "xy", "yz", "xz", "ave"],
         help="Directions for the plot: For example,set 'xx' for x-direction.")
     parser_plot_absorption.add_argument(
         "-y", "--y_range", nargs="+", default=None,

@@ -5,8 +5,7 @@ from argparse import Namespace
 from pathlib import Path
 
 from vise.analyzer.atom_grouping_type import AtomGroupingType
-from vise.analyzer.plot_diele_func_data import TensorDirection, \
-    DieleFuncPlotType
+from vise.analyzer.plot_diele_func_data import DieleFuncPlotType
 from vise.cli.main import parse_args
 from vise.defaults import defaults
 from vise.input_set.task import Task
@@ -222,7 +221,7 @@ def test_plot_absorption_wo_options():
         outcar=defaults.outcar,
         input_csv_name=None,
         filename=None,
-        directions=[TensorDirection.average],
+        directions=["ave"],
         y_range=None,
         calc_kk=False,
         ita=0.01,
@@ -238,7 +237,7 @@ def test_plot_absorption_w_options():
                               "--outcar", "OUTCAR_1",
                               "--input_csv_name", "diele_func.csv",
                               "-f", "a",
-                              "-d", "average", "xx",
+                              "-d", "ave", "xx",
                               "-y", "-5", "5",
                               "-ckk",
                               "-i", "0.1",
@@ -249,7 +248,7 @@ def test_plot_absorption_w_options():
         outcar=Path("OUTCAR_1"),
         input_csv_name="diele_func.csv",
         filename="a",
-        directions=[TensorDirection.average, TensorDirection.xx],
+        directions=["ave", "xx"],
         y_range=[-5.0, 5.0],
         calc_kk=True,
         ita=0.1,

@@ -9,8 +9,7 @@ import pytest
 from pymatgen.core import Structure, Element
 from vise.analyzer.atom_grouping_type import AtomGroupingType
 from vise.analyzer.dielectric_function import DieleFuncData
-from vise.analyzer.plot_diele_func_data import TensorDirection, \
-    DieleFuncPlotType
+from vise.analyzer.plot_diele_func_data import DieleFuncPlotType
 from vise.cli.main_functions import get_poscar_from_mp, VaspSet, plot_band, \
     plot_dos, band_edge_properties, plot_diele_func, \
     structure_info
@@ -213,7 +212,7 @@ def test_plot_diele_func(tmpdir, test_data_files):
                      calc_kk=False,
                      ita=0.1,
                      filename=None,
-                     directions=[TensorDirection.average],
+                     directions=["ave"],
                      plot_type=DieleFuncPlotType.absorption_coeff,
                      to_csv=True)
     plot_diele_func(args)
@@ -225,7 +224,7 @@ def test_plot_diele_func(tmpdir, test_data_files):
                      calc_kk=False,
                      ita=0.1,
                      filename=None,
-                     directions=[TensorDirection.xx],
+                     directions=["xx"],
                      plot_type=DieleFuncPlotType.refraction,
                      to_csv=False)
     plot_diele_func(args)
