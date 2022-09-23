@@ -8,8 +8,6 @@ import numpy as np
 from matplotlib import pyplot as plt
 from plotly import graph_objects as go
 from vise.analyzer.dielectric_function import DieleFuncData
-from vise.analyzer.dielectric_function_data.exp_dielectric_func import \
-    ExpDieleFunc
 from vise.util.enum import ExtendedEnum
 from vise.util.matplotlib import float_to_int_formatter
 

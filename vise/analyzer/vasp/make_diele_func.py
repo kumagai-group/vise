@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
+import numpy as np
 from pymatgen.io.vasp import Vasprun, Outcar
 from vise.analyzer.dielectric_function import DieleFuncData, \
     kramers_kronig_trans
 from vise.analyzer.vasp.band_edge_properties import VaspBandEdgeProperties
-
-import numpy as np
 
 
 def make_diele_func(vasprun: Vasprun,
