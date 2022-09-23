@@ -17,7 +17,7 @@ logger = get_logger(__name__)
 eV_to_inv_cm = pc["electron volt-inverse meter relationship"][0] / 100
 
 
-def diele_func_to_coeff(energy: float, real: float, imag: float) -> float:
+def absorption_coeff(energy: float, real: float, imag: float) -> float:
     return (2 * sqrt(2) * pi * sqrt(sqrt(real ** 2 + imag ** 2) - real)
             * energy * eV_to_inv_cm)
 
@@ -33,13 +33,17 @@ def refractive_idx_imag(e_real: float, e_imag: float) -> float:
 @dataclass
 class DieleFuncData(MSONable, ToJsonFileMixIn, ToCsvFileMixIn):
     energies: List[float]  # in eV
-    directions: List[str]
-    diele_func_real: List[List[float]]  # [xx, yy, zz, xy, yz, xz]
-    diele_func_imag: List[List[float]]  # [xx, yy, zz, xy, yz, xz]
+    directions: List[str]  # ["xx", "yy", "ave"]
+    diele_func_real: List[List[float]]  # [list_of_xx, list_of_xy, list_of_ave]
+    diele_func_imag: List[List[float]]  # [list_of_xx, list_of_xy, list_of_ave]
     band_gap: Optional[float] = None  # in eV
 
     def __post_init__(self):
-        assert len(self.directions) == len(self.diele_func_real[0])
+        try:
+            assert len(self.directions) == len(self.diele_func_real)
+        except AssertionError:
+            print(f"{len(self.directions)} vs {len(self.diele_func_real)}")
+            raise
 
     @property
     def real_columns(self):
@@ -51,17 +55,15 @@ class DieleFuncData(MSONable, ToJsonFileMixIn, ToCsvFileMixIn):
 
     @property
     def to_dataframe(self) -> pd.DataFrame:
-        names = ["energies(eV)"]
-        names.extend(self.real_columns)
-        names.extend(self.imag_columns)
-        names.append("band_gap")
+        d = {"energies(eV)": self.energies}
+        for x, y in zip(self.real_columns, self.diele_func_real):
+            d[x] = y
+        for x, y in zip(self.imag_columns, self.diele_func_imag):
+            d[x] = y
+        d["band_gap"] = [None] * len(self.energies)
+        d["band_gap"][0] = self.band_gap
 
-        data = []
-        for i, j, k in zip(self.energies,
-                           self.diele_func_real, self.diele_func_imag):
-            data.append([i] + j + k)
-        data[0].append(self.band_gap)
-        return pd.DataFrame(data, columns=names)
+        return pd.DataFrame.from_dict(d)
 
     @classmethod
     def from_dataframe(cls, df):
@@ -70,24 +72,25 @@ class DieleFuncData(MSONable, ToJsonFileMixIn, ToCsvFileMixIn):
             if column_name in ["energies(eV)", "band_gap"]:
                 continue
             elif "real" in column_name:
-                real_T.append(item)
+                real_T.append(item.tolist())
                 directions.append(column_name.split("_")[-1])
             elif "imag" in column_name:
-                imag_T.append(item)
+                imag_T.append(item.tolist())
             else:
                 raise KeyError("The input CSV does not have proper format.")
 
         return cls(energies=df["energies(eV)"].tolist(),
-                   diele_func_real=np.array(real_T).T.tolist(),
-                   diele_func_imag=np.array(imag_T).T.tolist(),
+                   diele_func_real=real_T,
+                   diele_func_imag=imag_T,
                    directions=directions,
                    band_gap=float(df.loc[0, "band_gap"]))
 
     @property
     def absorption_coeff(self):
-        return [[diele_func_to_coeff(e, r, i) for r, i in zip(reals, imags)]
-                for e, reals, imags in
-                zip(self.energies, self.diele_func_real, self.diele_func_imag)]
+        return [[absorption_coeff(e, r, i)
+                for e, r, i in zip(self.energies, reals, imags)]
+                for reals, imags in
+                zip(self.diele_func_real, self.diele_func_imag)]
 
     @property
     def refractive_idx_real(self):
@@ -126,6 +129,7 @@ def make_shifted_diele_func(diele_func_data: DieleFuncData,
                       original_band_gap + shift, shift)
     real = kramers_kronig_trans(imag, diele_func_data.energies)
     return DieleFuncData(diele_func_data.energies,
+                         diele_func_data.directions,
                          real.tolist(),
                          imag.tolist(),
                          original_band_gap + shift)
@@ -146,19 +150,19 @@ def imag_shift(diele_func_imag: List[List[float]],
         left_ratio = (right_e - old_e) / (right_e - left_e)
 
         inner_result = []
-        for imag_idx in range(6):
+        for imag_idx in range(len(diele_func_imag)):
             if energy_grid < band_gap:
                 inner_result.append(0.0)
             else:
                 old_diele = \
-                    diele_func_imag[right_idx - 1][imag_idx] * left_ratio + \
-                    diele_func_imag[right_idx][imag_idx] * (1 - left_ratio)
+                    diele_func_imag[imag_idx][right_idx - 1] * left_ratio + \
+                    diele_func_imag[imag_idx][right_idx] * (1 - left_ratio)
                 inner_result.append(
                     old_diele * (energy_grid - shift) / energy_grid)
 
         result.append(inner_result)
 
-    return np.array(result)
+    return np.array(result).T
 
 
 def kramers_kronig_trans(diele_func_imag: np.array,
@@ -168,12 +172,12 @@ def kramers_kronig_trans(diele_func_imag: np.array,
     result = []
     ee2ss = [[e ** 2 - energy_grid ** 2 for e in energies]
              for energy_grid in energies]
-    for imag_idx in tqdm(range(6)):
-        imags = diele_func_imag[:, imag_idx]
+    for imag_idx in tqdm(range(len(diele_func_imag))):
+        imags = diele_func_imag[imag_idx, :]
         if imag_idx == 0 or \
                 (imag_idx > 0
                  and np.allclose(
-                            imags, diele_func_imag[:, imag_idx - 1]) is False):
+                            imags, diele_func_imag[imag_idx - 1, :]) is False):
             if np.count_nonzero(imags) == 0:
                 inner_result = [0.0] * len(energies)
             else:
@@ -188,4 +192,4 @@ def kramers_kronig_trans(diele_func_imag: np.array,
 
         result.append(inner_result)
 
-    return np.array(result).T
+    return np.array(result)

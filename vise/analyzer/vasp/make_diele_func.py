@@ -36,7 +36,18 @@ def make_diele_func(vasprun: Vasprun,
         # <r>     0.0000     0.0000     0.0000    -0.0000 99999.0000 99999.0000 99999.0000 </r>
         imag[0] = 0.0
         real = kramers_kronig_trans(imag, energies, ita)
+
+    real, imag = real.T, imag.T
+    real = np.vstack([real, make_average(real)])
+    imag = np.vstack([imag, make_average(imag)])
+    real = real.tolist()
     band_gap = VaspBandEdgeProperties(vasprun, outcar).band_gap
-    return DieleFuncData(energies, real.tolist(), imag.tolist(), band_gap)
+    return DieleFuncData(energies=energies,
+                         directions=["xx", "yy", "zz", "xy", "yz", "xz", "ave"],
+                         diele_func_real=real,
+                         diele_func_imag=imag.tolist(),
+                         band_gap=band_gap)
 
 
+def make_average(vals):
+    return np.average(vals[:3, :], axis=0)

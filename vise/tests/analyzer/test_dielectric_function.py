@@ -20,13 +20,10 @@ except ModuleNotFoundError:
 
 @pytest.fixture
 def diele_func_data():
-    array_real = [1, 2, 3, 0, 0, 0]
-    array_imag = [4, 5, 6, 0, 0, 0]
-    directions = ["xx", "yy", "zz", "xy", "yz", "xz"]
-    return DieleFuncData(energies=list(np.linspace(0.0, 10.0, num=11)),
-                         directions=directions,
-                         diele_func_real=[array_real]*11,
-                         diele_func_imag=[array_imag]*11,
+    return DieleFuncData(energies=[0.0, 10.0],
+                         directions=["xx", "yy", "ave"],
+                         diele_func_real=[[0.1, 0.2], [0.3, 0.4], [0.5, 0.6]],
+                         diele_func_imag=[[1.1, 1.2], [1.3, 1.4], [1.5, 1.6]],
                          band_gap=1.0)
 
 
@@ -42,37 +39,38 @@ def test_json_file_mixin(diele_func_data, tmpdir):
 
 
 def test_absorption_coeff(diele_func_data):
-    actual = diele_func_data.absorption_coeff[10][0]
-    expected = (2 * sqrt(2) * pi * sqrt(sqrt(1 ** 2 + 4 ** 2) - 1)
+    actual = diele_func_data.absorption_coeff[2][1]
+    real, imag = 0.6, 1.6
+    expected = (2 * sqrt(2) * pi * sqrt(sqrt(real ** 2 + imag ** 2) - real)
                 * 10.0 * eV_to_inv_cm)
     assert actual == expected
 
 
 def test_refractive_idx(diele_func_data):
-    e_real, e_imag = 1, 4  # values at xx
+    e_real, e_imag = 0.6, 1.6  # values at xx
 
-    actual = diele_func_data.refractive_idx_real[10][0]
+    actual = diele_func_data.refractive_idx_real[2][1]
     expected = sqrt(e_real + sqrt(e_real ** 2 + e_imag ** 2)) / sqrt(2)
     assert actual == expected
 
-    actual = diele_func_data.refractive_idx_imag[10][0]
+    actual = diele_func_data.refractive_idx_imag[2][1]
     expected = sqrt(-e_real + sqrt(e_real ** 2 + e_imag ** 2)) / sqrt(2)
     assert actual == expected
 
 
 def test_reflectivity(diele_func_data):
-    e_real, e_imag = 1, 4  # values at xx
+    e_real, e_imag = 0.6, 1.6  # values at xx
     n = sqrt(e_real + sqrt(e_real ** 2 + e_imag ** 2)) / sqrt(2)
     k = sqrt(-e_real + sqrt(e_real ** 2 + e_imag ** 2)) / sqrt(2)
     expected = ((n - 1)**2 + k**2) / ((n + 1)**2 + k**2)
-    actual = diele_func_data.reflectivity[10][0]
+    actual = diele_func_data.reflectivity[2][1]
     assert actual == expected
 
 
 def test_to_csv_file(tmpdir):
     diele = DieleFuncData(energies=[0.0, 3.0],
-                          diele_func_real=[[0.1, 0.2, 0.3], [0.1, 0.2, 0.3]],
-                          diele_func_imag=[[1.1, 1.2, 1.3], [1.1, 1.2, 1.3]],
+                          diele_func_real=[[0.1, 0.1], [0.2, 0.2], [0.3, 0.3]],
+                          diele_func_imag=[[1.1, 1.1], [1.2, 1.2], [1.3, 1.3]],
                           directions=["xx", "yy", "ave"],
                           band_gap=1.0)
     tmpdir.chdir()

@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
+import numpy as np
 from pymatgen.io.vasp import Vasprun, Outcar
 from vise.analyzer.dielectric_function import make_shifted_diele_func
-from vise.analyzer.vasp.band_edge_properties import VaspBandEdgeProperties
-from vise.analyzer.vasp.make_diele_func import make_diele_func
+from vise.analyzer.vasp.make_diele_func import make_diele_func, make_average
 
 
 def test_make_diele_func(test_data_files):
@@ -39,3 +39,9 @@ def test_make_diele_func_2(test_data_files):
     # fig = plotter.create_figure()
     # fig.show()
 
+
+def test_make_ave():
+    actual = make_average(
+        vals=np.array([[0.0, 1.0], [1.0, 2.0], [2.0, 3.0], [100, 200]]))
+    expected = np.array([1.0, 2.0])
+    assert (actual == expected).all()
