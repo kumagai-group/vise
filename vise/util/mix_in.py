@@ -77,7 +77,8 @@ class ToYamlFileMixIn(ToFileMixIn, ABC):
     def to_yaml(self):
         return yaml.dump(self.as_dict())
 
-    @abstractmethod
+    # This is not abstractmethod because we don't need this when to_yaml and
+    # from_yaml are overridden.
     def as_dict(self):
         pass
 
