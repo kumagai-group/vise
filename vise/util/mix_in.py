@@ -83,8 +83,8 @@ class ToYamlFileMixIn(ToFileMixIn, ABC):
         pass
 
     @classmethod
-    def from_yaml(cls, filename: str = None):
-        d = loadfn(filename or cls._yaml_filename)
+    def from_yaml(cls, filename: str):
+        d = loadfn(filename)
         if hasattr(cls, "from_dict"):
             return cls.from_dict(d)
         return cls(**d)

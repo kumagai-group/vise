@@ -16,10 +16,10 @@ class TestTest(MSONable, ToJsonFileMixIn, ToCsvFileMixIn, ToYamlFileMixIn):
     def as_dict(self):
         return {"a": self.a}
 
-    @classmethod
-    def from_yaml(cls, filename):
-        d = loadfn(filename)
-        return cls(**d)
+    # @classmethod
+    # def from_yaml(cls, filename):
+    #     d = loadfn(filename)
+    #     return cls(**d)
 
     @property
     def to_dataframe(self):
