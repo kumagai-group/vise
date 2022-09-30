@@ -9,6 +9,7 @@ import yaml
 from pymatgen.core import Structure
 from pymatgen.ext.matproj import MPRester
 from pymatgen.io.vasp import Vasprun, Outcar
+from tabulate import tabulate
 from vise.analyzer.dielectric_function import DieleFuncData
 from vise.analyzer.plot_band_dos import BandDosPlotlyPlotter
 from vise.analyzer.plot_diele_func_data import DieleFuncMplPlotter, \
@@ -60,7 +61,29 @@ def structure_info(args: Namespace) -> None:
         print(symmetrizer)
 
 
+def get_most_stable_mp_id_from_formula(formula: str):
+    # API key is parsed via .pmgrc.yaml
+    with MPRester() as m:
+        # Due to mp_decode=True by default, class objects are restored.
+        candidates = m.query(criteria=formula,
+                             properties=["task_id", "e_above_hull",
+                                         "spacegroup.symbol", "band_gap"])
+
+    sorted_candidates = sorted(candidates, key=lambda x: x["e_above_hull"])
+    x = []
+    for c in sorted_candidates:
+        x.append([c["task_id"], round(c["e_above_hull"], 3),
+                  c["spacegroup.symbol"], round(c["band_gap"], 3)])
+
+    print(tabulate(x, headers=["mp_id", "e_above_hull", "space group",
+                                "band gap"]))
+    return x[0][0]
+
+
 def get_poscar_from_mp(args: Namespace) -> None:
+    if args.mpid is None and args.formula:
+        args.mpid = get_most_stable_mp_id_from_formula(args.formula)
+
     s = MPRester().get_structure_by_material_id(args.mpid)
     s.to(fmt="poscar", filename=args.poscar)
     data = MPRester().get_data(args.mpid)[0]

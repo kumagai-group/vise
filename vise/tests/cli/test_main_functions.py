@@ -12,7 +12,7 @@ from vise.analyzer.dielectric_function import DieleFuncData
 from vise.analyzer.plot_diele_func_data import DieleFuncPlotType
 from vise.cli.main_functions import get_poscar_from_mp, VaspSet, plot_band, \
     plot_dos, band_edge_properties, plot_diele_func, \
-    structure_info
+    structure_info, get_most_stable_mp_id_from_formula
 from vise.defaults import defaults
 from vise.input_set.kpoints_mode import KpointsMode
 from vise.input_set.task import Task
@@ -53,6 +53,11 @@ def test_structure_info(mocker):
     structure_info(args)
 
 
+def test_get_most_stable_mp_id_from_formula():
+    actual = get_most_stable_mp_id_from_formula("MgO")
+    assert actual == "mp-1265"
+
+
 def test_get_poscar_from_mp(tmpdir):
     args = Namespace(mpid="mp-110",
                      poscar="POSCAR",
@@ -76,6 +81,36 @@ icsd_ids:
 - 180455
 - 642652
 total_magnetization: 0.0001585
+"""
+    # Need to remove file to avoid the side effect for other unittests.
+    os.remove("prior_info.yaml")
+
+
+def test_get_poscar_from_mp_by_formula(tmpdir):
+    args = Namespace(mpid=None,
+                     formula="Mg",
+                     poscar="POSCAR",
+                     prior_info=Path("prior_info.yaml"))
+    print(tmpdir)
+    tmpdir.chdir()
+    get_poscar_from_mp(args)
+    expected = """Mg3
+1.0
+7.698262 -1.605623 0.000000
+7.698262 1.605623 0.000000
+7.363377 0.000000 2.760785
+Mg
+3
+direct
+0.000000 0.000000 0.000000 Mg
+0.222208 0.222208 0.222208 Mg
+0.777792 0.777792 0.777792 Mg"""
+    assert Structure.from_file("POSCAR") == Structure.from_str(expected,
+                                                               fmt="POSCAR")
+    assert Path("prior_info.yaml").read_text() == """band_gap: 0.0
+data_source: mp-1094122
+icsd_ids: []
+total_magnetization: 0.00010333333333333333
 """
     # Need to remove file to avoid the side effect for other unittests.
     os.remove("prior_info.yaml")
