@@ -81,6 +81,9 @@ def get_most_stable_mp_id_from_formula(formula: str):
 
 
 def get_poscar_from_mp(args: Namespace) -> None:
+    if args.mpid is None and args.formula is None:
+        raise ValueError("Either mp-id or formula needs to be specified.")
+
     if args.mpid is None and args.formula:
         args.mpid = get_most_stable_mp_id_from_formula(args.formula)
 

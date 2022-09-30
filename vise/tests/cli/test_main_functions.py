@@ -59,7 +59,7 @@ def test_get_most_stable_mp_id_from_formula():
 
 
 def test_get_poscar_from_mp(tmpdir):
-    args = Namespace(mpid="mp-110", formula=None)
+    args = Namespace(mpid="mp-110", formula="He")
     tmpdir.chdir()
     get_poscar_from_mp(args)
     expected = """Mg1
@@ -109,6 +109,12 @@ total_magnetization: 0.00010333333333333333
 """
     # Need to remove file to avoid the side effect for other unittests.
     os.remove("prior_info.yaml")
+
+
+def test_get_poscar_from_mp_wo_arguments():
+    args = Namespace(mpid=None, formula=None)
+    with pytest.raises(ValueError):
+        get_poscar_from_mp(args)
 
 
 test_data = [
