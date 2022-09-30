@@ -255,7 +255,8 @@ def test_dos_plot_data_csv():
 """
     assert actual == expected
     actual = DosPlotData.from_csv_file("dos_plot_data.csv")
-    assert_dataclass_almost_equal(actual, dos_plot_data, digit=3)
+    assert_dataclass_almost_equal(actual, dos_plot_data, digit=3,
+                                  check_is_subclass=True)
 
 
 def test_scissor_energy(pdos_list):
