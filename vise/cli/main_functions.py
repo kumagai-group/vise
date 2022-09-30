@@ -85,13 +85,13 @@ def get_poscar_from_mp(args: Namespace) -> None:
         args.mpid = get_most_stable_mp_id_from_formula(args.formula)
 
     s = MPRester().get_structure_by_material_id(args.mpid)
-    s.to(fmt="poscar", filename=args.poscar)
+    s.to(fmt="poscar", filename="POSCAR")
     data = MPRester().get_data(args.mpid)[0]
     d = {"total_magnetization": data["total_magnetization"],
          "band_gap": data["band_gap"],
          "data_source": args.mpid,
          "icsd_ids": data["icsd_ids"]}
-    args.prior_info.write_text(yaml.dump(d), None)
+    Path("prior_info.yaml").write_text(yaml.dump(d), None)
 
 
 class VaspSet:

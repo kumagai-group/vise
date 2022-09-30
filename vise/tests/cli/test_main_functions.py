@@ -59,9 +59,7 @@ def test_get_most_stable_mp_id_from_formula():
 
 
 def test_get_poscar_from_mp(tmpdir):
-    args = Namespace(mpid="mp-110",
-                     poscar="POSCAR",
-                     prior_info=Path("prior_info.yaml"))
+    args = Namespace(mpid="mp-110", formula=None)
     tmpdir.chdir()
     get_poscar_from_mp(args)
     expected = """Mg1
@@ -87,10 +85,7 @@ total_magnetization: 0.0001585
 
 
 def test_get_poscar_from_mp_by_formula(tmpdir):
-    args = Namespace(mpid=None,
-                     formula="Mg",
-                     poscar="POSCAR",
-                     prior_info=Path("prior_info.yaml"))
+    args = Namespace(mpid=None, formula="Mg")
     print(tmpdir)
     tmpdir.chdir()
     get_poscar_from_mp(args)

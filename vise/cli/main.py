@@ -88,12 +88,6 @@ def parse_args(args):
     parser_get_poscar.add_argument(
         "-m", "--mpid", type=str, required=True,
         help="MP entry id with prefix, e.g., mp-1234.")
-    parser_get_poscar.add_argument(
-        "-p", "--poscar", type=str, default="POSCAR",
-        help="POSCAR-type file name to be written.", metavar="FILE")
-    parser_get_poscar.add_argument(
-        "-pi", "--prior_info", type=Path, default=Path("prior_info.yaml"),
-        help="prior_info.yaml file name to be written.", metavar="FILE")
 
     parser_get_poscar.set_defaults(func=get_poscar_from_mp)
 
