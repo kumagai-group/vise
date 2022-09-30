@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
-import sys
 from argparse import Namespace
 from copy import deepcopy
 from pathlib import Path
@@ -11,10 +10,10 @@ from pymatgen.ext.matproj import MPRester
 from pymatgen.io.vasp import Vasprun, Outcar
 from tabulate import tabulate
 from vise.analyzer.dielectric_function import DieleFuncData
+from vise.analyzer.plot_band import BandMplPlotter
 from vise.analyzer.plot_band_dos import BandDosPlotlyPlotter
 from vise.analyzer.plot_diele_func_data import DieleFuncMplPlotter, \
     DieleFuncPlotType
-from vise.analyzer.plot_band import BandMplPlotter
 from vise.analyzer.plot_dos import DosPlotter
 from vise.analyzer.vasp.band_edge_properties import VaspBandEdgeProperties
 from vise.analyzer.vasp.dos_data import DosDataFromVasp
@@ -23,7 +22,6 @@ from vise.analyzer.vasp.make_effective_mass import make_effective_mass
 from vise.analyzer.vasp.make_irreps import special_points_from_kpoints, \
     make_irreps_from_wavecar
 from vise.analyzer.vasp.plot_band import BandPlotInfoFromVasp
-from vise.atom_energies.make_atom_vasp_set import make_atom_poscar_dirs
 from vise.cli.main_tools import potcar_str2dict, list2dict
 from vise.defaults import defaults
 from vise.input_set.datasets.dataset_util import all_incar_flags
