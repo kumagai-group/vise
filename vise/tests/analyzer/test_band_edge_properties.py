@@ -204,6 +204,6 @@ def test_merge_band_edge_same():
     actual = merge_band_edge(edge1, same_edge, "vbm", threshold=0.1)
     expected = BandEdge(energy=0.09, spin=Spin.up, band_index=0,
                         kpoint_index=1, kpoint_coords=[0.0, 0.0, 0.0],
-                        data_source="band dos")
+                        data_source="dos band")
     assert_dataclass_almost_equal(actual, expected)
 
