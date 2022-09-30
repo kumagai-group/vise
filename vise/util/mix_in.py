@@ -84,7 +84,8 @@ class ToYamlFileMixIn(ToFileMixIn, ABC):
 
     @classmethod
     def from_yaml(cls, filename: str):
-        d = loadfn(filename)
+        with open(filename) as file:
+            d = yaml.safe_load(file)
         if hasattr(cls, "from_dict"):
             return cls.from_dict(d)
         return cls(**d)
