@@ -79,7 +79,7 @@ def assert_yaml_roundtrip(obj: ToYamlFileMixIn,
 
     if compare_dict:
         try:
-            actual = obj.from_yaml("a.yaml").as_dict()
+            actual = obj.__class__.from_yaml("a.yaml").as_dict()
             expected = obj.as_dict()
         except AttributeError:
             from dataclasses import asdict
@@ -87,7 +87,7 @@ def assert_yaml_roundtrip(obj: ToYamlFileMixIn,
             expected = asdict(obj)
         try:
             assert len(actual) == len(expected)
-        except AssertionError:
+        except (AssertionError, TypeError):
             print(tmpdir)
             raise
     else:
