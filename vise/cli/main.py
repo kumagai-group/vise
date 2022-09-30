@@ -86,8 +86,12 @@ def parse_args(args):
         aliases=['gp'])
 
     parser_get_poscar.add_argument(
-        "-m", "--mpid", type=str, required=True,
+        "-m", "--mpid", type=str,
         help="MP entry id with prefix, e.g., mp-1234.")
+    parser_get_poscar.add_argument(
+        "-f", "--formula", type=str,
+        help="Formula, e.g., SrTiO3. POSCAR with the lowest energy is "
+             "retrieved. ")
 
     parser_get_poscar.set_defaults(func=get_poscar_from_mp)
 

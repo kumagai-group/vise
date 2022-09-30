@@ -42,20 +42,22 @@ def test_structure_info_w_options():
     assert parsed_args == expected
 
 
-def test_get_poscars_wo_options():
+def test_get_poscars_w_mpid():
     parsed_args = parse_args(["gp", "-m", "mp-1234"])
     # func is a pointer so need to point the same address.
     expected = Namespace(
         mpid="mp-1234",
+        formula=None,
         func=parsed_args.func)
     assert parsed_args == expected
 
 
-def test_get_poscars_w_options():
-    parsed_args = parse_args(["get_poscar", "-m", "123"])
+def test_get_poscars_w_formula():
+    parsed_args = parse_args(["get_poscar", "-f", "H"])
 
     expected = Namespace(
-        mpid="123",
+        mpid=None,
+        formula="H",
         func=parsed_args.func)
     assert parsed_args == expected
 
