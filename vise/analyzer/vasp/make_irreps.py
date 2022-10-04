@@ -3,7 +3,6 @@
 from typing import List, Tuple
 
 import numpy as np
-from irreptables import IrrepTable
 from pymatgen.core import Structure
 from pymatgen.io.vasp import Kpoints
 
@@ -14,12 +13,6 @@ from vise.util.logger import get_logger
 from vise.util.structure_symmetrizer import StructureSymmetrizer
 
 logger = get_logger(__name__)
-
-try:
-    from irrep.bandstructure import BandStructure
-except ImportError:
-    logger.warning(f"To find irreps, one needs to install the irrep package.")
-    raise
 
 
 def special_points_from_kpoints(kpoints_filename: str) \
@@ -53,6 +46,12 @@ def make_irreps_from_wavecar(special_point_symbols: List[str],
         sg_analyzer = StructureSymmetrizer(structure=structure)
         sg_num = sg_analyzer.sg_number
 
+    try:
+        from irreptables import IrrepTable
+        from irrep.bandstructure import BandStructure
+    except ImportError:
+        logger.warning(f"To find irreps, install the irrep package.")
+        raise
     logger.info("We set spinor is False.")
     irrep_table = IrrepTable(sg_num, spinor=False)
     symbols = {i.kpname for i in irrep_table.irreps}
