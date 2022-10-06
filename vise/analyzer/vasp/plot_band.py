@@ -15,8 +15,8 @@ from vise.util.string import latexify
 
 
 def greek_to_unicode(label: str) -> str:
-    # This sequense is important as SIGMA includes GM.
-    d = {"GAMMA": "Γ", "SIGMA": "Σ", "GM": "Γ", "DELTA": "Δ"}
+    # The sequence is important as SIGMA includes GM.
+    d = {"GAMMA": "Γ", "SIGMA": "Σ", "GM": "Γ", "DELTA": "Δ", "LAMBDA": "Λ"}
     for k, v in d.items():
         label = label.replace(k, v)
     return label

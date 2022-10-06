@@ -26,6 +26,7 @@ def test_greek_to_unicode():
     assert greek_to_unicode("GAMMA") == "Γ"
     assert greek_to_unicode("SIGMA") == "Σ"
     assert greek_to_unicode("DELTA") == "Δ"
+    assert greek_to_unicode("LAMBDA") == "Λ"
 
 
 def test_italic_to_roman():
