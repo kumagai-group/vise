@@ -104,6 +104,8 @@ class Task(MSONable, ExtendedEnum):
     def requisite_only_even_num_kpts(self) -> Optional[bool]:
         if self == self.cluster_opt:
             return False
+        elif self == self.band:
+            return True
         return
 
     # Gamma-center mesh is a must for GW calculations due to vasp

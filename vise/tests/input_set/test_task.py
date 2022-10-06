@@ -91,7 +91,8 @@ def test_requisite_num_kpt_list():
 
 def test_requisite_only_even_num_kpts():
     assert Task.cluster_opt.requisite_only_even_num_kpts is False
-    assert Task.band.requisite_only_even_num_kpts is None
+    assert Task.band.requisite_only_even_num_kpts is True
+    assert Task.dos.requisite_only_even_num_kpts is None
 
 
 def test_requisite_kpt_shift():
