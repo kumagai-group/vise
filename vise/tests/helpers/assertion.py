@@ -80,6 +80,7 @@ def assert_yaml_roundtrip(obj: ToYamlFileMixIn,
         assert actual_text == expected_text
     except AssertionError:
         print(tmpdir)
+        print("actual text")
         print(actual_text)
         a = actual_text.split("\n")
         b = expected_text.split("\n")
