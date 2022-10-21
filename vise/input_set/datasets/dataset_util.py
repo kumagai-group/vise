@@ -27,15 +27,9 @@ class LDAU:
                  symbol_list: List[str]):
 
         self.symbol_list = symbol_list
-        ldau_set = loadfn(Path(__file__).parent / "u_parameter_set.yaml")
-
-        ldauu_set = ldau_set["LDAUU"]
-        ldauu_set.update(defaults.ldauu or {})
-        self.ldauu = [ldauu_set.get(el, 0) for el in symbol_list]
-
-        ldaul_set = ldau_set["LDAUL"]
-        ldaul_set.update(defaults.ldaul or {})
-        self.ldaul = [ldaul_set.get(el, -1) for el in symbol_list]
+        ldau_set = loadfn(defaults.u_parameter_set_yaml_file)
+        self.ldauu = [ldau_set["LDAUU"].get(el, 0) for el in symbol_list]
+        self.ldaul = [ldau_set["LDAUL"].get(el, -1) for el in symbol_list]
 
     @property
     def lmaxmix(self):
