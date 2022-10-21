@@ -141,6 +141,7 @@ electrostatic:
   - IDIPOL
   - LMONO
   - LDIPOL
+  - ICORELEVEL
 
 bse:
   - LMODELHF
