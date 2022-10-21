@@ -50,7 +50,6 @@ def test_user_settings_in_defaults(modified_defaults):
 @pytest.mark.skip(reason='default_override')
 def test_integration(tmpdir):
     tmpdir.chdir()
-    os.chdir(tmpdir)
     tmpdir.join("vise.yaml").write("""
 kpoint_density: 0.5
 overridden_potcar:
@@ -65,11 +64,11 @@ ldaul:
 potcar_set: mp
 user_incar_settings:
     ISPIN: 2  
-options:
-    cutoff_energy: 1000
+    ENCUT: 1000
 """)
 
     from vise.cli.main import parse_args
+
     tmpdir.join("POSCAR").write("""Mn1 O1
 1.0
 0.000000 2.123447 2.123447
@@ -98,7 +97,7 @@ NELM   =  100
 # ionic relaxation
 ISIF    =  0
 IBRION  =  2
-NSW     =  0
+NSW     =  1
 
 # occupation
 ISMEAR  =  0
@@ -112,19 +111,11 @@ LWAVE   =  False
 LCHARG  =  False
 
 # analyzer
-NBANDS  =  23
+NBANDS  =  20
 LORBIT  =  10
 
-# hubbard u
-LDAU       =  True
-LDAUTYPE   =  2
-LMAXMIX    =  4
-LDAUPRINT  =  1
-LDAUL      =  4 -1
-LDAUU      =  10 0
-
 # parallel
-KPAR  =  2"""
+KPAR  =  4"""
     assert incar.read() == incar_expected
 
     potcar = tmpdir.join("POTCAR")
