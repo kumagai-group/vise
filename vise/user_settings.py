@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
-
+import json
 import re
 from copy import deepcopy
 from pathlib import Path
@@ -44,18 +44,22 @@ class UserSettings:
             try:
                 with open(str(file_path), "r") as fin:
                     settings = yaml.load(fin, Loader=yaml.SafeLoader)
-                    result.update(self._add_absolute_path(settings, file_path))
+                    for k, v in settings.items():
+                        if k in result:
+                            logger.info(
+                                f"key {k} was overridden to {v} by {file_path}")
+                            if isinstance(v, dict):
+                                result[k].update(v)
+                                continue
+
+                        if self.is_path(v):
+                            v = file_path.parent / v
+                        result[k] = v
             except AttributeError:
                 pass
 
-        return result
-
-    def _add_absolute_path(self, settings, file_path):
-        result = deepcopy(settings)
-        for key, value in settings.items():
-            if self.is_path(value):
-                result[key] = file_path.parent / value
-
+        logger.info("-- vise settings from vise.yaml:")
+        logger.info(", ".join(f"{k}: {v} " for k, v in result.items()))
         return result
 
     @staticmethod

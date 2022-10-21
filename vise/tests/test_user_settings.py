@@ -25,7 +25,7 @@ def user_settings(tmpdir):
         str: s1 s2
         dict:
           d1: 10 
-          d2: 3""")
+          d3: 4""")
 
     return UserSettings("test.yaml"), second_last_dir, terminal_dir
 
@@ -42,7 +42,7 @@ def test_overridden_user_settings(user_settings):
     user_settings, _, _ = user_settings
     actual = user_settings.user_settings
     expected = {"float": 0.01,
-                "dict": {"d1": 10, "d2": 3},
+                "dict": {"d1": 10, "d2": 3, "d3": 4},
                 "str": "s1 s2"}
     assert actual == expected
 
