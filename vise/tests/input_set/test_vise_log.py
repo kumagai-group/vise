@@ -17,13 +17,13 @@ def vise_log():
 
 
 def test_vise_log(vise_log, tmpdir):
-    expected_text = """input_options:
-  charge: 1
+    expected_text = """version: 0.6.3
 task: structure_opt
+xc: pbe
+input_options:
+  charge: 1
 user_incar_settings:
   NSW: 2
-version: 0.6.3
-xc: pbe
 """
     assert_yaml_roundtrip(vise_log, tmpdir, expected_text)
 
@@ -32,11 +32,11 @@ def test_vise_log_no_incar_settings(tmpdir):
     vise_log_no_incar_settings = ViseLog(version="0.6.3",
                                          task=Task.structure_opt, xc=Xc.pbe,
                                          input_options={"charge": 1})
-    expected_text = """input_options:
-  charge: 1
+    expected_text = """version: 0.6.3
 task: structure_opt
-version: 0.6.3
 xc: pbe
+input_options:
+  charge: 1
 """
     assert_yaml_roundtrip(vise_log_no_incar_settings, tmpdir, expected_text)
 

@@ -4,6 +4,7 @@ from copy import copy
 from dataclasses import dataclass
 from typing import Optional
 
+import yaml
 from monty.json import MSONable
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc
@@ -17,6 +18,9 @@ class ViseLog(MSONable, ToYamlFileMixIn):
     xc: Xc
     input_options: dict
     user_incar_settings: Optional[dict] = None
+
+    def to_yaml(self):
+        return yaml.safe_dump(self.as_dict(), sort_keys=False)
 
     def as_dict(self) -> dict:
         d = {"version": self.version, "task": str(self.task),
