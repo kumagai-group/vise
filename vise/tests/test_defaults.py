@@ -16,10 +16,6 @@ overridden_potcar:
 dos_step_size: 0.01
 band_mesh_distance: 0.25
 str_opt_encut_factor: 1.5
-ldauu:
-   Mn: 10
-ldaul:
-   Mn:  4
 potcar_set: mp   
 """)
 
@@ -42,9 +38,8 @@ kpoint_density: 0.5
     return vise.defaults.defaults
 
 
-def test_user_settings_in_defaults(modified_defaults):
-    assert modified_defaults.user_settings["ldauu"] == {"Mn": 10}
-    assert modified_defaults.ldauu == {"Mn": 10}
+def test_u_parameter_set_yaml_file(modified_defaults):
+    assert modified_defaults.u_parameter_set_yaml_file.exists() is True
 
 
 @pytest.mark.skip(reason='default_override')

@@ -44,8 +44,7 @@ class Defaults(DefaultsBase):
         self._xc = str(Xc.pbe)
         self._options = {}
         self._user_incar_settings = {}
-        self._ldauu = {}
-        self._ldaul = {}
+        self._u_parameter_set_yaml_file = Path(__file__).parent / "input_set" / "datasets" / "u_parameter_set.yaml"
         self._outcar = "OUTCAR"
         self._contcar = "CONTCAR"
         self._vasprun = "vasprun.xml"
@@ -114,6 +113,10 @@ class Defaults(DefaultsBase):
     @property
     def user_incar_settings(self):
         return self._user_incar_settings
+
+    @property
+    def u_parameter_set_yaml_file(self) -> Path:
+        return self._u_parameter_set_yaml_file
 
     @property
     def ldauu(self):
