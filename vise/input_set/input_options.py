@@ -67,13 +67,17 @@ class CategorizedInputOptions:
         if kpt_density is None:
             if self.task == Task.defect:
                 kpt_density = defaults.defect_kpoint_density
+                msg = " because task is defect"
             elif is_band_gap(band_gap, vbm_cbm):
                 kpt_density = defaults.insulator_kpoint_density
+                msg = " because there is a band gap"
             else:
                 kpt_density = defaults.kpoint_density
+                msg = ""
+
             self._input_options["kpt_density"] = kpt_density
 
-        logger.info(f"Kpoint density is set to {kpt_density}.")
+        logger.info(f"K-point density is set to {kpt_density}{msg}.")
 
     @property
     def all_options(self):

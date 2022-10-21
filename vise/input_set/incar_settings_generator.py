@@ -153,7 +153,8 @@ class IncarSettingsGenerator:
         # Tetrahedron method fails for irrep. NKPT<4 in vasp.
         if self._task is Task.band:
             return 0
-        elif is_band_gap(self._band_gap, self._vbm_cbm) and self._num_kpts >= 4:
+        elif is_band_gap(self._band_gap, self._vbm_cbm, show_info=True) \
+                and self._num_kpts >= 4:
             if self._task in (Task.dos, Task.dielectric_function):
                 # tested -4 and -5 show the same results for spectra.
                 return -4
