@@ -12,6 +12,7 @@ from tabulate import tabulate
 from vise.analyzer.dielectric_function import DieleFuncData
 from vise.analyzer.plot_band import BandMplPlotter
 from vise.analyzer.plot_band_dos import BandDosPlotlyPlotter
+from vise.analyzer.plot_brillouin_zone import BZPlotlyPlotter
 from vise.analyzer.plot_diele_func_data import DieleFuncMplPlotter, \
     DieleFuncPlotType
 from vise.analyzer.plot_dos import DosPlotter
@@ -206,11 +207,18 @@ def plot_band(args: Namespace):
         plot_info.band_energy_infos["1"].irreps = irreps
 
     plot_info.to_json_file()
+
     if args.plotly:
         plotter = BandDosPlotlyPlotter(band_plot_info=plot_info)
-
         plotter.fig.show()
+
+        bz_info = band_plot_info_from_vasp.make_bz_plot_info()
+        bz_plotter = BZPlotlyPlotter(bz_info)
+        fig = bz_plotter.create_figure(set_k123=False)
+        fig.show()
+        fig.write_image("brillouin_zone.pdf")
         return
+
     plotter = BandMplPlotter(plot_info, energy_range=args.y_range)
     plotter.construct_plot()
     plotter.plt.savefig(args.filename, format="pdf")
