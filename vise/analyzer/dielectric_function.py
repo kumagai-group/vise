@@ -54,11 +54,17 @@ class DieleFuncData(MSONable, ToJsonFileMixIn, ToCsvFileMixIn):
         return [f"imag_{d}" for d in self.directions]
 
     @property
+    def absorption_columns(self):
+        return [f"absorption_{d}" for d in self.directions]
+
+    @property
     def to_dataframe(self) -> pd.DataFrame:
         d = {"energies(eV)": self.energies}
         for x, y in zip(self.real_columns, self.diele_func_real):
             d[x] = y
         for x, y in zip(self.imag_columns, self.diele_func_imag):
+            d[x] = y
+        for x, y in zip(self.absorption_columns, self.absorption_coeff):
             d[x] = y
         d["band_gap"] = [None] * len(self.energies)
         d["band_gap"][0] = self.band_gap
@@ -68,6 +74,7 @@ class DieleFuncData(MSONable, ToJsonFileMixIn, ToCsvFileMixIn):
     @classmethod
     def from_dataframe(cls, df):
         real_T, imag_T, directions = [], [], []
+        show_log = True
         for column_name, item in df.iteritems():
             if column_name in ["energies(eV)", "band_gap"]:
                 continue
@@ -76,6 +83,11 @@ class DieleFuncData(MSONable, ToJsonFileMixIn, ToCsvFileMixIn):
                 directions.append(column_name.split("_")[-1])
             elif "imag" in column_name:
                 imag_T.append(item.tolist())
+            elif "absorption" in column_name:
+                if show_log:
+                    logger.info(f"absorption column is not used for "
+                                f"constructing DieleFuncData class instance.")
+                    show_log = False
             else:
                 raise KeyError("The input CSV does not have proper format.")
 

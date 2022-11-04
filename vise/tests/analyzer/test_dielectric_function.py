@@ -76,9 +76,9 @@ def test_to_csv_file(tmpdir):
     tmpdir.chdir()
     diele.to_csv_file()
     actual = Path("diele_func_data.csv").read_text()
-    expected = """energies(eV),real_xx,real_yy,real_ave,imag_xx,imag_yy,imag_ave,band_gap
-0.0,0.1,0.2,0.3,1.1,1.2,1.3,1.0
-3.0,0.1,0.2,0.3,1.1,1.2,1.3,
+    expected = """energies(eV),real_xx,real_yy,real_ave,imag_xx,imag_yy,imag_ave,absorption_xx,absorption_yy,absorption_ave,band_gap
+0.0,0.1,0.2,0.3,1.1,1.2,1.3,0.0,0.0,0.0,1.0
+3.0,0.1,0.2,0.3,1.1,1.2,1.3,215492.69716617066,216777.74282824568,218647.7413198019,
 """
     assert actual == expected
 
