@@ -52,7 +52,7 @@ def num_bands(composition: Composition, potcar: Potcar) -> int:
     return ceil(results)
 
 
-def npar_kpar(num_kpoints: int, num_nodes: int) -> Tuple[int, int]:
+def calc_kpar(num_kpoints: int, num_nodes: int) -> Tuple[int, int]:
     kpar_set = loadfn(Path(__file__).parent / "kpar_set.yaml")
     num_kpt_key = num_kpoints if num_kpoints in kpar_set else "None"
     if num_nodes == 2:

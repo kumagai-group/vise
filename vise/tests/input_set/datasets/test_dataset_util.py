@@ -7,7 +7,7 @@ from pymatgen.core import Composition
 from pymatgen.io.vasp import Potcar
 
 from vise.input_set.datasets.dataset_util import (
-    LDAU, unoccupied_bands, num_bands, npar_kpar)
+    LDAU, unoccupied_bands, num_bands, calc_kpar)
 
 
 def test_ldau_3d_transition_metal():
@@ -48,6 +48,6 @@ def test_nbands():
 
 
 def test_npar_kpar():
-    assert npar_kpar(num_kpoints=10, num_nodes=5) == (2, 1)
-    assert npar_kpar(num_kpoints=100, num_nodes=4) == (16, 1)
+    assert calc_kpar(num_kpoints=10, num_nodes=5) == (2, 1)
+    assert calc_kpar(num_kpoints=100, num_nodes=4) == (16, 1)
 

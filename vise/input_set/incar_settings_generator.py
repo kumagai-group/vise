@@ -9,7 +9,7 @@ from pymatgen.io.vasp.sets import Potcar
 
 from vise.analyzer.band_edge_properties import is_band_gap
 from vise.defaults import defaults
-from vise.input_set.datasets.dataset_util import num_bands, npar_kpar, LDAU
+from vise.input_set.datasets.dataset_util import num_bands, calc_kpar, LDAU
 from vise.input_set.fft_grids import vasp_grid
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc
@@ -35,7 +35,7 @@ class IncarSettingsGenerator:
             vbm_cbm: Optional[List[float]] = None,
             exchange_ratio: float = 0.25,
             set_hubbard_u: Optional[bool] = None,
-            auto_npar_kpar: bool = True,
+            auto_kpar: bool = True,
             cutoff_energy: Optional[float] = None,
             is_magnetization: bool = False,
             num_nodes_for_kpar: int = defaults.default_num_nodes,
@@ -55,7 +55,7 @@ class IncarSettingsGenerator:
         self._band_gap = band_gap
         self._vbm_cbm = vbm_cbm
         self._exchange_ratio = exchange_ratio
-        self._auto_npar_kpar = auto_npar_kpar
+        self._auto_kpar = auto_kpar
         self._cutoff_energy = cutoff_energy
         self._is_magnetization = is_magnetization
         self._num_nodes_for_kpar = num_nodes_for_kpar
@@ -78,8 +78,8 @@ class IncarSettingsGenerator:
             self._set_hybrid_func_related_settings()
         if self._need_hubbard_u(set_hubbard_u):
             self._set_hubbard_u_related_settings()
-        if self._auto_npar_kpar:
-            self._set_npar_kpar()
+        if self._auto_kpar:
+            self._set_kpar()
         self._remove_incar_settings_with_none_values()
 
     def _set_default_settings(self):
@@ -229,10 +229,10 @@ class IncarSettingsGenerator:
             self._incar_settings["LDAUU"] = ldau.ldauu
             self._incar_settings["LDAUL"] = ldau.ldaul
 
-    def _set_npar_kpar(self) -> None:
-        kpar, npar = npar_kpar(self._num_kpts, self._num_nodes_for_kpar)
+    def _set_kpar(self) -> None:
         if self._kpar_incompatible():
             return
+        kpar, npar = calc_kpar(self._num_kpts, self._num_nodes_for_kpar)
         self._incar_settings["KPAR"] = kpar
         # now switch off NPAR
         # self._settings["NPAR"] = npar
