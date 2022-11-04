@@ -22,9 +22,11 @@ def vasp_input_files():
     coords = [[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]]
     structure = Structure(lattice=lattice, species=["Mn", "O"], coords=coords)
     input_options = CategorizedInputOptions(
-        structure=structure, task=Task.structure_opt, xc=Xc.pbe, charge=1)
+        structure=structure, task=Task.structure_opt, xc=Xc.pbe, charge=1,
+        set_hubbard_u=True)
 
-    return VaspInputFiles(input_options, overridden_incar_settings={"NSW": 2})
+    return VaspInputFiles(input_options,
+                          overridden_incar_settings={"NSW": 2})
 
 
 def test_integration(tmpdir, vasp_input_files):
@@ -36,6 +38,7 @@ def test_vise_log(vasp_input_files):
     expected = ViseLog(version=__version__, task=Task.structure_opt, xc=Xc.pbe,
                        input_options={"charge": 1,
                                       "kpt_density": defaults.kpoint_density},
-                       user_incar_settings={"NSW": 2})
+                       user_incar_settings={"NSW": 2},
+                       ldauu={"Mn": 3.0}, ldaul={"Mn": 2})
     assert vasp_input_files.vise_log == expected
 
