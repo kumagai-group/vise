@@ -62,7 +62,5 @@ def calc_kpar(num_kpoints: int, num_nodes: int) -> Tuple[int, int]:
     else:
         kpar = kpar_set[num_kpt_key][0]
 
-    npar = 2 if kpar == 1 else 1
-
-    return kpar, npar
+    return kpar
 

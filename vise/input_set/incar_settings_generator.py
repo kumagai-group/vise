@@ -232,8 +232,8 @@ class IncarSettingsGenerator:
     def _set_kpar(self) -> None:
         if self._kpar_incompatible():
             return
-        kpar, npar = calc_kpar(self._num_kpts, self._num_nodes_for_kpar)
-        self._incar_settings["KPAR"] = kpar
+        self._incar_settings["KPAR"] = calc_kpar(self._num_kpts,
+                                                 self._num_nodes_for_kpar)
         # now switch off NPAR
         # self._settings["NPAR"] = npar
 

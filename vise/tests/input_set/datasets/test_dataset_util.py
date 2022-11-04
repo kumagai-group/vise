@@ -48,6 +48,6 @@ def test_nbands():
 
 
 def test_npar_kpar():
-    assert calc_kpar(num_kpoints=10, num_nodes=5) == (2, 1)
-    assert calc_kpar(num_kpoints=100, num_nodes=4) == (16, 1)
+    assert calc_kpar(num_kpoints=10, num_nodes=5) == 2
+    assert calc_kpar(num_kpoints=100, num_nodes=4) == 16
 
