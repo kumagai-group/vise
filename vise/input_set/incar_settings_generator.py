@@ -38,7 +38,7 @@ class IncarSettingsGenerator:
             auto_kpar: bool = True,
             cutoff_energy: Optional[float] = None,
             is_magnetization: bool = False,
-            num_nodes_for_kpar: int = defaults.default_num_nodes,
+            num_cores_for_kpar: int = defaults.default_num_cores,
             str_opt_encut_multi_factor: float = defaults.str_opt_encut_factor,
             multiples_for_grids: Optional[List[int]] = None):
 
@@ -58,7 +58,7 @@ class IncarSettingsGenerator:
         self._auto_kpar = auto_kpar
         self._cutoff_energy = cutoff_energy
         self._is_magnetization = is_magnetization
-        self._num_nodes_for_kpar = num_nodes_for_kpar
+        self._num_cores_for_kpar = num_cores_for_kpar
         self._str_opt_encut_multi_factor = str_opt_encut_multi_factor
         self._multiples_for_grids = multiples_for_grids
 
@@ -233,12 +233,14 @@ class IncarSettingsGenerator:
         if self._kpar_incompatible():
             return
         self._incar_settings["KPAR"] = calc_kpar(self._num_kpts,
-                                                 self._num_nodes_for_kpar)
+                                                 self._num_cores_for_kpar)
         # now switch off NPAR
         # self._settings["NPAR"] = npar
 
     def _kpar_incompatible(self):
         if self._incar_settings.get("LELF", False):
+            logger.warning("Because KPAR cannot be set with LELF=True,"
+                           "KPAR is switched off.")
             return True
 
     def _remove_incar_settings_with_none_values(self) -> None:
