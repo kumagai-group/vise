@@ -52,15 +52,15 @@ def num_bands(composition: Composition, potcar: Potcar) -> int:
     return ceil(results)
 
 
-def calc_kpar(num_kpoints: int, num_nodes: int) -> Tuple[int, int]:
-    kpar_set = loadfn(Path(__file__).parent / "kpar_set.yaml")
-    num_kpt_key = num_kpoints if num_kpoints in kpar_set else "None"
-    if num_nodes == 2:
-        kpar = kpar_set[num_kpt_key][1]
-    elif num_nodes == 4:
-        kpar = kpar_set[num_kpt_key][2]
-    else:
-        kpar = kpar_set[num_kpt_key][0]
+def calc_kpar(num_kpoints: int, num_cores: int,
+              unused_core_ratio_threshold: float) -> int:
+    divisors = [i for i in range(num_cores, 0, -1) if num_cores % i == 0]
+    for d in divisors:
+        kpt_by_core = num_kpoints / d
+        unused_core_ratio = kpt_by_core % 1 / ceil(kpt_by_core)
+        if unused_core_ratio < unused_core_ratio_threshold:
+            return d
 
-    return kpar
+    raise ValueError("The threshold for unused core ratio {} is not adequate.")
+
 

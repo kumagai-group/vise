@@ -47,7 +47,8 @@ def test_nbands():
     assert num_bands(composition, potcar) == expected
 
 
-def test_npar_kpar():
-    assert calc_kpar(num_kpoints=10, num_nodes=5) == 2
-    assert calc_kpar(num_kpoints=100, num_nodes=4) == 16
+def test_calc_kpar():
+    assert calc_kpar(3, num_cores=2, unused_core_ratio_threshold=0.251) == 2
+    assert calc_kpar(3, num_cores=2, unused_core_ratio_threshold=0.249) == 1
+
 
