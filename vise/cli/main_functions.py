@@ -302,6 +302,7 @@ def calc_effective_mass(args: Namespace):
                                          args.temperature,
                                          args.concentrations,
                                          vbm, cbm)
+    effective_mass.to_json_file()
     print(effective_mass)
 
 
