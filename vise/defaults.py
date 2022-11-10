@@ -39,7 +39,7 @@ class Defaults(DefaultsBase):
         self._str_opt_encut_factor = 1.3
         self._band_gap_criterion = 0.2  # in eV
         self._integer_criterion = 0.1
-        self._default_num_nodes = 1
+        self._default_num_cores = 4
         self._task = str(Task.structure_opt)
         self._xc = str(Xc.pbe)
         self._options = {}
@@ -95,8 +95,8 @@ class Defaults(DefaultsBase):
         return self._integer_criterion
 
     @property
-    def default_num_nodes(self):
-        return self._default_num_nodes
+    def default_num_cores(self):
+        return self._default_num_cores
 
     @property
     def task(self):
