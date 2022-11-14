@@ -49,7 +49,7 @@ def test_pbe_structure_opt(default_dict):
         "LWAVE": False,
         "LCHARG": False,
         "LORBIT": 10,
-        "KPAR": 1,
+        "KPAR": 2,
     }
     assert generator.incar_settings == expected
 
@@ -103,7 +103,7 @@ def test_hse_structure_opt(default_dict):
         "LDAUPRINT": 1,
         "LDAUU": [5, 0],
         "LDAUL": [3, -1],
-        "KPAR": 1,
+        "KPAR": 2,
     }
     assert generator.incar_settings == expected
 
@@ -133,7 +133,7 @@ def test_dos(default_dict):
         "EMIN": -15.01,
         "EMAX": 16,
         "NEDOS": 3102,
-        "KPAR": 1,
+        "KPAR": 2,
     }
     assert generator.incar_settings == expected
 
@@ -161,7 +161,7 @@ def test_defect(default_dict):
         "LWAVE": False,
         "LCHARG": False,
         "LORBIT": 10,
-        "KPAR": 1,
+        "KPAR": 2,
     }
     assert generator.incar_settings == expected
 
@@ -187,7 +187,7 @@ def test_phonon_force(default_dict):
         "SIGMA": 0.1,
         "LWAVE": False,
         "LCHARG": False,
-        "KPAR": 1,
+        "KPAR": 2,
     }
     assert generator.incar_settings == expected
 
@@ -202,7 +202,7 @@ def test_dielectric_finite_field(default_dict):
         'IBRION': 2,
         'ISIF': 0,
         'ISMEAR': 0,
-        'KPAR': 1,
+        'KPAR': 2,
         'LASPH': True,
         'LCALCEPS': True,
         'LCHARG': False,
@@ -244,7 +244,7 @@ def test_dielectric_function(default_dict):
         "NEDOS": 4002,
         "LOPTICS": True,
         "CSHIFT": 0.0,
-        "KPAR": 1,
+        "KPAR": 2,
     }
     assert generator.incar_settings == expected
 

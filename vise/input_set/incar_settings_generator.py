@@ -33,12 +33,13 @@ class IncarSettingsGenerator:
             band_gap: Optional[float] = None,
             # [vbm, cbm] in absolute eV
             vbm_cbm: Optional[List[float]] = None,
-            exchange_ratio: float = 0.25,
+            exchange_ratio: float = 0.24,
             set_hubbard_u: Optional[bool] = None,
             auto_kpar: bool = True,
             cutoff_energy: Optional[float] = None,
             is_magnetization: bool = False,
             num_cores_for_kpar: int = defaults.default_num_cores,
+            unused_core_ratio_threshold: float = defaults.unused_core_ratio_threshold,
             str_opt_encut_multi_factor: float = defaults.str_opt_encut_factor,
             multiples_for_grids: Optional[List[int]] = None):
 
@@ -59,6 +60,7 @@ class IncarSettingsGenerator:
         self._cutoff_energy = cutoff_energy
         self._is_magnetization = is_magnetization
         self._num_cores_for_kpar = num_cores_for_kpar
+        self._unused_core_ratio_threshold = unused_core_ratio_threshold
         self._str_opt_encut_multi_factor = str_opt_encut_multi_factor
         self._multiples_for_grids = multiples_for_grids
 
@@ -232,8 +234,10 @@ class IncarSettingsGenerator:
     def _set_kpar(self) -> None:
         if self._kpar_incompatible():
             return
-        self._incar_settings["KPAR"] = calc_kpar(self._num_kpts,
-                                                 self._num_cores_for_kpar)
+        self._incar_settings["KPAR"] = \
+            calc_kpar(self._num_kpts,
+                      self._num_cores_for_kpar,
+                      self._unused_core_ratio_threshold)
         # now switch off NPAR
         # self._settings["NPAR"] = npar
 

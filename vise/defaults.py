@@ -40,6 +40,7 @@ class Defaults(DefaultsBase):
         self._band_gap_criterion = 0.2  # in eV
         self._integer_criterion = 0.1
         self._default_num_cores = 4
+        self._unused_core_ratio_threshold = 0.25
         self._task = str(Task.structure_opt)
         self._xc = str(Xc.pbe)
         self._options = {}
@@ -97,6 +98,10 @@ class Defaults(DefaultsBase):
     @property
     def default_num_cores(self):
         return self._default_num_cores
+
+    @property
+    def unused_core_ratio_threshold(self):
+        return self._unused_core_ratio_threshold
 
     @property
     def task(self):
