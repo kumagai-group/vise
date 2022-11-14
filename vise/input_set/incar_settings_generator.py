@@ -33,7 +33,7 @@ class IncarSettingsGenerator:
             band_gap: Optional[float] = None,
             # [vbm, cbm] in absolute eV
             vbm_cbm: Optional[List[float]] = None,
-            exchange_ratio: float = 0.24,
+            exchange_ratio: float = 0.25,
             set_hubbard_u: Optional[bool] = None,
             auto_kpar: bool = True,
             cutoff_energy: Optional[float] = None,
