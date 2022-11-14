@@ -56,11 +56,14 @@ def calc_kpar(num_kpoints: int, num_cores: int,
               unused_core_ratio_threshold: float) -> int:
     divisors = [i for i in range(num_cores, 0, -1) if num_cores % i == 0]
     for d in divisors:
-        kpt_by_core = num_kpoints / d
-        unused_core_ratio = kpt_by_core % 1 / ceil(kpt_by_core)
+        kpt_by_core = round(num_kpoints / d, 5)
+        frac_kpt_by_core = kpt_by_core % 1
+        frac_kpt_by_core = 0.0 if not frac_kpt_by_core else 1 - frac_kpt_by_core
+        unused_core_ratio = frac_kpt_by_core / ceil(kpt_by_core)
         if unused_core_ratio < unused_core_ratio_threshold:
             return d
 
-    raise ValueError("The threshold for unused core ratio {} is not adequate.")
+    raise ValueError(f"The threshold for unused core ratio "
+                     f"{unused_core_ratio_threshold} is not adequate.")
 
 

@@ -48,7 +48,8 @@ def test_nbands():
 
 
 def test_calc_kpar():
-    assert calc_kpar(3, num_cores=2, unused_core_ratio_threshold=0.251) == 2
+    # assert calc_kpar(3, num_cores=2, unused_core_ratio_threshold=0.251) == 2
     assert calc_kpar(3, num_cores=2, unused_core_ratio_threshold=0.249) == 1
+    assert calc_kpar(5, num_cores=36, unused_core_ratio_threshold=0.249) == 6
 
 
