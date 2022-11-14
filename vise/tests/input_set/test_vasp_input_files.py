@@ -37,8 +37,8 @@ def test_integration(tmpdir, vasp_input_files):
 def test_vise_log(vasp_input_files):
     expected = ViseLog(version=__version__, task=Task.structure_opt, xc=Xc.pbe,
                        input_options={"charge": 1,
+                                      "set_hubbard_u": True,
                                       "kpt_density": defaults.kpoint_density},
-                       user_incar_settings={"NSW": 2},
-                       ldauu={"Mn": 3.0}, ldaul={"Mn": 2})
+                       user_incar_settings={"NSW": 2})
     assert vasp_input_files.vise_log == expected
 

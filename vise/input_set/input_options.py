@@ -64,6 +64,7 @@ class CategorizedInputOptions:
         vbm_cbm = self._input_options.get("vbm_cbm", None)
         kpt_density = self._input_options.get("kpt_density", None)
 
+        msg = ""
         if kpt_density is None:
             if self.task == Task.defect:
                 kpt_density = defaults.defect_kpoint_density
@@ -73,7 +74,6 @@ class CategorizedInputOptions:
                 msg = " because there is a band gap"
             else:
                 kpt_density = defaults.kpoint_density
-                msg = ""
 
             self._input_options["kpt_density"] = kpt_density
 
