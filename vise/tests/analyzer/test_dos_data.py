@@ -130,6 +130,12 @@ def test_dos_data_lim(dos_data_list):
            [[-5.5, 5.5], [-82.5, 82.5], [-82.5, 82.5]]
 
 
+def test_dos_plot_data_assertion_error(dos_data):
+    with pytest.raises(AssertionError):
+        dos_data.dos_plot_data(dos_ranges=[0.1],
+                               grouped_atom_indices={"H": [0]})
+
+
 def test_dos_data_lim_2(dos_data):
     dos_plot_data_w_x_lim = dos_data.dos_plot_data(
         energy_range=[-0.9, -0.1],

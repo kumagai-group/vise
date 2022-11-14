@@ -110,7 +110,19 @@ class DosData(MSONable):
         """
 
         if dos_ranges is not None:
-            assert len(grouped_atom_indices) + 1 == len(dos_ranges)  # total+pdos
+            print(len(grouped_atom_indices))
+            print(len(dos_ranges))
+            try:
+                # total+pdos
+                assert len(grouped_atom_indices) + 1 == len(dos_ranges)
+            except AssertionError:
+                print(f"Number of ranges for DOS plots "
+                      f"{len(grouped_atom_indices) + 1} are not the same as " 
+                      f"that of actual plot: {len(dos_ranges)}."
+                      f"The caveat is the plot includes the total DOS, so"
+                      f"if there are two PDOS, one needs to set three DOS"
+                      f"ranges.")
+                raise
 
         # Total dos does not have spin decomposition.
         doses = [[DosBySpinEnergy("", self.total.tolist())]]
