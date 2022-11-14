@@ -63,6 +63,36 @@ def test_scan_structure_opt(default_dict):
 
 
 def test_hse_structure_opt(default_dict):
+    default_dict.update({"xc": Xc.hse})
+    generator = IncarSettingsGenerator(**default_dict)
+    expected = {
+        "ALGO": "Damped",
+        "PREC": "Normal",
+        "LREAL": False,
+        "EDIFF": 1e-07,
+        "ENCUT": 520.0,
+        "LASPH": True,
+        "NELM": 100,
+        "ISIF": 3,
+        "IBRION": 2,
+        "EDIFFG": -0.005,
+        "NSW": 20,
+        "ISMEAR": 0,
+        "SIGMA": 0.1,
+        "LWAVE": True,
+        "LCHARG": False,
+        "LORBIT": 10,
+        "LHFCALC": True,
+        "PRECFOCK": "Fast",
+        "TIME": 0.4,
+        "AEXX": 0.25,
+        "HFSCREEN": 0.208,
+        "KPAR": 2,
+    }
+    assert generator.incar_settings == expected
+
+
+def test_hse_structure_opt_2(default_dict):
     default_dict.update({"xc": Xc.hse,
                          "structure": Structure(
                              lattice, species=["U", "O", "O"],
