@@ -159,6 +159,8 @@ class StructureSymmetrizer:
 
     def find_seekpath_data(self) -> None:
         """Get full information of seekpath band path. """
+        logger.info(f"Band mesh distance is set to {self.ref_distance}. "
+                    f"To change it, use band_ref_dist option.")
         self._seekpath_data = \
             seekpath.get_explicit_k_path(structure=self.cell,
                                          symprec=self.symprec,
