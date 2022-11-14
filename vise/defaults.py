@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
+import warnings
 from abc import ABC
 
 from monty.design_patterns import singleton
@@ -52,8 +53,12 @@ class Defaults(DefaultsBase):
         self._procar = "PROCAR"
         self._overridden_potcar = []
         self._potcar_set = str(PotcarSet.normal)
+        self._suppress_user_warning = True
 
         self.set_user_settings(yaml_filename="vise.yaml")
+
+        if self._suppress_user_warning:
+            warnings.simplefilter('ignore', UserWarning)
 
     @property
     def symmetry_length_tolerance(self):
