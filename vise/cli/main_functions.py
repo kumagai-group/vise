@@ -57,7 +57,11 @@ def structure_info(args: Namespace) -> None:
         else:
             logger.info("Input structure is a conventional cell.")
     else:
+        la = input_structure.lattice
         print(symmetrizer)
+        print(f"Volume: {input_structure.volume}")
+        print("abc   : " + " ".join([f"{i:0.6f}".rjust(10) for i in la.abc]))
+        print("angles: " + " ".join([f"{i:0.6f}".rjust(10) for i in la.angles]))
 
 
 def get_most_stable_mp_id_from_formula(formula: str):
