@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
-import json
 import re
-from copy import deepcopy
 from pathlib import Path
 from typing import List
 
@@ -58,7 +56,7 @@ class UserSettings:
             except AttributeError:
                 pass
 
-        logger.info("-- vise settings from vise.yaml:")
+        logger.info(f"-- Settings from {self.yaml_filename}:")
         logger.info(", ".join(f"{k}: {v} " for k, v in result.items()))
         return result
 
