@@ -58,6 +58,11 @@ def test_get_most_stable_mp_id_from_formula():
     assert actual == "mp-1265"
 
 
+def test_get_most_stable_mp_id_from_formula_not_present_formula():
+    actual = get_most_stable_mp_id_from_formula("MgO100")
+    assert actual is None
+
+
 def test_get_poscar_from_mp(tmpdir):
     args = Namespace(mpid="mp-110", formula="He")
     tmpdir.chdir()

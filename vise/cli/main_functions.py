@@ -78,8 +78,12 @@ def get_most_stable_mp_id_from_formula(formula: str):
         x.append([c["task_id"], round(c["e_above_hull"], 3),
                   c["spacegroup.symbol"], round(c["band_gap"], 3)])
 
+    if not x:
+        logger.info(f"Formula {formula} does not exist in the materials "
+                    f"project.")
+        return None
     print(tabulate(x, headers=["mp_id", "e_above_hull", "space group",
-                                "band gap"]))
+                               "band gap"]))
     return x[0][0]
 
 
@@ -89,6 +93,8 @@ def get_poscar_from_mp(args: Namespace) -> None:
 
     if args.mpid is None and args.formula:
         args.mpid = get_most_stable_mp_id_from_formula(args.formula)
+        if args.mpid is None:
+            return
 
     s = MPRester().get_structure_by_material_id(args.mpid)
     s.to(fmt="poscar", filename="POSCAR")
