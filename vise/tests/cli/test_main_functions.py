@@ -256,7 +256,8 @@ def test_plot_diele_func(tmpdir, test_data_files):
                      filename=None,
                      directions=["ave"],
                      plot_type=DieleFuncPlotType.absorption_coeff,
-                     to_csv=True)
+                     to_csv=True,
+                     title=None)
     plot_diele_func(args)
 
     args = Namespace(vasprun=test_data_files / "MgSe_absorption_vasprun.xml",
@@ -268,5 +269,6 @@ def test_plot_diele_func(tmpdir, test_data_files):
                      filename=None,
                      directions=["xx"],
                      plot_type=DieleFuncPlotType.refraction,
-                     to_csv=False)
+                     to_csv=False,
+                     title="main func test")
     plot_diele_func(args)

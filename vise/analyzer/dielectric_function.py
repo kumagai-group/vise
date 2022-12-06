@@ -37,6 +37,7 @@ class DieleFuncData(MSONable, ToJsonFileMixIn, ToCsvFileMixIn):
     diele_func_real: List[List[float]]  # [list_of_xx, list_of_xy, list_of_ave]
     diele_func_imag: List[List[float]]  # [list_of_xx, list_of_xy, list_of_ave]
     band_gap: Optional[float] = None  # in eV
+    title: Optional[str] = None
 
     def __post_init__(self):
         try:

@@ -261,7 +261,9 @@ def parse_args(args):
     parser_plot_absorption.add_argument(
         "--to_csv", action="store_true",
         help="Whether to export the dielectric function to CSV file.")
-
+    parser_plot_absorption.add_argument(
+        "--title", type=str,
+        help="Set the title of figure.")
     parser_plot_absorption.set_defaults(func=plot_diele_func)
 
     # -- effective_mass -------------------------------------------------------

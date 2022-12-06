@@ -293,6 +293,7 @@ def plot_diele_func(args: Namespace):
     else:
         y_range = None
 
+    diele_func_data.title = args.title
     plotter = DieleFuncMplPlotter(diele_func_data)
     plotter.construct_plot(directions=args.directions,
                            plot_type=args.plot_type, y_range=y_range)

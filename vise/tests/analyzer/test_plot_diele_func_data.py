@@ -28,7 +28,9 @@ def test_diele_func_plot_type():
 
 @pytest.fixture
 def actual_diele_func_data(test_data_files):
-    return loadfn(test_data_files / "MgSe_diele_func_data.json")
+    result = loadfn(test_data_files / "MgSe_diele_func_data.json")
+    result.title = "test diele"
+    return result
 
 
 @pytest.mark.skipif(PSUTIL_NOT_PRESENT, reason="psutil does not exist")

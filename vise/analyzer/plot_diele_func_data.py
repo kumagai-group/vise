@@ -170,6 +170,7 @@ class DieleFuncMplPlotter(DieleFuncPlotter):
     def __init__(self, diele_func_data: DieleFuncData,
                  energy_range: List[float] = None):
         super().__init__(diele_func_data, energy_range)
+        self.title = diele_func_data.title
         self.plt = plt
         self.plt.clf()
 
@@ -183,6 +184,7 @@ class DieleFuncMplPlotter(DieleFuncPlotter):
         self._set_x_range()
         self._set_labels(plot_type)
         self._set_formatter()
+        self._set_title()
         self.plt.tight_layout()
 
     def _add_coeffs(self, directions, plot_type, y_range):
@@ -214,3 +216,7 @@ class DieleFuncMplPlotter(DieleFuncPlotter):
     def _set_formatter(self):
         axis = self.plt.gca()
         axis.xaxis.set_major_formatter(float_to_int_formatter)
+
+    def _set_title(self):
+        if self.title:
+            self.plt.title(self.title)

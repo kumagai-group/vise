@@ -212,7 +212,7 @@ def test_plot_dos_w_options():
     assert parsed_args == expected
 
 
-def test_plot_absorption_wo_options():
+def test_plot_diele_func_wo_options():
     parsed_args = parse_args(["pdf"])
     expected = Namespace(
         vasprun=defaults.vasprun,
@@ -225,11 +225,12 @@ def test_plot_absorption_wo_options():
         ita=0.01,
         plot_type=DieleFuncPlotType.absorption_coeff,
         to_csv=False,
+        title=None,
         func=parsed_args.func)
     assert parsed_args == expected
 
 
-def test_plot_absorption_w_options():
+def test_plot_diele_func_w_options():
     parsed_args = parse_args(["pdf",
                               "--vasprun", "vasprun_1",
                               "--outcar", "OUTCAR_1",
@@ -240,6 +241,7 @@ def test_plot_absorption_w_options():
                               "-ckk",
                               "-i", "0.1",
                               "--plot_type", "diele_func",
+                              "--title", "test title",
                               "--to_csv"])
     expected = Namespace(
         vasprun=Path("vasprun_1"),
@@ -252,6 +254,7 @@ def test_plot_absorption_w_options():
         ita=0.1,
         plot_type=DieleFuncPlotType.diele_func,
         to_csv=True,
+        title="test title",
         func=parsed_args.func)
     assert parsed_args == expected
 
