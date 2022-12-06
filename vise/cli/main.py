@@ -216,6 +216,9 @@ def parse_args(args):
     parser_plot_dos.add_argument(
         "-b", "--base_energy", type=float,
         help="Set when showing the figure in the absolute energies scale.")
+    parser_plot_dos.add_argument(
+        "--title", type=str,
+        help="Set the title of figure.")
     parser_plot_dos.set_defaults(func=plot_dos)
 
     # -- plot_diele_func -------------------------------------------------------

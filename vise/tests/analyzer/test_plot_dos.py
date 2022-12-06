@@ -43,7 +43,8 @@ dos_plot_data = DosPlotData(relative_energies=relative_energies,
                             names=["total", "H"],
                             energy_range=xlim,
                             dos_ranges=ylim_set,
-                            energy_lines=[0.0, 1.0])
+                            energy_lines=[0.0, 1.0],
+                            title="test")
 dos_data_len = len(dos_plot_data.doses)
 
 

@@ -97,14 +97,14 @@ class DosData(MSONable):
                       grouped_atom_indices: Dict[str, List[int]],
                       energy_range: Optional[List[float]] = None,
                       dos_ranges: Optional[List[List[float]]] = None,
-                      ) -> "DosPlotData":
+                      title: Optional[str] = None) -> "DosPlotData":
         """
         Args:
             grouped_atom_indices:
                 key: name of the grouped
             energy_range:
             dos_ranges:
-
+            title:
         Returns:
 
         """
@@ -152,7 +152,7 @@ class DosData(MSONable):
                                 for e in self.vertical_lines]
 
         return DosPlotData(energies, doses, names, energy_range, dos_ranges,
-                           shifted_energy_lines)
+                           shifted_energy_lines, title)
 
 
 def default_dos_ranges(energy_range, doses, energies, spin_polarized,
@@ -194,6 +194,7 @@ class DosPlotData(MSONable, ToJsonFileMixIn, ToCsvFileMixIn):
     energy_range: List[float]  # e.g., [-5.0, 6.0]
     dos_ranges: List[List[float]]  # e.g., [[0.0, 6.0], [-1.0, 5.0], ...]
     energy_lines: List[float]  # e.g., VBM and CBM or Fermi level
+    title: str = None
 
     @property
     def to_dataframe(self) -> pd.DataFrame:

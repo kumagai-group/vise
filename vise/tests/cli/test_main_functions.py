@@ -233,7 +233,8 @@ def test_plot_dos(tmpdir, test_data_files):
                      x_range=[-5, 5],
                      y_max_ranges=[10, 5, 7],
                      target=["Mn", "O"],
-                     filename="test.pdf")
+                     filename="test.pdf",
+                     title="test")
     plot_dos(args)
 
 

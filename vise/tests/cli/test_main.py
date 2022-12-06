@@ -173,6 +173,7 @@ def test_plot_dos_wo_options():
         target=None,
         filename="dos.pdf",
         base_energy=None,
+        title=None,
         func=parsed_args.func,
     )
     assert parsed_args == expected
@@ -189,7 +190,8 @@ def test_plot_dos_w_options():
                               "-y", "-5.0", "5.0",
                               "--target", "1", "2",
                               "--filename", "dos_1.pdf",
-                              "-b", "-1"
+                              "-b", "-1",
+                              "--title", "test"
                               ])
 
     expected = Namespace(
@@ -203,6 +205,7 @@ def test_plot_dos_w_options():
         target=["1", "2"],
         filename="dos_1.pdf",
         base_energy=-1.0,
+        title="test",
         func=parsed_args.func,
     )
 

@@ -43,12 +43,13 @@ class DosPlotter:
         self._dos_plot_data = dos_plot_data
         self._show_legend = show_legend
         self.mpl_defaults = mpl_defaults
+        self.title = dos_plot_data.title
         self.plt = plt
 
         num_axs = len(self._dos_plot_data.doses)
-        fig, self._axs = self.plt.subplots(num_axs, 1,
-                                           sharex=True,
-                                           gridspec_kw={'hspace': 0.1})
+        self.fig, self._axs = self.plt.subplots(num_axs, 1,
+                                                sharex=True,
+                                                gridspec_kw={'hspace': 0.1})
         if num_axs == 1:
             self._axs = [self._axs]
 
@@ -60,6 +61,7 @@ class DosPlotter:
         self._set_x_labels()
         middle_idx = int(i / 2)
         self._set_ylabel(middle_idx)
+        self._set_title()
 
     def _add_ax(self, i):
         self._add_dos(i)
@@ -108,3 +110,12 @@ class DosPlotter:
     def _set_x_labels(self):
         self.plt.xlabel("Energy (eV)", size=self.mpl_defaults.label_font_size)
 
+    def _set_title(self):
+        if self.title:
+            if self.fig:
+                self.fig.suptitle(self.title,
+                                  fontsize=self.mpl_defaults.title_font_size)
+                self.fig.subplots_adjust(top=0.92)
+            else:
+                self.plt.title(self.title,
+                               fontsize=self.mpl_defaults.title_font_size)

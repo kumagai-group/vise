@@ -266,7 +266,8 @@ def plot_dos(args: Namespace):
     logger.info(f"Grouped atom indices: {grouped_atom_indices}")
     plot_data = dos_data.dos_plot_data(grouped_atom_indices,
                                        energy_range=args.x_range,
-                                       dos_ranges=ylim_set)
+                                       dos_ranges=ylim_set,
+                                       title=args.title)
     plot_data.to_json_file()
     plotter = DosPlotter(plot_data, args.legend)
     plotter.construct_plot()
