@@ -192,7 +192,8 @@ def parse_args(args):
         type=AtomGroupingType,
         default=AtomGroupingType.non_equiv_sites,
         choices=AtomGroupingType.name_list(),
-        help="How to group atoms for pdos.")
+        help=f"How to group atoms for pdos. When {AtomGroupingType.atoms} is "
+             f"chosen, the atom indices need to be set via --target.")
     parser_plot_dos.add_argument(
         "-l", "--legend", type=str2bool, default=True,
         help="Whether to show the figure legend.")
@@ -210,7 +211,8 @@ def parse_args(args):
         "--target", type=str, nargs="+",
         help="""Show specific PDOS. The input depends on AtomGroupingType.\n 
         AtomGroupingType.atoms:   1,2 3 \n
-        AtomGroupingType.elements: Mg O""")
+        AtomGroupingType.elements: Mg \n
+        Note that the indices starts from 0.""")
     parser_plot_dos.add_argument(
         "-f", "--filename", type=str, default="dos.pdf", help="Pdf file name.")
     parser_plot_dos.add_argument(

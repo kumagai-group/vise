@@ -107,9 +107,9 @@ class ViseIncar(Incar):
 def tabulated_string(target_list: List[list]) -> str:
     """Tabulate pairs of keys and values with sandwiching "=".
 
-    Examples: target_list = [["NSW", 1], "ISMEAR", -5]]
+    Examples: target_list = [["NSW", 1], ["ISMEAR", -5]]
      ->
-NSWW   =  1
+NSW    =  1
 ISMER  = -5"""
     # if not disable_numparse, e.g., LOPTICS = True becomes 1.
     equal_added = [[key, "=", value] for (key, value) in target_list]
