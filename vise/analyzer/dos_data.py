@@ -2,7 +2,7 @@
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 from collections import defaultdict
 from copy import copy, deepcopy
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 from functools import reduce
 from typing import Dict, Optional, List
 
@@ -16,7 +16,7 @@ logger = get_logger(__name__)
 
 
 @dataclass
-class PDos(MSONable):
+class PDos(MSONable, ToJsonFileMixIn):
     s:   np.ndarray  # [by spin][by energy]
     px:  np.ndarray
     py:  np.ndarray
@@ -80,6 +80,12 @@ class PDos(MSONable):
                 args[k] = v + getattr(other, k)
         return PDos(**args)
 
+    def __eq__(self, other: "PDos"):
+        for k, v in self.__dict__.items():
+            if (v != getattr(other, k)).any():
+                return False
+        return True
+
 
 @dataclass
 class DosData(MSONable):
@@ -88,6 +94,10 @@ class DosData(MSONable):
     pdos: List[PDos]
     vertical_lines: List[float]
     base_energy: Optional[float] = 0.0
+
+    def __post_init__(self):
+        if isinstance(self.total, list):
+            self.total = np.array(self.total)
 
     @property
     def spin(self):
