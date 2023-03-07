@@ -132,7 +132,32 @@ class BravaisLattice(ExtendedEnum):
 
     @property
     def kpt_centering(self) -> List[float]:
-        if self in [self.oF, self.tI, self.cF, self.cI]:
+        """
+        Note: cI does not require gamma centering.
+
+        KPOINTS:
+        test
+        0
+        Gamma
+        2 2 2
+
+        IBZKPT:
+- Gamma center
+Automatically generated mesh
+       3
+Reciprocal lattice
+    0.00000000000000    0.00000000000000    0.00000000000000             1
+    0.50000000000000    0.00000000000000   -0.00000000000000             6
+    0.50000000000000    0.50000000000000    0.50000000000000             1
+
+- Off centering
+Automatically generated mesh
+       2
+Reciprocal lattice
+    0.25000000000000    0.25000000000000    0.25000000000000             2
+   -0.25000000000000    0.25000000000000    0.25000000000000             6
+"""
+        if self in [self.oF, self.tI, self.cF]:
             return [0.0, 0.0, 0.0]
         elif self is self.hP:
             return [0.0, 0.0, 0.5]
