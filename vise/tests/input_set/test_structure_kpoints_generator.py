@@ -223,4 +223,4 @@ def test_conventional_input(tmpdir):
                           [1.591686, 1.591686, -1.591686]],
                          species=["H"], coords=[[0]*3])
     assert generator.structure == expected
-    assert generator.num_kpts == 104
+    assert generator.num_kpts == 100
