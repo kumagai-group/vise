@@ -7,6 +7,7 @@ from typing import Tuple, List, Dict, Any
 from monty.serialization import loadfn
 from pymatgen.core import Composition, Element
 from pymatgen.io.vasp import Potcar
+from pymatgen.io.vasp.inputs import incar_params
 from vise.defaults import defaults
 
 unoccupied_bands = loadfn(Path(__file__).parent / "unoccupied_bands.yaml")
@@ -14,8 +15,9 @@ unoccupied_bands = loadfn(Path(__file__).parent / "unoccupied_bands.yaml")
 # This incar_flags should be OrderedDict, but from python 3.6, dict uses
 # order-preserving semantics. Besides, it does not affect vasp result.
 incar_categories: Dict[str, Any] = \
-    loadfn(Path(__file__).parent / "incar_flags.yaml")
-all_incar_flags: List[str] = sum(incar_categories.values(), [])
+    dict(loadfn(Path(__file__).parent / "incar_flags.yaml"))
+tag_set = set(tuple(tags) for tags in incar_categories)
+incar_categories["others"] = set(incar_params.keys()) - tag_set
 
 
 def has_f_elements(symbol_list: List[str]):

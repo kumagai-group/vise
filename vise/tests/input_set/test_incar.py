@@ -21,7 +21,9 @@ def test_get_string():
                                  "LREAL": False,
                                  "EDIFF": 1.0,
                                  "ISYM": 0,
-                                 "MAGMOM": [3, 3, 3]})
+                                 "MAGMOM": [3, 3, 3],
+                                 "PHON_NSTRUCT": 2})
+    print(incar)
     actual = incar.get_string()
     expected = """# accuracy
 PREC   =  Normal
@@ -32,7 +34,10 @@ EDIFF  =  1.0
 ISYM  =  0
 
 # spin
-MAGMOM  =  3 3 3"""
+MAGMOM  =  3 3 3
+
+# others
+PHON_NSTRUCT  =  2"""
     assert actual == expected
 
 

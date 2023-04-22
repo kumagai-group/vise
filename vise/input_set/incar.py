@@ -87,8 +87,8 @@ class ViseIncar(Incar):
                 lines[f"# {category}"] = tabulated_string(settings_by_category)
 
         if input_incar_flags:
-            logger.error(f"{input_incar_flags} may be invalid in INCAR.")
-            lines[f"# others"] = tabulated_string(input_incar_flags)
+            logger.error(f"{input_incar_flags} may be invalid in INCAR.,"
+                         f"We are sorry, but add it by hands")
 
         return "\n\n".join(["\n".join([k, v]) for k, v in lines.items()])
 
