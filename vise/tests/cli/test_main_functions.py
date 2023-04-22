@@ -19,14 +19,15 @@ from vise.input_set.kpoints_mode import KpointsMode
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc
 
-default_option_args = {"poscar": "POSCAR",
+default_option_args = {"poscar": Path("POSCAR"),
                        "task": Task.structure_opt,
                        "xc": Xc.pbe,
                        "kpt_density": 1.0,
                        "overridden_potcar": ["Mn_pv"]}
 
 default_args = deepcopy(default_option_args)
-default_args.update({"user_incar_settings": None,
+default_args.update({"dirs": [Path.cwd()],
+                     "user_incar_settings": None,
                      "prev_dir": None,
                      "options": None,
                      "file_transfer_type": None,
@@ -37,7 +38,7 @@ default_args.update({"user_incar_settings": None,
 
 
 def test_structure_info(mocker):
-    args = Namespace(poscar="POSCAR", symprec=0.1, angle_tolerance=5,
+    args = Namespace(poscar=Path("POSCAR"), symprec=0.1, angle_tolerance=5,
                      show_conventional=False, show_primitive=False)
     lattice = [[10.0,  0.0,  0.0], [0.0, 10.0,  0.0], [-2.0,  0.0, 10.0]]
     coords = [[0.0, 0.0, 0.0], [0.5, 0.5, 0.0]]
@@ -46,10 +47,10 @@ def test_structure_info(mocker):
     mock.from_file.return_value = Structure(lattice=lattice, species=["H"] * 2,
                                             coords=coords)
     structure_info(args)
-    args = Namespace(poscar="POSCAR", symprec=0.1, angle_tolerance=5,
+    args = Namespace(poscar=Path("POSCAR"), symprec=0.1, angle_tolerance=5,
                      show_conventional=True, show_primitive=False)
     structure_info(args)
-    args = Namespace(poscar="POSCAR", symprec=0.1, angle_tolerance=5,
+    args = Namespace(poscar=Path("POSCAR"), symprec=0.1, angle_tolerance=5,
                      show_conventional=True, show_primitive=True)
     structure_info(args)
 

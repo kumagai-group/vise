@@ -104,7 +104,10 @@ def parse_args(args):
         aliases=['vs'])
 
     parser_vasp_set.add_argument(
-        "-p", "--poscar", default="POSCAR", type=Path,
+        "-d", "--dirs", nargs="+", type=Path, default=[Path.cwd()],
+        help="Directory paths to be parsed.")
+    parser_vasp_set.add_argument(
+        "-p", "--poscar", default=None, type=Path,
         help="POSCAR-type input structure file name.")
     parser_vasp_set.add_argument(
         "-t", dest="task", default=defaults.task, type=Task,
@@ -130,7 +133,7 @@ def parse_args(args):
         names and values. These can also be set by vise.yaml, but they are 
         overwritten by this command line options.""")
     parser_vasp_set.add_argument(
-        "-d", "--prev_dir", type=Path,
+        "-pd", "--prev_dir", type=Path,
         help="Parse the previous calculations for better input settings.")
     parser_vasp_set.add_argument(
         "--options", type=str, nargs="+",

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
+import os
 from argparse import Namespace
 from copy import deepcopy
 from pathlib import Path
@@ -146,6 +147,10 @@ def get_poscar_from_mp(args: Namespace) -> None:
 class VaspSet:
     def __init__(self, args: Namespace):
         self.args = args
+        if args.prev_dir:
+            self.args.prev_dir = args.prev_dir.absolute()
+        if args.poscar:
+            self.args.poscar = args.poscar.absolute()
 
         try:
             self._prior_info = PriorInfo.load_yaml()
@@ -154,25 +159,33 @@ class VaspSet:
         self.task = Task.cluster_opt if self._prior_info.is_cluster \
             else args.task
 
-        options = CategorizedInputOptions(
-            structure=self._structure(),
-            task=self.task,
-            xc=args.xc,
-            kpt_density=args.kpt_density,
-            overridden_potcar=self._overridden_potcar(),
-            **self._option_kwargs())
+        for _dir in [d.absolute() for d in args.dirs]:
+            if _dir.is_file():
+                logger.info(f"{_dir} is a file, so skipped.")
+                continue
 
-        vif = VaspInputFiles(options, self._overridden_incar_settings())
-        vif.create_input_files(Path.cwd())
-        if hasattr(self, "_file_transfers"):
-            self._file_transfers.transfer()
-        vif.vise_log.to_yaml_file()
+            os.chdir(_dir)
+            options = CategorizedInputOptions(
+                structure=self._structure(),
+                task=self.task,
+                xc=args.xc,
+                kpt_density=args.kpt_density,
+                overridden_potcar=self._overridden_potcar(),
+                **self._option_kwargs())
+
+            vif = VaspInputFiles(options, self._overridden_incar_settings())
+            vif.create_input_files(Path.cwd())
+            if hasattr(self, "_file_transfers"):
+                self._file_transfers.transfer()
+            vif.vise_log.to_yaml_file()
 
     def _structure(self):
         # avoid overlapping structure for e.g., phonon forces.
         if self.args.prev_dir and self.task.fine_to_inherit_structure_from_prev:
             return Structure.from_file(self.args.prev_dir / defaults.contcar)
-        return Structure.from_file(self.args.poscar)
+        if self.args.poscar:
+            return Structure.from_file(self.args.poscar)
+        return Structure.from_file("POSCAR")
 
     def _overridden_incar_settings(self):
         result = deepcopy(defaults.user_incar_settings)

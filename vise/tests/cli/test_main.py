@@ -66,7 +66,8 @@ def test_vasp_set_wo_options():
     parsed_args = parse_args(["vs"])
     # func is a pointer so need to point the same address.
     expected = Namespace(
-        poscar=Path("POSCAR"),
+        dirs=[Path.cwd()],
+        poscar=None,
         task=defaults.task,
         xc=defaults.xc,
         kpt_density=None,
@@ -85,13 +86,14 @@ def test_vasp_set_wo_options():
 
 def test_vasp_set_w_options():
     parsed_args = parse_args(["vs",
+                              "-d", "Va_O1_0", "Va_O1_1",
                               "--poscar", "POSCAR-tmp",
                               "-t", "band",
                               "-x", "pbesol",
                               "-k", "4.2",
                               "--potcar", "Mg_pv", "O_h",
                               "--user_incar_settings", "LREAD", "F",
-                              "-d", "c",
+                              "-pd", "c",
                               "--vasprun", "vasprun_1",
                               "--outcar", "OUTCAR_1",
                               "--options", "encut", "800",
@@ -100,6 +102,7 @@ def test_vasp_set_w_options():
                               ])
 
     expected = Namespace(
+        dirs=[Path("Va_O1_0"), Path("Va_O1_1")],
         poscar=Path("POSCAR-tmp"),
         task=Task.band,
         xc=Xc.pbesol,
