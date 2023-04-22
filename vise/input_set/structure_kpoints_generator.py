@@ -80,6 +80,9 @@ class StructureKpointsGenerator:
             self._structure = self._symmetrizer.band_primitive
         else:
             raise NotImplementedError
+        if self._structure != self._initial_structure:
+            logger.info("The input structure is changed. When you do not want "
+                        "to change it, use --uniform_kpt_mode.")
 
     def _make_kpoints(self):
         self._set_num_kpt_list()
