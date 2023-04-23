@@ -61,11 +61,15 @@ def assert_json_roundtrip(obj, tmpdir):
     expected = obj.as_dict()
     for k, v in actual.items():
         try:
-            assert v == expected[k]
+            if isinstance(v, np.ndarray):
+                (v == expected[k]).all()
+            else:
+                assert v == expected[k]
         except AssertionError:
             print(k)
             print(v)
             print(expected[k])
+            raise
 
 
 def assert_yaml_roundtrip(obj: ToYamlFileMixIn,
