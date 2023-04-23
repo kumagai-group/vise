@@ -17,7 +17,7 @@ unoccupied_bands = loadfn(Path(__file__).parent / "unoccupied_bands.yaml")
 incar_categories: Dict[str, Any] = \
     dict(loadfn(Path(__file__).parent / "incar_flags.yaml"))
 tag_set = set(tuple(tags) for tags in incar_categories)
-incar_categories["others"] = set(incar_params.keys()) - tag_set
+incar_categories["others"] = list(set(incar_params.keys()) - tag_set)
 all_incar_flags: List[str] = sum(incar_categories.values(), [])
 
 
