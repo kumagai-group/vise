@@ -152,19 +152,19 @@ class VaspSet:
         if args.poscar:
             self.args.poscar = args.poscar.absolute()
 
-        try:
-            self._prior_info = PriorInfo.load_yaml()
-        except FileNotFoundError:
-            self._prior_info = PriorInfo()
-        self.task = Task.cluster_opt if self._prior_info.is_cluster \
-            else args.task
-
         for _dir in [d.absolute() for d in args.dirs]:
             if _dir.is_file():
                 logger.info(f"{_dir} is a file, so skipped.")
                 continue
 
             os.chdir(_dir)
+            try:
+                self._prior_info = PriorInfo.load_yaml()
+            except FileNotFoundError:
+                self._prior_info = PriorInfo()
+            self.task = Task.cluster_opt if self._prior_info.is_cluster \
+                else args.task
+
             options = CategorizedInputOptions(
                 structure=self._structure(),
                 task=self.task,
