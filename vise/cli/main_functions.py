@@ -158,6 +158,7 @@ class VaspSet:
                 continue
 
             os.chdir(_dir)
+            logger.info(f"Creating VASP input set in {_dir}...")
             try:
                 self._prior_info = PriorInfo.load_yaml()
             except FileNotFoundError:
