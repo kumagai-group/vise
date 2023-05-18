@@ -13,7 +13,7 @@ from vise.util.enum import ExtendedEnum
 
 class PotcarSet(ExtendedEnum):
     normal = "normal"
-    mp_relax_set = "mp"
+    mp_relax_set = "mp_relax_set"
     gw = "gw"
 
     def overridden_potcar_dict(self,
