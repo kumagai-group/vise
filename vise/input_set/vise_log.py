@@ -6,6 +6,8 @@ from typing import Optional, Dict
 
 import yaml
 from monty.json import MSONable
+from vise.input_set.datasets.potcar_set import PotcarSet
+from vise.input_set.kpoints_mode import KpointsMode
 from vise.input_set.task import Task
 from vise.input_set.xc import Xc
 from vise.util.mix_in import ToYamlFileMixIn
@@ -33,6 +35,11 @@ class ViseLog(MSONable, ToYamlFileMixIn):
             d["ldauu"] = self.ldauu
         if self.ldaul is not None:
             d["ldaul"] = self.ldaul
+        if "kpt_mode" in self.input_options:
+            self.input_options["kpt_mode"] = str(self.input_options["kpt_mode"])
+        if "potcar_set" in self.input_options:
+            self.input_options["potcar_set"] = \
+                str(self.input_options["potcar_set"])
         return d
 
     @classmethod
@@ -40,4 +47,11 @@ class ViseLog(MSONable, ToYamlFileMixIn):
         dd = copy(d)
         dd["task"] = Task.from_string(d["task"])
         dd["xc"] = Xc.from_string(d["xc"])
+        if "kpt_mode" in d["input_options"]:
+            dd["input_options"]["kpt_mode"] = \
+                KpointsMode.from_string(dd["input_options"]["kpt_mode"])
+        if "potcar_set" in d["input_options"]:
+            dd["input_options"]["potcar_set"] = \
+                PotcarSet.from_string(dd["input_options"]["potcar_set"])
+
         return super().from_dict(dd)

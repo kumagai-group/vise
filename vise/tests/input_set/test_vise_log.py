@@ -3,6 +3,8 @@
 
 
 import pytest
+from vise.input_set.datasets.potcar_set import PotcarSet
+from vise.input_set.kpoints_mode import KpointsMode
 
 from vise.input_set.task import Task
 from vise.input_set.vise_log import ViseLog
@@ -13,7 +15,10 @@ from vise.tests.helpers.assertion import assert_yaml_roundtrip
 @pytest.fixture
 def vise_log():
     return ViseLog(version="0.6.3", task=Task.structure_opt, xc=Xc.pbe,
-                   input_options={"charge": 1}, user_incar_settings={"NSW": 2},
+                   input_options={"charge": 1,
+                                  "kpt_mode": KpointsMode.uniform,
+                                  "potcar_set": PotcarSet.mp_relax_set},
+                   user_incar_settings={"NSW": 2},
                    ldauu={"Mg": 3}, ldaul={"Mg": 4})
 
 
@@ -23,6 +28,8 @@ task: structure_opt
 xc: pbe
 input_options:
   charge: 1
+  kpt_mode: uniform
+  potcar_set: mp_relax_set
 user_incar_settings:
   NSW: 2
 ldauu:
