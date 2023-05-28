@@ -134,6 +134,7 @@ hubbard u:
 
 electrostatic:
   - NELECT
+  - LOCPOT
   - LVTOT
   - LVHAR
   - EPSILON
