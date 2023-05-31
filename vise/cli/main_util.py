@@ -40,6 +40,10 @@ def parse_args(args):
     parser_make_phonon_poscars.add_argument(
         "-u", "--unitcell", type=Structure.from_file,
         help="")
+    parser_make_phonon_poscars.add_argument(
+        "-s", "--supercell_matrix", type=int, nargs="+",
+        help="Supercell matrix for phonon calculation"
+             "based on the conventional cell.")
 
     parser_make_phonon_poscars.set_defaults(func=make_phonon_poscars)
 

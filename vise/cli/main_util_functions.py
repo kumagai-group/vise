@@ -11,12 +11,15 @@ from vise.analyzer.vesta.vesta_file import add_density, VestaFile, calc_isurfs
 from vise.atom_energies.make_atom_vasp_set import make_atom_poscar_dirs
 from vise.util.logger import get_logger
 from vise.util.phonopy.phonopy_input import make_phonopy_input
+from vise.util.structure_handler import sanitize_matrix
 
 logger = get_logger(__name__)
 
 
 def make_phonon_poscars(args: Namespace) -> None:
-    phonopy_input = make_phonopy_input(unitcell=args.unitcell)
+    phonopy_input = make_phonopy_input(
+        unitcell=args.unitcell,
+        supercell_matrix=sanitize_matrix(args.supercell_matrix))
     phonopy_input.supercell.to(filename="POSCAR")
     phonopy_input.to_json_file()
 
