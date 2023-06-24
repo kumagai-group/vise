@@ -9,6 +9,10 @@ from typing import Optional, Dict, List, Any, Tuple
 import pandas as pd
 import yaml
 from monty.serialization import loadfn
+from vise.util.logger import get_logger
+
+
+logger = get_logger(__name__)
 
 
 class ToFileMixIn(ABC):
@@ -23,7 +27,8 @@ class ToFileMixIn(ABC):
 
 class ToJsonFileMixIn(ToFileMixIn, ABC):
     def to_json_file(self, filename: Optional[str] = None) -> None:
-        filename = filename or self._json_filename
+        filename = filename or self.json_filename
+        logger.info(f"{filename} file has been written.")
         Path(filename).write_text(self.to_json())
 
     @abstractmethod
@@ -31,7 +36,7 @@ class ToJsonFileMixIn(ToFileMixIn, ABC):
         pass
 
     @property
-    def _json_filename(self):
+    def json_filename(self):
         return self._filename + ".json"
 
 
