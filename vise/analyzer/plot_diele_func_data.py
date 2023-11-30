@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 from abc import abstractmethod
-from math import log10
+
 from typing import List
 
 import numpy as np
 from matplotlib import pyplot as plt
-from plotly import graph_objects as go
 from vise.analyzer.dielectric_function import DieleFuncData
 from vise.util.enum import ExtendedEnum
 from vise.util.matplotlib import float_to_int_formatter
@@ -115,55 +114,6 @@ class DieleFuncPlotter:
     @abstractmethod
     def add_single_plot(self, name, tensor, plot_type):
         pass
-
-
-class DieleFuncPlotlyPlotter(DieleFuncPlotter):
-
-    def __init__(self, diele_func_data: DieleFuncData,
-                 energy_range: List[float] = None):
-        super().__init__(diele_func_data, energy_range)
-        self.fig = go.Figure()
-
-    def create_figure(self,
-                      directions=("ave",),
-                      plot_type=DieleFuncPlotType.absorption_coeff,
-                      y_range: List[float] = None):
-        self._adjust_layout(plot_type)
-
-        all_plotted_values = self.add_plot(directions, plot_type)
-        y_min, y_max = y_range or auto_y_range(plot_type, all_plotted_values)
-
-        if self.band_gap:
-            self._add_band_gap_line(y_max, y_min)
-        self._update_xaxes()
-        self._update_yaxes(plot_type, y_max, y_min)
-
-    def _adjust_layout(self, plot_type):
-        y_axis = plot_type.y_axis_label("plotly")
-        self.fig.update_layout(xaxis_title=self._x_axis_title,
-                               yaxis_title=y_axis, font_size=25,
-                               width=800, height=700)
-
-    def _update_xaxes(self):
-        self.fig.update_xaxes(range=self.energy_range, tickfont_size=20)
-
-    def _update_yaxes(self, plot_type, y_max, y_min):
-        if plot_type is DieleFuncPlotType.absorption_coeff:
-            kwargs = {"type": "log", "range": [log10(y_min), log10(y_max)]}
-        else:
-            kwargs = {"range": [y_min, y_max]}
-        self.fig.update_yaxes(tickfont_size=20, showexponent="all",
-                              exponentformat='power', **kwargs)
-
-    def _add_band_gap_line(self, y_max, y_min):
-        self.fig.add_trace(go.Scatter(x=[self.band_gap, self.band_gap],
-                                      y=[y_min, y_max],
-                                      line=dict(width=2, dash="dash"),
-                                      line_color="black", name="Band gap"))
-
-    def add_single_plot(self, name, tensor, plot_type):
-        self.fig.add_trace(go.Scatter(
-            x=self.energies, y=tensor, line=dict(width=2.5), name=name))
 
 
 class DieleFuncMplPlotter(DieleFuncPlotter):

@@ -32,66 +32,66 @@ def special_points_from_kpoints(kpoints_filename: str) \
     return special_points, kpt_indices
 
 
-def make_irreps_from_wavecar(special_point_symbols: List[str],
-                             kpt_indices: List[int],
-                             sg_num: int = None,
-                             wavecar_filename: str = "WAVECAR",
-                             poscar_filename: str = "POSCAR",
-                             plane_wave_cutoff: float = 50.0,
-                             degeneracy_threshold: float = 0.01,
-                             **bs_kwargs) -> Irreps:
-
-    if sg_num is None:
-        structure = Structure.from_file(poscar_filename)
-        sg_analyzer = StructureSymmetrizer(structure=structure)
-        sg_num = sg_analyzer.sg_number
-
-    try:
-        from irreptables import IrrepTable
-        from irrep.bandstructure import BandStructure
-    except ImportError:
-        logger.warning(f"To find irreps, install the irrep package.")
-        raise
-    logger.info("We set spinor is False.")
-    irrep_table = IrrepTable(sg_num, spinor=False)
-    symbols = {i.kpname for i in irrep_table.irreps}
-
-    listed_k_indices, listed_symbols = [], []
-    for s, k_index in zip(special_point_symbols, kpt_indices):
-        if s in symbols:
-            listed_symbols.append(s)
-            listed_k_indices.append(k_index)
-        else:
-            logger.info(f"{s} is not listed in the IrrepTable.")
-
-    bs = BandStructure(fWAV=wavecar_filename,
-                       fPOS=poscar_filename,
-                       Ecut=plane_wave_cutoff,
-                       kplist=np.array(listed_k_indices),
-                       spinor=False,
-                       **bs_kwargs)
-
-    characters = bs.write_characters(degen_thresh=degeneracy_threshold,
-                                     kpnames=listed_symbols)
-
-    irrep_dict = {}
-    for symbol, c_kpt, kpt in \
-            zip(listed_symbols, characters["k-points"], bs.kpoints):
-        symbols = []
-        for irrep in c_kpt["irreps"]:
-            try:
-                irrep_str = find_irrep(irrep)
-            except ViseNoIrrepError:
-                irrep_str = "Unknown"
-            symbols.append(greek_to_unicode(irrep_str))
-
-        irrep_dict[greek_to_unicode(symbol)] = \
-            Irrep(kpt.K.tolist(),
-                  symbols,
-                  c_kpt["energies"].tolist(),
-                  c_kpt["dimensions"].tolist())
-
-    return Irreps(bs.spacegroup.number, irrep_dict)
+# def make_irreps_from_wavecar(special_point_symbols: List[str],
+#                              kpt_indices: List[int],
+#                              sg_num: int = None,
+#                              wavecar_filename: str = "WAVECAR",
+#                              poscar_filename: str = "POSCAR",
+#                              plane_wave_cutoff: float = 50.0,
+#                              degeneracy_threshold: float = 0.01,
+#                              **bs_kwargs) -> Irreps:
+#
+#     if sg_num is None:
+#         structure = Structure.from_file(poscar_filename)
+#         sg_analyzer = StructureSymmetrizer(structure=structure)
+#         sg_num = sg_analyzer.sg_number
+#
+#     try:
+#         from irreptables import IrrepTable
+#         from irrep.bandstructure import BandStructure
+#     except ImportError:
+#         logger.warning(f"To find irreps, install the irrep package.")
+#         raise
+#     logger.info("We set spinor is False.")
+#     irrep_table = IrrepTable(sg_num, spinor=False)
+#     symbols = {i.kpname for i in irrep_table.irreps}
+#
+#     listed_k_indices, listed_symbols = [], []
+#     for s, k_index in zip(special_point_symbols, kpt_indices):
+#         if s in symbols:
+#             listed_symbols.append(s)
+#             listed_k_indices.append(k_index)
+#         else:
+#             logger.info(f"{s} is not listed in the IrrepTable.")
+#
+#     bs = BandStructure(fWAV=wavecar_filename,
+#                        fPOS=poscar_filename,
+#                        Ecut=plane_wave_cutoff,
+#                        kplist=np.array(listed_k_indices),
+#                        spinor=False,
+#                        **bs_kwargs)
+#
+#     characters = bs.write_characters(degen_thresh=degeneracy_threshold,
+#                                      kpnames=listed_symbols)
+#
+#     irrep_dict = {}
+#     for symbol, c_kpt, kpt in \
+#             zip(listed_symbols, characters["k-points"], bs.kpoints):
+#         symbols = []
+#         for irrep in c_kpt["irreps"]:
+#             try:
+#                 irrep_str = find_irrep(irrep)
+#             except ViseNoIrrepError:
+#                 irrep_str = "Unknown"
+#             symbols.append(greek_to_unicode(irrep_str))
+#
+#         irrep_dict[greek_to_unicode(symbol)] = \
+#             Irrep(kpt.K.tolist(),
+#                   symbols,
+#                   c_kpt["energies"].tolist(),
+#                   c_kpt["dimensions"].tolist())
+#
+#     return Irreps(bs.spacegroup.number, irrep_dict)
 
 
 class ViseNoIrrepError(ViseError):

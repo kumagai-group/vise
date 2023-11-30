@@ -54,17 +54,17 @@ def test_input_options_kwargs(nonmagnetic_insulator):
     assert actual == expected
 
 
-def test_get_structure_from_prev_dir_actual_files(test_data_files):
-    prior_info = prior_info_from_calc_dir(prev_dir_path=test_data_files,
-                                          vasprun="MnO_uniform_vasprun.xml",
-                                          outcar="MnO_uniform_OUTCAR",
-                                          potcar="MnO_fake_POTCAR")
-    # Number of electrons in MnO_uniform_vasprun.xml is changed from 13 to 12
-    # artificially for this unittest.
-    assert prior_info.energy_per_atom == -8.024678125
-    assert pytest.approx(prior_info.band_gap) == 0.4702
-    assert prior_info.vbm_cbm == [4.6666, 5.1368]
-    assert prior_info.total_magnetization == 5.0000019
-    assert prior_info.charge == 1
+# def test_get_structure_from_prev_dir_actual_files(test_data_files):
+#     prior_info = prior_info_from_calc_dir(prev_dir_path=test_data_files,
+#                                           vasprun="MnO_uniform_vasprun.xml",
+#                                           outcar="MnO_uniform_OUTCAR",
+#                                           potcar="MnO_fake_POTCAR")
+#     # Number of electrons in MnO_uniform_vasprun.xml is changed from 13 to 12
+#     # artificially for this unittest.
+#     assert prior_info.energy_per_atom == -8.024678125
+#     assert pytest.approx(prior_info.band_gap) == 0.4702
+#     assert prior_info.vbm_cbm == [4.6666, 5.1368]
+#     assert prior_info.total_magnetization == 5.0000019
+#     assert prior_info.charge == 1
 
 

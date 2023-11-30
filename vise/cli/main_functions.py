@@ -12,8 +12,6 @@ from pymatgen.io.vasp import Vasprun, Outcar
 from tabulate import tabulate
 from vise.analyzer.dielectric_function import DieleFuncData
 from vise.analyzer.plot_band import BandMplPlotter
-from vise.analyzer.plot_band_dos import BandDosPlotlyPlotter
-from vise.analyzer.plot_brillouin_zone import BZPlotlyPlotter
 from vise.analyzer.plot_diele_func_data import DieleFuncMplPlotter, \
     DieleFuncPlotType
 from vise.analyzer.plot_dos import DosPlotter
@@ -21,8 +19,8 @@ from vise.analyzer.vasp.band_edge_properties import VaspBandEdgeProperties
 from vise.analyzer.vasp.dos_data import DosDataFromVasp
 from vise.analyzer.vasp.make_diele_func import make_diele_func
 from vise.analyzer.vasp.make_effective_mass import make_effective_mass
-from vise.analyzer.vasp.make_irreps import special_points_from_kpoints, \
-    make_irreps_from_wavecar
+# from vise.analyzer.vasp.make_irreps import special_points_from_kpoints, \
+#     make_irreps_from_wavecar
 from vise.analyzer.vasp.plot_band import BandPlotInfoFromVasp
 from vise.cli.main_tools import potcar_str2dict, list2dict
 from vise.defaults import defaults
@@ -248,37 +246,37 @@ def plot_band(args: Namespace):
         vasprun=Vasprun(args.vasprun), kpoints_filename=args.kpoints_filename)
     plot_info = band_plot_info_from_vasp.make_band_plot_info()
 
-    if args.wavecar_filename:
-        try:
-            with open(args.kpoints_filename) as f:
-                first_line = f.readline()
-            sg_num = int(first_line.split()[-1])
-            logger.info(f"Space group number is set to {sg_num} read from "
-                        f"{args.kpoints_filename} header.")
-        except ValueError:
-            logger.info(f"Failed to get space group number from "
-                        f"{args.kpoints_filename} header.")
-            sg_num = None
+    # if args.wavecar_filename:
+    #     try:
+    #         with open(args.kpoints_filename) as f:
+    #             first_line = f.readline()
+    #         sg_num = int(first_line.split()[-1])
+    #         logger.info(f"Space group number is set to {sg_num} read from "
+    #                     f"{args.kpoints_filename} header.")
+    #     except ValueError:
+    #         logger.info(f"Failed to get space group number from "
+    #                     f"{args.kpoints_filename} header.")
+    #         sg_num = None
 
-        special_points, kpt_indices = \
-            special_points_from_kpoints(args.kpoints_filename)
-        irreps = make_irreps_from_wavecar(
-            special_points, kpt_indices, sg_num, args.wavecar_filename,
-            args.poscar)
-        plot_info.band_energy_infos["1"].irreps = irreps
+        # special_points, kpt_indices = \
+        #     special_points_from_kpoints(args.kpoints_filename)
+        # irreps = make_irreps_from_wavecar(
+        #     special_points, kpt_indices, sg_num, args.wavecar_filename,
+        #     args.poscar)
+        # plot_info.band_energy_infos["1"].irreps = irreps
 
     plot_info.to_json_file()
 
-    if args.plotly:
-        plotter = BandDosPlotlyPlotter(band_plot_info=plot_info)
-        plotter.fig.show()
+    # if args.plotly:
+    #     plotter = BandDosPlotlyPlotter(band_plot_info=plot_info)
+    #     plotter.fig.show()
 
-        bz_info = band_plot_info_from_vasp.make_bz_plot_info()
-        bz_plotter = BZPlotlyPlotter(bz_info)
-        fig = bz_plotter.create_figure(set_k123=False)
-        fig.show()
-        fig.write_image("brillouin_zone.pdf")
-        return
+#         bz_info = band_plot_info_from_vasp.make_bz_plot_info()
+#         bz_plotter = BZPlotlyPlotter(bz_info)
+#         fig = bz_plotter.create_figure(set_k123=False)
+#         fig.show()
+#         fig.write_image("brillouin_zone.pdf")
+#         return
 
     plotter = BandMplPlotter(plot_info, energy_range=args.y_range)
     plotter.construct_plot()

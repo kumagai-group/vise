@@ -76,7 +76,10 @@ class DieleFuncData(MSONable, ToJsonFileMixIn, ToCsvFileMixIn):
     def from_dataframe(cls, df):
         real_T, imag_T, directions = [], [], []
         show_log = True
-        for column_name, item in df.iteritems():
+        col_items = df.iteritems() if hasattr(df, 'iteritems') else df.items()
+
+        # Processing each column
+        for column_name, item in col_items:
             if column_name in ["energies(eV)", "band_gap"]:
                 continue
             elif "real" in column_name:

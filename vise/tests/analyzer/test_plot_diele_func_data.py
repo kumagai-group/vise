@@ -4,17 +4,8 @@ from copy import copy
 
 import pytest
 from monty.serialization import loadfn
-from vise.analyzer.plot_diele_func_data import DieleFuncPlotlyPlotter, \
-    DieleFuncMplPlotter, DieleFuncPlotType
-
-from vise.util.dash_helper import show_png
-
-
-try:
-    import psutil
-    PSUTIL_NOT_PRESENT = False
-except ModuleNotFoundError:
-    PSUTIL_NOT_PRESENT = True
+from vise.analyzer.plot_diele_func_data import (DieleFuncMplPlotter,
+                                                DieleFuncPlotType)
 
 
 def test_diele_func_plot_type():
@@ -31,42 +22,6 @@ def actual_diele_func_data(test_data_files):
     result = loadfn(test_data_files / "MgSe_diele_func_data.json")
     result.title = "test diele"
     return result
-
-
-@pytest.mark.skipif(PSUTIL_NOT_PRESENT, reason="psutil does not exist")
-def test_absorption_coeff_plotly_plotter(actual_diele_func_data):
-    data = copy(actual_diele_func_data)
-    data.band_gap = None
-    plotter = DieleFuncPlotlyPlotter(data)
-    plotter.create_figure()
-    show_png(plotter.fig)
-
-
-@pytest.mark.skipif(PSUTIL_NOT_PRESENT, reason="psutil does not exist")
-def test_diele_func_plotly_plotter(actual_diele_func_data):
-    plotter = DieleFuncPlotlyPlotter(actual_diele_func_data)
-    plotter.create_figure(
-        directions=["xx", "zz"],
-        plot_type=DieleFuncPlotType.diele_func)
-    show_png(plotter.fig)
-
-
-@pytest.mark.skipif(PSUTIL_NOT_PRESENT, reason="psutil does not exist")
-def test_refraction_plotly_plotter(actual_diele_func_data):
-    plotter = DieleFuncPlotlyPlotter(actual_diele_func_data)
-    plotter.create_figure(
-        directions=["yy"],
-        plot_type=DieleFuncPlotType.refraction)
-    show_png(plotter.fig)
-
-
-@pytest.mark.skipif(PSUTIL_NOT_PRESENT, reason="psutil does not exist")
-def test_reflectivity_plotly_plotter(actual_diele_func_data):
-    plotter = DieleFuncPlotlyPlotter(actual_diele_func_data)
-    plotter.create_figure(
-        directions=["yy"],
-        plot_type=DieleFuncPlotType.reflectivity)
-    show_png(plotter.fig)
 
 
 def test_absorption_coeff_mpl_plotter(actual_diele_func_data):

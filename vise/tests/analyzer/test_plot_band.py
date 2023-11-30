@@ -92,7 +92,7 @@ def test_band_plot_info_msonable(band_edge, band_energy_info, band_plot_info):
 
 @pytest.fixture
 def mock_band_plt_list(mocker, band_plot_info):
-    mock_plt = mocker.patch("vise.analyzer.plot_band.plt", auto_spec=True)
+    mock_plt = mocker.patch("vise.analyzer.plot_band.plt", unsafe=True)
     mock_axis = MagicMock()
     mock_plt.gca.return_value = mock_axis
     plotter = BandMplPlotter(band_plot_info, y_range)
@@ -275,7 +275,7 @@ def test_draw_bands(band_plot_info):
                          [(1.0, 1.0), (None, -1)])
 def test_reference_energy(ref_energy, subtracted_energy,
                           mocker, band_plot_info, band_edge):
-    mock_plt = mocker.patch("vise.analyzer.plot_band.plt", auto_spec=True)
+    mock_plt = mocker.patch("vise.analyzer.plot_band.plt", unsafe=True)
     mock_axis = MagicMock()
     mock_plt.gca.return_value = mock_axis
 
@@ -326,7 +326,7 @@ def two_band_infos():
 
 @pytest.fixture
 def mock_two_bands_plt_axis(two_band_infos, mocker):
-    mock_plt = mocker.patch("vise.analyzer.plot_band.plt", auto_spec=True)
+    mock_plt = mocker.patch("vise.analyzer.plot_band.plt", unsafe=True)
     mock_axis = MagicMock()
     mock_plt.gca.return_value = mock_axis
     band_plot_info = BandPlotInfo(two_band_infos, distances, x_ticks, title)

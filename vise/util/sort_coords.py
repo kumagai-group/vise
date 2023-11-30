@@ -1,8 +1,8 @@
-#  Copyright (c) 2020. Distributed under the terms of the MIT License.
-
+# -*- coding: utf-8 -*-
+#  Copyright (c) 2023. Distributed under the terms of the MIT License.
 import numpy as np
-from numpy import concatenate, clip, dot, arctan2
 from numpy.linalg import det
+from numpy import concatenate, clip, dot, arctan2
 
 
 def sort_coords(coords: np.ndarray) -> np.ndarray:
@@ -48,14 +48,3 @@ def sort_coords(coords: np.ndarray) -> np.ndarray:
     indices = [i for i in range(len(coords))]
     indices.sort(key=angle_between_v0)
     return coords[indices]
-
-
-def make_triangles(vertices):
-    x = [v[0] for v in vertices]
-    y = [v[1] for v in vertices]
-    z = [v[2] for v in vertices]
-    n_vertices = len(x)
-    i = [0] * (n_vertices - 2)
-    j = [x for x in range(1, n_vertices - 1)]
-    k = [x for x in range(2, n_vertices)]
-    return dict(x=x, y=y, z=z, i=i, j=j, k=k)

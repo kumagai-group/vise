@@ -54,7 +54,7 @@ def test_dos_plot_data_msonable():
 
 @pytest.fixture
 def mock_plt_list(mocker):
-    mock_plt = mocker.patch("vise.analyzer.plot_dos.plt", auto_spec=True)
+    mock_plt = mocker.patch("vise.analyzer.plot_dos.plt", unsafe=True)
     mock_1st_ax = mocker.MagicMock()
     mock_2nd_ax = mocker.MagicMock()
     other_axs_len = dos_data_len - 2

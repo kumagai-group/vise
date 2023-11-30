@@ -26,9 +26,11 @@ class ToFileMixIn(ABC):
 
 
 class ToJsonFileMixIn(ToFileMixIn, ABC):
-    def to_json_file(self, filename: Optional[str] = None) -> None:
-        filename = filename or self.json_filename
-        logger.info(f"{filename} file has been written.")
+    def to_json_file(self,
+                     filename: Optional[str] = None,
+                     suffix: Optional[str] = None) -> None:
+        filename = (filename or self.fname_w_suffix(suffix)
+                    or self.json_filename)
         Path(filename).write_text(self.to_json())
 
     @abstractmethod
@@ -36,8 +38,12 @@ class ToJsonFileMixIn(ToFileMixIn, ABC):
         pass
 
     @property
-    def json_filename(self):
+    def json_filename(self) -> str:
         return self._filename + ".json"
+
+    def fname_w_suffix(self, suffix) -> str:
+        if suffix:
+            return f"{self._filename}_{suffix}.json"
 
 
 class ToCsvFileMixIn(ToFileMixIn, ABC):

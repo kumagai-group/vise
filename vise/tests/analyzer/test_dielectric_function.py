@@ -3,7 +3,6 @@
 from math import pi, sqrt
 from pathlib import Path
 
-import numpy as np
 import pytest
 from monty.serialization import loadfn
 from vise.analyzer.dielectric_function import DieleFuncData, \

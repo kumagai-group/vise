@@ -8,12 +8,10 @@ from pymatgen.core import Composition
 from pymatgen.io.vasp import Vasprun
 
 from vise.analyzer.plot_band import BandEdgeForPlot, XTicks, BandMplSettings
-from vise.analyzer.plot_brillouin_zone import BZPlotlyPlotter
 from vise.analyzer.vasp.plot_band import greek_to_unicode, italic_to_roman, \
     BandPlotInfoFromVasp
 from vise.analyzer.plot_band import BandMplPlotter
 import numpy as np
-from vise.util.dash_helper import show_png
 
 try:
     import psutil
@@ -58,7 +56,7 @@ def test_vasp_band_plotter(is_metal, expected_band_edge, mocker):
                  "cbm": [[1, 100], [2, 100]]}
 
     mock_bsp = mocker.patch("vise.analyzer.vasp.plot_band.BSPlotter",
-                            auto_spec=True)
+                            unsafe=True)
     mock_bsp.return_value.bs_plot_data.return_value = plot_data
     mock_bsp.return_value.get_ticks_old.return_value = \
         {"label": labels, "distance": [0.0, 0.1, 0.2]}
@@ -85,18 +83,6 @@ def test_draw_band_plotter_with_actual_vasp_files(test_data_files: Path):
     plotter = BandMplPlotter(plot_info, [-10, 10])
     plotter.construct_plot()
     plotter.plt.show()
-
-
-@pytest.mark.skipif(PSUTIL_NOT_PRESENT, reason="psutil does not exist")
-def test_bz_plotter_with_actual_vasp_files(test_data_files: Path):
-    vasprun_file = str(test_data_files / "H_band_vasprun.xml")
-    kpoints_file = str(test_data_files / "H_band_KPOINTS")
-    vasprun = Vasprun(vasprun_file)
-    band_plot_info = BandPlotInfoFromVasp(vasprun, kpoints_file)
-    bz_plot_info = band_plot_info.make_bz_plot_info()
-    fig = BZPlotlyPlotter(bz_plot_info).create_figure()
-    # fig.show()
-    show_png(fig)
 
 
 # def test_irrep_actual_vasp_files(test_data_files: Path):
@@ -143,7 +129,7 @@ def test_energy_window(mocker):
                  "cbm": None}
 
     mock_bsp = mocker.patch("vise.analyzer.vasp.plot_band.BSPlotter",
-                            auto_spec=True)
+                            unsafe=True)
     mock_bsp.return_value.bs_plot_data.return_value = plot_data
     mock_bsp.return_value.get_ticks_old.return_value = \
         {"label": labels, "distance": label_distances}

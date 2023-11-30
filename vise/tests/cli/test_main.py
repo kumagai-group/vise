@@ -129,8 +129,7 @@ def test_plot_band_wo_options():
         kpoints_filename="KPOINTS",
         y_range=[-10.0, 10.0],
         filename="band.pdf",
-        wavecar_filename=None,
-        plotly=False,
+        # wavecar_filename=None,
         poscar="POSCAR",
         func=parsed_args.func,
     )
@@ -143,8 +142,7 @@ def test_plot_band_w_options():
                               "--kpoints", "KPOINTS_1",
                               "--y_range", "-1.0", "1.0",
                               "--filename", "band_1.pdf",
-                              "--wavecar", "WAVECAR",
-                              "--plotly",
+                              # "--wavecar", "WAVECAR",
                               "--poscar", "POSCAR-test"
                               ])
 
@@ -153,8 +151,7 @@ def test_plot_band_w_options():
         kpoints_filename="KPOINTS_1",
         y_range=[-1.0, 1.0],
         filename="band_1.pdf",
-        wavecar_filename="WAVECAR",
-        plotly=True,
+        # wavecar_filename="WAVECAR",
         poscar="POSCAR-test",
         func=parsed_args.func,
     )

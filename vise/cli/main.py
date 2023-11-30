@@ -166,17 +166,15 @@ def parse_args(args):
         "-k", "--kpoints", dest="kpoints_filename", default="KPOINTS", type=str,
         help="KPOINTS file name.")
     parser_plot_band.add_argument(
-        "-y", "--y_range", nargs="+", default=[-10, 10], type=float,
+        "-y", "--y_range", nargs="+", default=[-10.0, 10.0], type=float,
         help="Energy range, requiring two values.")
-    parser_plot_band.add_argument(
-        "-w", "--wavecar", dest="wavecar_filename", default=None, type=str,
-        help="WAVECAR file name.")
+    # parser_plot_band.add_argument(
+    #     "-w", "--wavecar", dest="wavecar_filename", default=None, type=str,
+    #     help="WAVECAR file name.")
     parser_plot_band.add_argument(
         "-p", "--poscar", type=str, default="POSCAR",
         help="POSCAR-type file name to be read, which is used for evaluating "
              "the irreps.", metavar="FILE")
-    parser_plot_band.add_argument(
-        "--plotly", action="store_true", help="Plot with plotly")
     parser_plot_band.add_argument(
         "-f", "--filename", type=str, default="band.pdf", help="Pdf file name.")
 

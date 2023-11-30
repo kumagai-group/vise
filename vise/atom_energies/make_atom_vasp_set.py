@@ -4,7 +4,6 @@ import warnings
 from pathlib import Path
 from typing import Union, List
 
-import fire
 import yaml
 from monty.serialization import loadfn
 from pymatgen.core import Structure, Lattice, Element
@@ -61,7 +60,4 @@ def make_atom_mp_relax_set():
 
 
 if __name__ == '__main__':
-    def make_mp_set():
-        make_atom_mp_relax_set()
-
-    fire.Fire(make_mp_set)
+    make_atom_mp_relax_set()

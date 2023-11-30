@@ -8,7 +8,6 @@ from pathlib import Path
 from monty.json import MSONable
 from monty.serialization import loadfn
 import numpy as np
-from py._path.local import LocalPath
 from pymatgen.analysis.structure_matcher import StructureMatcher, \
     ElementComparator
 from pymatgen.core import IStructure
@@ -63,6 +62,19 @@ def assert_json_roundtrip(obj, tmpdir):
         try:
             if isinstance(v, np.ndarray):
                 (v == expected[k]).all()
+            elif isinstance(v, dict):
+                for kk, vv in v.items():
+                    try:
+                        if isinstance(vv, np.ndarray):
+                            (vv == expected[k][kk]).all()
+                        else:
+                             assert vv == expected[k][kk]
+                    except ValueError:
+                        print("v", v)
+                        print(type(v))
+                        print("k", expected[k])
+                        print(type(expected[k]))
+                        raise
             else:
                 assert v == expected[k]
         except AssertionError:
@@ -70,10 +82,15 @@ def assert_json_roundtrip(obj, tmpdir):
             print(v)
             print(expected[k])
             raise
-
+        except ValueError:
+            print("v", v)
+            print(type(v))
+            print("k", expected[k])
+            print(type(expected[k]))
+            raise
 
 def assert_yaml_roundtrip(obj: ToYamlFileMixIn,
-                          tmpdir: LocalPath,
+                          tmpdir,
                           expected_text: str,
                           compare_dict: bool = True,
                           compare_items: bool = True):
