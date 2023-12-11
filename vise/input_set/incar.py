@@ -92,6 +92,9 @@ class ViseIncar(Incar):
 
         return "\n\n".join(["\n".join([k, v]) for k, v in lines.items()])
 
+    def get_str(self, **kwargs) -> str:
+        return self.get_string(**kwargs)
+
     def setting_to_str(self, incar_flag: str) -> str:
         if isinstance(self[incar_flag], list):
             return " ".join([str(i) for i in self[incar_flag]])
