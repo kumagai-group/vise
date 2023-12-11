@@ -320,12 +320,6 @@ def test_grids_option(default_dict):
 
 
 def test_spin_orbit(default_dict):
-    default_dict["set_spin_orbit"] = "O"
+    default_dict["set_spin_orbit"] = True
     generator = IncarSettingsGenerator(**default_dict)
     assert generator.incar_settings["LSORBIT"] is True
-
-    default_dict["set_spin_orbit"] = "F"
-    generator = IncarSettingsGenerator(**default_dict)
-    assert "LSORBIT" not in generator.incar_settings
-
-

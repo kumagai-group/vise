@@ -43,7 +43,8 @@ class LDAU:
         return set(self.ldauu) != {0}
 
 
-def num_bands(composition: Composition, potcar: Potcar) -> int:
+def num_bands(composition: Composition, potcar: Potcar,
+              spin_orbit: bool = False) -> int:
     """Required for optical absorption, band structure, and DOS"""
     results = 0
     for element, potcar_single in zip(composition, potcar):
@@ -51,6 +52,9 @@ def num_bands(composition: Composition, potcar: Potcar) -> int:
         occupied_bands = potcar_single.nelectrons / 2
         num_bands_per_atom = occupied_bands + unoccupied_bands[str(element)]
         results += num_atoms_per_element * num_bands_per_atom
+
+    if spin_orbit:
+        results *= 2
 
     return ceil(results)
 

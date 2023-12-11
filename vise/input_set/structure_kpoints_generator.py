@@ -30,7 +30,7 @@ class StructureKpointsGenerator:
             band_ref_dist: float = defaults.band_mesh_distance,
             symprec: float = defaults.symmetry_length_tolerance,
             angle_tolerance: float = defaults.symmetry_angle_tolerance,
-            is_magnetization: bool = False):  # Whether the system is magnetic.
+            time_reversal: bool = True):  # Whether the system has time reversal symmetry.
 
         if kpt_mode:
             kpt_mode = KpointsMode.from_string(str(kpt_mode))
@@ -38,7 +38,9 @@ class StructureKpointsGenerator:
         self._initial_structure = initial_structure.copy()
         self._task = task
         self._kpt_density = kpt_density
-        self._is_magnetization = is_magnetization
+        self._time_reversal = time_reversal
+        self._symprec = symprec
+        self._angle_tolerance = angle_tolerance
         self._num_kpt_factor = num_kpt_factor or self._task.default_kpt_factor
         if self._num_kpt_factor != 1:
             logger.info(f"kpoint factor is set to {self._num_kpt_factor}")
@@ -47,7 +49,7 @@ class StructureKpointsGenerator:
                                  symprec=symprec,
                                  angle_tolerance=angle_tolerance,
                                  band_mesh_distance=band_ref_dist,
-                                 time_reversal=(not self._is_magnetization))
+                                 time_reversal=time_reversal)
         # overwrite options fixed by other options
         self._gamma_centered = task.requisite_gamma_centered or gamma_centered
         self._adjust_only_even_num_kpts(only_even_num_kpts)
@@ -143,7 +145,10 @@ class StructureKpointsGenerator:
         # symmetrizer must be recreated since the fractional coordinates are
         # different in different lattices.
         # Symmetrized structure doesn't need the symprec and angle_tolerance
-        symmetrizer = StructureSymmetrizer(self._structure)
+        symmetrizer = StructureSymmetrizer(self._structure,
+                                           symprec=self._symprec,
+                                           angle_tolerance=self._angle_tolerance,
+                                           time_reversal=self._time_reversal)
         irreducible_kpoints = symmetrizer.irreducible_kpoints(
             self._num_kpt_list, self._kpt_shift)
 

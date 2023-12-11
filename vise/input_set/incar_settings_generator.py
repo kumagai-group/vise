@@ -42,7 +42,7 @@ class IncarSettingsGenerator:
             unused_core_ratio_threshold: float = defaults.unused_core_ratio_threshold,
             str_opt_encut_multi_factor: float = defaults.str_opt_encut_factor,
             multiples_for_grids: Optional[List[int]] = None,
-            set_spin_orbit: str = None):
+            set_spin_orbit: bool = False):
 
         self._composition: Composition = structure.composition
         self._lattice = structure.lattice
@@ -64,8 +64,7 @@ class IncarSettingsGenerator:
         self._unused_core_ratio_threshold = unused_core_ratio_threshold
         self._str_opt_encut_multi_factor = str_opt_encut_multi_factor
         self._multiples_for_grids = multiples_for_grids
-        self._set_spin_orbit =\
-            Element(set_spin_orbit) if set_spin_orbit else None
+        self._set_spin_orbit = set_spin_orbit
 
         self._incar_settings = {}
         self._set_incar_settings(set_hubbard_u)
@@ -141,9 +140,7 @@ class IncarSettingsGenerator:
 
     def _set_spin_orbit_related_settings(self):
         if self._set_spin_orbit:
-            target_z = self._set_spin_orbit.Z
-            if any(element.Z >= target_z for element in self._composition):
-                self._incar_settings["LSORBIT"] = True
+            self._incar_settings["LSORBIT"] = True
 
     def _need_hubbard_u(self, set_hubbard_u):
         if isinstance(set_hubbard_u, bool):
@@ -183,7 +180,8 @@ class IncarSettingsGenerator:
     @property
     def _nbands(self) -> Union[int, None]:
         if self._task.is_plot_task:
-            return num_bands(self._composition, self._potcar)
+            return num_bands(self._composition, self._potcar,
+                             self._set_spin_orbit)
         return
 
     @property

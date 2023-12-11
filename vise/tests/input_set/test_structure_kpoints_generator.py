@@ -55,7 +55,7 @@ def test_constructor_symmetrizer(sc_structure, mocker):
                               symprec=10.0,
                               angle_tolerance=20.0,
                               band_ref_dist=30.0,
-                              is_magnetization=True,
+                              time_reversal=False,
                               kpt_density=1.0)
     mock.assert_called_once_with(
         structure=sc_structure, symprec=10.0, angle_tolerance=20.0,

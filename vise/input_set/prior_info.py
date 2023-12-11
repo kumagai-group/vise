@@ -50,7 +50,7 @@ class PriorInfo(MSONable):
     @property
     def is_magnetic(self) -> Optional[bool]:
         try:
-            return self.total_magnetization > defaults.integer_criterion
+            return abs(self.total_magnetization) > defaults.integer_criterion
         except TypeError:
             return
 
@@ -68,7 +68,7 @@ class PriorInfo(MSONable):
         if self.vbm_cbm:
             result["vbm_cbm"] = self.vbm_cbm
         if isinstance(self.is_magnetic, bool):
-            result["is_magnetization"] = self.is_magnetic
+            result["time_reversal"] = not self.is_magnetic
         if self.band_gap:
             result["band_gap"] = self.band_gap
         if self.charge:
