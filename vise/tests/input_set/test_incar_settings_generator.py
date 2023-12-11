@@ -2,7 +2,7 @@
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 
 import pytest
-from pymatgen.core import Composition, Structure
+from pymatgen.core import Composition, Structure, Element
 from pymatgen.io.vasp import Potcar
 
 from vise.input_set.incar_settings_generator import (
@@ -311,13 +311,21 @@ def test_ldau_option():
     assert "LDAU" not in generator.incar_settings
 
 
-def test_grids_option(default_dict, mocker):
-#    mock = mocker.patch("vise.input_set.incar_settings_generator.vasp_grid")
-    # grids = [6, 12, 17]
+def test_grids_option(default_dict):
     default_dict["multiples_for_grids"] = [5, 2, 4]
     generator = IncarSettingsGenerator(**default_dict)
     assert generator.incar_settings["NGX"] == 10
     assert generator.incar_settings["NGY"] == 12
     assert generator.incar_settings["NGZ"] == 20
+
+
+def test_spin_orbit(default_dict):
+    default_dict["set_spin_orbit"] = "O"
+    generator = IncarSettingsGenerator(**default_dict)
+    assert generator.incar_settings["LSORBIT"] is True
+
+    default_dict["set_spin_orbit"] = "F"
+    generator = IncarSettingsGenerator(**default_dict)
+    assert "LSORBIT" not in generator.incar_settings
 
 

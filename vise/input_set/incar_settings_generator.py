@@ -4,7 +4,7 @@
 from math import ceil
 from typing import Optional, Union, List, Dict
 
-from pymatgen.core import Composition, Structure
+from pymatgen.core import Composition, Structure, Element
 from pymatgen.io.vasp.sets import Potcar
 
 from vise.analyzer.band_edge_properties import is_band_gap
@@ -41,9 +41,10 @@ class IncarSettingsGenerator:
             num_cores_for_kpar: int = defaults.default_num_cores,
             unused_core_ratio_threshold: float = defaults.unused_core_ratio_threshold,
             str_opt_encut_multi_factor: float = defaults.str_opt_encut_factor,
-            multiples_for_grids: Optional[List[int]] = None):
+            multiples_for_grids: Optional[List[int]] = None,
+            set_spin_orbit: str = None):
 
-        self._composition = structure.composition
+        self._composition: Composition = structure.composition
         self._lattice = structure.lattice
         self._symbol_list = symbol_list
         self._num_kpt_multiplication_factor = num_kpt_multiplication_factor
@@ -63,6 +64,7 @@ class IncarSettingsGenerator:
         self._unused_core_ratio_threshold = unused_core_ratio_threshold
         self._str_opt_encut_multi_factor = str_opt_encut_multi_factor
         self._multiples_for_grids = multiples_for_grids
+        self._set_spin_orbit = Element(set_spin_orbit)
 
         self._incar_settings = {}
         self._set_incar_settings(set_hubbard_u)
@@ -72,6 +74,7 @@ class IncarSettingsGenerator:
         self._set_task_related_settings()
         self._set_xc_related_settings()
         self._set_options_related_settings()
+        self._set_spin_orbit_related_settings()
         if self._task.is_spectrum_task:
             self._set_spectrum_related_settings()
         if self._task.is_dielectric:
@@ -134,6 +137,12 @@ class IncarSettingsGenerator:
             self._incar_settings.update({"NGX": ngx})
             self._incar_settings.update({"NGY": ngy})
             self._incar_settings.update({"NGZ": ngz})
+
+    def _set_spin_orbit_related_settings(self):
+        if self._set_spin_orbit:
+            target_z = self._set_spin_orbit.Z
+            if any(element.Z >= target_z for element in self._composition):
+                self._incar_settings["LSORBIT"] = True
 
     def _need_hubbard_u(self, set_hubbard_u):
         if isinstance(set_hubbard_u, bool):
