@@ -64,7 +64,8 @@ class IncarSettingsGenerator:
         self._unused_core_ratio_threshold = unused_core_ratio_threshold
         self._str_opt_encut_multi_factor = str_opt_encut_multi_factor
         self._multiples_for_grids = multiples_for_grids
-        self._set_spin_orbit = Element(set_spin_orbit)
+        self._set_spin_orbit =\
+            Element(set_spin_orbit) if set_spin_orbit else None
 
         self._incar_settings = {}
         self._set_incar_settings(set_hubbard_u)
