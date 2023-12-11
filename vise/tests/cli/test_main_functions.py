@@ -82,7 +82,7 @@ Mg
 direct
    0.0000000000000000    0.0000000000000000    0.0000000000000000 Mg"""
     assert Structure.from_file("POSCAR") == Structure.from_str(expected,
-                                                               fmt="POSCAR")
+                                                               fmt="poscar")
     assert Path("prior_info.yaml").read_text() == """band_gap: 0.0
 data_source: mp-110
 icsd_ids:
@@ -111,7 +111,7 @@ direct
 0.222208 0.222208 0.222208 Mg
 0.777792 0.777792 0.777792 Mg"""
     assert Structure.from_file("POSCAR") == Structure.from_str(expected,
-                                                               fmt="POSCAR")
+                                                               fmt="poscar")
     assert Path("prior_info.yaml").read_text() == """band_gap: 0.0
 data_source: mp-1094122
 icsd_ids: []

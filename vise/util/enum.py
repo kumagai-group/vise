@@ -6,6 +6,7 @@ from enum import unique, Enum
 
 @unique
 class ExtendedEnum(Enum):
+
     def __repr__(self):
         return self.value
 
