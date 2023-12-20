@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
 from monty.json import MSONable
+
 from vise.util.enum import ExtendedEnum
 
 
@@ -17,10 +18,6 @@ class Xc(MSONable, ExtendedEnum):
         if s == "perdew-zunger81":
             return cls.lda
         return super().from_string(s)
-
-    @property
-    def potcar_functional(self) -> str:
-        return "LDA" if self == Xc.lda else "PBE_54"
 
     @property
     def is_lda_or_gga(self):

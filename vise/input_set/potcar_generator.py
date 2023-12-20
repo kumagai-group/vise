@@ -23,7 +23,8 @@ def generate_potcar(symbol_list: list,
     except KeyError as e:
         raise ViseNoPotcarError(e)
 
-    return Potcar(potcar_symbols, functional=xc.potcar_functional)
+    functional = defaults.lda_potcar if xc == Xc.lda else defaults.gga_potcar
+    return Potcar(potcar_symbols, functional=functional)
 
 
 class ViseNoPotcarError(ViseError):

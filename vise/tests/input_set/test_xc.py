@@ -25,11 +25,6 @@ def test_xc_from_string_raise_error():
         Xc.from_string("not_exist")
 
 
-def test_potcar_functional():
-    assert Xc.scan.potcar_functional == "PBE_54"
-    assert Xc.lda.potcar_functional == "LDA"
-
-
 def test_xc_is_lda_or_gga():
     assert Xc.pbe.is_lda_or_gga
     assert Xc.hse.is_lda_or_gga is False

@@ -53,6 +53,8 @@ class Defaults(DefaultsBase):
         self._procar = "PROCAR"
         self._overridden_potcar = []
         self._potcar_set = str(PotcarSet.normal)
+        self._lda_potcar = "LDA"
+        self._gga_potcar = "PBE_54"
         self._suppress_user_warning = True
 
         self.set_user_settings(yaml_filename="vise.yaml")
@@ -129,14 +131,6 @@ class Defaults(DefaultsBase):
         return self._u_parameter_set_yaml_file
 
     @property
-    def ldauu(self):
-        return self._ldauu
-
-    @property
-    def ldaul(self):
-        return self._ldaul
-
-    @property
     def outcar(self):
         return Path(self._outcar)
 
@@ -159,6 +153,14 @@ class Defaults(DefaultsBase):
     @property
     def potcar_set(self):
         return PotcarSet(self._potcar_set)
+
+    @property
+    def lda_potcar(self):
+        return self._lda_potcar
+
+    @property
+    def gga_potcar(self):
+        return self._gga_potcar
 
 
 defaults = Defaults()
