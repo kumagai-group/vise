@@ -63,7 +63,8 @@ class BandEdgeProperties:
                  nelect: float,
                  magnetization: float,
                  kpoint_coords: List[List[float]],
-                 integer_criterion: float = defaults.integer_criterion):
+                 integer_criterion: float = defaults.integer_criterion,
+                 is_non_collinear: bool = False):
 
         assert 0 < integer_criterion < 0.5
 
@@ -75,6 +76,7 @@ class BandEdgeProperties:
         # [[k1_x, k1_y, k1_z], [k2_x, k2_y, k2_z], ...]
         self._kpoint_coords = kpoint_coords
         self._integer_criterion = integer_criterion
+        self._is_non_collinear = is_non_collinear
 
         self._calculate_vbm_cbm()
 
@@ -107,6 +109,9 @@ class BandEdgeProperties:
                         self._kpoint_coords[k_index], k_index)
 
     def _ho_band_index(self, spin):
+        if self._is_non_collinear:
+            return round(self._nelect) - 1
+
         if spin == Spin.up:
             num_occupied_band = (self._nelect + self._magnetization) / 2
         else:

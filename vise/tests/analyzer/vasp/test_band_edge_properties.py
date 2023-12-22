@@ -31,6 +31,16 @@ def test_band_edge_properties_from_vasp_non_mag(test_data_files):
     assert pytest.approx(band_edge.band_gap) == 4.6597
 
 
+def test_band_edge_properties_from_vasp_non_collinear(test_data_files):
+    vasprun_file = str(test_data_files / "MgSe_band_noncollinear_vasprun.xml")
+    vasprun = Vasprun(vasprun_file)
+    outcar_file = str(test_data_files / "MgSe_band_noncollinear_OUTCAR")
+    outcar = Outcar(outcar_file)
+    band_edge = VaspBandEdgeProperties(vasprun, outcar)
+
+    assert pytest.approx(band_edge.band_gap) == 1.3199
+
+
 def test_band_edge_properties_orbital_contributions(test_data_files):
     procar = Procar(test_data_files / "MgO_band_PROCAR")
     structure = Structure(

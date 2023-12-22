@@ -22,7 +22,9 @@ class VaspBandEdgeProperties(BandEdgeProperties):
                          nelect=outcar.nelect,
                          magnetization=total_mag,
                          kpoint_coords=vasprun.actual_kpoints,
-                         integer_criterion=integer_criterion)
+                         integer_criterion=integer_criterion,
+                         is_non_collinear=
+                         vasprun.parameters.get("LNONCOLLINEAR", False))
 
 
 def edge_orbital_contributions(procar: Procar, structure, vbm_info, cbm_info):
