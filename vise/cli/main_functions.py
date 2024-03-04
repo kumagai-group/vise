@@ -130,7 +130,7 @@ def get_poscar_from_mp(args: Namespace) -> None:
              "band_gap": data["band_gap"],
              "data_source": args.mpid,
              "icsd_ids": data["icsd_ids"]}
-    except AttributeError:
+    except (AttributeError, TypeError):
         query = MPRester().summary.search(material_ids=[args.mpid],
                                           fields=["total_magnetization",
                                                   "band_gap"])
@@ -225,6 +225,11 @@ class VaspSet:
                     f"{self.args.kpt_density} is used.")
                 args.pop("kpt_density")
             result.update(args)
+
+            if "set_spin_orbit" in args:
+                logger.info("Spin-orbit coupling is switched on.")
+                result["time_reversal"] = False
+
         if self.args.uniform_kpt_mode:
             result["kpt_mode"] = KpointsMode.uniform
 
