@@ -8,15 +8,15 @@ from enum import unique, Enum
 class ExtendedEnum(Enum):
 
     def __repr__(self):
-        return self.value
+        return self.name
 
     def __str__(self):
-        return self.value
+        return self.name
 
     @classmethod
     def from_string(cls, s: str):
         for m in cls:
-            if m.value == s:
+            if m.name == s:
                 return m
         raise AttributeError(f"{str(s)} is not proper member for {cls}.\n",
                              f"Supported names:\n {cls.names_string()}")
