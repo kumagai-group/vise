@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 #  Copyright (c) 2020. Distributed under the terms of the MIT License.
+import json
 from math import ceil
 from pathlib import Path
 from typing import Tuple, List, Dict, Any
@@ -7,8 +8,13 @@ from typing import Tuple, List, Dict, Any
 from monty.serialization import loadfn
 from pymatgen.core import Composition, Element
 from pymatgen.io.vasp import Potcar
-from pymatgen.io.vasp.inputs import incar_params
 from vise.defaults import defaults
+
+from pymatgen.io.vasp import inputs
+
+p = Path(inputs.__file__).parent
+with open(p / "incar_parameters.json", encoding="utf-8") as json_file:
+    incar_params = json.loads(json_file.read())
 
 unoccupied_bands = loadfn(Path(__file__).parent / "unoccupied_bands.yaml")
 

@@ -33,7 +33,7 @@ def light_weight_vol_text(volumetric_data: VolumetricData,
         # transpose needed as vasp is based on column measure (Fortran)
         data += (normalized_values > border).T.flatten()
 
-    lines = [Poscar(volumetric_data.structure).get_string(),
+    lines = [Poscar(volumetric_data.structure).get_str(),
              " ".join([str(d) for d in volumetric_data.dim]),
              " ".join(data.astype(str))]
     return "\n".join(lines)
