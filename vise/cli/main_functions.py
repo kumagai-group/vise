@@ -6,8 +6,8 @@ from copy import deepcopy
 from pathlib import Path
 
 import yaml
+from mp_api.client import MPRester
 from pymatgen.core import Structure
-from pymatgen.ext.matproj import MPRester
 from pymatgen.io.vasp import Vasprun, Outcar
 from tabulate import tabulate
 from vise.analyzer.dielectric_function import DieleFuncData
@@ -95,18 +95,18 @@ def get_most_stable_mp_id_from_formula_w_new_mprester(formula: str):
             fields=["material_id", "energy_above_hull",
                     "symmetry", "band_gap"])
     sorted_candidates = sorted(candidates, key=lambda x: x.energy_above_hull)
-    x = []
+    table_info = []
     for c in sorted_candidates:
-        x.append([c.material_id, round(c.energy_above_hull, 3),
+        table_info.append([str(c.material_id), round(c.energy_above_hull, 3),
                   c.symmetry.symbol, round(c.band_gap, 3)])
 
-    if not x:
+    if not table_info:
         logger.info(f"Formula {formula} does not exist in the materials "
                     f"project.")
         return None
-    print(tabulate(x, headers=["mp_id", "energy_above_hull", "space group",
-                               "band gap"]))
-    return x[0][0]
+    headers = ["mp_id", "energy_above_hull", "space group", "band gap"]
+    print(tabulate(table_info, headers=headers))
+    return table_info[0][0]
 
 
 def get_poscar_from_mp(args: Namespace) -> None:
@@ -114,30 +114,20 @@ def get_poscar_from_mp(args: Namespace) -> None:
         raise ValueError("Either mp-id or formula needs to be specified.")
 
     if args.mpid is None and args.formula:
-        try:
-            args.mpid = get_most_stable_mp_id_from_formula(args.formula)
-        except NotImplementedError:
-            args.mpid = \
-                get_most_stable_mp_id_from_formula_w_new_mprester(args.formula)
+        args.mpid \
+            = get_most_stable_mp_id_from_formula_w_new_mprester(args.formula)
         if args.mpid is None:
             return
 
     s = MPRester().get_structure_by_material_id(args.mpid)
     s.to(fmt="poscar", filename="POSCAR")
-    try:
-        data = MPRester().get_data(args.mpid)[0]
-        d = {"total_magnetization": data["total_magnetization"],
-             "band_gap": data["band_gap"],
-             "data_source": args.mpid,
-             "icsd_ids": data["icsd_ids"]}
-    except (AttributeError, TypeError):
-        query = MPRester().summary.search(material_ids=[args.mpid],
-                                          fields=["total_magnetization",
-                                                  "band_gap"])
-        data = query[0]
-        d = {"total_magnetization": data.total_magnetization,
-             "band_gap": data.band_gap,
-             "data_source": f"new MPRester {args.mpid}"}
+    query = MPRester().summary.search(material_ids=[args.mpid],
+                                      fields=["total_magnetization",
+                                              "band_gap"])
+    data = query[0]
+    d = {"total_magnetization": data.total_magnetization,
+         "band_gap": data.band_gap,
+         "data_source": f"new MPRester {args.mpid}"}
 
     Path("prior_info.yaml").write_text(yaml.dump(d), None)
 

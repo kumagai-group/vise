@@ -67,30 +67,43 @@ def test_structure_info(mocker):
 #     assert actual is None
 
 
+mg = """Mg1
+1.0
+   2.8949120000000002    0.0000000000000000   -1.0235060000000000
+  -1.4474560000000001    2.5070679999999999   -1.0235060000000000
+   0.0000000000000000    0.0000000000000000    3.0705179999999999
+Mg
+1
+direct
+   0.0000000000000000    0.0000000000000000    0.0000000000000000 Mg"""
+mg_110_structure = Structure.from_str(mg, fmt="poscar")
+
+
 def test_get_poscar_from_mp(tmpdir):
     args = Namespace(mpid="mp-110", formula="He")
     tmpdir.chdir()
     print(tmpdir)
     get_poscar_from_mp(args)
-    expected = """Mg1
-1.0
-  -1.7896449999999999    1.7896449999999999    1.7896449999999999
-   1.7896449999999999   -1.7896449999999999    1.7896449999999999
-   1.7896449999999999    1.7896449999999999   -1.7896449999999999
-Mg
-1
-direct
-   0.0000000000000000    0.0000000000000000    0.0000000000000000 Mg"""
-    assert Structure.from_file("POSCAR") == Structure.from_str(expected,
-                                                               fmt="poscar")
+    assert Structure.from_file("POSCAR") == mg_110_structure
     assert Path("prior_info.yaml").read_text() == """band_gap: 0.0
-data_source: mp-110
-icsd_ids:
-- 180455
-- 642652
-total_magnetization: 0.0001585
+data_source: new MPRester mp-110
+total_magnetization: 0.0
 """
     os.remove("prior_info.yaml")
+
+mg_153 = """Mg2
+1.0
+   3.1720237199999999    0.0000000000000000   -0.0000000000000000
+  -1.5860113600000001    2.7470524099999998    0.0000000000000000
+  -0.0000000000000000   -0.0000000000000000    5.1412049000000000
+Mg
+2
+direct
+   0.3333330000000000    0.6666670000000000    0.2500000000000000 Mg
+   0.6666670000000000    0.3333330000000000    0.7500000000000000 Mg
+"""
+
+mg_153_structure = Structure.from_str(mg_153, fmt="poscar")
 
 
 def test_get_poscar_from_mp_by_formula(tmpdir):
@@ -98,24 +111,10 @@ def test_get_poscar_from_mp_by_formula(tmpdir):
     print(tmpdir)
     tmpdir.chdir()
     get_poscar_from_mp(args)
-    print(Structure.from_file("POSCAR").to(fmt="poscar"))
-    expected = """Mg3
-1.0
-7.698262 -1.605623 0.000000
-7.698262 1.605623 0.000000
-7.363377 0.000000 2.760785
-Mg
-3
-direct
-0.000000 0.000000 0.000000 Mg
-0.222208 0.222208 0.222208 Mg
-0.777792 0.777792 0.777792 Mg"""
-    assert Structure.from_file("POSCAR") == Structure.from_str(expected,
-                                                               fmt="poscar")
+    assert Structure.from_file("POSCAR") == mg_153_structure
     assert Path("prior_info.yaml").read_text() == """band_gap: 0.0
-data_source: mp-1094122
-icsd_ids: []
-total_magnetization: 0.00010333333333333333
+data_source: new MPRester mp-153
+total_magnetization: 0.0
 """
     # Need to remove file to avoid the side effect for other unittests.
     os.remove("prior_info.yaml")
