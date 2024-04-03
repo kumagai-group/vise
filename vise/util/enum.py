@@ -32,3 +32,7 @@ class ExtendedEnum(Enum):
     @classmethod
     def name_str_list(cls):
         return [str(e) for e in cls]
+
+    @classmethod
+    def values(cls):
+        return [e.value for e in cls]
