@@ -12,6 +12,7 @@ from pymatgen.core import Structure, Element
 from collections import defaultdict
 from itertools import groupby
 
+from spglib import SpglibDataset
 from tabulate import tabulate
 from vise.defaults import defaults
 from vise.util.centering import Centering
@@ -96,7 +97,7 @@ class StructureSymmetrizer:
         return "\n".join(lines)
 
     @property
-    def spglib_sym_data(self) -> dict:
+    def spglib_sym_data(self) -> SpglibDataset:
         if not self._spglib_sym_data:
             self._spglib_sym_data = spglib.get_symmetry_dataset(
                 self.cell, self.symprec, self.angle_tolerance)
@@ -175,15 +176,15 @@ class StructureSymmetrizer:
 
     @property
     def sg_number(self):
-        return self.spglib_sym_data["number"]
+        return self.spglib_sym_data.number
 
     @property
     def space_group(self):
-        return self.spglib_sym_data["international"]
+        return self.spglib_sym_data.international
 
     @property
     def point_group(self):
-        return self.spglib_sym_data["pointgroup"]
+        return self.spglib_sym_data.pointgroup
 
     @property
     def seekpath_data(self):
@@ -242,9 +243,9 @@ class StructureSymmetrizer:
 
     @property
     def sites(self) -> Dict[str, "Site"]:
-        wyckoffs = self.spglib_sym_data["wyckoffs"]
-        equivalent_atoms = self.spglib_sym_data["equivalent_atoms"]
-        site_symmetries = self.spglib_sym_data["site_symmetry_symbols"]
+        wyckoffs = self.spglib_sym_data.wyckoffs
+        equivalent_atoms = self.spglib_sym_data.equivalent_atoms
+        site_symmetries = self.spglib_sym_data.site_symmetry_symbols
         equiv_indices = sorted(enumerate(equivalent_atoms), key=lambda x: x[1])
         result = {}
         element_idx_dict = defaultdict(int)
@@ -263,11 +264,11 @@ class StructureSymmetrizer:
 
     @property
     def bravais(self):
-        return BravaisLattice.from_sg_num(self.spglib_sym_data["number"])
+        return BravaisLattice.from_sg_num(self.spglib_sym_data.number)
 
     @property
     def centering(self):
-        return self.spglib_sym_data["international"][0]
+        return self.spglib_sym_data.international[0]
 
 
 def first_structure_is_primitive(structure1: Structure, structure2: Structure):
