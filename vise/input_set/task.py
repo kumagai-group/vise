@@ -15,6 +15,7 @@ class Task(MSONable, ExtendedEnum):
     cluster_opt = "cluster_opt"
     phonon_force = "phonon_force"
     defect = "defect"
+    defect_2d = "defect_2d"
     band = "band"
     dos = "dos"
     dielectric_dfpt = "dielectric_dfpt"
@@ -27,7 +28,7 @@ class Task(MSONable, ExtendedEnum):
 
     @property
     def is_atom_relaxed_lattice_fixed(self) -> bool:
-        return self in (self.cluster_opt, self.defect)
+        return self in (self.cluster_opt, self.defect, self.defect_2d)
 
     @property
     def is_atom_relaxed(self) -> bool:
@@ -68,7 +69,8 @@ class Task(MSONable, ExtendedEnum):
         if self in (self.band,
                     self.cluster_opt,
                     self.phonon_force,
-                    self.defect) or \
+                    self.defect,
+                    self.defect_2d) or \
                 self.is_lattice_relaxed:
             return True
         else:
@@ -78,7 +80,8 @@ class Task(MSONable, ExtendedEnum):
     def default_kpt_mode(self) -> KpointsMode:
         if self == self.band:
             return KpointsMode.band
-        elif self in (self.defect, self.cluster_opt, self.phonon_force):
+        elif self in (self.defect, self.defect_2d, self.cluster_opt,
+                      self.phonon_force):
             return KpointsMode.uniform
         elif self.condition_kpoints_mode_is_primitive:
             return KpointsMode.primitive
@@ -120,7 +123,7 @@ class Task(MSONable, ExtendedEnum):
 
     @property
     def need_spin(self):
-        return True if self is self.defect else False
+        return True if self in (self.defect, self.defect_2d) else False
 
     @property
     def fine_to_inherit_structure_from_prev(self):

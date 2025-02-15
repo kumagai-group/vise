@@ -69,6 +69,10 @@ class StructureKpointsGenerator:
     def _adjust_kpt_mode(self, option):
         self._kpt_mode = option or self._task.default_kpt_mode
 
+    @property
+    def _longest_idx(self):
+        return np.argmax(self.structure.lattice.abc)
+
     def generate_input(self):
         self._make_structure()
         self._make_kpoints()
@@ -106,6 +110,13 @@ class StructureKpointsGenerator:
                 rounded_up_kpt_num = ceil(a_kpt_num)
 
             kpt_list.append(rounded_up_kpt_num * self._num_kpt_factor)
+
+        if self._task == Task.defect_2d:
+            direction = "xyz"[self._longest_idx]
+            logger.info(f"The number of kpoints along the {direction} "
+                        f"direction is set to 1.")
+            kpt_list[self._longest_idx] = 1
+
         self._num_kpt_list = kpt_list
 
     @property
@@ -137,6 +148,9 @@ class StructureKpointsGenerator:
                 kpt_shift.append(0.5 if normal_to_plane else 0.0)
         else:
             kpt_shift = self.bravais.kpt_centering
+
+        if kpt_shift[self._longest_idx] != 0.0 and self._task is Task.defect_2d:
+            kpt_shift[self._longest_idx] = 0.0
 
         even_num_kpt_pos = [self._num_kpt_list[i] % 2 == 0 for i in range(3)]
         self._kpt_shift = [s * a for s, a in zip(kpt_shift, even_num_kpt_pos)]

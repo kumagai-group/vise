@@ -66,7 +66,7 @@ class CategorizedInputOptions:
 
         msg = ""
         if kpt_density is None:
-            if self.task == Task.defect:
+            if self.task in (Task.defect, Task.defect_2d):
                 kpt_density = defaults.defect_kpoint_density
                 msg = " because task is defect"
             elif is_band_gap(band_gap, vbm_cbm):

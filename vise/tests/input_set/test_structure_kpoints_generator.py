@@ -224,3 +224,28 @@ def test_conventional_input(tmpdir):
                          species=["H"], coords=[[0]*3])
     assert generator.structure == expected
     assert generator.num_kpts == 100
+
+
+def test_defect_2d():
+    structure = Structure.from_str("""Mo2 S4
+    1.000000000000000
+     3   0.                0.
+    -1.5 2.598076211375221 0.
+     0.  0.               10.
+   Mo   S
+     2     4
+Direct
+  0.3333333332999970  0.6666666667000030  0.25
+  0.6666666667000030  0.3333333332999970  0.75
+  0.6666666667000030  0.3333333332999970  0.375
+  0.3333333332999970  0.6666666667000030  0.875
+  0.6666666667000030  0.3333333332999970  0.125
+  0.3333333332999970  0.6666666667000030  0.625""", fmt="poscar")
+    generator = StructureKpointsGenerator(structure,
+                                          task=Task.defect_2d,
+                                          kpt_density=5.)
+    generator.generate_input()
+    num_kpt_list = generator.kpoints.kpts[0]
+    assert num_kpt_list == (13, 13, 1)
+    assert generator.kpoints.kpts_shift == (0.0, 0.0, 0.0)
+

@@ -27,7 +27,7 @@ def test_task_from_string_raise_error():
 
 def test_task_name_list():
     expected = 'structure_opt, structure_opt_rough, structure_opt_tight, ' \
-               'cluster_opt, phonon_force, defect, band, dos, ' \
+               'cluster_opt, phonon_force, defect, defect_2d, band, dos, ' \
                'dielectric_dfpt, dielectric_finite_field, dielectric_function'
     assert Task.names_string() == expected
 

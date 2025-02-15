@@ -293,7 +293,8 @@ class TaskIncarSettings:
         elif self._task in (Task.dielectric_function,
                             Task.band,
                             Task.dos,
-                            Task.defect):
+                            Task.defect,
+                            Task.defect_2d):
             return 1e-5
         elif self._task in (Task.structure_opt_rough,):
             return 1e-4
@@ -307,7 +308,7 @@ class TaskIncarSettings:
                 return -0.001
             elif self._task in (Task.structure_opt, Task.cluster_opt):
                 return -0.005
-            elif self._task is Task.defect:
+            elif self._task in (Task.defect, Task.defect_2d):
                 return -0.03
             elif self._task is Task.structure_opt_rough:
                 return -0.2
@@ -328,7 +329,7 @@ class TaskIncarSettings:
 
     @property
     def lreal(self):
-        return "Auto" if self._task is Task.defect else False
+        return "Auto" if self._task in (Task.defect, Task.defect_2d) else False
 
     @property
     def prec(self):
