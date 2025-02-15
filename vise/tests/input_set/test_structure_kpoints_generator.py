@@ -113,15 +113,15 @@ def test_manual_kpts():
                                           task=Task.structure_opt,
                                           kpt_mode=KpointsMode.uniform)
     generator.generate_input()
-    assert generator.kpoints.kpts[0] == [2, 2, 2]
-    assert generator.kpoints.kpts_shift == [0.0, 0.5, 0.0]
+    assert generator.kpoints.kpts[0] == (2, 2, 2)
+    assert generator.kpoints.kpts_shift == (0.0, 0.5, 0.0)
     generator = StructureKpointsGenerator(structure,
                                           task=Task.structure_opt,
                                           kpt_mode=KpointsMode.uniform,
                                           gamma_centered=True,
                                           kpt_density=1.0)
     generator.generate_input()
-    assert generator.kpoints.kpts_shift == [0.0, 0.0, 0.0]
+    assert generator.kpoints.kpts_shift == (0.0, 0.0, 0.0)
 
 
 def test_only_even_num_kpts(sc_structure):
@@ -130,7 +130,7 @@ def test_only_even_num_kpts(sc_structure):
                                           kpt_density=2.)
     generator.generate_input()
     num_kpt_list = generator.kpoints.kpts[0]
-    assert num_kpt_list == [13, 13, 13]
+    assert num_kpt_list == (13, 13, 13)
 
     generator = StructureKpointsGenerator(sc_structure,
                                           task=Task.structure_opt,
@@ -138,7 +138,7 @@ def test_only_even_num_kpts(sc_structure):
                                           only_even_num_kpts=True)
     generator.generate_input()
     num_kpt_list = generator.kpoints.kpts[0]
-    assert num_kpt_list == [14, 14, 14]
+    assert num_kpt_list == (14, 14, 14)
 
 
 def test_kpt_factor(sc_structure):
@@ -148,7 +148,7 @@ def test_kpt_factor(sc_structure):
                                           num_kpt_factor=2)
     generator.generate_input()
     num_kpt_list = generator.kpoints.kpts[0]
-    assert num_kpt_list == [26, 26, 26]
+    assert num_kpt_list == (26, 26, 26)
 
 
 def test_cluster_opt_kpoints(sc_structure):
@@ -157,9 +157,9 @@ def test_cluster_opt_kpoints(sc_structure):
                                           kpt_density=2.)
     generator.generate_input()
     num_kpt_list = generator.kpoints.kpts[0]
-    assert num_kpt_list == [1, 1, 1]
+    assert num_kpt_list == (1, 1, 1)
     kpt_shift = generator.kpoints.kpts_shift
-    assert kpt_shift == [0, 0, 0]
+    assert kpt_shift == (0.0, 0.0, 0.0)
 
 
 def test_band_path(sc_structure):
@@ -171,7 +171,7 @@ def test_band_path(sc_structure):
     # so num_kpt_list = [12, 12, 12] and kpt_shift = [0.5, 0.5, 0.5] are set.
     generator.generate_input()
     assert generator.kpoints.num_kpts == 44
-    assert generator.kpoints.kpts[0] == [0.125, 0.125, 0.125]
+    assert generator.kpoints.kpts[0] == (0.125, 0.125, 0.125)
 
 
 def test_oi_ti_bravais():
@@ -206,7 +206,7 @@ def test_hexagonal():
                                           task=Task.structure_opt,
                                           kpt_density=5)
     generator.generate_input()
-    assert generator.kpoints.kpts_shift == [0.0, 0.0, 0.5]
+    assert generator.kpoints.kpts_shift == (0.0, 0.0, 0.5)
 
 
 def test_conventional_input(tmpdir):
