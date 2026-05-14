@@ -38,12 +38,13 @@ def parse_args(args):
         aliases=['mpp'])
 
     parser_make_phonon_poscars.add_argument(
-        "-u", "--unitcell", type=Structure.from_file,
-        help="")
+        "-u", "--unitcell", type=Structure.from_file, required=True,
+        help="Unitcell for the phonon calculation.")
     parser_make_phonon_poscars.add_argument(
         "-s", "--supercell_matrix", type=int, nargs="+",
         help="Supercell matrix for phonon calculation"
-             "based on the conventional cell.")
+             "based on the conventional cell. 1, 3, or 9 numbers are accepted.",
+        required=True)
 
     parser_make_phonon_poscars.set_defaults(func=make_phonon_poscars)
 
@@ -55,7 +56,9 @@ def parse_args(args):
         aliases=['mpf'])
 
     parser_make_phonon_figs.add_argument(
-        "-pi", "--phonopy_input", type=loadfn, help="")
+        "-pi", "--phonopy_input", type=loadfn,
+        default="phonopy_input.json",
+        help="")
     parser_make_phonon_figs.add_argument(
         "-vn", "--vasprun_name", type=str, help="")
 
