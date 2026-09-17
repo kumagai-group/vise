@@ -62,7 +62,7 @@ class DosDataFromVasp:
                     [dos_by_orbital[s] for s in [Spin.up, Spin.down]
                      if s in dos_by_orbital])
 
-                pdos_kwargs[str(orbital)] = \
+                pdos_kwargs[str(orbital).replace("dx2_y2", "dx2")] = \
                     pdos[:, self.min_energy_idx:self.max_energy_idx + 1]
             try:
                 result.append(PDos.from_dict(pdos_kwargs))
